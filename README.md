@@ -1,5 +1,7 @@
 # JSON API
 
+[![Join the chat at https://gitter.im/neomerx/json-api](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/neomerx/json-api?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Version](https://img.shields.io/packagist/v/neomerx/json-api.svg)](https://packagist.org/packages/neomerx/json-api)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/neomerx/json-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/neomerx/json-api/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/neomerx/json-api/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/neomerx/json-api/?branch=master)
