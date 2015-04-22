@@ -21,7 +21,6 @@ This package is under active development and should be completed by the early Ma
 
 Features under development
 
-* Encoding empty links (nulls and empty arrays)
 * Inclusion of nested resources
 * Sparsing field sets
 * Support for web requests workflow

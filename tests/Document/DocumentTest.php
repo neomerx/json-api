@@ -263,8 +263,8 @@ EOL;
                 "type" : "someType",
                 "id"   : "1",
                 "links" : {
-                    "self"    : "/someType/1",
-                    "myItems" : {
+                    "self"   : "/someType/1",
+                    "myItem" : {
                         "self"    : "/someType/1/links/linkType",
                         "related" : "/someType/1/linkTypes",
                         "linkage" : {
@@ -281,13 +281,87 @@ EOL;
 EOL;
 
         $linksIterator = new ArrayIterator([$this->factory->createLink(
-            'myItems',
+            'myItem',
             false,
             'linkType',
             [1],
             '/someType/1/links/linkType',
             '/someType/1/linkTypes',
             ['attribute' => 'value']
+        )]);
+        $this->document->addToData(
+            $this->factory->createElement('someType', 1, [], '/someType/1', $linksIterator, null)
+        );
+
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, json_encode($this->document->getDocument()));
+    }
+
+    /**
+     * Test add null link object.
+     */
+    public function testAddNullLink()
+    {
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "someType",
+                "id"   : "1",
+                "links" : {
+                    "self"   : "/someType/1",
+                    "myItem" : null
+                }
+            }
+        }
+EOL;
+
+        $linksIterator = new ArrayIterator([$this->factory->createLink(
+            'myItem',
+            false,
+            null,
+            null,
+            null,
+            null,
+            null
+        )]);
+        $this->document->addToData(
+            $this->factory->createElement('someType', 1, [], '/someType/1', $linksIterator, null)
+        );
+
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, json_encode($this->document->getDocument()));
+    }
+
+    /**
+     * Test add empty [] link.
+     */
+    public function testAdEmptyLink()
+    {
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "someType",
+                "id"   : "1",
+                "links" : {
+                    "self"    : "/someType/1",
+                    "myItems" : []
+                }
+            }
+        }
+EOL;
+
+        $linksIterator = new ArrayIterator([$this->factory->createLink(
+            'myItems',
+            false,
+            null,
+            [],
+            null,
+            null,
+            null
         )]);
         $this->document->addToData(
             $this->factory->createElement('someType', 1, [], '/someType/1', $linksIterator, null)

@@ -175,7 +175,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
         foreach ($this->getLinks($resource) as $name => $desc) {
             assert('is_string($name) === true && empty($name) === false');
             assert('is_array($desc) === true');
-            assert('isset($desc[self::DATA]) === true');
 
             $relatedController = $this->getNotEmptyValue($desc, self::RELATED_CONTROLLER);
             $selfController    = $this->getNotEmptyValue($desc, self::SELF_CONTROLLER);

@@ -59,26 +59,30 @@ class Link implements LinkInterface
     private $meta;
 
     /**
-     * @param string            $name
-     * @param bool              $isOnlyRelated
-     * @param string            $type
-     * @param int[]|string[]    $linkageIds
-     * @param string|null       $selfUrl
-     * @param string|null       $relatedUrl
-     * @param array|object|null $meta
+     * @param string              $name
+     * @param bool                $isOnlyRelated
+     * @param string              $type
+     * @param int[]|string[]|null $linkageIds
+     * @param string|null         $selfUrl
+     * @param string|null         $relatedUrl
+     * @param array|object|null   $meta
      */
     public function __construct(
         $name,
         $isOnlyRelated,
         $type,
-        array $linkageIds,
+        $linkageIds,
         $selfUrl,
         $relatedUrl,
         $meta
     ) {
         assert('is_string($name)');
         assert('is_bool($isOnlyRelated)');
-        assert('$isOnlyRelated === true || (is_string($type) && empty($linkageIds) === false)');
+        assert(
+            '$isOnlyRelated === true || '.
+            '(is_string($type) === true && empty($linkageIds) === false) || '.
+            '(is_null($type) === true && empty($linkageIds) === true)'
+        );
         assert('is_string($selfUrl) || is_null($selfUrl)');
         assert('is_string($relatedUrl) || is_null($relatedUrl)');
         assert('is_null($meta) || is_array($meta) || is_object($meta)');

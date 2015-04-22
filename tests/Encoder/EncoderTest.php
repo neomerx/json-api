@@ -17,7 +17,6 @@
  */
 
 use \Neomerx\JsonApi\Encoder\Encoder;
-use Neomerx\JsonApi\Encoder\JsonEncodeOptions;
 use \Neomerx\Tests\JsonApi\Data\Post;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\Data\Comment;
@@ -26,6 +25,8 @@ use \Neomerx\Tests\JsonApi\Data\PostSchema;
 use \Neomerx\JsonApi\Encoder\DocumentLinks;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
+use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
+use \Neomerx\Tests\JsonApi\Data\PostSchemaEmptyLinks;
 use \Neomerx\Tests\JsonApi\Data\PostSchemaCommentsAsReference;
 use \Neomerx\Tests\JsonApi\Data\PostSchemaWithCommentsIncluded;
 
@@ -248,6 +249,38 @@ EOL;
                     "self"     : "http://example.com/posts/1",
                     "author"   : "http://example.com/posts/1/author",
                     "comments" : "http://example.com/posts/1/comments"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode resource object links as references.
+     */
+    public function testEncodeEmptyLinks()
+    {
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => PostSchemaEmptyLinks::class,
+        ])->encode($this->getStandardPost());
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"  : "posts",
+                "id"    : "1",
+                "title" : "JSON API paints my bikeshed!",
+                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "links" : {
+                    "self"     : "http://example.com/posts/1",
+                    "author"   : null,
+                    "comments" : []
                 }
             }
         }

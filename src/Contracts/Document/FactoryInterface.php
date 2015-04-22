@@ -47,17 +47,17 @@ interface FactoryInterface
     /**
      * Create link instance.
      *
-     * @param string            $name
-     * @param bool              $isOnlyRelatedRef
-     * @param string            $type
-     * @param int[]|string[]    $linkageIds
-     * @param string            $selfUrl
-     * @param string|null       $relatedUrl
-     * @param array|object|null $meta
+     * @param string              $name
+     * @param bool                $isOnlyRelatedRef
+     * @param string              $type
+     * @param int[]|string[]|null $linkageIds
+     * @param string              $selfUrl
+     * @param string|null         $relatedUrl
+     * @param array|object|null   $meta
      *
      * @return LinkInterface
      */
-    public function createLink($name, $isOnlyRelatedRef, $type, array $linkageIds, $selfUrl, $relatedUrl, $meta);
+    public function createLink($name, $isOnlyRelatedRef, $type, $linkageIds, $selfUrl, $relatedUrl, $meta);
 
     /**
      * Create error instance.

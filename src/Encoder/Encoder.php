@@ -288,18 +288,22 @@ class Encoder implements EncoderInterface
         $linkedData = $linkObject->getLinkedData();
         assert('is_null($linkedData) || is_object($linkedData) || is_array($linkedData)');
 
-        // TODO handle if linked resource is null or empty array
-
-        $linkageSchema = $this->container->getSchema(
-            is_array($linkedData) === true ? $linkedData[0] : $linkedData
-        );
-
-        $linkedDataIds = $linkageSchema->getIds($linkedData);
+        if (empty($linkedData) === true) {
+            $linkageSchema = null;
+            $linkedDataIds = $linkedData === null ? null : [];
+            $linkageType   = null;
+        } else {
+            $linkageSchema = $this->container->getSchema(
+                is_array($linkedData) === true ? $linkedData[0] : $linkedData
+            );
+            $linkedDataIds = $linkageSchema->getIds($linkedData);
+            $linkageType   = $linkageSchema->getResourceType();
+        }
 
         $link = $this->factory->createLink(
             $linkObject->getName(),
             $linkObject->isShowAsReference(),
-            $linkageSchema->getResourceType(),
+            $linkageType,
             $linkedDataIds,
             $linkObject->isShowSelf()    === false ? null : $resourceSelfUrl . $linkObject->getSelfSubUrl(),
             $linkObject->isShowRelated() === false ? null : $resourceSelfUrl . $linkObject->getRelatedSubUrl(),

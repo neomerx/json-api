@@ -285,6 +285,9 @@ class Document implements DocumentInterface
                         ];
                     }
                 }
+            } else {
+                // That's either null or [] link
+                $representation[self::KEYWORD_LINKS][$name] = ($linkageIds === null ? null : []);
             }
 
             if ($link->isShowMeta() === true) {

@@ -53,7 +53,7 @@ class Factory implements FactoryInterface
         $name,
         $isOnlyRelatedRef,
         $type,
-        array $linkageIds,
+        $linkageIds,
         $selfUrl,
         $relatedUrl,
         $meta
