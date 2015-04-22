@@ -1,0 +1,41 @@
+{
+  "name": "neomerx/json-api",
+  "description": "Framework agnostic JSON API (jsonapi.org) implementation",
+  "keywords": [
+    "jsonapi.org",
+    "json-api",
+    "jsonapi",
+    "neomerx",
+    "json",
+    "api"
+  ],
+  "homepage": "https://github.com/neomerx/json-api",
+  "support": {
+    "issues": "https://github.com/neomerx/json-api/issues"
+  },
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "neomerx",
+      "email": "info@neomerx.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.5",
+    "scrutinizer/ocular": "~1.1"
+  },
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "Neomerx\\JsonApi\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Neomerx\\Tests\\JsonApi\\": "tests/"
+    }
+  }
+}
