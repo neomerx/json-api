@@ -381,11 +381,12 @@ class Encoder implements EncoderInterface
     /**
      * Create encoder instance.
      *
-     * @param array $schemas Schema providers.
+     * @param array             $schemas Schema providers.
+     * @param JsonEncodeOptions $encodeOptions
      *
      * @return Encoder
      */
-    public static function instance(array $schemas)
+    public static function instance(array $schemas, JsonEncodeOptions $encodeOptions = null)
     {
         assert('empty($schemas) === false', 'Schema providers should be specified.');
 
@@ -395,7 +396,8 @@ class Encoder implements EncoderInterface
             new \Neomerx\JsonApi\Schema\Container(
                 new \Neomerx\JsonApi\Schema\Factory(),
                 $schemas
-            )
+            ),
+            $encodeOptions
         );
     }
 }

@@ -17,6 +17,7 @@
  */
 
 use \Neomerx\JsonApi\Encoder\Encoder;
+use Neomerx\JsonApi\Encoder\JsonEncodeOptions;
 use \Neomerx\Tests\JsonApi\Data\Post;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\Data\Comment;
@@ -60,6 +61,37 @@ class EncoderTest extends BaseTestCase
 EOL;
         // remove formatting from 'expected'
         $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode simple object in pretty format.
+     */
+    public function testEncodeObjectWithAttributesOnlyPrettyPrinted()
+    {
+        $author   = Author::instance(9, 'Dan', 'Gebhardt');
+        $endcoder = Encoder::instance([
+            Author::class => AuthorSchema::class
+        ], new JsonEncodeOptions(JSON_PRETTY_PRINT));
+
+        $actual = $endcoder->encode($author);
+
+        $expected = <<<EOL
+{
+    "data": {
+        "type": "people",
+        "id": "9",
+        "first_name": "Dan",
+        "last_name": "Gebhardt",
+        "links": {
+            "self": "http:\/\/example.com\/people\/9"
+        }
+    }
+}
+EOL;
+        // remove formatting from 'expected'
+        //$expected = json_encode(json_decode($expected));
 
         $this->assertEquals($expected, $actual);
     }
