@@ -14,7 +14,7 @@ Support representation for
 * Pagination
 * Meta data for document, encoded resources and links
 * Resource references
-* Resource inclusion
+* Resource inclusion (circular references supported)
 * Errors
 
 This package is under active development and should be completed by the early May 2015.

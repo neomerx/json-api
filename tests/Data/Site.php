@@ -21,31 +21,28 @@ use \stdClass;
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class Author extends stdClass
+class Site extends stdClass
 {
-    const ATTRIBUTE_ID         = 'author_id';
-    const ATTRIBUTE_FIRST_NAME = 'first_name';
-    const ATTRIBUTE_LAST_NAME  = 'last_name';
-    const LINK_COMMENTS        = 'comments';
+    const ATTRIBUTE_ID   = 'site_id';
+    const ATTRIBUTE_NAME = 'name';
+    const LINK_POSTS     = 'posts';
 
     /**
      * @param string     $identity
-     * @param string     $firstName
-     * @param string     $lastName
-     * @param array|null $comments
+     * @param string     $name
+     * @param array|null $posts
      *
-     * @return Author
+     * @return Site
      */
-    public static function instance($identity, $firstName, $lastName, array $comments = null)
+    public static function instance($identity, $name, array $posts = null)
     {
-        $author = new self();
+        $site = new self();
 
-        $author->{self::ATTRIBUTE_ID}         = $identity;
-        $author->{self::ATTRIBUTE_FIRST_NAME} = $firstName;
-        $author->{self::ATTRIBUTE_LAST_NAME}  = $lastName;
+        $site->{self::ATTRIBUTE_ID}   = $identity;
+        $site->{self::ATTRIBUTE_NAME} = $name;
 
-        $comments === null ?: $author->{self::LINK_COMMENTS} = $comments;
+        $posts === null ?: $site->{self::LINK_POSTS} = $posts;
 
-        return $author;
+        return $site;
     }
 }

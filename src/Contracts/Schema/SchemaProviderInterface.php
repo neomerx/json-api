@@ -97,4 +97,12 @@ interface SchemaProviderInterface
      * @return bool
      */
     public function isShowMetaInIncluded();
+
+    /**
+     * Get default depth for object inclusion to 'include' section.
+     * If any other setting is not available this value will be used as a limiter.
+     *
+     * @return int
+     */
+    public function getDefaultIncludeDepth();
 }

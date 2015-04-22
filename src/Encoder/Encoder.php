@@ -50,6 +50,11 @@ class Encoder implements EncoderInterface
     protected $encodeOptions;
 
     /**
+     * @var []
+     */
+    protected $linkStack;
+
+    /**
      * @param FactoryInterface       $factory
      * @param ContainerInterface     $container
      * @param JsonEncodeOptions|null $encodeOptions
@@ -73,12 +78,15 @@ class Encoder implements EncoderInterface
         $meta = null,
         EncodingOptionsInterface $options = null
     ) {
-        $docWriter = $this->factory->createDocument();
+        $this->linkStack = [];
+        $docWriter       = $this->factory->createDocument();
 
         $meta  === null ?: $this->processMetaInfo($docWriter, $meta);
         $links === null ?: $this->processLinksInfo($docWriter, $links);
 
         $this->processData($docWriter, $data, $options);
+
+        unset($this->linkStack);
 
         return $this->encodeToJson($docWriter->getDocument());
     }
@@ -232,40 +240,51 @@ class Encoder implements EncoderInterface
     ) {
         foreach ($schema->getLinkObjectIterator($resource) as $linkObject) {
             /** @var LinkObjectInterface $linkObject */
+            array_push($this->linkStack, $linkObject->getName());
+            try {
+                if (count($this->linkStack) > $schema->getDefaultIncludeDepth()) {
+                    continue;
+                }
 
-            // 1) Link as reference
+                // 1) Link as reference
 
-            if ($linkObject->isShowAsReference() === true) {
-                yield $this->createShowAsReferenceLink($resourceSelfUrl, $linkObject);
-                continue;
-            }
+                if ($linkObject->isShowAsReference() === true) {
+                    yield $this->createShowAsReferenceLink($resourceSelfUrl, $linkObject);
+                    continue;
+                }
 
-            // 2) Link as null, [] or link object (with 1 or many linkages)
+                // 2) Link as null, [] or link object (with 1 or many linkages)
 
-            // TODO think if iteration through linked could be coupled with same iteration while including them below
+                // TODO think if iteration through linked could be coupled with same iteration while including below
 
-            list($link, $linkageSchema) = $this->createLink($resourceSelfUrl, $linkObject);
-            yield $link;
+                /** @var SchemaProviderInterface $linkageSchema */
+                list($link, $linkageSchema) = $this->createLink($resourceSelfUrl, $linkObject);
+                yield $link;
 
-            if ($linkObject->isShouldBeIncluded() === false) {
-                continue;
-            }
+                if ($linkObject->isShouldBeIncluded() === false) {
+                    continue;
+                }
 
-            // 3) If we are here we add those linked objects to included
+                // 3) If we are here we add those linked objects to included
 
-            foreach ($linkObject->getLinkedData() as $linkageObject) {
-                $includedIterator = $this->getLinkInIncludedIterator(
-                    $document,
-                    $resource,
-                    $schema,
-                    $linkageObject,
-                    $linkageSchema,
-                    $options
-                );
+                $linkedData = $linkObject->getLinkedData();
+                // if linked data is 1 object then iterate it but not its properties
+                $linkedData = is_object($linkedData) ? [$linkedData] : $linkedData;
+                foreach ($linkedData as $linkageObject) {
+                    $includedIterator = $this->getLinkIterator(
+                        $document,
+                        $linkageObject,
+                        $linkageSchema->getSelfUrl($linkageObject),
+                        $linkageSchema,
+                        $options
+                    );
 
-                $document->addToIncluded(
-                    $this->createElement($schema, $linkageSchema, $linkageObject, $includedIterator)
-                );
+                    $document->addToIncluded(
+                        $this->createElement($schema, $linkageSchema, $linkageObject, $includedIterator)
+                    );
+                }
+            } finally {
+                array_pop($this->linkStack);
             }
         }
     }
@@ -287,7 +306,7 @@ class Encoder implements EncoderInterface
      * @param string              $resourceSelfUrl
      * @param LinkObjectInterface $linkObject
      *
-     * @return array|Generator
+     * @return array
      */
     protected function createLink($resourceSelfUrl, LinkObjectInterface $linkObject)
     {
@@ -341,37 +360,6 @@ class Encoder implements EncoderInterface
             $includedIterator,
             $schema->isShowMetaInIncluded() === false ? null : $linkageSchema->getMeta($linkageObject)
         );
-    }
-
-    /**
-     * Get links to resources linked in 'included' resources.
-     *
-     * @param DocumentInterface        $document
-     * @param object                   $resource
-     * @param SchemaProviderInterface  $schema
-     * @param object                   $linkedRes
-     * @param SchemaProviderInterface  $linkedResSchema
-     * @param EncodingOptionsInterface $options
-     *
-     * @return Iterator
-     */
-    protected function getLinkInIncludedIterator(
-        DocumentInterface $document,
-        $resource,
-        SchemaProviderInterface $schema,
-        $linkedRes,
-        SchemaProviderInterface $linkedResSchema,
-        EncodingOptionsInterface $options = null
-    ) {
-        $document        === null ?: null;
-        $resource        === null ?: null;
-        $schema          === null ?: null;
-        $linkedRes       === null ?: null;
-        $linkedResSchema === null ?: null;
-        $options         === null ?: null;
-
-        // TODO think through inclusion of linked to included resources strategy
-        return new \EmptyIterator();
     }
 
     /**

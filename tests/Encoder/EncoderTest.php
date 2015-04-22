@@ -18,15 +18,19 @@
 
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Post;
+use \Neomerx\Tests\JsonApi\Data\Site;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\Tests\JsonApi\Data\PostSchema;
 use \Neomerx\JsonApi\Encoder\DocumentLinks;
+use \Neomerx\Tests\JsonApi\Data\SiteSchema;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
 use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
 use \Neomerx\Tests\JsonApi\Data\PostSchemaEmptyLinks;
+use \Neomerx\Tests\JsonApi\Data\AuthorSchemaWithComments;
+use \Neomerx\Tests\JsonApi\Data\CommentSchemaWithAuthors;
 use \Neomerx\Tests\JsonApi\Data\PostSchemaCommentsAsReference;
 use \Neomerx\Tests\JsonApi\Data\PostSchemaWithCommentsIncluded;
 
@@ -336,7 +340,7 @@ EOL;
     }
 
     /**
-     * Test encode simple resource object links.
+     * Test encode included objects.
      */
     public function testEncodeWithIncludedObjects()
     {
@@ -379,6 +383,68 @@ EOL;
                 "body"  : "I like XML better",
                 "links" : {
                     "self" : "http://example.com/comments/12"
+                }
+            }]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode nested included objects with cyclic dependencies.
+     */
+    public function testEncodeWithRecursiveIncludedObjects()
+    {
+        // TODO this test builds good hierarchy however due to lack of sparse support it doesn't test it
+
+        $author   = Author::instance(9, 'Dan', 'Gebhardt');
+        $comments = [
+            Comment::instance(5, 'First!', $author),
+            Comment::instance(12, 'I like XML better', $author),
+        ];
+        $author->{Author::LINK_COMMENTS} = $comments;
+        $post = Post::instance(
+            1,
+            'JSON API paints my bikeshed!',
+            'Outside every fat man there was an even fatter man trying to close in',
+            $author,
+            $comments
+        );
+        $site = Site::instance(2, 'site name', [$post]);
+
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchemaWithComments::class,
+            Comment::class => CommentSchemaWithAuthors::class,
+            Post::class    => PostSchemaWithCommentsIncluded::class,
+            Site::class    => SiteSchema::class,
+        ])->encode($site);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"  : "sites",
+                "id"    : "2",
+                "name"  : "site name",
+                "links" : {
+                    "self" : "http://example.com/sites/2",
+                    "posts" : {
+                        "linkage" : {
+                            "type" : "posts",
+                            "id" : "1"
+                        }
+                    }
+                }
+            },
+            "included" : [{
+                "type"  : "posts",
+                "id"    : "1",
+                "title" : "JSON API paints my bikeshed!",
+                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "links" : {
+                    "self" : "http://example.com/posts/1"
                 }
             }]
         }

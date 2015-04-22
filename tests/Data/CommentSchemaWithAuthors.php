@@ -16,33 +16,23 @@
  * limitations under the License.
  */
 
-use \stdClass;
-
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class Comment extends stdClass
+class CommentSchemaWithAuthors extends CommentSchema
 {
-    const ATTRIBUTE_ID   = 'comment_id';
-    const ATTRIBUTE_BODY = 'body';
-    const LINK_AUTHOR    = 'author';
-
     /**
-     * @param string $identity
-     * @param string $body
-     * @param Author $author
-     *
-     * @return Comment
+     * @inheritdoc
      */
-    public static function instance($identity, $body, $author = null)
+    public function getLinks($comment)
     {
-        $comment = new self();
+        assert('$comment instanceof '.Comment::class);
 
-        $comment->{self::ATTRIBUTE_ID}   = $identity;
-        $comment->{self::ATTRIBUTE_BODY} = $body;
-
-        $author === null ?: $comment->{self::LINK_AUTHOR} = $author;
-
-        return $comment;
+        return [
+            Comment::LINK_AUTHOR => [
+                self::DATA       => $comment->{Comment::LINK_AUTHOR},
+                self::INCLUDED   => true,
+            ],
+        ];
     }
 }

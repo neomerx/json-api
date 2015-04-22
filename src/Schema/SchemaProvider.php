@@ -77,6 +77,11 @@ abstract class SchemaProvider implements SchemaProviderInterface
     protected $isShowMetaInIncluded = true;
 
     /**
+     * @var int
+     */
+    protected $defaultIncludeDepth = 1;
+
+    /**
      * @var FactoryInterface
      */
     private $factory;
@@ -94,6 +99,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     {
         assert('is_string($this->baseSelfUrl)  && empty($this->baseSelfUrl) === false', 'Base \'self\' not set.');
         assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set.');
+        assert('is_int($this->defaultIncludeDepth) && $this->defaultIncludeDepth > 0', 'Depth should be positive int.');
 
         substr($this->baseSelfUrl, -1) === '/' ?: $this->baseSelfUrl .= '/';
 
@@ -157,6 +163,14 @@ abstract class SchemaProvider implements SchemaProviderInterface
     {
         assert('is_bool($this->isShowMetaInIncluded)');
         return $this->isShowMetaInIncluded;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDefaultIncludeDepth()
+    {
+        return $this->defaultIncludeDepth;
     }
 
     /**
