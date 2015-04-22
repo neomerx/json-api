@@ -10,3 +10,10 @@ script:
 - phpunit --coverage-text --coverage-clover=coverage.clover
 after_script:
 - php vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/56fbdc2d0c44773dc740
+    on_success: always  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: true      # default: false
