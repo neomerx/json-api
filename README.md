@@ -37,7 +37,7 @@ This package covers encoding PHP objects to JavaScript Object Notation (JSON) as
 
 ## Questions?
 
-Do not hesitate to contact us on [@twitter](https://twitter.com/NeomerxCom) or post an [issue](https://github.com/neomerx/json-api/issues).
+Do not hesitate to contact us on [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/neomerx/json-api?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) or [@twitter](https://twitter.com/NeomerxCom) or post an [issue](https://github.com/neomerx/json-api/issues).
 
 ## Testing
 
