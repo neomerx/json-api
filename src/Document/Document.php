@@ -195,7 +195,24 @@ class Document implements DocumentInterface
      */
     public function addToData(ElementInterface $element)
     {
+        $this->data !== null ?: $this->data = [];
         $this->data[] = $this->getElementRepresentation($element);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setDataEmpty()
+    {
+        $this->data[] = [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setDataNull()
+    {
+        $this->data = null;
     }
 
     /**
@@ -207,8 +224,6 @@ class Document implements DocumentInterface
             return [self::KEYWORD_ERRORS => $this->errors];
         }
 
-        assert('empty($this->data) === false');
-
         $document = [];
 
         if ($this->meta !== null) {
@@ -217,7 +232,7 @@ class Document implements DocumentInterface
         if (empty($this->links) === false) {
             $document[self::KEYWORD_LINKS] = $this->links;
         }
-        $document[self::KEYWORD_DATA] = (count($this->data) > 1 ? $this->data : $this->data[0]);
+        $document[self::KEYWORD_DATA] = (count($this->data) === 1 ? $this->data[0] : $this->data);
         if (empty($this->included) === false) {
             $document[self::KEYWORD_INCLUDED] = $this->included;
         }

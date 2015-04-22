@@ -94,6 +94,20 @@ interface DocumentInterface
     public function addToData(ElementInterface $element);
 
     /**
+     * Set 'data' top-level section to empty.
+     *
+     * @return void
+     */
+    public function setDataEmpty();
+
+    /**
+     * Set 'data' top-level section to null.
+     *
+     * @return void
+     */
+    public function setDataNull();
+
+    /**
      * Add information to 'errors' top-level section.
      *
      * If you add error information no other elements will be in output document.

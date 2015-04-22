@@ -73,8 +73,6 @@ class Encoder implements EncoderInterface
         $meta = null,
         EncodingOptionsInterface $options = null
     ) {
-        assert('is_object($data) === true || (is_array($data) === true && empty($data) === false)');
-
         $docWriter = $this->factory->createDocument();
 
         $meta  === null ?: $this->processMetaInfo($docWriter, $meta);
@@ -126,9 +124,17 @@ class Encoder implements EncoderInterface
      */
     protected function processData(DocumentInterface $document, $data, EncodingOptionsInterface $options = null)
     {
-        is_array($data) === true ?
-            $this->processDataAsArray($document, $data, $options) :
-            $this->processDataAsObject($document, $data, $options);
+        if ($data === null) {
+            $document->setDataNull();
+        } elseif (is_array($data) === true && empty($data) === true) {
+            $document->setDataEmpty();
+        } else {
+            assert('is_object($data) === true || (is_array($data) === true && empty($data) === false)');
+
+            is_array($data) === true ?
+                $this->processDataAsArray($document, $data, $options) :
+                $this->processDataAsObject($document, $data, $options);
+        }
     }
 
     /**

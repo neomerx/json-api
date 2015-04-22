@@ -38,6 +38,50 @@ class EncoderTest extends BaseTestCase
     /**
      * Test encode simple object with attributes only.
      */
+    public function testEncodeNull()
+    {
+        $endcoder = Encoder::instance([
+            Author::class => AuthorSchema::class
+        ]);
+
+        $actual = $endcoder->encode(null);
+
+        $expected = <<<EOL
+        {
+            "data" : null
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode simple object with attributes only.
+     */
+    public function testEncodeEmpty()
+    {
+        $endcoder = Encoder::instance([
+            Author::class => AuthorSchema::class
+        ]);
+
+        $actual = $endcoder->encode([]);
+
+        $expected = <<<EOL
+        {
+            "data" : []
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode simple object with attributes only.
+     */
     public function testEncodeObjectWithAttributesOnly()
     {
         $author   = Author::instance(9, 'Dan', 'Gebhardt');

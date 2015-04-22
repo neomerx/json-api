@@ -49,6 +49,42 @@ class DocumentTest extends BaseTestCase
     }
 
     /**
+     * Test set data to null.
+     */
+    public function testEncodeNull()
+    {
+        $expected = <<<EOL
+        {
+            "data" : null
+        }
+EOL;
+        $this->document->setDataNull();
+
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, json_encode($this->document->getDocument()));
+    }
+
+    /**
+     * Test set data to null.
+     */
+    public function testEncodeEmpty()
+    {
+        $expected = <<<EOL
+        {
+            "data" : []
+        }
+EOL;
+        $this->document->setDataEmpty();
+
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, json_encode($this->document->getDocument()));
+    }
+
+    /**
      * Test set document meta.
      */
     public function testSetDocumentMeta()
@@ -72,6 +108,8 @@ class DocumentTest extends BaseTestCase
             }
         }
 EOL;
+        // check setting to null doesn't effect the final result
+        $this->document->setDataNull();
 
         $this->document->setMetaToDocument([
             "copyright" => "Copyright 2015 Example Corp.",
