@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use \Neomerx\JsonApi\Contracts\Document\ElementInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -103,6 +104,16 @@ class Document implements DocumentInterface
     private $data;
 
     /**
+     * @var array
+     */
+    private $bufferForData;
+
+    /**
+     * @var array
+     */
+    private $bufferForIncluded;
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -115,57 +126,26 @@ class Document implements DocumentInterface
      */
     private function resetDocument()
     {
-        $this->errors          = [];
-        $this->meta            = null;
-        $this->links           = [];
-        $this->data            = [];
-        $this->included        = [];
-        $this->isIncludedMarks = [];
+        $this->errors            = [];
+        $this->meta              = null;
+        $this->links             = [];
+        $this->data              = [];
+        $this->included          = [];
+        $this->isIncludedMarks   = [];
+        $this->bufferForData     = [];
+        $this->bufferForIncluded = [];
     }
 
     /**
      * @inheritdoc
      */
-    public function setSelfUrlToDocumentLinks($url)
+    public function setDocumentLinks(DocumentLinksInterface $links)
     {
-        assert('is_string($url)');
-        $this->links[self::KEYWORD_SELF] = $url;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setFirstUrlToDocumentLinks($url)
-    {
-        assert('is_string($url)');
-        $this->links[self::KEYWORD_FIRST] = $url;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setLastUrlToDocumentLinks($url)
-    {
-        assert('is_string($url)');
-        $this->links[self::KEYWORD_LAST] = $url;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setPrevUrlToDocumentLinks($url)
-    {
-        assert('is_string($url)');
-        $this->links[self::KEYWORD_PREV] = $url;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setNextUrlToDocumentLinks($url)
-    {
-        assert('is_string($url)');
-        $this->links[self::KEYWORD_NEXT] = $url;
+        $links->getSelfUrl()  === null ?: $this->links[self::KEYWORD_SELF]  = $links->getSelfUrl();
+        $links->getFirstUrl() === null ?: $this->links[self::KEYWORD_FIRST] = $links->getFirstUrl();
+        $links->getLastUrl()  === null ?: $this->links[self::KEYWORD_LAST]  = $links->getLastUrl();
+        $links->getPrevUrl()  === null ?: $this->links[self::KEYWORD_PREV]  = $links->getPrevUrl();
+        $links->getNextUrl()  === null ?: $this->links[self::KEYWORD_NEXT]  = $links->getNextUrl();
     }
 
     /**
@@ -180,39 +160,210 @@ class Document implements DocumentInterface
     /**
      * @inheritdoc
      */
-    public function addToIncluded(ElementInterface $element)
+    public function addToIncluded(ResourceObjectInterface $resource)
     {
-        $idx  = $element->getId();
-        $type = $element->getType();
+        $idx  = $resource->getId();
+        $type = $resource->getType();
         if (isset($this->isIncludedMarks[$type][$idx]) === false) {
             $this->isIncludedMarks[$type][$idx] = true;
-            $this->included[] = $this->getElementRepresentation($element);
+            $this->bufferForIncluded[$type][$idx] = $this->convertIncludedResourceToArray($resource);
         }
     }
 
     /**
      * @inheritdoc
      */
-    public function addToData(ElementInterface $element)
+    public function addToData(ResourceObjectInterface $resource)
     {
-        $this->data !== null ?: $this->data = [];
-        $this->data[] = $this->getElementRepresentation($element);
+        $idx  = $resource->getId();
+        $type = $resource->getType();
+        assert('isset($this->bufferForData[$type][$idx]) === false');
+        $this->bufferForData[$type][$idx] = $this->convertDataResourceToArray($resource);
     }
 
     /**
      * @inheritdoc
      */
-    public function setDataEmpty()
+    public function setEmptyData()
     {
-        $this->data[] = [];
+        $this->data = [];
     }
 
     /**
      * @inheritdoc
      */
-    public function setDataNull()
+    public function setNullData()
     {
         $this->data = null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addLinkToData(
+        ResourceObjectInterface $parent,
+        LinkObjectInterface $link,
+        ResourceObjectInterface $resource
+    ) {
+        $this->addLinkToImpl($this->bufferForData, $parent, $link, $resource);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addLinkToIncluded(
+        ResourceObjectInterface $parent,
+        LinkObjectInterface $link,
+        ResourceObjectInterface $resource
+    ) {
+        $this->addLinkToImpl($this->bufferForIncluded, $parent, $link, $resource);
+    }
+
+    /**
+     * @param array                   $target
+     * @param ResourceObjectInterface $parent
+     * @param LinkObjectInterface     $link
+     * @param ResourceObjectInterface $resource
+     *
+     * @return void
+     */
+    protected function addLinkToImpl(
+        array &$target,
+        ResourceObjectInterface $parent,
+        LinkObjectInterface $link,
+        ResourceObjectInterface $resource
+    ) {
+        $parentId     = $parent->getId();
+        $parentType   = $parent->getType();
+        $parentExists = isset($target[$parentType][$parentId]);
+
+        // parent might be already added to included to it won't be in 'target' buffer
+        if ($parentExists === true) {
+            $name = $link->getName();
+            $someLinkagesAlreadyAdded = isset($target[$parentType][$parentId][self::KEYWORD_LINKS][$name]);
+            if ($someLinkagesAlreadyAdded === false) {
+                // ... add the first one
+                $target[$parentType][$parentId][self::KEYWORD_LINKS][$name] =
+                    $this->getLinkRepresentation($link, $resource);
+            } else {
+                // ... or add another linkage
+                $target[$parentType][$parentId][self::KEYWORD_LINKS][$name][self::KEYWORD_LINKAGE][] =
+                    $this->getLinkageRepresentation($resource);
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addReferenceToData(ResourceObjectInterface $parent, LinkObjectInterface $current)
+    {
+        $url = $parent->getSelfUrl() . $current->getRelatedSubUrl();
+        $this->setLinkToImpl($this->bufferForData, $parent, $current, $url);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addEmptyLinkToData(ResourceObjectInterface $parent, LinkObjectInterface $current)
+    {
+        $this->setLinkToImpl($this->bufferForData, $parent, $current, []);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addNullLinkToData(ResourceObjectInterface $parent, LinkObjectInterface $current)
+    {
+        $this->setLinkToImpl($this->bufferForData, $parent, $current, null);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addEmptyLinkToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current)
+    {
+        $this->setLinkToImpl($this->bufferForIncluded, $parent, $current, []);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addNullLinkToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current)
+    {
+        $this->setLinkToImpl($this->bufferForIncluded, $parent, $current, null);
+    }
+
+    /**
+     * @param array                   $target
+     * @param ResourceObjectInterface $parent
+     * @param LinkObjectInterface     $current
+     * @param mixed                   $url
+     *
+     * @return void
+     */
+    protected function setLinkToImpl(
+        array &$target,
+        ResourceObjectInterface $parent,
+        LinkObjectInterface $current,
+        $url
+    ) {
+        $parentId     = $parent->getId();
+        $parentType   = $parent->getType();
+        $name         = $current->getName();
+        $parentExists = isset($target[$parentType][$parentId]);
+
+        assert('$parentExists === true');
+        assert('isset($target[$parentType][$parentId][self::KEYWORD_LINKS][$name]) === false');
+
+        if ($parentExists === true) {
+            $target[$parentType][$parentId][self::KEYWORD_LINKS][$name] = $url;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setResourceCompleted(ResourceObjectInterface $resource)
+    {
+        $idx  = $resource->getId();
+        $type = $resource->getType();
+
+        $foundInData     = isset($this->bufferForData[$type][$idx]);
+        $foundInIncluded = isset($this->bufferForIncluded[$type][$idx]);
+
+        if ($foundInData === true) {
+            $this->data[] = $this->correctSingleLinks($this->bufferForData[$type][$idx]);
+            unset($this->bufferForData[$type][$idx]);
+        }
+
+        if ($foundInIncluded === true) {
+            $this->included[] = $this->correctSingleLinks($this->bufferForIncluded[$type][$idx]);
+            unset($this->bufferForIncluded[$type][$idx]);
+        }
+    }
+
+    /**
+     * @param array $resource
+     *
+     * @return array
+     */
+    protected function correctSingleLinks(array $resource)
+    {
+        if (empty($resource[self::KEYWORD_LINKS]) === false) {
+            foreach ($resource[self::KEYWORD_LINKS] as &$linkOrSelf) {
+                if (isset($linkOrSelf[self::KEYWORD_LINKAGE]) === true &&
+                    empty($linkOrSelf[self::KEYWORD_LINKAGE]) === false &&
+                    count($linkOrSelf[self::KEYWORD_LINKAGE]) === 1
+                ) {
+                    $tmp = $linkOrSelf[self::KEYWORD_LINKAGE][0];
+                    unset($linkOrSelf[self::KEYWORD_LINKAGE]);
+                    $linkOrSelf[self::KEYWORD_LINKAGE] = $tmp;
+                }
+            }
+        }
+
+        return $resource;
     }
 
     /**
@@ -241,16 +392,49 @@ class Document implements DocumentInterface
     }
 
     /**
-     * @inheritdoc
+     * Convert resource object for 'data' section to array.
+     *
+     * @param ResourceObjectInterface $resource
+     *
+     * @return array
      */
-    protected function getElementRepresentation(ElementInterface $element)
+    protected function convertDataResourceToArray(ResourceObjectInterface $resource)
     {
+        return $this->convertResourceToArray($resource, $resource->isShowSelf(), $resource->isShowMeta());
+    }
+
+    /**
+     * Convert resource object for 'included' section to array.
+     *
+     * @param ResourceObjectInterface $resource
+     *
+     * @return array
+     */
+    protected function convertIncludedResourceToArray(ResourceObjectInterface $resource)
+    {
+        return $this
+            ->convertResourceToArray($resource, $resource->isShowSelfInIncluded(), $resource->isShowMetaInIncluded());
+    }
+
+    /**
+     * Convert resource object to array.
+     *
+     * @param ResourceObjectInterface $resource
+     * @param bool                    $isShowSelf
+     * @param bool                    $isShowMeta
+     *
+     * @return array
+     */
+    protected function convertResourceToArray(ResourceObjectInterface $resource, $isShowSelf, $isShowMeta)
+    {
+        assert('is_bool($isShowSelf) && is_bool($isShowMeta)');
+
         $representation = [
-            self::KEYWORD_TYPE => $element->getType(),
-            self::KEYWORD_ID   => $element->getId(),
+            self::KEYWORD_TYPE => $resource->getType(),
+            self::KEYWORD_ID   => $resource->getId(),
         ];
 
-        $attributes = $element->getAttributes();
+        $attributes = $resource->getAttributes();
         assert(
             'isset($attributes[self::KEYWORD_TYPE]) === false && isset($attributes[self::KEYWORD_ID]) === false',
             '"type" and "id" are reserved keywords and cannot be used as resource object attributes'
@@ -259,62 +443,66 @@ class Document implements DocumentInterface
             $representation += $attributes;
         }
 
-        if ($element->isShowSelf() === true) {
-            $representation[self::KEYWORD_LINKS][self::KEYWORD_SELF] = $element->getSelfUrl();
+        if ($isShowSelf === true) {
+            $representation[self::KEYWORD_LINKS][self::KEYWORD_SELF] = $resource->getSelfUrl();
         }
 
-        foreach ($element->getLinks() as $link) {
-            /** @var LinkInterface $link */
-            $name = $link->getName();
-            assert(
-                'is_string($name) === true && $name !== self::KEYWORD_SELF',
-                '"self" is a reserved keyword and cannot be used as a related resource link name'
-            );
-
-            if ($link->isOnlyRelated() === true) {
-                $representation[self::KEYWORD_LINKS][$name] = $link->getRelatedUrl();
-                continue;
-            }
-
-            if ($link->isShowSelf() === true) {
-                $representation[self::KEYWORD_LINKS][$name][self::KEYWORD_SELF] = $link->getSelfUrl();
-            }
-
-            if ($link->isShowRelated() === true) {
-                $representation[self::KEYWORD_LINKS][$name][self::KEYWORD_RELATED] = $link->getRelatedUrl();
-            }
-
-            $linkageIds = $link->getLinkageIds();
-            $idsCount   = count($linkageIds);
-            if ($idsCount > 0) {
-                if ($idsCount === 1) {
-                    $representation[self::KEYWORD_LINKS][$name][self::KEYWORD_LINKAGE] = [
-                        self::KEYWORD_TYPE => $link->getType(),
-                        self::KEYWORD_ID   => (string)$linkageIds[0],
-                    ];
-                } else {
-                    foreach ($linkageIds as $idx) {
-                        $representation[self::KEYWORD_LINKS][$name][self::KEYWORD_LINKAGE][] = [
-                            self::KEYWORD_TYPE => $link->getType(),
-                            self::KEYWORD_ID   => (string)$idx,
-                        ];
-                    }
-                }
-            } else {
-                // That's either null or [] link
-                $representation[self::KEYWORD_LINKS][$name] = ($linkageIds === null ? null : []);
-            }
-
-            if ($link->isShowMeta() === true) {
-                $representation[self::KEYWORD_LINKS][$name][self::KEYWORD_META] = $link->getMeta();
-            }
-        }
-
-        if ($element->isShowMeta() === true) {
-            $representation[self::KEYWORD_META] = $element->getMeta();
+        if ($isShowMeta === true) {
+            $representation[self::KEYWORD_META] = $resource->getMeta();
         }
 
         return $representation;
+    }
+
+    /**
+     * @param LinkObjectInterface     $link
+     * @param ResourceObjectInterface $resource
+     *
+     * @return array
+     */
+    protected function getLinkRepresentation(LinkObjectInterface $link, ResourceObjectInterface $resource)
+    {
+        $name = $link->getName();
+        assert(
+            'is_string($name) === true && $name !== self::KEYWORD_SELF',
+            '"self" is a reserved keyword and cannot be used as a related resource link name'
+        );
+
+        $selfUrl = $resource->getSelfUrl();
+
+        if ($link->isShowAsReference() === true) {
+            return [self::KEYWORD_LINKS => [$name => $selfUrl . $link->getRelatedSubUrl()]];
+        }
+
+        $representation = [];
+        if ($link->isShowSelf() === true) {
+            $representation[self::KEYWORD_SELF] = $selfUrl . $link->getSelfSubUrl();
+        }
+
+        if ($link->isShowRelated() === true) {
+            $representation[self::KEYWORD_RELATED] = $selfUrl . $link->getRelatedSubUrl();
+        }
+
+        $representation[self::KEYWORD_LINKAGE][] = $this->getLinkageRepresentation($resource);
+
+        if ($link->isShowMeta() === true) {
+            $representation[self::KEYWORD_META] = $link->getName();
+        }
+
+        return $representation;
+    }
+
+    /**
+     * @param ResourceObjectInterface $resource
+     *
+     * @return array
+     */
+    protected function getLinkageRepresentation(ResourceObjectInterface $resource)
+    {
+        return [
+            self::KEYWORD_TYPE => $resource->getType(),
+            self::KEYWORD_ID   => $resource->getId(),
+        ];
     }
 
     /**

@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Encoder;
+<?php namespace Neomerx\JsonApi\Document;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Encoder\DocumentLinksInterface;
+use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 
 /**
  * @package Neomerx\JsonApi

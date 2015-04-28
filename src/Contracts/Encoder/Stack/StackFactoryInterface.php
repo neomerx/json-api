@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder;
+<?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -19,21 +19,21 @@
 /**
  * @package Neomerx\JsonApi
  */
-interface EncodingOptionsInterface
+interface StackFactoryInterface
 {
     /**
-     * Get paths to objects that should be included.
+     * Create stack frame.
      *
-     * @return string[]|null
+     * @param int $level
+     *
+     * @return StackFrameInterface
      */
-    public function getIncludePaths();
+    public function createFrame($level);
 
     /**
-     * Get filed names that should be in result.
+     * Create stack.
      *
-     * @param string $type
-     *
-     * @return string[]|null
+     * @return StackInterface
      */
-    public function getFieldSet($type);
+    public function createStack();
 }

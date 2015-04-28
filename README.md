@@ -11,18 +11,23 @@ This package implements the latest [JSON API](http://jsonapi.org/) version RC3.
 
 Support representation for
 
-* Pagination
-* Meta data for document, encoded resources and links
-* Resource references
-* Resource inclusion (circular references supported)
+* Resource objects attributes (including complex attributes)
+* Link objects (including links as references, links to null and empty arrays)
+* Compound documents with included resources (resources with circular references are supported)
+* Meta data for document, resource and link objects
+* Pagination links
 * Errors
+* Included resources
+* Sparse rules
+* Filed sets (for attributes)
 
 This package is under active development and should be completed by the early May 2015.
 
 Features under development
 
-* Inclusion of nested resources
-* Sparsing field sets
+* Field sets (for links)
+* Refactoring, test coverage
+* Minor issues with spec compliance 
 * Support for web requests workflow
 * JSON API extensions
 

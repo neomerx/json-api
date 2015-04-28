@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder;
+<?php namespace Neomerx\JsonApi\Contracts\Encoder\Parser;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -9,31 +9,24 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed for in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
+use \Iterator;
+
 /**
  * @package Neomerx\JsonApi
  */
-interface EncodingOptionsInterface
+interface ParserInterface
 {
     /**
-     * Get paths to objects that should be included.
+     * @param array|object|null $data
      *
-     * @return string[]|null
+     * @return Iterator ParserReplyInterface
      */
-    public function getIncludePaths();
-
-    /**
-     * Get filed names that should be in result.
-     *
-     * @param string $type
-     *
-     * @return string[]|null
-     */
-    public function getFieldSet($type);
+    public function parse($data);
 }

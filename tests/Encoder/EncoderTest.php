@@ -23,8 +23,9 @@ use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\Tests\JsonApi\Data\PostSchema;
-use \Neomerx\JsonApi\Encoder\DocumentLinks;
 use \Neomerx\Tests\JsonApi\Data\SiteSchema;
+use \Neomerx\JsonApi\Document\DocumentLinks;
+use \Neomerx\JsonApi\Encoder\EncodingOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
 use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
@@ -33,6 +34,7 @@ use \Neomerx\Tests\JsonApi\Data\AuthorSchemaWithComments;
 use \Neomerx\Tests\JsonApi\Data\CommentSchemaWithAuthors;
 use \Neomerx\Tests\JsonApi\Data\PostSchemaCommentsAsReference;
 use \Neomerx\Tests\JsonApi\Data\PostSchemaWithCommentsIncluded;
+use \Neomerx\Tests\JsonApi\Data\PostSchemaWithAuthorAndCommentsIncluded;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -150,6 +152,49 @@ EOL;
      */
     public function testEncodeArrayOfObjectsWithAttributesOnly()
     {
+        $author1  = Author::instance(7, 'First', 'Last');
+        $author2  = Author::instance(9, 'Dan', 'Gebhardt');
+        $endcoder = Encoder::instance([
+            Author::class => AuthorSchema::class
+        ]);
+
+        $actual = $endcoder->encode([$author1, $author2]);
+
+        $expected = <<<EOL
+        {
+            "data" : [
+                {
+                    "type"       : "people",
+                    "id"         : "7",
+                    "first_name" : "First",
+                    "last_name"  : "Last",
+                    "links" : {
+                        "self" : "http://example.com/people/7"
+                    }
+                },
+                {
+                    "type"       : "people",
+                    "id"         : "9",
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt",
+                    "links" : {
+                        "self" : "http://example.com/people/9"
+                    }
+                }
+            ]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode array of simple objects with attributes only.
+     */
+    public function testEncodeArrayOfDuplicateObjectsWithAttributesOnly()
+    {
         $author   = Author::instance(9, 'Dan', 'Gebhardt');
         $endcoder = Encoder::instance([
             Author::class => AuthorSchema::class
@@ -186,6 +231,7 @@ EOL;
 
         $this->assertEquals($expected, $actual);
     }
+
     /**
      * Test encode meta and top-level links for simple object.
      */
@@ -274,6 +320,8 @@ EOL;
 
         $this->assertEquals($expected, $actual);
     }
+
+    // TODO add ref in included test
 
     /**
      * Test encode resource object links as references.
@@ -395,6 +443,8 @@ EOL;
 
     /**
      * Test encode nested included objects with cyclic dependencies.
+     *
+     * @ign
      */
     public function testEncodeWithRecursiveIncludedObjects()
     {
@@ -418,16 +468,18 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchemaWithComments::class,
             Comment::class => CommentSchemaWithAuthors::class,
-            Post::class    => PostSchemaWithCommentsIncluded::class,
+            Post::class    => PostSchemaWithAuthorAndCommentsIncluded::class,
             Site::class    => SiteSchema::class,
-        ])->encode($site);
+        ])->encode($site, null, null, new EncodingOptions(
+            [Site::LINK_POSTS . '.' . Post::LINK_COMMENTS], // include only this relation
+            ['comments' => [Comment::ATTRIBUTE_BODY]]       // filter attributes
+        ));
 
         $expected = <<<EOL
         {
             "data" : {
                 "type"  : "sites",
                 "id"    : "2",
-                "name"  : "site name",
                 "links" : {
                     "self" : "http://example.com/sites/2",
                     "posts" : {
@@ -439,12 +491,24 @@ EOL;
                 }
             },
             "included" : [{
-                "type"  : "posts",
-                "id"    : "1",
-                "title" : "JSON API paints my bikeshed!",
-                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "type"  : "comments",
+                "id"    : "5",
+                "body"  : "First!",
                 "links" : {
-                    "self" : "http://example.com/posts/1"
+                    "self"   : "http://example.com/comments/5",
+                    "author" : {
+                        "linkage" : { "type" : "people", "id" : "9" }
+                    }
+                }
+            }, {
+                "type"  : "comments",
+                "id"    : "12",
+                "body"  : "I like XML better",
+                "links" : {
+                    "self"   : "http://example.com/comments/12",
+                    "author" : {
+                        "linkage" : { "type" : "people", "id" : "9" }
+                    }
                 }
             }]
         }
@@ -454,6 +518,11 @@ EOL;
 
         $this->assertEquals($expected, $actual);
     }
+
+    // TODO add tests for duplicates (as links, as included, as links in included)
+    // TODO add test for references in included
+    // TODO add test for main resources duplicates with relation filter
+    // TODO add circular dependency for two main resources. Will it handle it?
 
     /**
      * @return Post

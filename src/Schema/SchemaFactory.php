@@ -16,13 +16,46 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\FactoryInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class Factory implements FactoryInterface
+class SchemaFactory implements SchemaFactoryInterface
 {
+    /**
+     * @inheritdoc
+     */
+    public function createResourceObject(
+        $isInArray,
+        $type,
+        $idx,
+        array $attributes,
+        $meta,
+        $selfUrl,
+        $selfControllerData,
+        $isShowSelf,
+        $isShowMeta,
+        $isShowSelfInIncluded,
+        $isShowLinksInIncluded,
+        $isShowMetaInIncluded
+    ) {
+        return new ResourceObject(
+            $isInArray,
+            $type,
+            $idx,
+            $attributes,
+            $meta,
+            $selfUrl,
+            $selfControllerData,
+            $isShowSelf,
+            $isShowMeta,
+            $isShowSelfInIncluded,
+            $isShowLinksInIncluded,
+            $isShowMetaInIncluded
+        );
+    }
+
     /**
      * @inheritdoc
      */

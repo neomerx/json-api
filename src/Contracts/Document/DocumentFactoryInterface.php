@@ -16,48 +16,15 @@
  * limitations under the License.
  */
 
-use \Iterator;
-
 /**
  * @package Neomerx\JsonApi
  */
-interface FactoryInterface
+interface DocumentFactoryInterface
 {
     /**
-     * Create document instance.
-     *
      * @return DocumentInterface
      */
     public function createDocument();
-
-    /**
-     * Create element instance.
-     *
-     * @param string            $type
-     * @param string|int        $idx
-     * @param array             $attributes
-     * @param string            $selfUrl
-     * @param Iterator          $links
-     * @param array|object|null $meta
-     *
-     * @return ElementInterface
-     */
-    public function createElement($type, $idx, array $attributes, $selfUrl, Iterator $links, $meta);
-
-    /**
-     * Create link instance.
-     *
-     * @param string              $name
-     * @param bool                $isOnlyRelatedRef
-     * @param string              $type
-     * @param int[]|string[]|null $linkageIds
-     * @param string              $selfUrl
-     * @param string|null         $relatedUrl
-     * @param array|object|null   $meta
-     *
-     * @return LinkInterface
-     */
-    public function createLink($name, $isOnlyRelatedRef, $type, $linkageIds, $selfUrl, $relatedUrl, $meta);
 
     /**
      * Create error instance.

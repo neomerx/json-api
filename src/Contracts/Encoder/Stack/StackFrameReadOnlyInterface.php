@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder;
+<?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,24 +16,32 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
-interface EncodingOptionsInterface
+interface StackFrameReadOnlyInterface
 {
     /**
-     * Get paths to objects that should be included.
+     * Get associated resource object.
      *
-     * @return string[]|null
+     * @return ResourceObjectInterface|null
      */
-    public function getIncludePaths();
+    public function getResourceObject();
 
     /**
-     * Get filed names that should be in result.
+     * Get associated link object.
      *
-     * @param string $type
-     *
-     * @return string[]|null
+     * @return LinkObjectInterface|null
      */
-    public function getFieldSet($type);
+    public function getLinkObject();
+
+    /**
+     * Get frame depth level.
+     *
+     * @return int
+     */
+    public function getLevel();
 }

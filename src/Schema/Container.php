@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\FactoryInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
@@ -36,15 +36,15 @@ class Container implements ContainerInterface
     private $createdProviders = [];
 
     /**
-     * @var FactoryInterface
+     * @var SchemaFactoryInterface
      */
     private $factory;
 
     /**
-     * @param FactoryInterface $factory
+     * @param SchemaFactoryInterface $factory
      * @param array            $providers
      */
-    public function __construct(FactoryInterface $factory, array $providers = [])
+    public function __construct(SchemaFactoryInterface $factory, array $providers = [])
     {
         $this->factory = $factory;
         $this->registerArray($providers);

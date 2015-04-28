@@ -19,9 +19,44 @@
 /**
  * @package Neomerx\JsonApi
  */
-interface FactoryInterface
+interface SchemaFactoryInterface
 {
     /**
+     * Create resource object.
+     *
+     * @param bool   $isInArray
+     * @param string $type
+     * @param string $idx
+     * @param array  $attributes
+     * @param mixed  $meta
+     * @param string $selfUrl
+     * @param mixed  $selfControllerData
+     * @param bool   $isShowSelf
+     * @param bool   $isShowMeta
+     * @param bool   $isShowSelfInIncluded
+     * @param bool   $isShowLinksInIncluded
+     * @param bool   $isShowMetaInIncluded
+     *
+     * @return ResourceObjectInterface
+     */
+    public function createResourceObject(
+        $isInArray,
+        $type,
+        $idx,
+        array $attributes,
+        $meta,
+        $selfUrl,
+        $selfControllerData,
+        $isShowSelf,
+        $isShowMeta,
+        $isShowSelfInIncluded,
+        $isShowLinksInIncluded,
+        $isShowMetaInIncluded
+    );
+
+    /**
+     * Create link object.
+     *
      * @param string            $name
      * @param object|array|null $data
      * @param string|null       $selfSubUrl

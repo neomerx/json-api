@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder;
+<?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,24 +16,20 @@
  * limitations under the License.
  */
 
+use \Countable;
+use \IteratorAggregate;
+
 /**
  * @package Neomerx\JsonApi
  */
-interface EncodingOptionsInterface
+interface StackReadOnlyInterface extends IteratorAggregate, Countable
 {
     /**
-     * Get paths to objects that should be included.
+     * Get a stack frame from end.
      *
-     * @return string[]|null
+     * @param int $number
+     *
+     * @return StackFrameReadOnlyInterface|null
      */
-    public function getIncludePaths();
-
-    /**
-     * Get filed names that should be in result.
-     *
-     * @param string $type
-     *
-     * @return string[]|null
-     */
-    public function getFieldSet($type);
+    public function end($number = 0);
 }

@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
+
 /**
  * @package Neomerx\JsonApi
  */

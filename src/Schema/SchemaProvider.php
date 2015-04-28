@@ -17,7 +17,7 @@
  */
 
 use \Closure;
-use \Neomerx\JsonApi\Contracts\Schema\FactoryInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
@@ -69,20 +69,35 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @var bool
      */
-    protected $isShowSelfInIncluded = true;
+    protected $isShowSelf = true;
 
     /**
      * @var bool
      */
-    protected $isShowMetaInIncluded = true;
+    protected $isShowMeta = false;
+
+    /**
+     * @var bool
+     */
+    protected $isShowSelfInIncluded = false;
+
+    /**
+     * @var bool
+     */
+    protected $isShowLinksInIncluded = false; // TODO add support in document generation
+
+    /**
+     * @var bool
+     */
+    protected $isShowMetaInIncluded = false;
 
     /**
      * @var int
      */
-    protected $defaultIncludeDepth = 1;
+    protected $defaultIncludeDepth = 1; // TODO looks not used. Add support for it.
 
     /**
-     * @var FactoryInterface
+     * @var SchemaFactoryInterface
      */
     private $factory;
 
@@ -92,10 +107,10 @@ abstract class SchemaProvider implements SchemaProviderInterface
     private $container;
 
     /**
-     * @param FactoryInterface   $factory
+     * @param SchemaFactoryInterface   $factory
      * @param ContainerInterface $container
      */
-    public function __construct(FactoryInterface $factory, ContainerInterface $container)
+    public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
     {
         assert('is_string($this->baseSelfUrl)  && empty($this->baseSelfUrl) === false', 'Base \'self\' not set.');
         assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set.');
@@ -113,22 +128,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function getResourceType()
     {
         return $this->resourceType;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIds($resources)
-    {
-        if (is_array($resources) === false) {
-            return [$this->getId($resources)];
-        }
-
-        $ids = [];
-        foreach ($resources as $resource) {
-            $ids[] = $this->getId($resource);
-        }
-        return $ids;
     }
 
     /**
@@ -154,6 +153,15 @@ abstract class SchemaProvider implements SchemaProviderInterface
     {
         assert('is_bool($this->isShowSelfInIncluded)');
         return $this->isShowSelfInIncluded;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isShowLinksInIncluded()
+    {
+        assert('is_bool($this->isShowLinksInIncluded)');
+        return $this->isShowLinksInIncluded;
     }
 
     /**
@@ -212,6 +220,8 @@ abstract class SchemaProvider implements SchemaProviderInterface
 
             assert('is_object($data) || is_array($data) || $data === null');
 
+            // TODO looks like getting 'meta' object is missed. Add const META, read it and save to link object
+
             yield $this->factory->createLinkObject(
                 $name,
                 $data,
@@ -226,6 +236,41 @@ abstract class SchemaProvider implements SchemaProviderInterface
                 $relatedController
             );
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createResourceObject($resource, $isOriginallyArrayed, array $attributeKeysFilter = null)
+    {
+        $attributes = $this->getAttributes($resource);
+        if ($attributeKeysFilter !== null) {
+            $attributes = array_intersect_key($attributes, $attributeKeysFilter);
+        }
+        return $this->factory->createResourceObject(
+            $isOriginallyArrayed,
+            $this->getResourceType(),
+            (string)$this->getId($resource),
+            $attributes,
+            $this->getMeta($resource),
+            $this->getSelfUrl($resource),
+            $this->getSelfControllerData(),
+            $this->isShowSelf,
+            $this->isShowMeta,
+            $this->isShowSelfInIncluded(),
+            $this->isShowLinksInIncluded(),
+            $this->isShowMetaInIncluded()
+        );
+    }
+
+    /**
+     * Get 'self' controller data.
+     *
+     * @return mixed
+     */
+    protected function getSelfControllerData()
+    {
+        return null;
     }
 
     /**

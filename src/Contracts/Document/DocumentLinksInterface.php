@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder;
+<?php namespace Neomerx\JsonApi\Contracts\Document;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)

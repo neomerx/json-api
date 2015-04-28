@@ -1,4 +1,4 @@
-<?php namespace Neomerx\Tests\JsonApi\Data;
+<?php namespace Neomerx\JsonApi\Encoder\Parser;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,43 +16,47 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Schema\SchemaProvider;
+use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 
 /**
- * @package Neomerx\Tests\JsonApi
+ * @package Neomerx\JsonApi
  */
-class CommentSchema extends SchemaProvider
+abstract class BaseReply implements ParserReplyInterface
 {
     /**
-     * @var bool
+     * @var int
      */
-    protected $isShowSelfInIncluded = true;
+    private $replyType;
 
     /**
-     * @inheritdoc
+     * @var StackReadOnlyInterface
      */
-    protected $resourceType = 'comments';
+    private $stack;
 
     /**
-     * @inheritdoc
+     * @param int                     $replyType
+     * @param StackReadOnlyInterface  $stack
      */
-    protected $baseSelfUrl = 'http://example.com/comments/';
-
-    /**
-     * @inheritdoc
-     */
-    public function getId($comment)
+    public function __construct($replyType, StackReadOnlyInterface $stack)
     {
-        return $comment->{Comment::ATTRIBUTE_ID};
+        $this->stack       = $stack;
+        $this->replyType   = $replyType;
     }
 
     /**
      * @inheritdoc
      */
-    public function getAttributes($comment)
+    public function getReplyType()
     {
-        return [
-            Comment::ATTRIBUTE_BODY => $comment->{Comment::ATTRIBUTE_BODY},
-        ];
+        return $this->replyType;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStack()
+    {
+        return $this->stack;
     }
 }

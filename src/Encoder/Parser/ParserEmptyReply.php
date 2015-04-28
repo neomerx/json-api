@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder;
+<?php namespace Neomerx\JsonApi\Encoder\Parser;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,24 +16,27 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
-interface EncodingOptionsInterface
+class ParserEmptyReply extends BaseReply
 {
     /**
-     * Get paths to objects that should be included.
-     *
-     * @return string[]|null
+     * @param int                     $replyType
+     * @param StackReadOnlyInterface  $stack
      */
-    public function getIncludePaths();
+    public function __construct(
+        $replyType,
+        StackReadOnlyInterface $stack
+    ) {
+        assert(
+            '$replyType === ' . self::REPLY_TYPE_NULL_RESOURCE_STARTED . ' || '.
+            '$replyType === ' . self::REPLY_TYPE_EMPTY_RESOURCE_STARTED . ' || '.
+            '$replyType === ' . self::REPLY_TYPE_REFERENCE_STARTED
+        );
 
-    /**
-     * Get filed names that should be in result.
-     *
-     * @param string $type
-     *
-     * @return string[]|null
-     */
-    public function getFieldSet($type);
+        parent::__construct($replyType, $stack);
+    }
 }

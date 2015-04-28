@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder;
+<?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,24 +16,29 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
-interface EncodingOptionsInterface
+interface StackFrameInterface extends StackFrameReadOnlyInterface
 {
     /**
-     * Get paths to objects that should be included.
+     * Set associated resource object.
      *
-     * @return string[]|null
+     * @param ResourceObjectInterface $resourceObject
+     *
+     * @return void
      */
-    public function getIncludePaths();
+    public function setResourceObject(ResourceObjectInterface $resourceObject);
 
     /**
-     * Get filed names that should be in result.
+     * Set associated link object.
      *
-     * @param string $type
+     * @param LinkObjectInterface $linkObject
      *
-     * @return string[]|null
+     * @return void
      */
-    public function getFieldSet($type);
+    public function setLinkObject(LinkObjectInterface $linkObject);
 }

@@ -40,15 +40,6 @@ interface SchemaProviderInterface
     public function getId($resource);
 
     /**
-     * Get resource identities.
-     *
-     * @param object|array $resources
-     *
-     * @return string[]
-     */
-    public function getIds($resources);
-
-    /**
      * Get resource URL.
      *
      * @param object $resource
@@ -92,6 +83,13 @@ interface SchemaProviderInterface
     public function isShowSelfInIncluded();
 
     /**
+     * If links be shown for included resources.
+     *
+     * @return bool
+     */
+    public function isShowLinksInIncluded();
+
+    /**
      * If 'meta' should be shown for included resources.
      *
      * @return bool
@@ -105,4 +103,15 @@ interface SchemaProviderInterface
      * @return int
      */
     public function getDefaultIncludeDepth();
+
+    /**
+     * Create resource object.
+     *
+     * @param object        $resource
+     * @param bool          $isOriginallyArrayed
+     * @param string[]|null $attributeKeysFilter
+     *
+     * @return ResourceObjectInterface
+     */
+    public function createResourceObject($resource, $isOriginallyArrayed, array $attributeKeysFilter = null);
 }

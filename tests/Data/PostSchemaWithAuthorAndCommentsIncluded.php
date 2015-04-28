@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder;
+<?php namespace Neomerx\Tests\JsonApi\Data;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -17,23 +17,20 @@
  */
 
 /**
- * @package Neomerx\JsonApi
+ * @package Neomerx\Tests\JsonApi
  */
-interface EncodingOptionsInterface
+class PostSchemaWithAuthorAndCommentsIncluded extends PostSchema
 {
     /**
-     * Get paths to objects that should be included.
-     *
-     * @return string[]|null
+     * @inheritdoc
      */
-    public function getIncludePaths();
+    public function getLinks($post)
+    {
+        assert('$post instanceof '.Post::class);
 
-    /**
-     * Get filed names that should be in result.
-     *
-     * @param string $type
-     *
-     * @return string[]|null
-     */
-    public function getFieldSet($type);
+        return [
+            Post::LINK_AUTHOR   => [self::DATA => $post->{Post::LINK_AUTHOR}, self::INCLUDED => true],
+            Post::LINK_COMMENTS => [self::DATA => $post->{Post::LINK_COMMENTS}, self::INCLUDED => true],
+        ];
+    }
 }

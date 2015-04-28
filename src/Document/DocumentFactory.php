@@ -16,13 +16,12 @@
  * limitations under the License.
  */
 
-use \Iterator;
-use \Neomerx\JsonApi\Contracts\Document\FactoryInterface;
+use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class Factory implements FactoryInterface
+class DocumentFactory implements DocumentFactoryInterface
 {
     /**
      * @inheritdoc
@@ -30,35 +29,6 @@ class Factory implements FactoryInterface
     public function createDocument()
     {
         return new Document();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createElement(
-        $type,
-        $idx,
-        array $attributes,
-        $selfUrl,
-        Iterator $links,
-        $meta
-    ) {
-        return new Element($type, $idx, $attributes, $selfUrl, $links, $meta);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createLink(
-        $name,
-        $isOnlyRelatedRef,
-        $type,
-        $linkageIds,
-        $selfUrl,
-        $relatedUrl,
-        $meta
-    ) {
-        return new Link($name, $isOnlyRelatedRef, $type, $linkageIds, $selfUrl, $relatedUrl, $meta);
     }
 
     /**

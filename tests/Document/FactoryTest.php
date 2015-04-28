@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Document\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
+use \Neomerx\JsonApi\Document\DocumentFactory;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -26,7 +26,7 @@ class FactoryTest extends BaseTestCase
 {
 
     /**
-     * @var Factory
+     * @var DocumentFactory
      */
     private $factory;
 
@@ -36,7 +36,7 @@ class FactoryTest extends BaseTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->factory  = new Factory();
+        $this->factory  = new DocumentFactory();
     }
 
     /**

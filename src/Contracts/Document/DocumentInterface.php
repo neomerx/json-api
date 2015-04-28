@@ -16,55 +16,22 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
 interface DocumentInterface
 {
     /**
-     * Set 'self' URL to top-level 'links' section.
+     * Set URLs to top-level 'links' section.
      *
-     * @param string $url
-     *
-     * @return void
-     */
-    public function setSelfUrlToDocumentLinks($url);
-
-    /**
-     * Set 'first' URL to top-level 'links' section.
-     *
-     * @param string $url
+     * @param DocumentLinksInterface $links
      *
      * @return void
      */
-    public function setFirstUrlToDocumentLinks($url);
-
-    /**
-     * Set 'last' URL to top-level 'links' section.
-     *
-     * @param string $url
-     *
-     * @return void
-     */
-    public function setLastUrlToDocumentLinks($url);
-
-    /**
-     * Set 'prev' URL to top-level 'links' section.
-     *
-     * @param string $url
-     *
-     * @return void
-     */
-    public function setPrevUrlToDocumentLinks($url);
-
-    /**
-     * Set 'next' URL to top-level 'links' section.
-     *
-     * @param string $url
-     *
-     * @return void
-     */
-    public function setNextUrlToDocumentLinks($url);
+    public function setDocumentLinks(DocumentLinksInterface $links);
 
     /**
      * Set arbitrary meta-information about primary data to top-level 'meta' section.
@@ -76,36 +43,125 @@ interface DocumentInterface
     public function setMetaToDocument($meta);
 
     /**
-     * Add element to 'included' top-level section.
+     * Add resource to 'data' section.
      *
-     * @param ElementInterface $element
+     * @param ResourceObjectInterface $resource
      *
      * @return void
      */
-    public function addToIncluded(ElementInterface $element);
+    public function addToData(ResourceObjectInterface $resource);
 
     /**
-     * Add element to 'data' top-level section.
-     *
-     * @param ElementInterface $element
+     * Set empty array to 'data' section.
      *
      * @return void
      */
-    public function addToData(ElementInterface $element);
+    public function setEmptyData();
 
     /**
-     * Set 'data' top-level section to empty.
+     * Set null to 'data' section.
      *
      * @return void
      */
-    public function setDataEmpty();
+    public function setNullData();
 
     /**
-     * Set 'data' top-level section to null.
+     * Add a link to resource in 'data' section.
+     *
+     * @param ResourceObjectInterface $parent
+     * @param LinkObjectInterface     $link
+     * @param ResourceObjectInterface $resource
      *
      * @return void
      */
-    public function setDataNull();
+    public function addLinkToData(
+        ResourceObjectInterface $parent,
+        LinkObjectInterface $link,
+        ResourceObjectInterface $resource
+    );
+
+    /**
+     * Add a reference to resource in 'data' section.
+     *
+     * @param ResourceObjectInterface $parent
+     * @param LinkObjectInterface     $current
+     *
+     * @return void
+     */
+    public function addReferenceToData(ResourceObjectInterface $parent, LinkObjectInterface $current);
+
+    /**
+     * Add an empty link to resource in 'data' section.
+     *
+     * @param ResourceObjectInterface $parent
+     * @param LinkObjectInterface     $current
+     *
+     * @return void
+     */
+    public function addEmptyLinkToData(ResourceObjectInterface $parent, LinkObjectInterface $current);
+
+    /**
+     * Add a null link to resource in 'data' section.
+     *
+     * @param ResourceObjectInterface $parent
+     * @param LinkObjectInterface     $current
+     *
+     * @return void
+     */
+    public function addNullLinkToData(ResourceObjectInterface $parent, LinkObjectInterface $current);
+
+    /**
+     * Add resource to 'included' section.
+     *
+     * @param ResourceObjectInterface $resource
+     *
+     * @return void
+     */
+    public function addToIncluded(ResourceObjectInterface $resource);
+
+    /**
+     * Add a link to resource in 'included' section.
+     *
+     * @param ResourceObjectInterface $parent
+     * @param LinkObjectInterface     $link
+     * @param ResourceObjectInterface $resource
+     *
+     * @return void
+     */
+    public function addLinkToIncluded(
+        ResourceObjectInterface $parent,
+        LinkObjectInterface $link,
+        ResourceObjectInterface $resource
+    );
+
+    /**
+     * Add an empty link to resource in 'included' section.
+     *
+     * @param ResourceObjectInterface $parent
+     * @param LinkObjectInterface     $current
+     *
+     * @return void
+     */
+    public function addEmptyLinkToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current);
+
+    /**
+     * Add a null link to resource in 'included' section.
+     *
+     * @param ResourceObjectInterface $parent
+     * @param LinkObjectInterface     $current
+     *
+     * @return void
+     */
+    public function addNullLinkToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current);
+
+    /**
+     * Mark resource as completed (no new links will be added to the resource anymore).
+     *
+     * @param ResourceObjectInterface $resource
+     *
+     * @return void
+     */
+    public function setResourceCompleted(ResourceObjectInterface $resource);
 
     /**
      * Add information to 'errors' top-level section.
