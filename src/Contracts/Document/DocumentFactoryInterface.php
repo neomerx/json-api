@@ -29,6 +29,25 @@ interface DocumentFactoryInterface
     public function createDocument();
 
     /**
+     * Create document links.
+     *
+     * @param string|null $selfUrl
+     * @param string|null $firstUrl
+     * @param string|null $lastUrl
+     * @param string|null $prevUrl
+     * @param string|null $nextUrl
+     *
+     * @return DocumentLinksInterface
+     */
+    public function createDocumentLinks(
+        $selfUrl = null,
+        $firstUrl = null,
+        $lastUrl = null,
+        $prevUrl = null,
+        $nextUrl = null
+    );
+
+    /**
      * Create error instance.
      *
      * @param int|string|null $idx

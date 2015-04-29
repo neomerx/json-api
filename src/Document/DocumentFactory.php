@@ -34,6 +34,19 @@ class DocumentFactory implements DocumentFactoryInterface
     /**
      * @inheritdoc
      */
+    public function createDocumentLinks(
+        $selfUrl = null,
+        $firstUrl = null,
+        $lastUrl = null,
+        $prevUrl = null,
+        $nextUrl = null
+    ) {
+        return new DocumentLinks($selfUrl, $firstUrl, $lastUrl, $prevUrl, $nextUrl);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function createError(
         $idx = null,
         $href = null,

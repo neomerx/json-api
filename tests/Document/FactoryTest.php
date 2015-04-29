@@ -18,6 +18,7 @@
 
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Document\DocumentFactory;
+use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -26,7 +27,7 @@ class FactoryTest extends BaseTestCase
 {
 
     /**
-     * @var DocumentFactory
+     * @var DocumentFactoryInterface
      */
     private $factory;
 
@@ -45,6 +46,26 @@ class FactoryTest extends BaseTestCase
     public function testCreateDocument()
     {
         $this->assertNotNull($this->factory->createDocument());
+    }
+
+    /**
+     * Test create error.
+     */
+    public function testDocumentLinks()
+    {
+        $this->assertNotNull($links = $this->factory->createDocumentLinks(
+            $selfUrl  = 'selfUrl',
+            $firstUrl = 'firstUrl',
+            $lastUrl  = 'lastUrl',
+            $prevUrl  = 'prevUrl',
+            $nextUrl  = 'nextUrl'
+        ));
+
+        $this->assertEquals($selfUrl, $links->getSelfUrl());
+        $this->assertEquals($firstUrl, $links->getFirstUrl());
+        $this->assertEquals($lastUrl, $links->getLastUrl());
+        $this->assertEquals($prevUrl, $links->getPrevUrl());
+        $this->assertEquals($nextUrl, $links->getNextUrl());
     }
 
     /**
