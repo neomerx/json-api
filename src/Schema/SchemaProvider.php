@@ -44,6 +44,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /** If 'related' URL should be shown. Requires 'related' controller to be set. */
     const SHOW_RELATED = 'related';
 
+    /** If linkage information should be shown. True by default. */
+    const SHOW_LINKAGE = 'showLinkage';
+
     /** Arbitrary data describing 'self' controller. */
     const SELF_CONTROLLER = 'selfController';
 
@@ -206,6 +209,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
             $isShowSelf        = ($selfController    !== null && $this->getValue($desc, self::SHOW_SELF) === true);
             $isShowAsRef       = ($relatedController !== null && $this->getValue($desc, self::SHOW_AS_REF) === true);
             $isShowRelated     = ($relatedController !== null && $this->getValue($desc, self::SHOW_RELATED) === true);
+            $isShowLinkage     = ($this->getValue($desc, self::SHOW_LINKAGE, true) === true);
 
             $selfSubUrl    = $this->getValue($desc, self::SELF_SUB_URL, '/links/'.$name);
             $relatedSubUrl = $this->getValue($desc, self::RELATED_SUB_URL, '/'.$name);
@@ -220,8 +224,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
 
             assert('is_object($data) || is_array($data) || $data === null');
 
-            // TODO looks like getting 'meta' object is missed. Add const META, read it and save to link object
-
             yield $this->factory->createLinkObject(
                 $name,
                 $data,
@@ -230,6 +232,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
                 $isShowAsRef,
                 $isShowSelf,
                 $isShowRelated,
+                $isShowLinkage,
                 $isShowMeta,
                 $isIncluded,
                 $selfController,

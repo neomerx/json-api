@@ -135,6 +135,16 @@ interface DocumentInterface
     );
 
     /**
+     * Add a reference to resource in 'included' section.
+     *
+     * @param ResourceObjectInterface $parent
+     * @param LinkObjectInterface     $current
+     *
+     * @return void
+     */
+    public function addReferenceToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current);
+
+    /**
      * Add an empty link to resource in 'included' section.
      *
      * @param ResourceObjectInterface $parent

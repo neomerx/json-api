@@ -136,7 +136,7 @@ class Document implements DocumentInterface
         $this->errors            = [];
         $this->meta              = null;
         $this->links             = [];
-        $this->data              = [];
+        $this->data              = null;
         $this->included          = [];
         $this->isIncludedMarks   = [];
         $this->bufferForData     = [];
@@ -260,7 +260,7 @@ class Document implements DocumentInterface
             if ($someLinkagesAlreadyAdded === false) {
                 // ... add the first one
                 $target[$parentType][$parentId][self::KEYWORD_LINKS][$name] =
-                    $this->getLinkRepresentation($link, $resource);
+                    $this->getLinkRepresentation($parent, $link, $resource);
             } else {
                 // ... or add another linkage
                 $target[$parentType][$parentId][self::KEYWORD_LINKS][$name][self::KEYWORD_LINKAGE][] =
@@ -274,8 +274,17 @@ class Document implements DocumentInterface
      */
     public function addReferenceToData(ResourceObjectInterface $parent, LinkObjectInterface $current)
     {
-        $url = $parent->getSelfUrl() . $current->getRelatedSubUrl();
+        $url = $this->concatUrls($parent->getSelfUrl(), $current->getRelatedSubUrl());
         $this->setLinkToImpl($this->bufferForData, $parent, $current, $url);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addReferenceToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current)
+    {
+        $url = $this->concatUrls($parent->getSelfUrl(), $current->getRelatedSubUrl());
+        $this->setLinkToImpl($this->bufferForIncluded, $parent, $current, $url);
     }
 
     /**
@@ -475,39 +484,45 @@ class Document implements DocumentInterface
     }
 
     /**
+     * @param ResourceObjectInterface $parent
      * @param LinkObjectInterface     $link
      * @param ResourceObjectInterface $resource
      *
      * @return array
      */
-    protected function getLinkRepresentation(LinkObjectInterface $link, ResourceObjectInterface $resource)
-    {
-        $name = $link->getName();
+    protected function getLinkRepresentation(
+        ResourceObjectInterface $parent,
+        LinkObjectInterface $link,
+        ResourceObjectInterface $resource
+    ) {
         assert(
-            'is_string($name) === true && $name !== self::KEYWORD_SELF',
+            '$link->getName() !== self::KEYWORD_SELF',
             '"self" is a reserved keyword and cannot be used as a related resource link name'
         );
 
-        $selfUrl = $resource->getSelfUrl();
-
-        if ($link->isShowAsReference() === true) {
-            return [self::KEYWORD_LINKS => [$name => $selfUrl . $link->getRelatedSubUrl()]];
-        }
+        $selfUrl = $parent->getSelfUrl();
 
         $representation = [];
         if ($link->isShowSelf() === true) {
-            $representation[self::KEYWORD_SELF] = $selfUrl . $link->getSelfSubUrl();
+            $representation[self::KEYWORD_SELF] = $this->concatUrls($selfUrl, $link->getSelfSubUrl());
         }
 
         if ($link->isShowRelated() === true) {
-            $representation[self::KEYWORD_RELATED] = $selfUrl . $link->getRelatedSubUrl();
+            $representation[self::KEYWORD_RELATED] = $this->concatUrls($selfUrl, $link->getRelatedSubUrl());
         }
 
-        $representation[self::KEYWORD_LINKAGE][] = $this->getLinkageRepresentation($resource);
+        if ($link->isShowLinkage() === true) {
+            $representation[self::KEYWORD_LINKAGE][] = $this->getLinkageRepresentation($resource);
+        }
 
         if ($link->isShowMeta() === true) {
-            $representation[self::KEYWORD_META] = $link->getName();
+            $representation[self::KEYWORD_META] = $resource->getMeta();
         }
+
+        assert(
+            '$link->isShowSelf() || $link->isShowRelated() || $link->isShowLinkage() || $link->isShowMeta()',
+            'Specification requires at least one of them to be shown'
+        );
 
         return $representation;
     }
@@ -547,5 +562,24 @@ class Document implements DocumentInterface
         empty($members) === true ?: $representation += $members;
 
         $this->errors[] = $representation;
+    }
+
+    /**
+     * @param string $url
+     * @param string $subUrl
+     *
+     * @return string
+     */
+    private function concatUrls($url, $subUrl)
+    {
+        $urlEndsWithSlash      = (substr($url, -1) === '/');
+        $subUrlStartsWithSlash = (substr($subUrl, 0, 1) === '/');
+        if ($urlEndsWithSlash === false && $subUrlStartsWithSlash === false) {
+            return $url . '/' . $subUrl;
+        } elseif (($urlEndsWithSlash xor $subUrlStartsWithSlash) === true) {
+            return $url . $subUrl;
+        } else {
+            return rtrim($url, '/') . $subUrl;
+        }
     }
 }

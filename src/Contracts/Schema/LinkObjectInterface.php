@@ -57,6 +57,13 @@ interface LinkObjectInterface
     public function isShowRelated();
 
     /**
+     * If 'linkage' should be shown.
+     *
+     * @return bool
+     */
+    public function isShowLinkage();
+
+    /**
      * Get 'related' URL of link object.
      *
      * @return string

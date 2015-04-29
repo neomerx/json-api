@@ -64,6 +64,7 @@ interface SchemaFactoryInterface
      * @param bool              $isShowAsRef
      * @param bool              $isShowSelf
      * @param bool              $isShowRelated
+     * @param bool              $isShowLinkage
      * @param bool              $isShowMeta
      * @param bool              $isIncluded
      * @param mixed             $selfControllerData
@@ -79,6 +80,7 @@ interface SchemaFactoryInterface
         $isShowAsRef,
         $isShowSelf,
         $isShowRelated,
+        $isShowLinkage,
         $isShowMeta,
         $isIncluded,
         $selfControllerData,

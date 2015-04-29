@@ -51,6 +51,11 @@ class LinkObject implements LinkObjectInterface
     /**
      * @var bool
      */
+    private $isShowLinkage;
+
+    /**
+     * @var bool
+     */
     private $isShouldBeIncluded;
 
     /**
@@ -86,6 +91,7 @@ class LinkObject implements LinkObjectInterface
      * @param bool              $isShowAsRef
      * @param bool              $isShowSelf
      * @param bool              $isShowRelated
+     * @param bool              $isShowLinkage
      * @param bool              $isShowMeta
      * @param bool              $isIncluded
      * @param mixed             $selfControllerData
@@ -99,6 +105,7 @@ class LinkObject implements LinkObjectInterface
         $isShowAsRef,
         $isShowSelf,
         $isShowRelated,
+        $isShowLinkage,
         $isShowMeta,
         $isIncluded,
         $selfControllerData,
@@ -110,6 +117,10 @@ class LinkObject implements LinkObjectInterface
         assert('is_null($relatedSubUrl) || is_string($relatedSubUrl)');
         assert('is_bool($isShowAsRef) && is_bool($isShowSelf) && is_bool($isShowRelated) && is_bool($isShowMeta)');
         assert('is_bool($isIncluded)');
+        assert(
+            '$isShowSelf || $isShowRelated || $isShowLinkage || $isShowMeta',
+            'Specification requires at least one of them to be shown'
+        );
 
         $this->name                  = $name;
         $this->data                  = $data;
@@ -118,6 +129,7 @@ class LinkObject implements LinkObjectInterface
         $this->isShowAsReference     = $isShowAsRef;
         $this->isShowSelf            = $isShowSelf;
         $this->isShowRelated         = $isShowRelated;
+        $this->isShowLinkage         = $isShowLinkage;
         $this->isShowMeta            = $isShowMeta;
         $this->isShouldBeIncluded    = $isIncluded;
         $this->selfControllerData    = $selfControllerData;
@@ -162,6 +174,14 @@ class LinkObject implements LinkObjectInterface
     public function isShowRelated()
     {
         return $this->isShowRelated;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isShowLinkage()
+    {
+        return $this->isShowLinkage;
     }
 
     /**
