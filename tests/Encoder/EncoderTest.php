@@ -178,8 +178,6 @@ EOL;
     }
 }
 EOL;
-        // remove formatting from 'expected'
-        //$expected = json_encode(json_decode($expected));
 
         $this->assertEquals($expected, $actual);
     }
