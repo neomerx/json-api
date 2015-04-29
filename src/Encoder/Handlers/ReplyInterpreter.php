@@ -55,6 +55,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     public function handle(ParserReplyInterface $reply)
     {
         $current = $reply->getStack()->end();
+        assert('$current !== null');
 
         if ($reply->getReplyType() === ParserReplyInterface::REPLY_TYPE_RESOURCE_COMPLETED) {
             $this->setResourceCompleted($current);
@@ -103,6 +104,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
                 $this->addToData($reply, $current);
                 break;
             case 2:
+                assert('$previous !== null');
                 $this->addLinkToData($reply, $current, $previous);
                 if ($isAddResourceToIncluded === true) {
                     $this->addToIncluded($reply, $current);
@@ -110,6 +112,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
                 break;
             default:
                 if ($isAddLinkToIncluded === true) {
+                    assert('$previous !== null');
                     $this->addLinkToIncluded($reply, $current, $previous);
                 }
                 if ($isAddResourceToIncluded === true) {
@@ -137,7 +140,9 @@ class ReplyInterpreter implements ReplyInterpreterInterface
                 break;
             default:
                 assert('$replyType === ' . ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED);
-                $this->document->addToData($current->getResourceObject());
+                $resourceObject = $current->getResourceObject();
+                assert('$resourceObject !== null');
+                $this->document->addToData($resourceObject);
         }
     }
 
@@ -150,7 +155,9 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     private function addToIncluded(ParserReplyInterface $reply, Frame $current)
     {
         if ($reply->getReplyType() === ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED) {
-            $this->document->addToIncluded($current->getResourceObject());
+            $resourceObject = $current->getResourceObject();
+            assert('$resourceObject !== null');
+            $this->document->addToIncluded($resourceObject);
         }
     }
 
@@ -166,6 +173,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
         $replyType = $reply->getReplyType();
         $link      = $current->getLinkObject();
         $parent    = $previous->getResourceObject();
+        assert('$link !== null && $parent !== null');
 
         switch($replyType) {
             case ParserReplyInterface::REPLY_TYPE_REFERENCE_STARTED:
@@ -196,6 +204,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
         $replyType = $reply->getReplyType();
         $link      = $current->getLinkObject();
         $parent    = $previous->getResourceObject();
+        assert('$link !== null && $parent !== null');
 
         switch($replyType) {
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
@@ -217,7 +226,9 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     private function setResourceCompleted(Frame $current)
     {
-        $this->document->setResourceCompleted($current->getResourceObject());
+        $resourceObject = $current->getResourceObject();
+        assert('$resourceObject !== null');
+        $this->document->setResourceCompleted($resourceObject);
     }
 
     /**
