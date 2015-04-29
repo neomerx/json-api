@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use \Closure;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
 /**
@@ -53,18 +54,18 @@ class Container implements ContainerInterface
     /**
      * Register provider for resource type.
      *
-     * @param string $resourceType
-     * @param string $providerClass
+     * @param string        $resourceType
+     * @param string|object $provider
      *
      * @return void
      */
-    public function register($resourceType, $providerClass)
+    public function register($resourceType, $provider)
     {
         assert('is_string($resourceType) && empty($resourceType) === false');
-        assert('is_string($providerClass) && empty($providerClass) === false');
+        assert('(is_string($provider) && empty($provider) === false) || $provider instanceof '. Closure::class);
         assert('isset($this->providerMapping[$resourceType]) === false');
 
-        $this->providerMapping[$resourceType] = $providerClass;
+        $this->providerMapping[$resourceType] = $provider;
     }
 
     /**
@@ -76,8 +77,8 @@ class Container implements ContainerInterface
      */
     public function registerArray(array $providers)
     {
-        foreach ($providers as $type => $className) {
-            $this->register($type, $className);
+        foreach ($providers as $type => $provider) {
+            $this->register($type, $provider);
         }
     }
 
@@ -94,8 +95,12 @@ class Container implements ContainerInterface
 
         assert('isset($this->providerMapping[$resourceType])', 'Have you added provider for `'.$resourceType.'`?');
 
-        $className = $this->providerMapping[$resourceType];
-        $this->createdProviders[$resourceType] = ($provider = new $className($this->factory, $this));
+        $classNameOrClosure = $this->providerMapping[$resourceType];
+        if ($classNameOrClosure instanceof Closure) {
+            $this->createdProviders[$resourceType] = ($provider = $classNameOrClosure($this->factory, $this));
+        } else {
+            $this->createdProviders[$resourceType] = ($provider = new $classNameOrClosure($this->factory, $this));
+        }
 
         assert('$provider instanceof '.SchemaProviderInterface::class);
 

@@ -29,12 +29,6 @@ use \Neomerx\JsonApi\Encoder\EncodingOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
 use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
-use \Neomerx\Tests\JsonApi\Data\PostSchemaEmptyLinks;
-use \Neomerx\Tests\JsonApi\Data\AuthorSchemaWithComments;
-use \Neomerx\Tests\JsonApi\Data\CommentSchemaWithAuthors;
-use \Neomerx\Tests\JsonApi\Data\PostSchemaCommentsAsReference;
-use \Neomerx\Tests\JsonApi\Data\PostSchemaWithCommentsIncluded;
-use \Neomerx\Tests\JsonApi\Data\PostSchemaWithAuthorAndCommentsIncluded;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -92,7 +86,11 @@ EOL;
     {
         $author   = Author::instance(9, 'Dan', 'Gebhardt');
         $endcoder = Encoder::instance([
-            Author::class => AuthorSchema::class
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkRemove(Author::LINK_COMMENTS);
+                return $schema;
+            }
         ]);
 
         $actual = $endcoder->encode($author);
@@ -123,7 +121,11 @@ EOL;
     {
         $author   = Author::instance(9, 'Dan', 'Gebhardt');
         $endcoder = Encoder::instance([
-            Author::class => AuthorSchema::class
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkRemove(Author::LINK_COMMENTS);
+                return $schema;
+            }
         ]);
 
         $actual = $endcoder->encode([$author]);
@@ -154,7 +156,11 @@ EOL;
     {
         $author   = Author::instance(9, 'Dan', 'Gebhardt');
         $endcoder = Encoder::instance([
-            Author::class => AuthorSchema::class
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkRemove(Author::LINK_COMMENTS);
+                return $schema;
+            }
         ], new JsonEncodeOptions(JSON_PRETTY_PRINT));
 
         $actual = $endcoder->encode($author);
@@ -186,7 +192,11 @@ EOL;
         $author1  = Author::instance(7, 'First', 'Last');
         $author2  = Author::instance(9, 'Dan', 'Gebhardt');
         $endcoder = Encoder::instance([
-            Author::class => AuthorSchema::class
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkRemove(Author::LINK_COMMENTS);
+                return $schema;
+            }
         ]);
 
         $actual = $endcoder->encode([$author1, $author2]);
@@ -228,7 +238,11 @@ EOL;
     {
         $author   = Author::instance(9, 'Dan', 'Gebhardt');
         $endcoder = Encoder::instance([
-            Author::class => AuthorSchema::class
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkRemove(Author::LINK_COMMENTS);
+                return $schema;
+            }
         ]);
 
         $actual = $endcoder->encode([$author, $author]);
@@ -280,7 +294,11 @@ EOL;
         ];
 
         $actual = Encoder::instance([
-            Author::class => AuthorSchema::class
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkRemove(Author::LINK_COMMENTS);
+                return $schema;
+            }
         ])->encode($author, $links, $meta);
 
         $expected = <<<EOL
@@ -362,7 +380,14 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => PostSchemaCommentsAsReference::class,
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_AS_REF, true);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::RELATED_CONTROLLER, 'author-controller-info');
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_AS_REF, true);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::RELATED_CONTROLLER, 'comments-controller-info');
+                return $schema;
+            },
         ])->encode($this->getStandardPost());
 
         $expected = <<<EOL
@@ -394,7 +419,12 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => PostSchemaEmptyLinks::class,
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, null);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, []);
+                return $schema;
+            },
         ])->encode($this->getStandardPost());
 
         $expected = <<<EOL
@@ -425,8 +455,16 @@ EOL;
     {
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchemaWithCommentsIncluded::class,
+            Comment::class => function ($factory, $container) {
+                $schema = new CommentSchema($factory, $container);
+                $schema->linkRemove(Comment::LINK_AUTHOR);
+                return $schema;
+            },
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::INCLUDED, true);
+                return $schema;
+            },
         ])->encode($this->getStandardPost());
 
         $expected = <<<EOL
@@ -497,9 +535,14 @@ EOL;
         $site = Site::instance(2, 'site name', [$post]);
 
         $actual = Encoder::instance([
-            Author::class  => AuthorSchemaWithComments::class,
-            Comment::class => CommentSchemaWithAuthors::class,
-            Post::class    => PostSchemaWithAuthorAndCommentsIncluded::class,
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::INCLUDED, true);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::INCLUDED, true);
+                return $schema;
+            },
             Site::class    => SiteSchema::class,
         ])->encode($site, null, null, new EncodingOptions(
             [Site::LINK_POSTS . '.' . Post::LINK_COMMENTS], // include only this relation

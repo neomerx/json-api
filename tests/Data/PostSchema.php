@@ -16,12 +16,10 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Schema\SchemaProvider;
-
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class PostSchema extends SchemaProvider
+class PostSchema extends DevSchemaProvider
 {
     /**
      * @inheritdoc
@@ -61,9 +59,14 @@ class PostSchema extends SchemaProvider
     {
         assert('$post instanceof '.Post::class);
 
-        return [
+        $links = [
             Post::LINK_AUTHOR   => [self::DATA => $post->{Post::LINK_AUTHOR}],
             Post::LINK_COMMENTS => [self::DATA => $post->{Post::LINK_COMMENTS}],
         ];
+
+        // NOTE: The line(s) below for testing purposes only. Not for production.
+        $this->fixLinks($links);
+
+        return $links;
     }
 }

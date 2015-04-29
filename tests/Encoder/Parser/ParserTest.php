@@ -22,11 +22,11 @@ use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Schema\SchemaFactory;
+use \Neomerx\Tests\JsonApi\Data\PostSchema;
+use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
+use \Neomerx\Tests\JsonApi\Data\CommentSchema;
 use \Neomerx\JsonApi\Encoder\Factory\EncoderFactory;
-use \Neomerx\Tests\JsonApi\Data\AuthorSchemaWithComments;
-use \Neomerx\Tests\JsonApi\Data\CommentSchemaWithAuthors;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
-use \Neomerx\Tests\JsonApi\Data\PostSchemaCommentsAsReference;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
 
 /**
@@ -82,9 +82,16 @@ class ParserTest extends BaseTestCase
         parent::setUp();
 
         $schemas = [
-            Author::class  => AuthorSchemaWithComments::class,
-            Comment::class => CommentSchemaWithAuthors::class,
-            Post::class    => PostSchemaCommentsAsReference::class,
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_AS_REF, true);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::RELATED_CONTROLLER, 'author-controller-info');
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_AS_REF, true);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::RELATED_CONTROLLER, 'comments-controller-info');
+                return $schema;
+            },
         ];
         $container    = new Container(new SchemaFactory(), $schemas);
         $this->parser = (new EncoderFactory())->createParser($container);

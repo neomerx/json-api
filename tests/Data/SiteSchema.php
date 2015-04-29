@@ -16,12 +16,10 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Schema\SchemaProvider;
-
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class SiteSchema extends SchemaProvider
+class SiteSchema extends DevSchemaProvider
 {
     /**
      * @inheritdoc

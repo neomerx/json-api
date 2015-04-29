@@ -16,12 +16,10 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Schema\SchemaProvider;
-
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class CommentSchema extends SchemaProvider
+class CommentSchema extends DevSchemaProvider
 {
     /**
      * @var bool
@@ -54,5 +52,25 @@ class CommentSchema extends SchemaProvider
         return [
             Comment::ATTRIBUTE_BODY => $comment->{Comment::ATTRIBUTE_BODY},
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLinks($comment)
+    {
+        assert('$comment instanceof '.Comment::class);
+
+        $links = [
+            Comment::LINK_AUTHOR => [
+                self::DATA       => isset($comment->{Comment::LINK_AUTHOR}) ? $comment->{Comment::LINK_AUTHOR} : null,
+                self::INCLUDED   => true,
+            ],
+        ];
+
+        // NOTE: The line(s) below for testing purposes only. Not for production.
+        $this->fixLinks($links);
+
+        return $links;
     }
 }
