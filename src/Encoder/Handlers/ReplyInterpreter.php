@@ -188,7 +188,9 @@ class ReplyInterpreter implements ReplyInterpreterInterface
                 break;
             default:
                 assert('$replyType === ' . ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED);
-                $this->document->addLinkToData($parent, $link, $current->getResourceObject());
+                $resourceObject = $current->getResourceObject();
+                assert('$resourceObject !== null');
+                $this->document->addLinkToData($parent, $link, $resourceObject);
         }
     }
 
@@ -215,7 +217,9 @@ class ReplyInterpreter implements ReplyInterpreterInterface
                 break;
             default:
                 assert('$replyType === ' . ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED);
-                $this->document->addLinkToIncluded($parent, $link, $current->getResourceObject());
+                $resourceObject = $current->getResourceObject();
+                assert('$resourceObject !== null');
+                $this->document->addLinkToIncluded($parent, $link, $resourceObject);
         }
     }
 
