@@ -114,6 +114,13 @@ class Document implements DocumentInterface
     private $bufferForIncluded;
 
     /**
+     * If original data were in array.
+     *
+     * @var bool|null
+     */
+    private $isDataArrayed;
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -134,6 +141,7 @@ class Document implements DocumentInterface
         $this->isIncludedMarks   = [];
         $this->bufferForData     = [];
         $this->bufferForIncluded = [];
+        $this->isDataArrayed     = null;
     }
 
     /**
@@ -175,6 +183,14 @@ class Document implements DocumentInterface
      */
     public function addToData(ResourceObjectInterface $resource)
     {
+        // check if 'not-arrayed' data were added you cannot add to 'non-array' data section anymore
+        assert('$this->isDataArrayed === null || $this->isDataArrayed === true');
+
+        $this->isDataArrayed !== null ?: $this->isDataArrayed = $resource->isInArray();
+
+        // check all resources have the same isInArray flag
+        assert('$this->isDataArrayed === $resource->isInArray()');
+
         $idx  = $resource->getId();
         $type = $resource->getType();
         assert('isset($this->bufferForData[$type][$idx]) === false');
@@ -380,10 +396,14 @@ class Document implements DocumentInterface
         if ($this->meta !== null) {
             $document[self::KEYWORD_META] = $this->meta;
         }
+
         if (empty($this->links) === false) {
             $document[self::KEYWORD_LINKS] = $this->links;
         }
-        $document[self::KEYWORD_DATA] = (count($this->data) === 1 ? $this->data[0] : $this->data);
+
+        $isDataNotArray = ($this->isDataArrayed === false && empty($this->data) === false);
+        $document[self::KEYWORD_DATA] = ($isDataNotArray ? $this->data[0] : $this->data);
+
         if (empty($this->included) === false) {
             $document[self::KEYWORD_INCLUDED] = $this->included;
         }

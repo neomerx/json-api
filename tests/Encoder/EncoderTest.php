@@ -117,6 +117,37 @@ EOL;
     }
 
     /**
+     * Test encode simple object with attributes only in array.
+     */
+    public function testEncodeObjectWithAttributesOnlyInArray()
+    {
+        $author   = Author::instance(9, 'Dan', 'Gebhardt');
+        $endcoder = Encoder::instance([
+            Author::class => AuthorSchema::class
+        ]);
+
+        $actual = $endcoder->encode([$author]);
+
+        $expected = <<<EOL
+        {
+            "data" : [{
+                "type"       : "people",
+                "id"         : "9",
+                "first_name" : "Dan",
+                "last_name"  : "Gebhardt",
+                "links" : {
+                    "self" : "http://example.com/people/9"
+                }
+            }]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * Test encode simple object in pretty format.
      */
     public function testEncodeObjectWithAttributesOnlyPrettyPrinted()
