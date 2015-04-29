@@ -79,14 +79,14 @@ class StackTest extends BaseTestCase
      */
     public function testPush()
     {
-        $frame1 = $this->stack->push();
+        $this->stack->push();
         $this->assertEquals(1, $this->stack->count());
         $this->assertEquals(1, $this->stack->end()->getLevel());
         $this->assertNull($this->stack->end()->getResourceObject());
         $this->assertNull($this->stack->end()->getLinkObject());
 
-        $frame1->setLinkObject($this->mockLinkObject);
-        $frame1->setResourceObject($this->mockResourceObject);
+        $this->stack->setCurrentLinkObject($this->mockLinkObject);
+        $this->stack->setCurrentResourceObject($this->mockResourceObject);
         $this->assertSame($this->mockLinkObject, $this->stack->end()->getLinkObject());
         $this->assertSame($this->mockResourceObject, $this->stack->end()->getResourceObject());
         $this->assertNull($this->stack->end(1));
