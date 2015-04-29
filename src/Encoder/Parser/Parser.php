@@ -49,8 +49,8 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
  * Once again, it basically works this way:
  *   - Parser finds all targeted relations and outputs them with all intermediate results (looks like a tree).
  *     Resource attributes are already filtered.
- *   - Reply interpreter filters intermediate results and resource relations sending results to document.
- *   - The document is just a renderer which saves the input data in a few slight variations depending on settings.
+ *   - Reply interpreter filters intermediate results and resource relations and then send it to document.
+ *   - The document is just a renderer which saves the input data in one of a few variations depending on settings.
  *   - When all data are parsed the document converts collected data to json.
  *
  * @package Neomerx\JsonApi
