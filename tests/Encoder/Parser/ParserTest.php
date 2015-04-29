@@ -16,15 +16,17 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Schema\SchemaFactory;
+use \Neomerx\Tests\JsonApi\Data\Post;
 use \Neomerx\JsonApi\Schema\Container;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
+use \Neomerx\JsonApi\Schema\SchemaFactory;
 use \Neomerx\JsonApi\Encoder\Factory\EncoderFactory;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchemaWithComments;
 use \Neomerx\Tests\JsonApi\Data\CommentSchemaWithAuthors;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
+use \Neomerx\Tests\JsonApi\Data\PostSchemaCommentsAsReference;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
 
 /**
@@ -48,6 +50,11 @@ class ParserTest extends BaseTestCase
     private $comments;
 
     /**
+     * @var Post
+     */
+    private $post;
+
+    /**
      * @var array
      */
     private $authorAttr;
@@ -63,6 +70,11 @@ class ParserTest extends BaseTestCase
     private $commAttr12;
 
     /**
+     * @var array
+     */
+    private $postAttr;
+
+    /**
      * Set up tests.
      */
     protected function setUp()
@@ -72,6 +84,7 @@ class ParserTest extends BaseTestCase
         $schemas = [
             Author::class  => AuthorSchemaWithComments::class,
             Comment::class => CommentSchemaWithAuthors::class,
+            Post::class    => PostSchemaCommentsAsReference::class,
         ];
         $container    = new Container(new SchemaFactory(), $schemas);
         $this->parser = (new EncoderFactory())->createParser($container);
@@ -82,6 +95,14 @@ class ParserTest extends BaseTestCase
             Comment::instance(12, 'I like XML better', $this->author),
         ];
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
+
+        $this->post = Post::instance(
+            1,
+            'JSON API paints my bikeshed!',
+            'Outside every fat man there was an even fatter man trying to close in',
+            $this->author,
+            $this->comments
+        );
 
         $this->authorAttr = [
             Author::ATTRIBUTE_FIRST_NAME => $this->author->{Author::ATTRIBUTE_FIRST_NAME},
@@ -94,6 +115,11 @@ class ParserTest extends BaseTestCase
 
         $this->commAttr12 = [
             Comment::ATTRIBUTE_BODY => $this->comments[1]->{Comment::ATTRIBUTE_BODY},
+        ];
+
+        $this->postAttr = [
+            Post::ATTRIBUTE_TITLE => $this->post->{Post::ATTRIBUTE_TITLE},
+            Post::ATTRIBUTE_BODY  => $this->post->{Post::ATTRIBUTE_BODY},
         ];
     }
 
@@ -168,6 +194,33 @@ class ParserTest extends BaseTestCase
 
         $allReplies = [];
         foreach ($this->parser->parse($this->author) as $reply) {
+            /** @var ParserReplyInterface $reply */
+            $allReplies[] = $this->replyToArray($reply);
+        }
+        $this->assertEquals($expected, $allReplies);
+    }
+
+    /**
+     * Test parse link as reference.
+     */
+    public function testParseLinkReferences()
+    {
+        $this->post->{Post::LINK_AUTHOR} = null;
+
+        $start      = ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED;
+        $startRef   = ParserReplyInterface::REPLY_TYPE_REFERENCE_STARTED;
+        $startNull  = ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED;
+        $complete   = ParserReplyInterface::REPLY_TYPE_RESOURCE_COMPLETED;
+        $expected   = [
+            //             level link name   type        id    attributes         meta
+            [$start,       1,    '',         'posts',    1,    $this->postAttr, null],
+            [$startNull,   2,    'author',   '',         null, null,            null],
+            [$startRef,    2,    'comments', '',         null, null,            null],
+            [$complete,    1,    '',         'posts',    1,    $this->postAttr, null],
+        ];
+
+        $allReplies = [];
+        foreach ($this->parser->parse($this->post) as $reply) {
             /** @var ParserReplyInterface $reply */
             $allReplies[] = $this->replyToArray($reply);
         }

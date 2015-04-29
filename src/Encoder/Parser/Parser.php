@@ -126,10 +126,6 @@ class Parser implements ParserInterface
     {
         $curFrame = $this->stack->end();
 
-        if ($curFrame->getLevel() > 1 && $this->shouldParseResources($curFrame->getLinkObject()) === false) {
-            return;
-        }
-
         if (empty($data) === true) {
             yield $this->createReplyForEmptyData($data);
         } elseif ($this->isRefFrame()) {
@@ -218,17 +214,6 @@ class Parser implements ParserInterface
     private function createReplyResourceCompleted()
     {
         return $this->parserFactory->createReply(ParserReplyInterface::REPLY_TYPE_RESOURCE_COMPLETED, $this->stack);
-    }
-
-    /**
-     *
-     * @param LinkObjectInterface $link
-     *
-     * @return bool
-     */
-    private function shouldParseResources(LinkObjectInterface $link)
-    {
-        return $this->manager === null ? true : $this->manager->isShouldParseResources($link, $this->stack);
     }
 
     /**

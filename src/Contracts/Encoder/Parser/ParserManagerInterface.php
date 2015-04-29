@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 
@@ -25,16 +24,6 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
  */
 interface ParserManagerInterface
 {
-    /**
-     * If parser should parse resources at the link.
-     *
-     * @param LinkObjectInterface    $link
-     * @param StackReadOnlyInterface $stack
-     *
-     * @return bool
-     */
-    public function isShouldParseResources(LinkObjectInterface $link, StackReadOnlyInterface $stack);
-
     /**
      * If parser should parse links for the resource.
      *

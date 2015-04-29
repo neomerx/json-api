@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncodingOptionsInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
@@ -39,15 +38,6 @@ class ParserManager implements ParserManagerInterface
     public function __construct(EncodingOptionsInterface $options)
     {
         $this->options = $options;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShouldParseResources(LinkObjectInterface $link, StackReadOnlyInterface $stack)
-    {
-        // TODO consider removing this empty method
-        return true;
     }
 
     /**
