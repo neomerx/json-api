@@ -46,4 +46,32 @@ class FactoryTest extends BaseTestCase
     {
         $this->assertNotNull($this->factory->createDocument());
     }
+
+    /**
+     * Test create error.
+     */
+    public function testCreateError()
+    {
+        $this->assertNotNull($error = $this->factory->createError(
+            $idx = 'some-id',
+            $href = 'some-href',
+            $status = 'some-status',
+            $code = 'some-code',
+            $title = 'some-title',
+            $detail = 'some-detail',
+            $links = ['link1'],
+            $paths = ['paths'],
+            $members = ['members']
+        ));
+
+        $this->assertEquals($idx, $error->getId());
+        $this->assertEquals($href, $error->getHref());
+        $this->assertEquals($status, $error->getStatus());
+        $this->assertEquals($code, $error->getCode());
+        $this->assertEquals($title, $error->getTitle());
+        $this->assertEquals($detail, $error->getDetail());
+        $this->assertEquals($links, $error->getLinks());
+        $this->assertEquals($paths, $error->getPaths());
+        $this->assertEquals($members, $error->getAdditionalMembers());
+    }
 }
