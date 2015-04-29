@@ -22,6 +22,8 @@
 interface DocumentFactoryInterface
 {
     /**
+     * Create document.
+     *
      * @return DocumentInterface
      */
     public function createDocument();
