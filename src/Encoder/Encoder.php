@@ -115,8 +115,8 @@ class Encoder implements EncoderInterface
     /**
      * Create encoder instance.
      *
-     * @param array             $schemas Schema providers.
-     * @param JsonEncodeOptions $encodeOptions
+     * @param array                  $schemas       Schema providers.
+     * @param JsonEncodeOptions|null $encodeOptions
      *
      * @return Encoder
      */

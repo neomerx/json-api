@@ -99,7 +99,7 @@ class Document implements DocumentInterface
     private $included;
 
     /**
-     * @var array
+     * @var array|null
      */
     private $data;
 
@@ -515,7 +515,7 @@ class Document implements DocumentInterface
     /**
      * @param ResourceObjectInterface $resource
      *
-     * @return array
+     * @return array<string,string>
      */
     protected function getLinkageRepresentation(ResourceObjectInterface $resource)
     {

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Generator;
+use \Iterator;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
@@ -120,7 +120,7 @@ class Parser implements ParserInterface
     /**
      * @param array|object|null $data
      *
-     * @return Generator
+     * @return Iterator
      */
     private function parseData($data)
     {

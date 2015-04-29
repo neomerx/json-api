@@ -48,8 +48,8 @@ interface ParserFactoryInterface
     /**
      * Create parser.
      *
-     * @param ContainerInterface     $container
-     * @param ParserManagerInterface $manager
+     * @param ContainerInterface          $container
+     * @param ParserManagerInterface|null $manager
      *
      * @return ParserInterface
      */

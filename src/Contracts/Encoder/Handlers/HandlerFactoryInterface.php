@@ -27,8 +27,8 @@ interface HandlerFactoryInterface
     /**
      * Create parser reply interpreter.
      *
-     * @param DocumentInterface        $document
-     * @param EncodingOptionsInterface $options
+     * @param DocumentInterface             $document
+     * @param EncodingOptionsInterface|null $options
      *
      * @return ReplyInterpreterInterface
      */

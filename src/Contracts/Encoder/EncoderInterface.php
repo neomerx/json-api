@@ -26,10 +26,10 @@ interface EncoderInterface
     /**
      * Encode input as JSON API string.
      *
-     * @param object|array                $data    Data to encode.
-     * @param DocumentLinksInterface|null $links   Optional document links information (e.g. request URL, paging).
-     * @param array|object|null           $meta    Optional document meta information.
-     * @param EncodingOptionsInterface    $options Encoding options.
+     * @param object|array                  $data    Data to encode.
+     * @param DocumentLinksInterface|null   $links   Optional document links information (e.g. request URL, paging).
+     * @param array|object|null             $meta    Optional document meta information.
+     * @param EncodingOptionsInterface|null $options Encoding options.
      *
      * @return string
      */

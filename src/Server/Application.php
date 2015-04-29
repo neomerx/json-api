@@ -60,8 +60,8 @@ class Application implements RequestHandlerInterface
      * @param RequestHandlerInterface            $jsonApiHandler
      * @param MediaConverterInterface            $jsonApiConverter
      * @param Closure                            $exceptionClosure
-     * @param MediaConverterInterface[]          $converters
-     * @param ExtensionRequestHandlerInterface[] $extensions
+     * @param MediaConverterInterface[]|null          $converters
+     * @param ExtensionRequestHandlerInterface[]|null $extensions
      */
     public function __construct(
         RequestHandlerInterface $jsonApiHandler,
