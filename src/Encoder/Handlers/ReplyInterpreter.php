@@ -209,6 +209,10 @@ class ReplyInterpreter implements ReplyInterpreterInterface
         assert('$link !== null && $parent !== null');
 
         switch($replyType) {
+            case ParserReplyInterface::REPLY_TYPE_REFERENCE_STARTED:
+                assert($link->isShowAsReference() === true);
+                $this->document->addReferenceToIncluded($parent, $link);
+                break;
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
                 $this->document->addNullLinkToIncluded($parent, $link);
                 break;
