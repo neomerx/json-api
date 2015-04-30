@@ -26,6 +26,10 @@ class DocumentLinks implements DocumentLinksInterface
     /**
      * @var string|null
      */
+    private $selfUrl;
+    /**
+     * @var string|null
+     */
     private $firstUrl;
 
     /**
