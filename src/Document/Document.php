@@ -121,39 +121,19 @@ class Document implements DocumentInterface
     private $isDataArrayed;
 
     /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->resetDocument();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    private function resetDocument()
-    {
-        $this->errors            = [];
-        $this->meta              = null;
-        $this->links             = [];
-        $this->data              = null;
-        $this->included          = [];
-        $this->isIncludedMarks   = [];
-        $this->bufferForData     = [];
-        $this->bufferForIncluded = [];
-        $this->isDataArrayed     = null;
-    }
-
-    /**
      * @inheritdoc
      */
     public function setDocumentLinks(DocumentLinksInterface $links)
     {
-        $links->getSelfUrl()  === null ?: $this->links[self::KEYWORD_SELF]  = $links->getSelfUrl();
-        $links->getFirstUrl() === null ?: $this->links[self::KEYWORD_FIRST] = $links->getFirstUrl();
-        $links->getLastUrl()  === null ?: $this->links[self::KEYWORD_LAST]  = $links->getLastUrl();
-        $links->getPrevUrl()  === null ?: $this->links[self::KEYWORD_PREV]  = $links->getPrevUrl();
-        $links->getNextUrl()  === null ?: $this->links[self::KEYWORD_NEXT]  = $links->getNextUrl();
+        $this->links = array_filter([
+            self::KEYWORD_SELF  => $links->getSelfUrl(),
+            self::KEYWORD_FIRST => $links->getFirstUrl(),
+            self::KEYWORD_LAST  => $links->getLastUrl(),
+            self::KEYWORD_PREV  => $links->getPrevUrl(),
+            self::KEYWORD_NEXT  => $links->getNextUrl(),
+        ], function ($value) {
+            return $value !== null;
+        });
     }
 
     /**
@@ -396,26 +376,21 @@ class Document implements DocumentInterface
      */
     public function getDocument()
     {
-        if (empty($this->errors) === false) {
+        if ($this->errors !== null) {
             return [self::KEYWORD_ERRORS => $this->errors];
         }
 
-        $document = [];
-
-        if ($this->meta !== null) {
-            $document[self::KEYWORD_META] = $this->meta;
-        }
-
-        if (empty($this->links) === false) {
-            $document[self::KEYWORD_LINKS] = $this->links;
-        }
+        $document = array_filter([
+            self::KEYWORD_META     => $this->meta,
+            self::KEYWORD_LINKS    => $this->links,
+            self::KEYWORD_DATA     => true, // this field wont be filtered
+            self::KEYWORD_INCLUDED => $this->included,
+        ], function ($value) {
+            return $value !== null;
+        });
 
         $isDataNotArray = ($this->isDataArrayed === false && empty($this->data) === false);
         $document[self::KEYWORD_DATA] = ($isDataNotArray ? $this->data[0] : $this->data);
-
-        if (empty($this->included) === false) {
-            $document[self::KEYWORD_INCLUDED] = $this->included;
-        }
 
         return $document;
     }
@@ -547,19 +522,23 @@ class Document implements DocumentInterface
      */
     public function addError(ErrorInterface $error)
     {
-        $representation = [];
-
-        $error->getId()     === null ?: $representation[self::KEYWORD_ERRORS_ID]     = (string)$error->getId();
-        $error->getHref()   === null ?: $representation[self::KEYWORD_ERRORS_HREF]   = $error->getHref();
-        $error->getStatus() === null ?: $representation[self::KEYWORD_ERRORS_STATUS] = $error->getStatus();
-        $error->getCode()   === null ?: $representation[self::KEYWORD_ERRORS_CODE]   = $error->getCode();
-        $error->getTitle()  === null ?: $representation[self::KEYWORD_ERRORS_TITLE]  = $error->getTitle();
-        $error->getDetail() === null ?: $representation[self::KEYWORD_ERRORS_DETAIL] = $error->getDetail();
-        $error->getLinks()  === null ?: $representation[self::KEYWORD_ERRORS_LINKS]  = $error->getLinks();
-        $error->getPaths()  === null ?: $representation[self::KEYWORD_ERRORS_PATHS]  = $error->getPaths();
+        $representation = array_filter([
+            self::KEYWORD_ERRORS_ID     => (string)$error->getId(),
+            self::KEYWORD_ERRORS_HREF   => $error->getHref(),
+            self::KEYWORD_ERRORS_STATUS => $error->getStatus(),
+            self::KEYWORD_ERRORS_CODE   => $error->getCode(),
+            self::KEYWORD_ERRORS_TITLE  => $error->getTitle(),
+            self::KEYWORD_ERRORS_DETAIL => $error->getDetail(),
+            self::KEYWORD_ERRORS_LINKS  => $error->getLinks(),
+            self::KEYWORD_ERRORS_PATHS  => $error->getPaths(),
+        ], function ($value) {
+            return $value !== null;
+        });
 
         $members = $error->getAdditionalMembers();
-        empty($members) === true ?: $representation += $members;
+        if (empty($members) === false) {
+            $representation += $members;
+        }
 
         $this->errors[] = $representation;
     }
