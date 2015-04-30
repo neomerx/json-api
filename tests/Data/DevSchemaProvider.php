@@ -83,6 +83,16 @@ abstract class DevSchemaProvider extends SchemaProvider
     }
 
     /**
+     * Set parser's max depth level.
+     *
+     * @param int $depthLevel
+     */
+    public function setDefaultParseDepth($depthLevel)
+    {
+        $this->defaultParseDepth = $depthLevel;
+    }
+
+    /**
      * Add/remove values in input array.
      *
      * @param array $links

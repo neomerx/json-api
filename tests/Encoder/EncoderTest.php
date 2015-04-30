@@ -509,14 +509,10 @@ EOL;
     }
 
     /**
-     * Test encode nested included objects with cyclic dependencies.
-     *
-     * @ign
+     * Test encode nested included objects with cyclic dependencies and sparse support.
      */
     public function testEncodeWithRecursiveIncludedObjects()
     {
-        // TODO this test builds good hierarchy however due to lack of sparse support it doesn't test it
-
         $author   = Author::instance(9, 'Dan', 'Gebhardt');
         $comments = [
             Comment::instance(5, 'First!', $author),
@@ -583,6 +579,61 @@ EOL;
                     }
                 }
             }]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode nested included objects with cyclic dependencies and sparse support.
+     */
+    public function testEncodeWithMaxDepthLevel()
+    {
+        $author   = Author::instance(9, 'Dan', 'Gebhardt');
+        $comments = [
+            Comment::instance(5, 'First!', $author),
+            Comment::instance(12, 'I like XML better', $author),
+        ];
+        $author->{Author::LINK_COMMENTS} = $comments;
+        $post = Post::instance(
+            1,
+            'JSON API paints my bikeshed!',
+            'Outside every fat man there was an even fatter man trying to close in',
+            $author,
+            $comments
+        );
+        $site = Site::instance(2, 'site name', [$post]);
+
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => PostSchema::class,
+            Site::class    => function ($factory, $container) {
+                $schema = new SiteSchema($factory, $container);
+                $schema->setDefaultParseDepth(1);
+                return $schema;
+            },
+        ])->encode($site);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"  : "sites",
+                "id"    : "2",
+                "name"  : "site name",
+                "links" : {
+                    "self" : "http://example.com/sites/2",
+                    "posts" : {
+                        "linkage" : {
+                            "type" : "posts",
+                            "id" : "1"
+                        }
+                    }
+                }
+            }
         }
 EOL;
         // remove formatting from 'expected'

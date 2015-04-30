@@ -20,6 +20,7 @@ Support representation for
 * Included resources
 * Sparse rules
 * Filed sets (for attributes)
+* Limits for input data parsing depth
 
 This package is under active development and should be completed by the early May 2015.
 

@@ -97,7 +97,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @var int
      */
-    protected $defaultIncludeDepth = 1; // TODO looks not used. Add support for it.
+    protected $defaultParseDepth = null;
 
     /**
      * @var SchemaFactoryInterface
@@ -117,7 +117,11 @@ abstract class SchemaProvider implements SchemaProviderInterface
     {
         assert('is_string($this->baseSelfUrl)  && empty($this->baseSelfUrl) === false', 'Base \'self\' not set.');
         assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set.');
-        assert('is_int($this->defaultIncludeDepth) && $this->defaultIncludeDepth > 0', 'Depth should be positive int.');
+        assert(
+            'is_null($this->defaultParseDepth) || '.
+            '(is_int($this->defaultParseDepth) && $this->defaultParseDepth > 0)',
+            'If set depth should be positive int.'
+        );
 
         substr($this->baseSelfUrl, -1) === '/' ?: $this->baseSelfUrl .= '/';
 
@@ -179,9 +183,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getDefaultIncludeDepth()
+    public function getDefaultParseDepth()
     {
-        return $this->defaultIncludeDepth;
+        return $this->defaultParseDepth;
     }
 
     /**

@@ -102,7 +102,7 @@ interface SchemaProviderInterface
      *
      * @return int
      */
-    public function getDefaultIncludeDepth();
+    public function getDefaultParseDepth();
 
     /**
      * Create resource object.

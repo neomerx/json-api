@@ -83,6 +83,11 @@ class Parser implements ParserInterface
     private $manager;
 
     /**
+     * @var int
+     */
+    private $maxLevel;
+
+    /**
      * @param ParserFactoryInterface      $parserFactory
      * @param StackFactoryInterface       $stackFactory
      * @param ContainerInterface          $container
@@ -140,6 +145,10 @@ class Parser implements ParserInterface
                 $data   = [$data];
             }
 
+            if ($curFrame->getLevel() === 1) {
+                $this->maxLevel = $schema->getDefaultParseDepth();
+            }
+
             // duplicated are allowed in data however they shouldn't be in includes
             $isDupAllowed = $curFrame->getLevel() < 2;
 
@@ -152,6 +161,7 @@ class Parser implements ParserInterface
                 yield $this->createReplyResourceStarted();
 
                 if (($isCircular === true && $isDupAllowed === false) ||
+                    $this->maxLevel !== null && $curFrame->getLevel() > $this->maxLevel ||
                     $this->shouldParseLinks($resourceObject, $isCircular) === false
                 ) {
                     continue;
