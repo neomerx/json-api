@@ -87,7 +87,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @var bool
      */
-    protected $isShowLinksInIncluded = false; // TODO add support in document generation
+    protected $isShowLinksInIncluded = false;
 
     /**
      * @var bool
