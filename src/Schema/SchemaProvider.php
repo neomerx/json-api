@@ -297,6 +297,12 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     private function getNotEmptyValue(array $array, $key, $default = null)
     {
-        return (isset($array[$key]) === true && empty($value = $array[$key]) === false ? $value : $default);
+        if (isset($array[$key]) === true) {
+            $value = $array[$key];
+            if (empty($value) === false) {
+                return $value;
+            }
+        }
+        return $default;
     }
 }
