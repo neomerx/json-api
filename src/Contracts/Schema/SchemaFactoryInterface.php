@@ -22,6 +22,15 @@
 interface SchemaFactoryInterface
 {
     /**
+     * Create schema provider container.
+     *
+     * @param array $providers
+     *
+     * @return ContainerInterface
+     */
+    public function createContainer(array $providers = []);
+
+    /**
      * Create resource object.
      *
      * @param bool   $isInArray

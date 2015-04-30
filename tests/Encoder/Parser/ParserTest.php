@@ -17,7 +17,6 @@
  */
 
 use \Neomerx\Tests\JsonApi\Data\Post;
-use \Neomerx\JsonApi\Schema\Container;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
@@ -93,7 +92,7 @@ class ParserTest extends BaseTestCase
                 return $schema;
             },
         ];
-        $container    = new Container(new SchemaFactory(), $schemas);
+        $container    = (new SchemaFactory())->createContainer($schemas);
         $this->parser = (new EncoderFactory())->createParser($container);
 
         $this->author   = Author::instance(9, 'Dan', 'Gebhardt');

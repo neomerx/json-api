@@ -125,7 +125,8 @@ class Encoder implements EncoderInterface
         assert('empty($schemas) === false', 'Schema providers should be specified.');
 
         /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
-        $container = new \Neomerx\JsonApi\Schema\Container(new \Neomerx\JsonApi\Schema\SchemaFactory(), $schemas);
+        $schemaFactory = new \Neomerx\JsonApi\Schema\SchemaFactory();
+        $container     = $schemaFactory->createContainer($schemas);
         /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
         $documentFactory = new \Neomerx\JsonApi\Document\DocumentFactory();
         /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */

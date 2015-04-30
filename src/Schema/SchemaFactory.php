@@ -26,6 +26,14 @@ class SchemaFactory implements SchemaFactoryInterface
     /**
      * @inheritdoc
      */
+    public function createContainer(array $providers = [])
+    {
+        return new Container($this, $providers);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function createResourceObject(
         $isInArray,
         $type,
