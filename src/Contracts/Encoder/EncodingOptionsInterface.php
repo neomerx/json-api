@@ -33,7 +33,7 @@ interface EncodingOptionsInterface
      *
      * @param string $type
      *
-     * @return string[]|null
+     * @return string[]|array|null
      */
     public function getFieldSet($type);
 }
