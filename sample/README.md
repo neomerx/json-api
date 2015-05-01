@@ -191,7 +191,7 @@ This application includes performance test as well. It can be run with default p
 $ php sample.php -t
 ```
 
-or with measuring execution time and specified number of iterations
+or with execution time measurement and specified number of iterations
 
 ```
 $ php time sample.php -t=10000
@@ -209,3 +209,5 @@ The following command could be used for performance profiling with [blackfire.io
 ```
 $ blackfire --slot <slot number here> --samples 1 run php -d assert.active=0 sample.php -t=100
 ```
+
+Are you in a mood to optimize performance? You can start from this [performance baseline profile](https://blackfire.io/profiles/6a0b22eb-733a-4b0e-ba13-e563e66c07c7/graph).
