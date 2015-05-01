@@ -148,7 +148,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getMeta($data)
+    public function getMeta($resource)
     {
         return null;
     }

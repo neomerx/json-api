@@ -69,11 +69,11 @@ interface SchemaProviderInterface
     /**
      * Get resource meta information.
      *
-     * @param object|array $data
+     * @param object $resource
      *
      * @return mixed
      */
-    public function getMeta($data);
+    public function getMeta($resource);
 
     /**
      * If 'self' endpoint URL should be shown for included resources.
