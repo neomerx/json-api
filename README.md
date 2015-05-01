@@ -246,7 +246,98 @@ You can fully customize how your output result will look like
 
 ### Sample source code
 
-The full sample source code could be found [here](sample/)
+The full sample source code with performance test could be found [here](sample/)
+
+## Advanced usage
+
+### Link resources
+
+Adding links to a resource is easy. You only need to add ```getLinks``` method to resource schema
+
+```php
+class PostSchema extends SchemaProvider
+{
+    ...
+    public function getLinks($post)
+    {
+        /** @var Post $post */
+        return [
+            'author'   => [self::DATA => $post->author],
+            'comments' => [self::DATA => $post->comments],
+        ];
+    }
+    ...
+}
+```
+
+Apart from ```self::DATA``` the following keys are supported
+
+* ```self::INCLUDED``` (bool) - if resource(s) from this link should be added to ```included``` section.
+* ```self::SHOW_META``` (bool) - if resource meta information should be added to output link description.
+* ```self::SHOW_LINKAGE``` (bool) - if linkage information should be added to output link description.
+* ```self::SHOW_SELF``` (bool) - if link ```self``` URL should be added to output link description. Setting this option to ```true``` requires ```self::SELF_CONTROLLER``` (```mixed```) to be set as well.
+* ```self::SHOW_RELATED``` (bool) - if link ```self``` URL should be added to output link description. Setting this option to ```true``` requires ```self::RELATED_CONTROLLER``` (```mixed```) to be set as well.
+* ```self::SHOW_AS_REF``` (bool) - if this key is set to ```true``` the link will be rendered as a reference.
+
+### Provide resource's meta information
+
+A ```getMeta``` method should be added to schema
+
+```php
+class PostSchema extends SchemaProvider
+{
+    ...
+    public function getMeta($post)
+    {
+        /** @var Post $post */
+        return [
+            ...
+        ];
+    }
+    ...
+}
+```
+
+### Show/Hide 'self' or 'meta' for resource
+
+You can set it up in resource schema
+
+```php
+class YourSchema extends SchemaProvider
+{
+    ...
+    protected $isShowSelf = true;
+    protected $isShowMeta = false;
+    ...
+}
+```
+
+### Show/Hide 'self' or 'meta' for included resource
+
+
+```php
+class YourSchema extends SchemaProvider
+{
+    ...
+    protected $isShowSelfInIncluded  = false;
+    protected $isShowLinksInIncluded = false;
+    protected $isShowMetaInIncluded  = false;
+    ...
+}
+```
+
+### Limit depth of resource inclusion
+
+By default the inclusion depth is unlimited thus all the data you pass to encoder will be put to json. You can limit the parsing depth for resource and its links by setting ```$defaultParseDepth```.
+
+```php
+class YourSchema extends SchemaProvider
+{
+    ...
+    protected $defaultParseDepth = 1;
+    ...
+}
+```
 
 ## Questions?
 
