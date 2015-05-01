@@ -155,8 +155,13 @@ EOL;
             },
             Site::class    => SiteSchema::class,
         ])->encode($this->site, null, null, new EncodingOptions(
-            [Site::LINK_POSTS . '.' . Post::LINK_COMMENTS], // include only this relation
-            ['comments' => [Comment::ATTRIBUTE_BODY, Comment::LINK_AUTHOR]] // filter attributes
+            // include only this relation
+            [Site::LINK_POSTS . '.' . Post::LINK_COMMENTS],
+            // include only these attributes and links
+            [
+                'comments' => [Comment::ATTRIBUTE_BODY, Comment::LINK_AUTHOR],
+                'sites'    => [Site::LINK_POSTS],
+            ]
         ));
 
         $expected = <<<EOL

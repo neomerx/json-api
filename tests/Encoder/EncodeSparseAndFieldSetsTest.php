@@ -181,7 +181,11 @@ EOL;
             Site::class    => SiteSchema::class,
         ])->encode($this->site, null, null, new EncodingOptions(
             null,
-            ['people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME]] // filter attributes
+            // include only these attributes and links
+            [
+                'people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME],
+                'sites'  => [Site::LINK_POSTS],
+            ]
         ));
 
         $expected = <<<EOL

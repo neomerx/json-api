@@ -1071,6 +1071,38 @@ EOL;
     }
 
     /**
+     * Test add type and id only. This functionality is required for replies on 'request links'.
+     */
+    public function testAddTypeAndIdOnly()
+    {
+        $this->document->addToData($resource = $this->schemaFactory->createResourceObject(
+            false,
+            'people',
+            '123',
+            [],
+            null,
+            '',
+            null,
+            false,
+            false,
+            false,
+            false,
+            false
+        ));
+        $this->document->setResourceCompleted($resource);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "people",
+                "id"   : "123"
+            }
+        }
+EOL;
+        $this->check($expected);
+    }
+
+    /**
      * Test add error.
      */
     public function testAddError()

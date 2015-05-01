@@ -24,6 +24,7 @@ use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\Tests\JsonApi\Data\PostSchema;
 use \Neomerx\Tests\JsonApi\Data\SiteSchema;
+use \Neomerx\JsonApi\Encoder\EncodingOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
 
@@ -47,6 +48,118 @@ class EncoderTest extends BaseTestCase
         ]);
 
         $actual = $endcoder->encode([$author, $author]);
+
+        $expected = <<<EOL
+        {
+            "data" : [
+                {
+                    "type"       : "people",
+                    "id"         : "9",
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt",
+                    "links" : {
+                        "self" : "http://example.com/people/9"
+                    }
+                },
+                {
+                    "type"       : "people",
+                    "id"         : "9",
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt",
+                    "links" : {
+                        "self" : "http://example.com/people/9"
+                    }
+                }
+            ]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode 2 duplicate resources with circular link to each other.
+     */
+    public function testEncodeDuplicatesWithCircularReferencesInData()
+    {
+        $author = Author::instance(9, 'Dan', 'Gebhardt');
+
+        // That's gonna be a bit of a hack. We put author himself to author->comments link.
+        // Don't be confused by the link name. It does not matter and I just don't want to create a new schema.
+        $author->{Author::LINK_COMMENTS} = $author;
+
+        $endcoder = Encoder::instance([
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::INCLUDED, false);
+                return $schema;
+            },
+        ]);
+
+        $actual = $endcoder->encode([$author, $author]);
+
+        $expected = <<<EOL
+        {
+            "data" : [
+                {
+                    "type"       : "people",
+                    "id"         : "9",
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt",
+                    "links" : {
+                        "self"     : "http://example.com/people/9",
+                        "comments" : {
+                            "linkage" : { "type" : "people", "id" : "9" }
+                        }
+                    }
+                }, {
+                    "type"       : "people",
+                    "id"         : "9",
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt",
+                    "links" : {
+                        "self"     : "http://example.com/people/9",
+                        "comments" : {
+                            "linkage" : { "type" : "people", "id" : "9" }
+                        }
+                    }
+                }
+            ]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode 2 main resource duplicates and try to apply field set filter on relations.
+     */
+    public function testEncodeDuplicatesWithRelationFieldSetFilter()
+    {
+        $author   = Author::instance(9, 'Dan', 'Gebhardt');
+        $comments = [
+            Comment::instance(5, 'First!', $author),
+            Comment::instance(12, 'I like XML better', $author),
+        ];
+        $endcoder = Encoder::instance([
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::INCLUDED, false);
+                return $schema;
+            },
+            Comment::class => CommentSchema::class,
+        ]);
+
+        $author->{Author::LINK_COMMENTS} = $comments;
+
+        $actual = $endcoder->encode([$author, $author], null, null, new EncodingOptions(
+            null,
+            ['people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME]] // filter attributes
+        ));
 
         $expected = <<<EOL
         {
@@ -247,11 +360,6 @@ EOL;
 
         $this->assertEquals($expected, $actual);
     }
-
-    // TODO add tests for duplicates (as links, as included, as links in included)
-    // TODO add test for references in included
-    // TODO add test for main resources duplicates with relation filter
-    // TODO add circular dependency for two main resources. Will it handle it?
 
     /**
      * @return Post
