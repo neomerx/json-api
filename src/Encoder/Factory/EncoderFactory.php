@@ -16,22 +16,22 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Encoder\EncodingOptionsInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
-use Neomerx\JsonApi\Encoder\Parser\ParserManager;
 use \Neomerx\JsonApi\Encoder\Stack\Stack;
 use \Neomerx\JsonApi\Encoder\Parser\Parser;
 use \Neomerx\JsonApi\Encoder\Stack\StackFrame;
 use \Neomerx\JsonApi\Encoder\Parser\ParserReply;
+use \Neomerx\JsonApi\Encoder\Parser\ParserManager;
 use \Neomerx\JsonApi\Encoder\Parser\ParserEmptyReply;
 use \Neomerx\JsonApi\Encoder\Handlers\ReplyInterpreter;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\EncodingOptionsInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\HandlerFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 
 /**
  * @package Neomerx\JsonApi

@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Document\Document;
 use \stdClass;
 use \ReflectionMethod;
+use \Neomerx\JsonApi\Document\Document;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Schema\SchemaFactory;
 use \Neomerx\JsonApi\Document\DocumentFactory;
