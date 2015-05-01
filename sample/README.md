@@ -175,12 +175,12 @@ Note that output does not contain objects from neither ```posts``` nor ```posts.
 
 ### View customization
 
-You can fully customize how your object will look like
+You can fully customize how your output result will look like
 
 * Add links to document.
 * Add meta to document, resource objects or link objects.
 * Show object links as references.
-* On/off showing ```self```, ```related```, ```links```, ```meta``` for each resource type individually for both main and included objects and links.
+* Show/hide ```self```, ```related```, ```links```, ```meta``` for each resource type individually for both main and included objects and links.
 * Specify what links should place resources to ```included``` section and set default inclusion depth for each resource type independently.
 
 ## Neomerx JSON API performance test
@@ -194,7 +194,7 @@ $ php sample.php -t
 or with measuring execution time and specified number of iterations
 
 ```
-$ php time sample.php -t=100
+$ php time sample.php -t=10000
 ```
 
 If your system has debug assertions enabled it is recommended to turn them off. Just to give you an idea that debug assert are not free here is the execution time comparison
