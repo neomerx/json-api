@@ -264,9 +264,11 @@ EOL;
             true,
             true,
             true,
+            true,
             false,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            $this->schemaFactory->createPaginationLinks('/first')
         );
         $this->document->addLinkToData($parent, $link, $resource);
         $this->document->setResourceCompleted($parent);
@@ -283,6 +285,7 @@ EOL;
                         "self"    : "peopleSelfUrl/selfSubUrl",
                         "related" : "peopleSelfUrl/relatedSubUrl",
                         "meta"    : { "some" : "comment meta" },
+                        "first"   : "/first",
                         "linkage" : { "type" : "comments", "id" : "321" }
                     }
                 }
@@ -336,8 +339,10 @@ EOL;
             true,
             false,
             false,
+            false,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            null
         );
         $this->document->addLinkToData($parent, $link, $resource);
         $this->document->setResourceCompleted($parent);
@@ -404,8 +409,10 @@ EOL;
             true,
             false,
             false,
+            false,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            null
         );
         $this->document->addLinkToData($parent, $link, $resource);
         $this->document->addLinkToData($parent, $link, $resource);
@@ -476,8 +483,10 @@ EOL;
             false,
             true,
             false,
+            false,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            null
         );
         $this->document->addLinkToData($parent, $link, $resource);
         $this->document->setResourceCompleted($parent);
@@ -543,9 +552,11 @@ EOL;
             true,
             true,
             true,
+            false,
             true,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            null
         );
         $this->document->addReferenceToData($parent, $link, $resource);
         $this->document->setResourceCompleted($parent);
@@ -596,8 +607,10 @@ EOL;
             false,
             true,
             false,
+            false,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            null
         );
         $this->document->addEmptyLinkToData($parent, $link);
         $this->document->setResourceCompleted($parent);
@@ -648,8 +661,10 @@ EOL;
             false,
             true,
             false,
+            false,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            null
         );
         $this->document->addNullLinkToData($parent, $link);
         $this->document->setResourceCompleted($parent);
@@ -793,9 +808,11 @@ EOL;
             true,
             true,
             true,
+            false,
             true,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            null
         );
         $this->document->addLinkToIncluded($parent, $link, $resource);
         $this->document->setResourceCompleted($parent);
@@ -869,9 +886,11 @@ EOL;
             false,
             true,
             false,
+            false,
             true,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            null
         );
         $this->document->addLinkToIncluded($parent, $link, $resource);
         $this->document->setResourceCompleted($parent);
@@ -928,9 +947,11 @@ EOL;
             true,
             true,
             true,
+            false,
             true,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            null
         );
         $this->document->addEmptyLinkToIncluded($parent, $link);
         $this->document->setResourceCompleted($parent);
@@ -985,9 +1006,11 @@ EOL;
             true,
             true,
             true,
+            false,
             true,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            null
         );
         $this->document->addNullLinkToIncluded($parent, $link);
         $this->document->setResourceCompleted($parent);
@@ -1042,9 +1065,11 @@ EOL;
             true,
             true,
             true,
+            false,
             true,
             'some-self-controller-data',
-            'some-related-controller-data'
+            'some-related-controller-data',
+            null
         );
         $this->document->addReferenceToIncluded($parent, $link);
         $this->document->setResourceCompleted($parent);

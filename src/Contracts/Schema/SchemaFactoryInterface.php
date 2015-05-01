@@ -66,18 +66,20 @@ interface SchemaFactoryInterface
     /**
      * Create link object.
      *
-     * @param string            $name
-     * @param object|array|null $data
-     * @param string|null       $selfSubUrl
-     * @param string|null       $relatedSubUrl
-     * @param bool              $isShowAsRef
-     * @param bool              $isShowSelf
-     * @param bool              $isShowRelated
-     * @param bool              $isShowLinkage
-     * @param bool              $isShowMeta
-     * @param bool              $isIncluded
-     * @param mixed             $selfControllerData
-     * @param mixed             $relatedControllerData
+     * @param string                        $name
+     * @param object|array|null             $data
+     * @param string|null                   $selfSubUrl
+     * @param string|null                   $relatedSubUrl
+     * @param bool                          $isShowAsRef
+     * @param bool                          $isShowSelf
+     * @param bool                          $isShowRelated
+     * @param bool                          $isShowLinkage
+     * @param bool                          $isShowMeta
+     * @param bool                          $isShowPagination
+     * @param bool                          $isIncluded
+     * @param mixed                         $selfControllerData
+     * @param mixed                         $relatedControllerData
+     * @param PaginationLinksInterface|null $pagination
      *
      * @return LinkObjectInterface
      */
@@ -91,8 +93,22 @@ interface SchemaFactoryInterface
         $isShowRelated,
         $isShowLinkage,
         $isShowMeta,
+        $isShowPagination,
         $isIncluded,
         $selfControllerData,
-        $relatedControllerData
+        $relatedControllerData,
+        $pagination
     );
+
+    /**
+     * Create pagination links.
+     *
+     * @param string|null $firstUrl
+     * @param string|null $lastUrl
+     * @param string|null $prevUrl
+     * @param string|null $nextUrl
+     *
+     * @return PaginationLinksInterface
+     */
+    public function createPaginationLinks($firstUrl = null, $lastUrl = null, $prevUrl = null, $nextUrl = null);
 }

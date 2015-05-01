@@ -77,9 +77,11 @@ class SchemaFactory implements SchemaFactoryInterface
         $isShowRelated,
         $isShowLinkage,
         $isShowMeta,
+        $isShowPagination,
         $isIncluded,
         $selfControllerData,
-        $relatedControllerData
+        $relatedControllerData,
+        $pagination
     ) {
         return new LinkObject(
             $name,
@@ -91,9 +93,19 @@ class SchemaFactory implements SchemaFactoryInterface
             $isShowRelated,
             $isShowLinkage,
             $isShowMeta,
+            $isShowPagination,
             $isIncluded,
             $selfControllerData,
-            $relatedControllerData
+            $relatedControllerData,
+            $pagination
         );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createPaginationLinks($firstUrl = null, $lastUrl = null, $prevUrl = null, $nextUrl = null)
+    {
+        return new PaginationLinks($firstUrl, $lastUrl, $prevUrl, $nextUrl);
     }
 }

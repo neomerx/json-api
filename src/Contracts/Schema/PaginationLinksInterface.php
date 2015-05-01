@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Document;
+<?php namespace Neomerx\JsonApi\Contracts\Schema;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,17 +16,36 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
-
 /**
  * @package Neomerx\JsonApi
  */
-interface DocumentLinksInterface extends PaginationLinksInterface
+interface PaginationLinksInterface
 {
     /**
-     * Get 'self' URL for top-level 'links' section.
+     * Get 'first' URL for top-level 'links' section.
      *
      * @return string|null
      */
-    public function getSelfUrl();
+    public function getFirstUrl();
+
+    /**
+     * Get 'last' URL for top-level 'links' section.
+     *
+     * @return string|null
+     */
+    public function getLastUrl();
+
+    /**
+     * Get 'prev' URL for top-level 'links' section.
+     *
+     * @return string|null
+     */
+    public function getPrevUrl();
+
+    /**
+     * Get 'next' URL for top-level 'links' section.
+     *
+     * @return string|null
+     */
+    public function getNextUrl();
 }

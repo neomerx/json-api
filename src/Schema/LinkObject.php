@@ -17,6 +17,7 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -74,6 +75,11 @@ class LinkObject implements LinkObjectInterface
     private $isShowMeta;
 
     /**
+     * @var bool
+     */
+    private $isShowPagination;
+
+    /**
      * @var mixed
      */
     private $selfControllerData;
@@ -84,18 +90,25 @@ class LinkObject implements LinkObjectInterface
     private $relatedControllerData;
 
     /**
-     * @param string            $name
-     * @param object|array|null $data
-     * @param string|null       $selfSubUrl
-     * @param string|null       $relatedSubUrl
-     * @param bool              $isShowAsRef
-     * @param bool              $isShowSelf
-     * @param bool              $isShowRelated
-     * @param bool              $isShowLinkage
-     * @param bool              $isShowMeta
-     * @param bool              $isIncluded
-     * @param mixed             $selfControllerData
-     * @param mixed             $relatedControllerData
+     * @var PaginationLinksInterface|null
+     */
+    private $pagination;
+
+    /**
+     * @param string                        $name
+     * @param object|array|null             $data
+     * @param string|null                   $selfSubUrl
+     * @param string|null                   $relatedSubUrl
+     * @param bool                          $isShowAsRef
+     * @param bool                          $isShowSelf
+     * @param bool                          $isShowRelated
+     * @param bool                          $isShowLinkage
+     * @param bool                          $isShowMeta
+     * @param bool                          $isShowPagination
+     * @param bool                          $isIncluded
+     * @param mixed                         $selfControllerData
+     * @param mixed                         $relatedControllerData
+     * @param PaginationLinksInterface|null $pagination
      */
     public function __construct(
         $name,
@@ -107,9 +120,11 @@ class LinkObject implements LinkObjectInterface
         $isShowRelated,
         $isShowLinkage,
         $isShowMeta,
+        $isShowPagination,
         $isIncluded,
         $selfControllerData,
-        $relatedControllerData
+        $relatedControllerData,
+        $pagination
     ) {
         assert('is_string($name)');
         assert('is_object($data) || is_array($data) || is_null($data)');
@@ -117,10 +132,12 @@ class LinkObject implements LinkObjectInterface
         assert('is_null($relatedSubUrl) || is_string($relatedSubUrl)');
         assert('is_bool($isShowAsRef) && is_bool($isShowSelf) && is_bool($isShowRelated) && is_bool($isShowMeta)');
         assert('is_bool($isIncluded)');
+        assert('is_bool($isShowPagination)');
         assert(
             '$isShowSelf || $isShowRelated || $isShowLinkage || $isShowMeta',
             'Specification requires at least one of them to be shown'
         );
+        assert('is_null($pagination) || $pagination instanceof ' . PaginationLinksInterface::class);
 
         $this->name                  = $name;
         $this->data                  = $data;
@@ -134,6 +151,8 @@ class LinkObject implements LinkObjectInterface
         $this->isShouldBeIncluded    = $isIncluded;
         $this->selfControllerData    = $selfControllerData;
         $this->relatedControllerData = $relatedControllerData;
+        $this->isShowPagination = $isShowPagination;
+        $this->pagination = $pagination;
     }
 
     /**
@@ -211,6 +230,14 @@ class LinkObject implements LinkObjectInterface
     /**
      * @inheritdoc
      */
+    public function isShowPagination()
+    {
+        return $this->isShowPagination;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getLinkedData()
     {
         return $this->data;
@@ -230,5 +257,13 @@ class LinkObject implements LinkObjectInterface
     public function getRelatedControllerData()
     {
         return $this->relatedControllerData;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPagination()
+    {
+        return $this->pagination;
     }
 }

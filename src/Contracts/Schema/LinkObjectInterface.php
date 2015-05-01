@@ -85,6 +85,13 @@ interface LinkObjectInterface
     public function isShowMeta();
 
     /**
+     * If pagination information should be shown.
+     *
+     * @return bool
+     */
+    public function isShowPagination();
+
+    /**
      * Get linked resource data.
      *
      * @return object|array|null
@@ -104,4 +111,11 @@ interface LinkObjectInterface
      * @return mixed
      */
     public function getRelatedControllerData();
+
+    /**
+     * Get pagination information.
+     *
+     * @return PaginationLinksInterface|null
+     */
+    public function getPagination();
 }

@@ -21,6 +21,7 @@ use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
+use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -125,15 +126,7 @@ class Document implements DocumentInterface
      */
     public function setDocumentLinks(DocumentLinksInterface $links)
     {
-        $this->links = array_filter([
-            self::KEYWORD_SELF  => $links->getSelfUrl(),
-            self::KEYWORD_FIRST => $links->getFirstUrl(),
-            self::KEYWORD_LAST  => $links->getLastUrl(),
-            self::KEYWORD_PREV  => $links->getPrevUrl(),
-            self::KEYWORD_NEXT  => $links->getNextUrl(),
-        ], function ($value) {
-            return $value !== null;
-        });
+        $this->links = $this->getDocumentLinksRepresentation($links);
     }
 
     /**
@@ -494,6 +487,13 @@ class Document implements DocumentInterface
             $representation[self::KEYWORD_META] = $resource->getMeta();
         }
 
+        if ($link->isShowPagination() === true) {
+            $representation = array_merge(
+                $representation,
+                $this->getPaginationLinksRepresentation($link->getPagination())
+            );
+        }
+
         assert(
             '$link->isShowSelf() || $link->isShowRelated() || $link->isShowLinkage() || $link->isShowMeta()',
             'Specification requires at least one of them to be shown'
@@ -560,5 +560,38 @@ class Document implements DocumentInterface
         } else {
             return rtrim($url, '/') . $subUrl;
         }
+    }
+
+    /**
+     * @param PaginationLinksInterface $links
+     *
+     * @return array
+     */
+    private function getPaginationLinksRepresentation(PaginationLinksInterface $links)
+    {
+        return array_filter([
+            self::KEYWORD_FIRST => $links->getFirstUrl(),
+            self::KEYWORD_LAST  => $links->getLastUrl(),
+            self::KEYWORD_PREV  => $links->getPrevUrl(),
+            self::KEYWORD_NEXT  => $links->getNextUrl(),
+        ], function ($value) {
+            return $value !== null;
+        });
+    }
+
+    /**
+     * @param DocumentLinksInterface $links
+     *
+     * @return array
+     */
+    private function getDocumentLinksRepresentation(DocumentLinksInterface $links)
+    {
+        $representation = array_merge([
+            self::KEYWORD_SELF  => $links->getSelfUrl(),
+        ], $this->getPaginationLinksRepresentation($links));
+
+        return array_filter($representation, function ($value) {
+            return $value !== null;
+        });
     }
 }

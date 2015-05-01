@@ -16,10 +16,12 @@
  * limitations under the License.
  */
 
+use \Mockery;
 use \stdClass;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Schema\SchemaFactory;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -97,9 +99,11 @@ class FactoryTest extends BaseTestCase
             $isShowRelated = true,
             $isShowLinkage = true,
             $isShowMeta = true,
+            $isShowPagination = true,
             $isIncluded = true,
             $selfControllerData = 'some-self-controller-data',
-            $relatedControllerData = 'some-related-controller-data'
+            $relatedControllerData = 'some-related-controller-data',
+            $pagination = Mockery::mock(PaginationLinksInterface::class)
         ));
 
         $this->assertEquals($name, $link->getName());
@@ -111,8 +115,28 @@ class FactoryTest extends BaseTestCase
         $this->assertEquals($isShowRelated, $link->isShowRelated());
         $this->assertEquals($isShowLinkage, $link->isShowLinkage());
         $this->assertEquals($isShowMeta, $link->isShowMeta());
+        $this->assertEquals($isShowPagination, $link->isShowPagination());
         $this->assertEquals($isIncluded, $link->isShouldBeIncluded());
         $this->assertEquals($selfControllerData, $link->getSelfControllerData());
         $this->assertEquals($relatedControllerData, $link->getRelatedControllerData());
+        $this->assertSame($pagination, $link->getPagination());
+    }
+
+    /**
+     * Test create pagination links.
+     */
+    public function testCreatePaginationLinks()
+    {
+        $this->assertNotNull($link = $this->factory->createPaginationLinks(
+            $firstUrl = 'first',
+            $lastUrl  = 'last',
+            $prevUrl  = 'prev',
+            $nextUrl  = 'next'
+        ));
+
+        $this->assertEquals($firstUrl, $link->getFirstUrl());
+        $this->assertEquals($lastUrl, $link->getLastUrl());
+        $this->assertEquals($prevUrl, $link->getPrevUrl());
+        $this->assertEquals($nextUrl, $link->getNextUrl());
     }
 }

@@ -439,4 +439,57 @@ EOL;
 
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * Test encode included objects.
+     */
+    public function testEncodeWithLinkWithPagination()
+    {
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => function ($factory, $container) {
+                $schema = new CommentSchema($factory, $container);
+                $schema->linkRemove(Comment::LINK_AUTHOR);
+                return $schema;
+            },
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->linkAddTo(
+                    Post::LINK_COMMENTS,
+                    PostSchema::PAGINATION,
+                    [PostSchema::PAGINATION_FIRST => '/first']
+                );
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_PAGINATION, true);
+                return $schema;
+            },
+        ])->encode($this->post);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"  : "posts",
+                "id"    : "1",
+                "title" : "JSON API paints my bikeshed!",
+                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "links" : {
+                    "self" : "http://example.com/posts/1",
+                    "author" : {
+                        "linkage" : { "type" : "people", "id" : "9" }
+                    },
+                    "comments" : {
+                        "linkage" : [
+                            { "type" : "comments", "id" : "5" },
+                            { "type" : "comments", "id" : "12" }
+                        ],
+                        "first" : "/first"
+                    }
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
 }

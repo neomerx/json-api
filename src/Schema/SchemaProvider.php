@@ -44,14 +44,32 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /** If 'related' URL should be shown. Requires 'related' controller to be set. */
     const SHOW_RELATED = 'related';
 
-    /** If linkage information should be shown. True by default. */
+    /** If linkage information should be shown. */
     const SHOW_LINKAGE = 'showLinkage';
+
+    /** If link pagination information should be shown. */
+    const SHOW_PAGINATION = 'showPagination';
 
     /** Arbitrary data describing 'self' controller. */
     const SELF_CONTROLLER = 'selfController';
 
     /** Arbitrary data describing 'related' controller. */
     const RELATED_CONTROLLER = 'relatedController';
+
+    /** Link pagination information */
+    const PAGINATION = 'pagination';
+
+    /** Link pagination information */
+    const PAGINATION_FIRST = 'first';
+
+    /** Link pagination information */
+    const PAGINATION_LAST = 'last';
+
+    /** Link pagination information */
+    const PAGINATION_PREV = 'prev';
+
+    /** Link pagination information */
+    const PAGINATION_NEXT = 'next';
 
     /** Default 'self' sub-URL could be changed with this key */
     const SELF_SUB_URL = 'selfSubUrl';
@@ -208,7 +226,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
 
             $relatedController = $this->getNotEmptyValue($desc, self::RELATED_CONTROLLER);
             $selfController    = $this->getNotEmptyValue($desc, self::SELF_CONTROLLER);
-            $data              = $this->getValue($desc, self::DATA);
+            $data              = $this->readData($desc);
             $isIncluded        = ($this->getValue($desc, self::INCLUDED) === true);
             $isShowMeta        = ($this->getValue($desc, self::SHOW_META) === true);
             $isShowSelf        = $this->isShowControllerUrl($selfController, $desc, self::SHOW_SELF);
@@ -216,16 +234,14 @@ abstract class SchemaProvider implements SchemaProviderInterface
             $isShowRelated     = $this->isShowControllerUrl($relatedController, $desc, self::SHOW_RELATED);
             $isShowLinkage     = ($this->getValue($desc, self::SHOW_LINKAGE, true) === true);
 
+            list($isShowPagination, $pagination) = $this->readPagination($desc);
+
             $selfSubUrl    = $this->getValue($desc, self::SELF_SUB_URL, '/links/'.$name);
             $relatedSubUrl = $this->getValue($desc, self::RELATED_SUB_URL, '/'.$name);
             assert('is_string($selfSubUrl) && is_string($relatedSubUrl)');
 
             $selfSubUrl    = ($selfController    === null ? null : $selfSubUrl);
             $relatedSubUrl = ($relatedController === null ? null : $relatedSubUrl);
-
-            if ($data instanceof Closure) {
-                $data = $data();
-            }
 
             assert('is_object($data) || is_array($data) || $data === null');
 
@@ -239,9 +255,11 @@ abstract class SchemaProvider implements SchemaProviderInterface
                 $isShowRelated,
                 $isShowLinkage,
                 $isShowMeta,
+                $isShowPagination,
                 $isIncluded,
                 $selfController,
-                $relatedController
+                $relatedController,
+                $pagination
             );
         }
     }
@@ -321,5 +339,44 @@ abstract class SchemaProvider implements SchemaProviderInterface
     private function isShowControllerUrl($controllerData, array $description, $showKey)
     {
         return ($controllerData !== null && $this->getValue($description, $showKey) === true);
+    }
+
+    /**
+     * @param array $description
+     *
+     * @return mixed
+     */
+    private function readData(array $description)
+    {
+        $data = $this->getValue($description, self::DATA);
+        if ($data instanceof Closure) {
+            $data = $data();
+        }
+        return $data;
+    }
+
+    /**
+     * @param array $description
+     *
+     * @return array
+     */
+    private function readPagination(array $description)
+    {
+        $pagination       = null;
+        $isShowPagination = $this->getValue($description, self::SHOW_PAGINATION, false);
+        if (isset($description[self::PAGINATION]) === true) {
+            $paginationData = $description[self::PAGINATION];
+            $first = $this->getValue($paginationData, self::PAGINATION_FIRST);
+            $last  = $this->getValue($paginationData, self::PAGINATION_LAST);
+            $prev  = $this->getValue($paginationData, self::PAGINATION_PREV);
+            $next  = $this->getValue($paginationData, self::PAGINATION_NEXT);
+            if ($first !== null || $last !== null || $prev !== null || $next !== null) {
+                $pagination = $this->factory->createPaginationLinks($first, $last, $prev, $next);
+            }
+        }
+
+        $isShowPagination = ($isShowPagination === true && $pagination !== null);
+
+        return [$isShowPagination, $pagination];
     }
 }

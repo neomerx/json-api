@@ -16,36 +16,18 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Schema\PaginationLinks;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class DocumentLinks implements DocumentLinksInterface
+class DocumentLinks extends PaginationLinks implements DocumentLinksInterface
 {
     /**
      * @var string|null
      */
     private $selfUrl;
-    /**
-     * @var string|null
-     */
-    private $firstUrl;
-
-    /**
-     * @var string|null
-     */
-    private $lastUrl;
-
-    /**
-     * @var string|null
-     */
-    private $prevUrl;
-
-    /**
-     * @var string|null
-     */
-    private $nextUrl;
 
     /**
      * @param string|null $selfUrl
@@ -57,16 +39,9 @@ class DocumentLinks implements DocumentLinksInterface
     public function __construct($selfUrl = null, $firstUrl = null, $lastUrl = null, $prevUrl = null, $nextUrl = null)
     {
         assert('$selfUrl  === null || is_string($selfUrl)');
-        assert('$firstUrl === null || is_string($firstUrl)');
-        assert('$lastUrl  === null || is_string($lastUrl)');
-        assert('$prevUrl  === null || is_string($prevUrl)');
-        assert('$nextUrl  === null || is_string($nextUrl)');
 
-        $this->selfUrl  = $selfUrl;
-        $this->firstUrl = $firstUrl;
-        $this->lastUrl  = $lastUrl;
-        $this->prevUrl  = $prevUrl;
-        $this->nextUrl  = $nextUrl;
+        parent::__construct($firstUrl, $lastUrl, $prevUrl, $nextUrl);
+        $this->selfUrl = $selfUrl;
     }
 
     /**
@@ -75,37 +50,5 @@ class DocumentLinks implements DocumentLinksInterface
     public function getSelfUrl()
     {
         return $this->selfUrl;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getFirstUrl()
-    {
-        return $this->firstUrl;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getLastUrl()
-    {
-        return $this->lastUrl;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getPrevUrl()
-    {
-        return $this->prevUrl;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getNextUrl()
-    {
-        return $this->nextUrl;
     }
 }
