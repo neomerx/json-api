@@ -110,8 +110,8 @@ abstract class SchemaProvider implements SchemaProviderInterface
     private $container;
 
     /**
-     * @param SchemaFactoryInterface   $factory
-     * @param ContainerInterface $container
+     * @param SchemaFactoryInterface $factory
+     * @param ContainerInterface     $container
      */
     public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
     {
@@ -211,9 +211,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
             $data              = $this->getValue($desc, self::DATA);
             $isIncluded        = ($this->getValue($desc, self::INCLUDED) === true);
             $isShowMeta        = ($this->getValue($desc, self::SHOW_META) === true);
-            $isShowSelf        = ($selfController    !== null && $this->getValue($desc, self::SHOW_SELF) === true);
-            $isShowAsRef       = ($relatedController !== null && $this->getValue($desc, self::SHOW_AS_REF) === true);
-            $isShowRelated     = ($relatedController !== null && $this->getValue($desc, self::SHOW_RELATED) === true);
+            $isShowSelf        = $this->isShowControllerUrl($selfController, $desc, self::SHOW_SELF);
+            $isShowAsRef       = $this->isShowControllerUrl($relatedController, $desc, self::SHOW_AS_REF);
+            $isShowRelated     = $this->isShowControllerUrl($relatedController, $desc, self::SHOW_RELATED);
             $isShowLinkage     = ($this->getValue($desc, self::SHOW_LINKAGE, true) === true);
 
             $selfSubUrl    = $this->getValue($desc, self::SELF_SUB_URL, '/links/'.$name);
@@ -309,5 +309,17 @@ abstract class SchemaProvider implements SchemaProviderInterface
             }
         }
         return $default;
+    }
+
+    /**
+     * @param mixed  $controllerData
+     * @param array  $description
+     * @param string $showKey
+     *
+     * @return bool
+     */
+    private function isShowControllerUrl($controllerData, array $description, $showKey)
+    {
+        return ($controllerData !== null && $this->getValue($description, $showKey) === true);
     }
 }
