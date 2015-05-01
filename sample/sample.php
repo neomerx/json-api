@@ -129,7 +129,7 @@ class Application
                 Comment::class => CommentSchema::class,
                 Post::class    => PostSchema::class,
                 Site::class    => SiteSchema::class
-            ], new JsonEncodeOptions(JSON_PRETTY_PRINT));
+            ]);
 
             $encoder->encode(
                 $site,
