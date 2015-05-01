@@ -78,7 +78,9 @@ class ReplyInterpreter implements ReplyInterpreterInterface
                 break;
             case 2:
                 assert('$previous !== null');
-                $this->addLinkToData($reply, $current, $previous);
+                if ($this->isLinkInFieldSet($current, $previous) === true) {
+                    $this->addLinkToData($reply, $current, $previous);
+                }
                 if ($isAddResToIncluded === true) {
                     $this->addToIncluded($reply, $current);
                 }
