@@ -29,6 +29,15 @@ interface EncodingOptionsInterface
     public function getIncludePaths();
 
     /**
+     * If path is included.
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
+    public function isPathIncluded($path);
+
+    /**
      * Get filed names that should be in result.
      *
      * @param string $type

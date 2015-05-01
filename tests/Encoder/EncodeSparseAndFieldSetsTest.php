@@ -161,4 +161,70 @@ EOL;
 
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * Test encode nested included objects with cyclic dependencies and sparse support.
+     */
+    public function testEncodeOnlyFieldSets()
+    {
+        $this->author->{Author::LINK_COMMENTS} = $this->comments;
+
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::INCLUDED, true);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::INCLUDED, true);
+                return $schema;
+            },
+            Site::class    => SiteSchema::class,
+        ])->encode($this->site, null, null, new EncodingOptions(
+            null,
+            ['people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME]] // filter attributes
+        ));
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"  : "sites",
+                "id"    : "2",
+                "links" : {
+                    "self" : "http://example.com/sites/2",
+                    "posts" : {
+                        "linkage" : {
+                            "type" : "posts",
+                            "id" : "1"
+                        }
+                    }
+                }
+            },
+            "included" : [{
+                "type"  : "comments",
+                "id"    : "5",
+                "links" : {
+                    "self" : "http://example.com/comments/5"
+                }
+            }, {
+                "type"  : "comments",
+                "id"    : "12",
+                "links" : {
+                    "self" : "http://example.com/comments/12"
+                }
+            }, {
+                "type"       : "people",
+                "id"         : "9",
+                "first_name" : "Dan",
+                "last_name"  : "Gebhardt"
+            }, {
+                "type" : "posts",
+                "id"   : "1"
+            }]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
 }

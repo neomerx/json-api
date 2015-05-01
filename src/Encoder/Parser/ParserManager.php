@@ -65,26 +65,22 @@ class ParserManager implements ParserManagerInterface
      */
     private function foundInPaths(StackReadOnlyInterface $stack)
     {
-        $current    = $stack->end();
-        $previous   = $stack->end(1);
-        $path       = ($current === null ? null : $current->getPath());
-        $parentPath = ($previous === null ? null : $previous->getPath());
-
-        // top level, no resources ware started to parse yet
-        if ($path === null) {
+        if ($stack->count() < 2) {
+            // top level, no resources ware started to parse yet
             return [true, false];
+        } elseif (($includePaths = $this->options->getIncludePaths()) === null) {
+            // not include path filter => all resources should be considered as targets
+            return [true, true];
         }
 
-        $onTheWay       = false;
-        $parentIsTarget = false;
-        $includePaths   = $this->options->getIncludePaths();
-        if ($includePaths !== null) {
-            foreach ($includePaths as $targetPath) {
-                $onTheWay       = ($onTheWay === true ? true : strpos($targetPath, $path) === 0);
-                $parentIsTarget = ($parentIsTarget === true ? true : $parentPath === $targetPath);
-                if ($onTheWay === true && $parentIsTarget === true) {
-                    break;
-                }
+        $parentIsTarget = $this->options->isPathIncluded($stack->end(1)->getPath());
+
+        $onTheWay = false;
+        $path     = $stack->end()->getPath();
+        foreach ($includePaths as $targetPath) {
+            if (strpos($targetPath, $path) === 0) {
+                $onTheWay = true;
+                break;
             }
         }
         return [$onTheWay, $parentIsTarget];

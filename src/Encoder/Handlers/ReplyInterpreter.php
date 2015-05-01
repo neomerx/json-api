@@ -224,19 +224,12 @@ class ReplyInterpreter implements ReplyInterpreterInterface
         StackFrameReadOnlyInterface $previous = null,
         EncodingOptionsInterface $options = null
     ) {
-        if ($options === null || ($paths = $options->getIncludePaths()) === null) {
+        if ($options === null) {
             return [true, true];
         }
 
-        $parentIsTarget  = ($previous === null);
-        $currentIsTarget = false;
-        foreach ($paths as $targetPath) {
-            $parentIsTarget  = ($parentIsTarget === true  ? $parentIsTarget  : $previous->getPath()  === $targetPath);
-            $currentIsTarget = ($currentIsTarget === true ? $currentIsTarget : $current->getPath() === $targetPath);
-            if ($currentIsTarget === true && $parentIsTarget === true) {
-                break;
-            }
-        }
+        $parentIsTarget  = ($previous === null || $this->options->isPathIncluded($previous->getPath()));
+        $currentIsTarget = $this->options->isPathIncluded($current->getPath());
 
         return [$parentIsTarget, $currentIsTarget];
     }

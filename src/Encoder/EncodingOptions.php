@@ -34,6 +34,11 @@ class EncodingOptions implements EncodingOptionsInterface
     private $fieldSets;
 
     /**
+     * @var array<string, int>
+     */
+    private $pathIndexes;
+
+    /**
      * @param string[]|null   $paths
      * @param string[][]|null $fieldSets
      */
@@ -41,6 +46,11 @@ class EncodingOptions implements EncodingOptionsInterface
     {
         $this->paths     = $paths;
         $this->fieldSets = $fieldSets;
+
+        if ($paths !== null) {
+            $this->paths = $paths;
+            $this->pathIndexes = array_flip(array_values($paths));
+        }
     }
 
     /**
@@ -49,6 +59,14 @@ class EncodingOptions implements EncodingOptionsInterface
     public function getIncludePaths()
     {
         return $this->paths;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isPathIncluded($path)
+    {
+        return $this->pathIndexes === null || isset($this->pathIndexes[$path]) === true;
     }
 
     /**
