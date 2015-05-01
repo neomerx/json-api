@@ -19,9 +19,9 @@
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
+use \Neomerx\JsonApi\Document\Presenters\ElementPresenter;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
-use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -122,11 +122,24 @@ class Document implements DocumentInterface
     private $isDataArrayed;
 
     /**
+     * @var ElementPresenter
+     */
+    private $presenter;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->presenter = new ElementPresenter();
+    }
+
+    /**
      * @inheritdoc
      */
     public function setDocumentLinks(DocumentLinksInterface $links)
     {
-        $this->links = $this->getDocumentLinksRepresentation($links);
+        $this->links = $this->presenter->getDocumentLinksRepresentation($links);
     }
 
     /**
@@ -147,7 +160,7 @@ class Document implements DocumentInterface
         $type = $resource->getType();
         if (isset($this->isIncludedMarks[$type][$idx]) === false) {
             $this->isIncludedMarks[$type][$idx] = true;
-            $this->bufferForIncluded[$type][$idx] = $this->convertIncludedResourceToArray($resource);
+            $this->bufferForIncluded[$type][$idx] = $this->presenter->convertIncludedResourceToArray($resource);
         }
     }
 
@@ -167,7 +180,7 @@ class Document implements DocumentInterface
         $idx  = $resource->getId();
         $type = $resource->getType();
         assert('isset($this->bufferForData[$type][$idx]) === false');
-        $this->bufferForData[$type][$idx] = $this->convertDataResourceToArray($resource);
+        $this->bufferForData[$type][$idx] = $this->presenter->convertDataResourceToArray($resource);
     }
 
     /**
@@ -194,7 +207,7 @@ class Document implements DocumentInterface
         LinkObjectInterface $link,
         ResourceObjectInterface $resource
     ) {
-        $this->addLinkToImpl($this->bufferForData, $parent, $link, $resource);
+        $this->presenter->addLinkTo($this->bufferForData, $parent, $link, $resource);
     }
 
     /**
@@ -205,41 +218,7 @@ class Document implements DocumentInterface
         LinkObjectInterface $link,
         ResourceObjectInterface $resource
     ) {
-        $this->addLinkToImpl($this->bufferForIncluded, $parent, $link, $resource);
-    }
-
-    /**
-     * @param array                   $target
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $link
-     * @param ResourceObjectInterface $resource
-     *
-     * @return void
-     */
-    protected function addLinkToImpl(
-        array &$target,
-        ResourceObjectInterface $parent,
-        LinkObjectInterface $link,
-        ResourceObjectInterface $resource
-    ) {
-        $parentId     = $parent->getId();
-        $parentType   = $parent->getType();
-        $parentExists = isset($target[$parentType][$parentId]);
-
-        // parent might be already added to included to it won't be in 'target' buffer
-        if ($parentExists === true) {
-            $name = $link->getName();
-            $alreadyGotLinkages = isset($target[$parentType][$parentId][self::KEYWORD_LINKS][$name]);
-            if ($alreadyGotLinkages === false) {
-                // ... add the first one
-                $target[$parentType][$parentId][self::KEYWORD_LINKS][$name] =
-                    $this->getLinkRepresentation($parent, $link, $resource);
-            } else {
-                // ... or add another linkage
-                $target[$parentType][$parentId][self::KEYWORD_LINKS][$name][self::KEYWORD_LINKAGE][] =
-                    $this->getLinkageRepresentation($resource);
-            }
-        }
+        $this->presenter->addLinkTo($this->bufferForIncluded, $parent, $link, $resource);
     }
 
     /**
@@ -247,8 +226,8 @@ class Document implements DocumentInterface
      */
     public function addReferenceToData(ResourceObjectInterface $parent, LinkObjectInterface $current)
     {
-        $url = $this->concatUrls($parent->getSelfUrl(), $current->getRelatedSubUrl());
-        $this->setLinkToImpl($this->bufferForData, $parent, $current, $url);
+        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getRelatedSubUrl());
+        $this->presenter->setLinkTo($this->bufferForData, $parent, $current, $url);
     }
 
     /**
@@ -256,8 +235,8 @@ class Document implements DocumentInterface
      */
     public function addReferenceToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current)
     {
-        $url = $this->concatUrls($parent->getSelfUrl(), $current->getRelatedSubUrl());
-        $this->setLinkToImpl($this->bufferForIncluded, $parent, $current, $url);
+        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getRelatedSubUrl());
+        $this->presenter->setLinkTo($this->bufferForIncluded, $parent, $current, $url);
     }
 
     /**
@@ -265,7 +244,7 @@ class Document implements DocumentInterface
      */
     public function addEmptyLinkToData(ResourceObjectInterface $parent, LinkObjectInterface $current)
     {
-        $this->setLinkToImpl($this->bufferForData, $parent, $current, []);
+        $this->presenter->setLinkTo($this->bufferForData, $parent, $current, []);
     }
 
     /**
@@ -273,7 +252,7 @@ class Document implements DocumentInterface
      */
     public function addNullLinkToData(ResourceObjectInterface $parent, LinkObjectInterface $current)
     {
-        $this->setLinkToImpl($this->bufferForData, $parent, $current, null);
+        $this->presenter->setLinkTo($this->bufferForData, $parent, $current, null);
     }
 
     /**
@@ -281,7 +260,7 @@ class Document implements DocumentInterface
      */
     public function addEmptyLinkToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current)
     {
-        $this->setLinkToImpl($this->bufferForIncluded, $parent, $current, []);
+        $this->presenter->setLinkTo($this->bufferForIncluded, $parent, $current, []);
     }
 
     /**
@@ -289,34 +268,7 @@ class Document implements DocumentInterface
      */
     public function addNullLinkToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current)
     {
-        $this->setLinkToImpl($this->bufferForIncluded, $parent, $current, null);
-    }
-
-    /**
-     * @param array                   $target
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $current
-     * @param mixed                   $url
-     *
-     * @return void
-     */
-    protected function setLinkToImpl(
-        array &$target,
-        ResourceObjectInterface $parent,
-        LinkObjectInterface $current,
-        $url
-    ) {
-        $parentId     = $parent->getId();
-        $parentType   = $parent->getType();
-        $name         = $current->getName();
-        $parentExists = isset($target[$parentType][$parentId]);
-
-        assert('$parentExists === true');
-        assert('isset($target[$parentType][$parentId][self::KEYWORD_LINKS][$name]) === false');
-
-        if ($parentExists === true) {
-            $target[$parentType][$parentId][self::KEYWORD_LINKS][$name] = $url;
-        }
+        $this->presenter->setLinkTo($this->bufferForIncluded, $parent, $current, null);
     }
 
     /**
@@ -331,37 +283,14 @@ class Document implements DocumentInterface
         $foundInIncluded = isset($this->bufferForIncluded[$type][$idx]);
 
         if ($foundInData === true) {
-            $this->data[] = $this->correctSingleLinks($this->bufferForData[$type][$idx]);
+            $this->data[] = $this->presenter->correctSingleLinks($this->bufferForData[$type][$idx]);
             unset($this->bufferForData[$type][$idx]);
         }
 
         if ($foundInIncluded === true) {
-            $this->included[] = $this->correctSingleLinks($this->bufferForIncluded[$type][$idx]);
+            $this->included[] = $this->presenter->correctSingleLinks($this->bufferForIncluded[$type][$idx]);
             unset($this->bufferForIncluded[$type][$idx]);
         }
-    }
-
-    /**
-     * @param array $resource
-     *
-     * @return array
-     */
-    protected function correctSingleLinks(array $resource)
-    {
-        if (empty($resource[self::KEYWORD_LINKS]) === false) {
-            foreach ($resource[self::KEYWORD_LINKS] as &$linkOrSelf) {
-                if (isset($linkOrSelf[self::KEYWORD_LINKAGE]) === true &&
-                    empty($linkOrSelf[self::KEYWORD_LINKAGE]) === false &&
-                    count($linkOrSelf[self::KEYWORD_LINKAGE]) === 1
-                ) {
-                    $tmp = $linkOrSelf[self::KEYWORD_LINKAGE][0];
-                    unset($linkOrSelf[self::KEYWORD_LINKAGE]);
-                    $linkOrSelf[self::KEYWORD_LINKAGE] = $tmp;
-                }
-            }
-        }
-
-        return $resource;
     }
 
     /**
@@ -389,136 +318,7 @@ class Document implements DocumentInterface
     }
 
     /**
-     * Convert resource object for 'data' section to array.
-     *
-     * @param ResourceObjectInterface $resource
-     *
-     * @return array
-     */
-    protected function convertDataResourceToArray(ResourceObjectInterface $resource)
-    {
-        return $this->convertResourceToArray($resource, $resource->isShowSelf(), $resource->isShowMeta());
-    }
-
-    /**
-     * Convert resource object for 'included' section to array.
-     *
-     * @param ResourceObjectInterface $resource
-     *
-     * @return array
-     */
-    protected function convertIncludedResourceToArray(ResourceObjectInterface $resource)
-    {
-        return $this
-            ->convertResourceToArray($resource, $resource->isShowSelfInIncluded(), $resource->isShowMetaInIncluded());
-    }
-
-    /**
-     * Convert resource object to array.
-     *
-     * @param ResourceObjectInterface $resource
-     * @param bool                    $isShowSelf
-     * @param bool                    $isShowMeta
-     *
-     * @return array
-     */
-    protected function convertResourceToArray(ResourceObjectInterface $resource, $isShowSelf, $isShowMeta)
-    {
-        assert('is_bool($isShowSelf) && is_bool($isShowMeta)');
-
-        $representation = [
-            self::KEYWORD_TYPE => $resource->getType(),
-            self::KEYWORD_ID   => $resource->getId(),
-        ];
-
-        $attributes = $resource->getAttributes();
-        assert(
-            'isset($attributes[self::KEYWORD_TYPE]) === false && isset($attributes[self::KEYWORD_ID]) === false',
-            '"type" and "id" are reserved keywords and cannot be used as resource object attributes'
-        );
-        if (empty($attributes) === false) {
-            $representation += $attributes;
-        }
-
-        if ($isShowSelf === true) {
-            $representation[self::KEYWORD_LINKS][self::KEYWORD_SELF] = $resource->getSelfUrl();
-        }
-
-        if ($isShowMeta === true) {
-            $representation[self::KEYWORD_META] = $resource->getMeta();
-        }
-
-        return $representation;
-    }
-
-    /**
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $link
-     * @param ResourceObjectInterface $resource
-     *
-     * @return array
-     */
-    protected function getLinkRepresentation(
-        ResourceObjectInterface $parent,
-        LinkObjectInterface $link,
-        ResourceObjectInterface $resource
-    ) {
-        assert(
-            '$link->getName() !== self::KEYWORD_SELF',
-            '"self" is a reserved keyword and cannot be used as a related resource link name'
-        );
-
-        $selfUrl = $parent->getSelfUrl();
-
-        $representation = [];
-        if ($link->isShowSelf() === true) {
-            $representation[self::KEYWORD_SELF] = $this->concatUrls($selfUrl, $link->getSelfSubUrl());
-        }
-
-        if ($link->isShowRelated() === true) {
-            $representation[self::KEYWORD_RELATED] = $this->concatUrls($selfUrl, $link->getRelatedSubUrl());
-        }
-
-        if ($link->isShowLinkage() === true) {
-            $representation[self::KEYWORD_LINKAGE][] = $this->getLinkageRepresentation($resource);
-        }
-
-        if ($link->isShowMeta() === true) {
-            $representation[self::KEYWORD_META] = $resource->getMeta();
-        }
-
-        if ($link->isShowPagination() === true) {
-            $representation = array_merge(
-                $representation,
-                $this->getPaginationLinksRepresentation($link->getPagination())
-            );
-        }
-
-        assert(
-            '$link->isShowSelf() || $link->isShowRelated() || $link->isShowLinkage() || $link->isShowMeta()',
-            'Specification requires at least one of them to be shown'
-        );
-
-        return $representation;
-    }
-
-    /**
-     * @param ResourceObjectInterface $resource
-     *
-     * @return array<string,string>
-     */
-    protected function getLinkageRepresentation(ResourceObjectInterface $resource)
-    {
-        return [
-            self::KEYWORD_TYPE => $resource->getType(),
-            self::KEYWORD_ID   => $resource->getId(),
-        ];
-    }
-
-    /**
      * @inheritdoc
-     *
-     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function addError(ErrorInterface $error)
     {
@@ -541,57 +341,5 @@ class Document implements DocumentInterface
         }
 
         $this->errors[] = $representation;
-    }
-
-    /**
-     * @param string $url
-     * @param string $subUrl
-     *
-     * @return string
-     */
-    private function concatUrls($url, $subUrl)
-    {
-        $urlEndsWithSlash   = (substr($url, -1) === '/');
-        $subStartsWithSlash = (substr($subUrl, 0, 1) === '/');
-        if ($urlEndsWithSlash === false && $subStartsWithSlash === false) {
-            return $url . '/' . $subUrl;
-        } elseif (($urlEndsWithSlash xor $subStartsWithSlash) === true) {
-            return $url . $subUrl;
-        } else {
-            return rtrim($url, '/') . $subUrl;
-        }
-    }
-
-    /**
-     * @param PaginationLinksInterface $links
-     *
-     * @return array
-     */
-    private function getPaginationLinksRepresentation(PaginationLinksInterface $links)
-    {
-        return array_filter([
-            self::KEYWORD_FIRST => $links->getFirstUrl(),
-            self::KEYWORD_LAST  => $links->getLastUrl(),
-            self::KEYWORD_PREV  => $links->getPrevUrl(),
-            self::KEYWORD_NEXT  => $links->getNextUrl(),
-        ], function ($value) {
-            return $value !== null;
-        });
-    }
-
-    /**
-     * @param DocumentLinksInterface $links
-     *
-     * @return array
-     */
-    private function getDocumentLinksRepresentation(DocumentLinksInterface $links)
-    {
-        $representation = array_merge([
-            self::KEYWORD_SELF  => $links->getSelfUrl(),
-        ], $this->getPaginationLinksRepresentation($links));
-
-        return array_filter($representation, function ($value) {
-            return $value !== null;
-        });
     }
 }

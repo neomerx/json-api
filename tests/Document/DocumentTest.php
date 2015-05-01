@@ -17,12 +17,11 @@
  */
 
 use \stdClass;
-use \ReflectionMethod;
-use \Neomerx\JsonApi\Document\Document;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Schema\SchemaFactory;
 use \Neomerx\JsonApi\Document\DocumentFactory;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use \Neomerx\JsonApi\Document\Presenters\ElementPresenter;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
 
@@ -1176,15 +1175,12 @@ EOL;
      */
     public function testConcatUrls()
     {
-        // We can't test all possible routes within this function during normal testing.
-        // That's why we use reflection to make it callable and invoke with all possible parameters.
-        $reflectionMethod = new ReflectionMethod(Document::class, 'concatUrls');
-        $reflectionMethod->setAccessible(true);
+        $presenter = new ElementPresenter();
 
-        $this->assertEquals('url/subUrl', $reflectionMethod->invoke($this->document, 'url', 'subUrl'));
-        $this->assertEquals('url/subUrl', $reflectionMethod->invoke($this->document, 'url/', 'subUrl'));
-        $this->assertEquals('url/subUrl', $reflectionMethod->invoke($this->document, 'url', '/subUrl'));
-        $this->assertEquals('url/subUrl', $reflectionMethod->invoke($this->document, 'url/', '/subUrl'));
+        $this->assertEquals('url/subUrl', $presenter->concatUrls('url', 'subUrl'));
+        $this->assertEquals('url/subUrl', $presenter->concatUrls('url/', 'subUrl'));
+        $this->assertEquals('url/subUrl', $presenter->concatUrls('url', '/subUrl'));
+        $this->assertEquals('url/subUrl', $presenter->concatUrls('url/', '/subUrl'));
     }
 
     /**
