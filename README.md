@@ -19,18 +19,15 @@ Support representation for
 * Errors
 * Included resources
 * Sparse rules
-* Filed sets (for attributes)
+* Filed sets (for attributes and links)
 * Limits for input data parsing depth
 
 This package is under active development and should be completed by the early May 2015.
 
 Features under development
 
-* Field sets (for links)
-* Refactoring, test coverage
+* Refactoring, optimization
 * Minor issues with spec compliance 
-* Support for web requests workflow
-* JSON API extensions
 
 ## Description
 

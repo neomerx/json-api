@@ -67,12 +67,10 @@ class ReplyInterpreter implements ReplyInterpreterInterface
 
         assert('$current->getLevel() > 0');
 
-        list($parentIsTarget, $currentIsTarget) = $this->analyzeStackTargets($current, $previous, $this->options);
+        list($parentIsTarget, $currentIsTarget) = $this->getIfTargets($current, $previous, $this->options);
 
         $isAddResourceToIncluded = ($includeRes === true  && $currentIsTarget === true);
         $isAddLinkToIncluded     = ($includeLink === true && $parentIsTarget === true);
-
-        // TODO refactor and add support for relation fieldSets
 
         switch($current->getLevel()) {
             case 1:
@@ -86,7 +84,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
                 }
                 break;
             default:
-                if ($isAddLinkToIncluded === true) {
+                if ($isAddLinkToIncluded === true && $this->isLinkInFieldSet($current, $previous) === true) {
                     assert('$previous !== null');
                     $this->addLinkToIncluded($reply, $current, $previous);
                 }
@@ -221,7 +219,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      *
      * @return bool[]
      */
-    private function analyzeStackTargets(
+    private function getIfTargets(
         StackFrameReadOnlyInterface $current,
         StackFrameReadOnlyInterface $previous = null,
         EncodingOptionsInterface $options = null
@@ -241,5 +239,24 @@ class ReplyInterpreter implements ReplyInterpreterInterface
         }
 
         return [$parentIsTarget, $currentIsTarget];
+    }
+
+    /**
+     * If link from 'parent' to 'current' resource passes field set filter.
+     *
+     * @param Frame $current
+     * @param Frame $previous
+     *
+     * @return bool
+     */
+    private function isLinkInFieldSet(StackFrameReadOnlyInterface $current, StackFrameReadOnlyInterface $previous)
+    {
+        if ($this->options === null ||
+            ($fieldSet = $this->options->getFieldSet($previous->getResourceObject()->getType())) === null
+        ) {
+            return true;
+        }
+
+        return (in_array($current->getLinkObject()->getName(), $fieldSet) === true);
     }
 }
