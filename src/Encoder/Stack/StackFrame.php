@@ -19,6 +19,7 @@
 use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -41,12 +42,37 @@ class StackFrame implements StackFrameInterface
     private $linkObject;
 
     /**
-     * @param int $level
+     * @var StackFrameReadOnlyInterface
      */
-    public function __construct($level)
+    private $previous;
+
+    /**
+     * @var string
+     */
+    private $path = null;
+
+    /**
+     * @var bool|null
+     */
+    private $isPathIncluded = null;
+
+    /**
+     * @param int                         $level
+     * @param StackFrameReadOnlyInterface $previous
+     */
+    public function __construct($level, StackFrameReadOnlyInterface $previous = null)
     {
         assert('is_int($level) && $level > 0');
-        $this->level = $level;
+        assert(
+            '($level === 1 && $previous === null) || '.
+            '($level > 1 && $previous !== null && $level === $previous->getLevel() + 1)'
+        );
+
+        $this->level    = $level;
+        $this->previous = $previous;
+
+        // all level have link object except the root level and it's available on frame creation.
+        assert('$this->level <= 2 || $this->previous->getLinkObject() !== null');
     }
 
     /**
@@ -71,6 +97,9 @@ class StackFrame implements StackFrameInterface
     public function setLinkObject(LinkObjectInterface $linkObject)
     {
         $this->linkObject = $linkObject;
+
+        $this->setCurrentPath($linkObject);
+        $this->setIsPathToCurrentIsIncluded();
     }
 
     /**
@@ -87,5 +116,48 @@ class StackFrame implements StackFrameInterface
     public function getLinkObject()
     {
         return $this->linkObject;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isPathIncluded()
+    {
+        return $this->isPathIncluded;
+    }
+
+    /**
+     * Set path to current frame.
+     */
+    private function setCurrentPath()
+    {
+        if ($this->previous === null || $this->previous->getPath() === null) {
+            $this->path = $this->linkObject->getName();
+        } else {
+            $this->path = $this->previous->getPath() . '.' . $this->linkObject->getName();
+        }
+    }
+
+    /**
+     * Determine if all elements on the path to current frame should be included.
+     */
+    private function setIsPathToCurrentIsIncluded()
+    {
+        assert('$this->level > 1');
+        if ($this->level === 2) {
+            $this->isPathIncluded = $this->linkObject->isShouldBeIncluded();
+        } elseif ($this->level > 2) {
+            $isPreviousIncluded = $this->previous->isPathIncluded();
+            assert('is_bool($isPreviousIncluded)');
+            $this->isPathIncluded = $isPreviousIncluded && $this->linkObject->isShouldBeIncluded();
+        }
     }
 }

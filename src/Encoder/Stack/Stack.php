@@ -54,7 +54,7 @@ class Stack implements StackInterface
      */
     public function push()
     {
-        $frame = $this->factory->createFrame($this->count() + 1);
+        $frame = $this->factory->createFrame($this->count() + 1, $this->end());
         array_push($this->stack, $frame);
         return $frame;
     }

@@ -20,7 +20,6 @@ use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncodingOptionsInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -66,7 +65,10 @@ class ParserManager implements ParserManagerInterface
      */
     private function foundInPaths(StackReadOnlyInterface $stack)
     {
-        list($parentPath, $path) = $this->getStackPaths($stack);
+        $current    = $stack->end();
+        $previous   = $stack->end(1);
+        $path       = ($current === null ? null : $current->getPath());
+        $parentPath = ($previous === null ? null : $previous->getPath());
 
         // top level, no resources ware started to parse yet
         if ($path === null) {
@@ -83,35 +85,5 @@ class ParserManager implements ParserManagerInterface
             }
         }
         return [$onTheWay, $parentIsTarget];
-    }
-
-    /**
-     * @param StackReadOnlyInterface $stack
-     *
-     * @return string[]
-     */
-    private function getStackPaths(StackReadOnlyInterface $stack)
-    {
-        // TODO same code in interpreter. refactor
-
-        $path       = null;
-        $parentPath = null;
-        foreach ($stack as $frame) {
-            /** @var StackFrameReadOnlyInterface $frame */
-            $level = $frame->getLevel();
-            assert('$level > 0');
-            switch($level)
-            {
-                case 1:
-                    break;
-                case 2:
-                    $path = $frame->getLinkObject()->getName();
-                    break;
-                default:
-                    $parentPath = $path;
-                    $path .= '.' . $frame->getLinkObject()->getName();
-            }
-        }
-        return [$parentPath, $path];
     }
 }

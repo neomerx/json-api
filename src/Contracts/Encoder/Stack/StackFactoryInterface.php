@@ -24,11 +24,12 @@ interface StackFactoryInterface
     /**
      * Create stack frame.
      *
-     * @param int $level
+     * @param int                         $level
+     * @param StackFrameReadOnlyInterface $previous
      *
      * @return StackFrameInterface
      */
-    public function createFrame($level);
+    public function createFrame($level, StackFrameReadOnlyInterface $previous = null);
 
     /**
      * Create stack.

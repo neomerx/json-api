@@ -53,6 +53,9 @@ class StackTest extends BaseTestCase
         $this->stack              = (new EncoderFactory())->createStack();
         $this->mockLinkObject     = Mockery::mock(LinkObjectInterface::class);
         $this->mockResourceObject = Mockery::mock(ResourceObjectInterface::class);
+
+        $this->mockLinkObject->shouldReceive('getName')->zeroOrMoreTimes()->withAnyArgs()->andReturn('someName');
+        $this->mockLinkObject->shouldReceive('isShouldBeIncluded')->zeroOrMoreTimes()->withAnyArgs()->andReturn(true);
     }
 
     /**
@@ -85,19 +88,19 @@ class StackTest extends BaseTestCase
         $this->assertNull($this->stack->end()->getResourceObject());
         $this->assertNull($this->stack->end()->getLinkObject());
 
-        $this->stack->setCurrentLinkObject($this->mockLinkObject);
         $this->stack->setCurrentResourceObject($this->mockResourceObject);
-        $this->assertSame($this->mockLinkObject, $this->stack->end()->getLinkObject());
         $this->assertSame($this->mockResourceObject, $this->stack->end()->getResourceObject());
         $this->assertNull($this->stack->end(1));
         $this->assertNull($this->stack->end(2));
 
         $frame2 = $this->stack->push();
+        $this->stack->setCurrentLinkObject($this->mockLinkObject);
+        $this->assertSame($this->mockLinkObject, $this->stack->end()->getLinkObject());
         $this->assertEquals(2, $this->stack->count());
         $this->assertEquals(2, $this->stack->end()->getLevel());
         $this->assertSame($frame2, $this->stack->end());
         $this->assertNull($this->stack->end()->getResourceObject());
-        $this->assertNull($this->stack->end()->getLinkObject());
+        $this->assertSame($this->mockLinkObject, $this->stack->end()->getLinkObject());
         $this->assertNull($this->stack->end(2));
     }
 

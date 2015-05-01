@@ -19,7 +19,6 @@
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncodingOptionsInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\ReplyInterpreterInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface as Frame;
@@ -62,40 +61,16 @@ class ReplyInterpreter implements ReplyInterpreterInterface
             return;
         }
 
-        $previous     = $reply->getStack()->end(1);
-
-        $currentLink  = $current->getLinkObject();
-        $parentLink   = ($previous !== null ? $previous->getLinkObject() : null);
-
-        $includeRes   = ($current->getLevel() === 1 || $currentLink->isShouldBeIncluded() === true);
-        $includeLink  = ($current->getLevel() <= 2  || $parentLink->isShouldBeIncluded() === true);
+        $previous    = $reply->getStack()->end(1);
+        $includeRes  = ($current->getLevel() === 1 || $current->isPathIncluded() === true);
+        $includeLink = ($current->getLevel() <= 2  || $previous->isPathIncluded() === true);
 
         assert('$current->getLevel() > 0');
 
-        list($parentIsTarget, $currentIsTarget) = $this->analyzeStackTargets($reply->getStack(), $this->options);
+        list($parentIsTarget, $currentIsTarget) = $this->analyzeStackTargets($current, $previous, $this->options);
 
         $isAddResourceToIncluded = ($includeRes === true  && $currentIsTarget === true);
         $isAddLinkToIncluded     = ($includeLink === true && $parentIsTarget === true);
-
-//        switch($current->getLevel()) {
-//            case 1:
-//                $this->addToData($reply, $current);
-//                break;
-//            case 2:
-//                $this->addLinkToData($reply, $current, $previous);
-//                if ($includeRes === true) {
-//                    $this->addToIncluded($reply, $current);
-//                }
-//                break;
-//            default:
-//                if ($includeLink === true) {
-//                    $this->addLinkToIncluded($reply, $current, $previous);
-//                }
-//                if ($includeRes === true) {
-//                    $this->addToIncluded($reply, $current);
-//                }
-//                break;
-//        }
 
         // TODO refactor and add support for relation fieldSets
 
@@ -240,58 +215,31 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     }
 
     /**
-     * @param StackReadOnlyInterface        $stack
-     * @param EncodingOptionsInterface|null $options
+     * @param StackFrameReadOnlyInterface      $current
+     * @param StackFrameReadOnlyInterface|null $previous
+     * @param EncodingOptionsInterface|null    $options
      *
      * @return bool[]
      */
-    private function analyzeStackTargets(StackReadOnlyInterface $stack, EncodingOptionsInterface $options = null)
-    {
+    private function analyzeStackTargets(
+        StackFrameReadOnlyInterface $current,
+        StackFrameReadOnlyInterface $previous = null,
+        EncodingOptionsInterface $options = null
+    ) {
         if ($options === null || ($paths = $options->getIncludePaths()) === null) {
             return [true, true];
         }
 
-        $parentIsTarget  = false;
+        $parentIsTarget  = ($previous === null);
         $currentIsTarget = false;
-        list($parentPath, $currentPath) = $this->getStackPaths($stack);
         foreach ($paths as $targetPath) {
-            $parentIsTarget  = ($parentIsTarget === true  ? $parentIsTarget  : $parentPath  === $targetPath);
-            $currentIsTarget = ($currentIsTarget === true ? $currentIsTarget : $currentPath === $targetPath);
+            $parentIsTarget  = ($parentIsTarget === true  ? $parentIsTarget  : $previous->getPath()  === $targetPath);
+            $currentIsTarget = ($currentIsTarget === true ? $currentIsTarget : $current->getPath() === $targetPath);
             if ($currentIsTarget === true && $parentIsTarget === true) {
                 break;
             }
         }
 
         return [$parentIsTarget, $currentIsTarget];
-    }
-
-    /**
-     * @param StackReadOnlyInterface $stack
-     *
-     * @return string[]
-     */
-    private function getStackPaths(StackReadOnlyInterface $stack)
-    {
-        // TODO same code in parse manager. refactor
-
-        $path       = null;
-        $parentPath = null;
-        foreach ($stack as $frame) {
-            /** @var StackFrameReadOnlyInterface $frame */
-            $level = $frame->getLevel();
-            assert('$level > 0');
-            switch($level)
-            {
-                case 1:
-                    break;
-                case 2:
-                    $path = $frame->getLinkObject()->getName();
-                    break;
-                default:
-                    $parentPath = $path;
-                    $path .= '.' . $frame->getLinkObject()->getName();
-            }
-        }
-        return [$parentPath, $path];
     }
 }

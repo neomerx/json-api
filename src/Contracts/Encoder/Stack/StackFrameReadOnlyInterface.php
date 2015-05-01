@@ -44,4 +44,19 @@ interface StackFrameReadOnlyInterface
      * @return int
      */
     public function getLevel();
+
+    /**
+     * Get frame path (dot separated link names).
+     *
+     * @return string|null
+     */
+    public function getPath();
+
+    /**
+     * If all resources on frame path have 'should be included' flag set to true.
+     * For root resource (level 1) it returns null as it does not have a link object.
+     *
+     * @return bool|null
+     */
+    public function isPathIncluded();
 }

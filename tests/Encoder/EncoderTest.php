@@ -117,8 +117,6 @@ EOL;
         $this->assertEquals($expected, $actual);
     }
 
-    // TODO add ref in included test
-
     /**
      * Test encode resource object links as references.
      */

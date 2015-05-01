@@ -17,6 +17,7 @@
  */
 
 use Neomerx\JsonApi\Contracts\Encoder\EncodingOptionsInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 use Neomerx\JsonApi\Encoder\Parser\ParserManager;
 use \Neomerx\JsonApi\Encoder\Stack\Stack;
 use \Neomerx\JsonApi\Encoder\Parser\Parser;
@@ -74,9 +75,9 @@ class EncoderFactory implements ParserFactoryInterface, StackFactoryInterface, H
     /**
      * @inheritdoc
      */
-    public function createFrame($level)
+    public function createFrame($level, StackFrameReadOnlyInterface $previous = null)
     {
-        return new StackFrame($level);
+        return new StackFrame($level, $previous);
     }
 
     /**
