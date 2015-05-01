@@ -236,8 +236,8 @@ class Document implements DocumentInterface
         // parent might be already added to included to it won't be in 'target' buffer
         if ($parentExists === true) {
             $name = $link->getName();
-            $someLinkagesAlreadyAdded = isset($target[$parentType][$parentId][self::KEYWORD_LINKS][$name]);
-            if ($someLinkagesAlreadyAdded === false) {
+            $alreadyGotLinkages = isset($target[$parentType][$parentId][self::KEYWORD_LINKS][$name]);
+            if ($alreadyGotLinkages === false) {
                 // ... add the first one
                 $target[$parentType][$parentId][self::KEYWORD_LINKS][$name] =
                     $this->getLinkRepresentation($parent, $link, $resource);
@@ -551,11 +551,11 @@ class Document implements DocumentInterface
      */
     private function concatUrls($url, $subUrl)
     {
-        $urlEndsWithSlash      = (substr($url, -1) === '/');
-        $subUrlStartsWithSlash = (substr($subUrl, 0, 1) === '/');
-        if ($urlEndsWithSlash === false && $subUrlStartsWithSlash === false) {
+        $urlEndsWithSlash   = (substr($url, -1) === '/');
+        $subStartsWithSlash = (substr($subUrl, 0, 1) === '/');
+        if ($urlEndsWithSlash === false && $subStartsWithSlash === false) {
             return $url . '/' . $subUrl;
-        } elseif (($urlEndsWithSlash xor $subUrlStartsWithSlash) === true) {
+        } elseif (($urlEndsWithSlash xor $subStartsWithSlash) === true) {
             return $url . $subUrl;
         } else {
             return rtrim($url, '/') . $subUrl;

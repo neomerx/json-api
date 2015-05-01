@@ -191,7 +191,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getLinks(/** @noinspection PhpUnusedParameterInspection */ $resource)
+    public function getLinks()
     {
         return [];
     }

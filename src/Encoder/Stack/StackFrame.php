@@ -57,8 +57,8 @@ class StackFrame implements StackFrameInterface
     private $isPathIncluded = null;
 
     /**
-     * @param int                         $level
-     * @param StackFrameReadOnlyInterface $previous
+     * @param int                              $level
+     * @param StackFrameReadOnlyInterface|null $previous
      */
     public function __construct($level, StackFrameReadOnlyInterface $previous = null)
     {
@@ -98,7 +98,7 @@ class StackFrame implements StackFrameInterface
     {
         $this->linkObject = $linkObject;
 
-        $this->setCurrentPath($linkObject);
+        $this->setCurrentPath();
         $this->setIsPathToCurrentIsIncluded();
     }
 

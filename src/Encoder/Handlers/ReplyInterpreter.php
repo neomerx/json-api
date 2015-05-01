@@ -69,8 +69,8 @@ class ReplyInterpreter implements ReplyInterpreterInterface
 
         list($parentIsTarget, $currentIsTarget) = $this->getIfTargets($current, $previous, $this->options);
 
-        $isAddResourceToIncluded = ($includeRes === true  && $currentIsTarget === true);
-        $isAddLinkToIncluded     = ($includeLink === true && $parentIsTarget === true);
+        $isAddResToIncluded  = ($includeRes === true  && $currentIsTarget === true);
+        $isAddLinkToIncluded = ($includeLink === true && $parentIsTarget === true);
 
         switch($current->getLevel()) {
             case 1:
@@ -79,7 +79,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
             case 2:
                 assert('$previous !== null');
                 $this->addLinkToData($reply, $current, $previous);
-                if ($isAddResourceToIncluded === true) {
+                if ($isAddResToIncluded === true) {
                     $this->addToIncluded($reply, $current);
                 }
                 break;
@@ -88,7 +88,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
                     assert('$previous !== null');
                     $this->addLinkToIncluded($reply, $current, $previous);
                 }
-                if ($isAddResourceToIncluded === true) {
+                if ($isAddResToIncluded === true) {
                     $this->addToIncluded($reply, $current);
                 }
                 break;

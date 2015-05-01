@@ -77,11 +77,14 @@ class ParserManager implements ParserManagerInterface
 
         $onTheWay       = false;
         $parentIsTarget = false;
-        foreach ($this->options->getIncludePaths() as $targetPath) {
-            $onTheWay       = ($onTheWay === true       ? true : strpos($targetPath, $path) === 0);
-            $parentIsTarget = ($parentIsTarget === true ? true : $parentPath === $targetPath);
-            if ($onTheWay === true && $parentIsTarget === true) {
-                break;
+        $includePaths   = $this->options->getIncludePaths();
+        if ($includePaths !== null) {
+            foreach ($includePaths as $targetPath) {
+                $onTheWay       = ($onTheWay === true ? true : strpos($targetPath, $path) === 0);
+                $parentIsTarget = ($parentIsTarget === true ? true : $parentPath === $targetPath);
+                if ($onTheWay === true && $parentIsTarget === true) {
+                    break;
+                }
             }
         }
         return [$onTheWay, $parentIsTarget];

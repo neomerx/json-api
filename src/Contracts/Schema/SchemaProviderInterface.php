@@ -107,9 +107,9 @@ interface SchemaProviderInterface
     /**
      * Create resource object.
      *
-     * @param object        $resource
-     * @param bool          $isOriginallyArrayed
-     * @param string[]|null $attributeKeysFilter
+     * @param object $resource
+     * @param bool   $isOriginallyArrayed
+     * @param        array <string, int>|null $attributeKeysFilter
      *
      * @return ResourceObjectInterface
      */

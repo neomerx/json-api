@@ -24,8 +24,8 @@ interface StackFactoryInterface
     /**
      * Create stack frame.
      *
-     * @param int                         $level
-     * @param StackFrameReadOnlyInterface $previous
+     * @param int                              $level
+     * @param StackFrameReadOnlyInterface|null $previous
      *
      * @return StackFrameInterface
      */

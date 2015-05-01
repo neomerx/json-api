@@ -271,7 +271,7 @@ class Parser implements ParserInterface
     /**
      * @param string $resourceType
      *
-     * @return array|null
+     * @return array <string, int>|null
      */
     private function getFieldSet($resourceType)
     {

@@ -40,7 +40,7 @@ interface ParserManagerInterface
      *
      * @param string $type
      *
-     * @return array|null
+     * @return array <string, int>|null
      */
     public function getFieldSet($type);
 }
