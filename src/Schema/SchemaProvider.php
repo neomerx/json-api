@@ -163,11 +163,14 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * Get the base self URL
      *
+     * @param object $resource
+     *
      * @return string
      */
-    protected function getBaseSelfUrl()
+    protected function getBaseSelfUrl($resource)
     {
-        // Note: $resource is available as input parameter.
+        // suppress scrutinizer issue
+        $resource === null ?: null;
 
         assert('is_string($this->baseSelfUrl) && empty($this->baseSelfUrl) === false', 'Base \'self\' not set.');
 
