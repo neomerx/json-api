@@ -27,7 +27,7 @@ The package version reflects the fact JSON API specification has not been finall
 
 ## Contributing and TODO
 
-This package implement encoding to JSON and this part looks pretty solid however JSON API is not only data semantics it's about web requests as well. An experimental branch ```web``` :octocat: is created which aims to add such support and combine it with one of the popular PHP frameworks (e.g. Laravel/Lumen). Let's discuss it  on [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/neomerx/json-api).
+This package implements encoding to JSON and this part looks pretty solid however JSON API is not only data semantics it's about web requests as well. An experimental branch ```web``` :octocat: is created which aims to add such support and combine it with one of the popular PHP frameworks (e.g. Laravel/Lumen). Let's discuss it  on [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/neomerx/json-api).
 
 ## Install
 
