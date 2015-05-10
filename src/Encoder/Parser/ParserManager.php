@@ -17,9 +17,9 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\EncodingOptionsInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -27,16 +27,16 @@ use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 class ParserManager implements ParserManagerInterface
 {
     /**
-     * @var EncodingOptionsInterface
+     * @var EncodingParametersInterface
      */
-    private $options;
+    private $parameters;
 
     /**
-     * @param EncodingOptionsInterface $options
+     * @param EncodingParametersInterface $parameters
      */
-    public function __construct(EncodingOptionsInterface $options)
+    public function __construct(EncodingParametersInterface $parameters)
     {
-        $this->options = $options;
+        $this->parameters = $parameters;
     }
 
     /**
@@ -54,7 +54,7 @@ class ParserManager implements ParserManagerInterface
      */
     public function getFieldSet($type)
     {
-        $fieldSet = $this->options->getFieldSet($type);
+        $fieldSet = $this->parameters->getFieldSet($type);
         return $fieldSet === null ? null : array_flip(array_values($fieldSet));
     }
 
@@ -68,12 +68,12 @@ class ParserManager implements ParserManagerInterface
         if ($stack->count() < 2) {
             // top level, no resources ware started to parse yet
             return [true, false];
-        } elseif (($includePaths = $this->options->getIncludePaths()) === null) {
+        } elseif (($includePaths = $this->parameters->getIncludePaths()) === null) {
             // not include path filter => all resources should be considered as targets
             return [true, true];
         }
 
-        $parentIsTarget = $this->options->isPathIncluded($stack->end(1)->getPath());
+        $parentIsTarget = $this->parameters->isPathIncluded($stack->end(1)->getPath());
 
         $onTheWay = false;
         $path     = $stack->end()->getPath();

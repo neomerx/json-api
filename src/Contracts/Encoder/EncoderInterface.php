@@ -18,6 +18,7 @@
 
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -27,10 +28,10 @@ interface EncoderInterface
     /**
      * Encode input as JSON API string.
      *
-     * @param object|array                  $data    Data to encode.
-     * @param DocumentLinksInterface|null   $links   Optional document links information (e.g. request URL, paging).
-     * @param array|object|null             $meta    Optional document meta information.
-     * @param EncodingOptionsInterface|null $options Encoding options.
+     * @param object|array                     $data     Data to encode.
+     * @param DocumentLinksInterface|null      $links    Optional document links information (e.g. request URL, paging).
+     * @param array|object|null                $meta     Optional document meta information.
+     * @param EncodingParametersInterface|null $parameters Encoding parameters.
      *
      * @return string
      */
@@ -38,7 +39,7 @@ interface EncoderInterface
         $data,
         DocumentLinksInterface $links = null,
         $meta = null,
-        EncodingOptionsInterface $options = null
+        EncodingParametersInterface $parameters = null
     );
 
     /**

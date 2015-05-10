@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder;
+<?php namespace Neomerx\JsonApi\Contracts\Parameters;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -19,10 +19,10 @@
 /**
  * @package Neomerx\JsonApi
  */
-interface EncodingOptionsInterface
+interface EncodingParametersInterface
 {
     /**
-     * Get paths to objects that should be included.
+     * Get requested include paths.
      *
      * @return string[]|null
      */
@@ -40,9 +40,16 @@ interface EncodingOptionsInterface
     /**
      * Get filed names that should be in result.
      *
+     * @return array|null
+     */
+    public function getFieldSets();
+
+    /**
+     * Get filed names that should be in result.
+     *
      * @param string $type
      *
-     * @return string[]|array|null
+     * @return string[]|null
      */
     public function getFieldSet($type);
 }

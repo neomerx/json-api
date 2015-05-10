@@ -24,9 +24,9 @@ use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\Tests\JsonApi\Data\PostSchema;
 use \Neomerx\Tests\JsonApi\Data\SiteSchema;
-use \Neomerx\JsonApi\Encoder\EncodingOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
+use \Neomerx\JsonApi\Parameters\EncodingParameters;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -92,7 +92,7 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
                 return $schema;
             },
             Site::class    => SiteSchema::class,
-        ])->encode($this->site, null, null, new EncodingOptions(
+        ])->encode($this->site, null, null, new EncodingParameters(
             [
                 // include only this relations
                 Site::LINK_POSTS,
@@ -187,7 +187,7 @@ EOL;
                 return $schema;
             },
             Site::class    => SiteSchema::class,
-        ])->encode($this->site, null, null, new EncodingOptions(
+        ])->encode($this->site, null, null, new EncodingParameters(
             null,
             // include only these attributes and links
             [

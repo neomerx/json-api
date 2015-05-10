@@ -17,8 +17,8 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\EncodingOptionsInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\ReplyInterpreterInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface as Frame;
@@ -34,18 +34,18 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     private $document;
 
     /**
-     * @var EncodingOptionsInterface|null
+     * @var EncodingParametersInterface|null
      */
-    private $options;
+    private $parameters;
 
     /**
-     * @param DocumentInterface             $document
-     * @param EncodingOptionsInterface|null $options
+     * @param DocumentInterface                $document
+     * @param EncodingParametersInterface|null $parameters
      */
-    public function __construct(DocumentInterface $document, EncodingOptionsInterface $options = null)
+    public function __construct(DocumentInterface $document, EncodingParametersInterface $parameters = null)
     {
-        $this->document = $document;
-        $this->options  = $options;
+        $this->document   = $document;
+        $this->parameters = $parameters;
     }
 
     /**
@@ -67,7 +67,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
 
         assert('$current->getLevel() > 0');
 
-        list($parentIsTarget, $currentIsTarget) = $this->getIfTargets($current, $previous, $this->options);
+        list($parentIsTarget, $currentIsTarget) = $this->getIfTargets($current, $previous, $this->parameters);
 
         $isAddResToIncluded  = ($includeRes === true  && $currentIsTarget === true);
         $isAddLinkToIncluded = ($includeLink === true && $parentIsTarget === true);
@@ -217,21 +217,21 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     /**
      * @param StackFrameReadOnlyInterface      $current
      * @param StackFrameReadOnlyInterface|null $previous
-     * @param EncodingOptionsInterface|null    $options
+     * @param EncodingParametersInterface|null $parameters
      *
      * @return bool[]
      */
     private function getIfTargets(
         StackFrameReadOnlyInterface $current,
         StackFrameReadOnlyInterface $previous = null,
-        EncodingOptionsInterface $options = null
+        EncodingParametersInterface $parameters = null
     ) {
-        if ($options === null) {
+        if ($parameters === null) {
             return [true, true];
         }
 
-        $parentIsTarget  = ($previous === null || $this->options->isPathIncluded($previous->getPath()));
-        $currentIsTarget = $this->options->isPathIncluded($current->getPath());
+        $parentIsTarget  = ($previous === null || $this->parameters->isPathIncluded($previous->getPath()));
+        $currentIsTarget = $this->parameters->isPathIncluded($current->getPath());
 
         return [$parentIsTarget, $currentIsTarget];
     }
@@ -246,8 +246,8 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     private function isLinkInFieldSet(StackFrameReadOnlyInterface $current, StackFrameReadOnlyInterface $previous)
     {
-        if ($this->options === null ||
-            ($fieldSet = $this->options->getFieldSet($previous->getResourceObject()->getType())) === null
+        if ($this->parameters === null ||
+            ($fieldSet = $this->parameters->getFieldSet($previous->getResourceObject()->getType())) === null
         ) {
             return true;
         }

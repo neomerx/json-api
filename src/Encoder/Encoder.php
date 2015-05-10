@@ -20,9 +20,9 @@ use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\EncodingOptionsInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\HandlerFactoryInterface;
 
 /**
@@ -83,12 +83,12 @@ class Encoder implements EncoderInterface
         $data,
         DocumentLinksInterface $links = null,
         $meta = null,
-        EncodingOptionsInterface $options = null
+        EncodingParametersInterface $parameters = null
     ) {
         $docWriter     = $this->documentFactory->createDocument();
-        $parserManager = $options !== null ? $this->parserFactory->createManager($options) : null;
+        $parserManager = $parameters !== null ? $this->parserFactory->createManager($parameters) : null;
         $parser        = $this->parserFactory->createParser($this->container, $parserManager);
-        $interpreter   = $this->handlerFactory->createReplyInterpreter($docWriter, $options);
+        $interpreter   = $this->handlerFactory->createReplyInterpreter($docWriter, $parameters);
         foreach ($parser->parse($data) as $reply) {
             $interpreter->handle($reply);
         }

@@ -25,11 +25,11 @@ use \Neomerx\JsonApi\Encoder\Parser\ParserEmptyReply;
 use \Neomerx\JsonApi\Encoder\Handlers\ReplyInterpreter;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\EncodingOptionsInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\HandlerFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 
@@ -67,9 +67,9 @@ class EncoderFactory implements ParserFactoryInterface, StackFactoryInterface, H
     /**
      * @inheritdoc
      */
-    public function createManager(EncodingOptionsInterface $options)
+    public function createManager(EncodingParametersInterface $parameters)
     {
-        return new ParserManager($options);
+        return new ParserManager($parameters);
     }
 
     /**
@@ -91,8 +91,8 @@ class EncoderFactory implements ParserFactoryInterface, StackFactoryInterface, H
     /**
      * @inheritdoc
      */
-    public function createReplyInterpreter(DocumentInterface $document, EncodingOptionsInterface $options = null)
+    public function createReplyInterpreter(DocumentInterface $document, EncodingParametersInterface $parameters = null)
     {
-        return new ReplyInterpreter($document, $options);
+        return new ReplyInterpreter($document, $parameters);
     }
 }

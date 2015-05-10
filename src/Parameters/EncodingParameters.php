@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Encoder;
+<?php namespace Neomerx\JsonApi\Parameters;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,40 +16,40 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Encoder\EncodingOptionsInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class EncodingOptions implements EncodingOptionsInterface
+class EncodingParameters implements EncodingParametersInterface
 {
     /**
      * @var string[]|null
      */
-    private $paths;
+    private $includePaths;
 
     /**
-     * @var string[][]|null
-     */
-    private $fieldSets;
-
-    /**
-     * @var array<string, int>
+     * @var array
      */
     private $pathIndexes;
 
     /**
-     * @param string[]|null   $paths
-     * @param string[][]|null $fieldSets
+     * @var array|null
      */
-    public function __construct(array $paths = null, array $fieldSets = null)
-    {
-        $this->paths     = $paths;
-        $this->fieldSets = $fieldSets;
+    private $fieldSets;
 
-        if ($paths !== null) {
-            $this->paths = $paths;
-            $this->pathIndexes = array_flip(array_values($paths));
+    /**
+     * @param string[]|null $includePaths
+     * @param array|null    $fieldSets
+     */
+    public function __construct(array $includePaths = null, array $fieldSets = null)
+    {
+        $this->fieldSets    = $fieldSets;
+        $this->includePaths = $includePaths;
+
+        if ($this->includePaths !== null) {
+            assert('is_array($this->includePaths)');
+            $this->pathIndexes = array_flip(array_values($this->includePaths));
         }
     }
 
@@ -58,7 +58,7 @@ class EncodingOptions implements EncodingOptionsInterface
      */
     public function getIncludePaths()
     {
-        return $this->paths;
+        return $this->includePaths;
     }
 
     /**
@@ -66,7 +66,16 @@ class EncodingOptions implements EncodingOptionsInterface
      */
     public function isPathIncluded($path)
     {
+        assert('is_null($path) || is_string($path)');
         return $this->pathIndexes === null || isset($this->pathIndexes[$path]) === true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFieldSets()
+    {
+        return $this->fieldSets;
     }
 
     /**
