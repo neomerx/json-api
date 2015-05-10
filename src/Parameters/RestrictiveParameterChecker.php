@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionsInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
@@ -98,10 +99,10 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
         $this->outputMediaTypes    = $outputMediaTypes;
         $this->includePaths        = $includePaths;
         $this->allowUnrecognized   = $allowUnrecognized;
-        $this->fieldSetTypes       = ($fieldSetTypes === null ? null : array_flip($fieldSetTypes));
-        $this->sortParameters      = ($sortParameters === null ? null : array_flip($sortParameters));
-        $this->pagingParameters    = ($pagingParameters === null ? null : array_flip($pagingParameters));
-        $this->filteringParameters = ($filteringParameters === null ? null : array_flip($filteringParameters));
+        $this->fieldSetTypes       = $this->flip($fieldSetTypes);
+        $this->sortParameters      = $this->flip($sortParameters);
+        $this->pagingParameters    = $this->flip($pagingParameters);
+        $this->filteringParameters = $this->flip($filteringParameters);
     }
 
     /**
@@ -128,16 +129,11 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
      */
     protected function checkOutputMediaType(ParametersInterface $parameters)
     {
-        $mediaType  = $parameters->getOutputMediaType()->getMediaType();
-        $extensions = $parameters->getOutputMediaType()->getExtensions();
-
         // Clients MAY request a particular media type extension by including its name in the ext media type parameter
         // with the Accept header. Servers that do not support a requested extension or combination of extensions MUST
         // return a 406 Not Acceptable status code.
         // For example, application/vnd.api+json; ext="ext1,ext2"
-        if ($mediaType === null ||
-            $this->isMediaTypeSupported($this->outputMediaTypes, $mediaType, $extensions) === false
-        ) {
+        if ($this->checkMediaTypeFailed($parameters->getOutputMediaType(), $this->outputMediaTypes) === true) {
             $this->exceptions->throwNotAcceptable();
         }
     }
@@ -149,14 +145,9 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
      */
     protected function checkInputMediaType(ParametersInterface $parameters)
     {
-        $mediaType  = $parameters->getInputMediaType()->getMediaType();
-        $extensions = $parameters->getInputMediaType()->getExtensions();
-
         // If the media type in the Accept header is supported by a server but the media type in the
         // Content-Type header is unsupported, the server MUST return a 415 Unsupported Media Type status code.
-        if ($mediaType === null ||
-            $this->isMediaTypeSupported($this->inputMediaTypes, $mediaType, $extensions) === false
-        ) {
+        if ($this->checkMediaTypeFailed($parameters->getInputMediaType(), $this->inputMediaTypes) === true) {
             $this->exceptions->throwUnsupportedMediaType();
         }
     }
@@ -222,6 +213,20 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     }
 
     /**
+     * @param MediaTypeInterface $mediaType
+     * @param array              $supportedTypes
+     *
+     * @return bool
+     */
+    private function checkMediaTypeFailed(MediaTypeInterface $mediaType, array $supportedTypes)
+    {
+        $type = $mediaType->getMediaType();
+        $ext  = $mediaType->getExtensions();
+
+        return ($type === null || $this->isMediaTypeSupported($supportedTypes, $type, $ext) === false);
+    }
+
+    /**
      * @param array       $types
      * @param string      $mediaType
      * @param string|null $extensions
@@ -253,5 +258,15 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     private function valuesWithinAllowed(array $toCheck = null, array $allowed = null)
     {
         return $toCheck === null || $allowed === null || empty(array_diff($toCheck, $allowed));
+    }
+
+    /**
+     * @param array|null $array
+     *
+     * @return array|null
+     */
+    private function flip(array $array = null)
+    {
+        return $array === null ? null : array_flip($array);
     }
 }

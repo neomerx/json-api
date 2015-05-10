@@ -48,7 +48,7 @@ class ParametersFactory implements ParametersFactoryInterface
         MediaTypeInterface $outputType,
         $includePaths = null,
         array $fieldSets = null,
-        array $sortParameters = null,
+        $sortParameters = null,
         array $pagingParameters = null,
         array $filteringParameters = null,
         array $unrecognizedParams = null
