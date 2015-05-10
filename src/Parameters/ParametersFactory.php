@@ -46,7 +46,7 @@ class ParametersFactory implements ParametersFactoryInterface
     public function createParameters(
         MediaTypeInterface $inputType,
         MediaTypeInterface $outputType,
-        array $includePaths = null,
+        $includePaths = null,
         array $fieldSets = null,
         array $sortParameters = null,
         array $pagingParameters = null,

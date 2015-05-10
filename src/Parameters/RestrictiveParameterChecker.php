@@ -222,9 +222,9 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     }
 
     /**
-     * @param array  $types
-     * @param string $mediaType
-     * @param string $extensions
+     * @param array       $types
+     * @param string      $mediaType
+     * @param string|null $extensions
      *
      * @return bool
      */

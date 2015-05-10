@@ -68,7 +68,7 @@ class Parameters extends EncodingParameters implements ParametersInterface
     public function __construct(
         MediaTypeInterface $inputType,
         MediaTypeInterface $outputType,
-        array $includePaths = null,
+        $includePaths = null,
         array $fieldSets = null,
         array $sortParameters = null,
         array $pagingParameters = null,
