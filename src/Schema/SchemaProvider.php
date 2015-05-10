@@ -133,15 +133,12 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
     {
-        assert('is_string($this->baseSelfUrl)  && empty($this->baseSelfUrl) === false', 'Base \'self\' not set.');
         assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set.');
         assert(
             'is_null($this->defaultParseDepth) || '.
             '(is_int($this->defaultParseDepth) && $this->defaultParseDepth > 0)',
             'If set depth should be positive int.'
         );
-
-        substr($this->baseSelfUrl, -1) === '/' ?: $this->baseSelfUrl .= '/';
 
         $this->factory   = $factory;
         $this->container = $container;
@@ -160,7 +157,21 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function getSelfUrl($resource)
     {
-        return $this->baseSelfUrl . $this->getId($resource);
+        return $this->getBaseSelfUrl() . $this->getId($resource);
+    }
+
+    /**
+     * Get the base self URL
+     *
+     * @return string
+     */
+    protected function getBaseSelfUrl()
+    {
+        assert('is_string($this->baseSelfUrl) && empty($this->baseSelfUrl) === false', 'Base \'self\' not set.');
+
+        substr($this->baseSelfUrl, -1) === '/' ?: $this->baseSelfUrl .= '/';
+
+        return $this->baseSelfUrl;
     }
 
     /**
