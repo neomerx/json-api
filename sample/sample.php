@@ -18,8 +18,8 @@
 
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\JsonApi\Document\DocumentLinks;
-use \Neomerx\JsonApi\Encoder\EncodingOptions;
 use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
+use \Neomerx\JsonApi\Parameters\EncodingParameters;
 
 require './vendor/autoload.php';
 
@@ -84,7 +84,7 @@ class Application
         $post     = Post::instance('321', 'Included objects', 'Yes, it is supported', $author, $comments);
         $site     = Site::instance('1', 'JSON API Samples', [$post]);
 
-        $options  = new EncodingOptions(
+        $options  = new EncodingParameters(
             ['posts.author'], // Paths to be included. Note neither 'posts' nor 'posts.comments' will be shown.
             [
                 // Attributes and links that should be shown
@@ -154,7 +154,7 @@ class Application
             $post     = Post::instance('321', 'Included objects' . $rand, 'Yes, it is supported', $author, $comments);
             $site     = Site::instance('1', 'JSON API Samples' . $rand, [$post]);
 
-            $options = new EncodingOptions(
+            $options = new EncodingParameters(
                 ['posts.author'],
                 ['sites' => ['name'], 'people' => ['first_name']]
             );

@@ -34,7 +34,7 @@ This package implements encoding to JSON and this part looks pretty solid howeve
 Via Composer
 
 ```
-$ composer require neomerx/json-api ~0.1
+$ composer require neomerx/json-api ~0.2
 ```
 
 ## Usage
@@ -203,7 +203,7 @@ will output
 Output result could be filtered by included relations and object attributes.
 
 ```php
-$options  = new EncodingOptions(
+$options  = new EncodingParameters(
     ['posts.author'], // Paths to be included
     [
         // Attributes and links that should be shown
