@@ -56,8 +56,10 @@ will output
     "data": {
         "type": "people",
         "id": "123",
-        "first_name": "John",
-        "last_name": "Dow",
+        "attributes": {
+            "first_name": "John",
+            "last_name": "Dow"
+        },
         "links": {
             "self": "http:\/\/example.com\/people\/123"
         }
@@ -110,7 +112,9 @@ will output
     "data": {
         "type": "sites",
         "id": "1",
-        "name": "JSON API Samples",
+        "attributes": {
+            "name": "JSON API Samples"
+        },
         "links": {
             "self": "http:\/\/example.com\/sites\/1",
             "posts": {
@@ -125,13 +129,17 @@ will output
         {
             "type": "people",
             "id": "123",
-            "first_name": "John",
-            "last_name": "Dow"
+            "attributes": {
+                "first_name": "John",
+                "last_name": "Dow"
+            }
         },
         {
             "type": "comments",
             "id": "456",
-            "body": "Included objects work as easy as basic ones",
+            "attributes": {
+                "body": "Included objects work as easy as basic ones"
+            },
             "links": {
                 "self": "http:\/\/example.com\/comments\/456",
                 "author": {
@@ -145,7 +153,9 @@ will output
         {
             "type": "comments",
             "id": "789",
-            "body": "Let's try!",
+            "attributes": {
+                "body": "Let's try!"
+            },
             "links": {
                 "self": "http:\/\/example.com\/comments\/789",
                 "author": {
@@ -159,8 +169,10 @@ will output
         {
             "type": "posts",
             "id": "321",
-            "title": "Included objects",
-            "body": "Yes, it is supported",
+            "attributes": {
+                "title": "Included objects",
+                "body": "Yes, it is supported"
+            },
             "links": {
                 "author": {
                     "linkage": {
@@ -216,22 +228,20 @@ Note that output does not contain objects from neither ```posts``` nor ```posts.
     "data": {
         "type": "sites",
         "id": "1",
-        "name": "JSON API Samples",
+        "attributes": {
+            "name": "JSON API Samples"
+        },
         "links": {
-            "self": "http:\/\/example.com\/sites\/1",
-            "posts": {
-                "linkage": {
-                    "type": "posts",
-                    "id": "321"
-                }
-            }
+            "self": "http:\/\/example.com\/sites\/1"
         }
     },
     "included": [
         {
             "type": "people",
             "id": "123",
-            "first_name": "John"
+            "attributes": {
+                "first_name": "John"
+            }
         }
     ]
 }
@@ -339,6 +349,68 @@ class YourSchema extends SchemaProvider
     ...
     protected $defaultParseDepth = 1;
     ...
+}
+```
+
+### Show top level links and meta information
+
+```php
+$author = Author::instance('123', 'John', 'Dow');
+$meta   = [
+    "copyright" => "Copyright 2015 Example Corp.",
+    "authors"   => [
+        "Yehuda Katz",
+        "Steve Klabnik",
+        "Dan Gebhardt"
+    ]
+];
+$links  = new DocumentLinks(
+    null,
+    'http://example.com/people?first',
+    'http://example.com/people?last',
+    'http://example.com/people?prev',
+    'http://example.com/people?next'
+);
+
+$encoder  = Encoder::instance([
+    Author::class  => AuthorSchema::class,
+    Comment::class => CommentSchema::class,
+    Post::class    => PostSchema::class,
+    Site::class    => SiteSchema::class
+], new JsonEncodeOptions(JSON_PRETTY_PRINT));
+
+echo $encoder->encode($author, $links, $meta) . PHP_EOL;
+```
+
+will output
+
+```json
+{
+    "meta": {
+        "copyright": "Copyright 2015 Example Corp.",
+        "authors": [
+            "Yehuda Katz",
+            "Steve Klabnik",
+            "Dan Gebhardt"
+        ]
+    },
+    "links": {
+        "first": "http:\/\/example.com\/people?first",
+        "last": "http:\/\/example.com\/people?last",
+        "prev": "http:\/\/example.com\/people?prev",
+        "next": "http:\/\/example.com\/people?next"
+    },
+    "data": {
+        "type": "people",
+        "id": "123",
+        "attributes": {
+            "first_name": "John",
+            "last_name": "Dow"
+        },
+        "links": {
+            "self": "http:\/\/example.com\/people\/123"
+        }
+    }
 }
 ```
 

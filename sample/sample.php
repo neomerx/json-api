@@ -103,6 +103,40 @@ class Application
     }
 
     /**
+     * Shows sparse and field set filters.
+     */
+    private function showTopLevelMetaAndLinksExample()
+    {
+        echo 'Neomerx JSON API sample application (top level links and meta information)' . PHP_EOL;
+
+        $author = Author::instance('123', 'John', 'Dow');
+        $meta   = [
+            "copyright" => "Copyright 2015 Example Corp.",
+            "authors"   => [
+                "Yehuda Katz",
+                "Steve Klabnik",
+                "Dan Gebhardt"
+            ]
+        ];
+        $links  = new DocumentLinks(
+            null,
+            'http://example.com/people?first',
+            'http://example.com/people?last',
+            'http://example.com/people?prev',
+            'http://example.com/people?next'
+        );
+
+        $encoder  = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => PostSchema::class,
+            Site::class    => SiteSchema::class
+        ], new JsonEncodeOptions(JSON_PRETTY_PRINT));
+
+        echo $encoder->encode($author, $links, $meta) . PHP_EOL;
+    }
+
+    /**
      * Run performance test.
      *
      * @param int $iterations
@@ -151,6 +185,7 @@ class Application
             $this->showBasicExample();
             $this->showIncludedObjectsExample();
             $this->showSparseAndFieldSetsExample();
+            $this->showTopLevelMetaAndLinksExample();
         } else {
             $num = $args['t'];
             $inv = empty($num) === true || is_numeric($num) === false || ctype_digit($num) == false || (int)$num <= 0;

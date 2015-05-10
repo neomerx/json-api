@@ -17,8 +17,10 @@ will output
     "data": {
         "type": "people",
         "id": "123",
-        "first_name": "John",
-        "last_name": "Dow",
+        "attributes": {
+            "first_name": "John",
+            "last_name": "Dow"
+        },
         "links": {
             "self": "http:\/\/example.com\/people\/123"
         }
