@@ -324,8 +324,10 @@ class Document implements DocumentInterface
      */
     public function addError(ErrorInterface $error)
     {
+        $errorId = (($errorId = $error->getId()) === null ? null : (string)$errorId);
+
         $representation = array_filter([
-            self::KEYWORD_ERRORS_ID     => (string)$error->getId(),
+            self::KEYWORD_ERRORS_ID     => $errorId,
             self::KEYWORD_ERRORS_HREF   => $error->getHref(),
             self::KEYWORD_ERRORS_STATUS => $error->getStatus(),
             self::KEYWORD_ERRORS_CODE   => $error->getCode(),

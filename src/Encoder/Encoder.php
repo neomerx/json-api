@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
@@ -94,6 +95,32 @@ class Encoder implements EncoderInterface
 
         $meta  === null ?: $docWriter->setMetaToDocument($meta);
         $links === null ?: $docWriter->setDocumentLinks($links);
+
+        return $this->encodeToJson($docWriter->getDocument());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function error(ErrorInterface $error)
+    {
+        $docWriter = $this->documentFactory->createDocument();
+
+        $docWriter->addError($error);
+
+        return $this->encodeToJson($docWriter->getDocument());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function errors($errors)
+    {
+        $docWriter = $this->documentFactory->createDocument();
+        foreach ($errors as $error) {
+            assert('$error instanceof '.ErrorInterface::class);
+            $docWriter->addError($error);
+        }
 
         return $this->encodeToJson($docWriter->getDocument());
     }

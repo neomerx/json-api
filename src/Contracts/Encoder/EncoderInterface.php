@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 
 /**
@@ -39,4 +40,22 @@ interface EncoderInterface
         $meta = null,
         EncodingOptionsInterface $options = null
     );
+
+    /**
+     * Encode error as JSON API string.
+     *
+     * @param ErrorInterface $error
+     *
+     * @return string
+     */
+    public function error(ErrorInterface $error);
+
+    /**
+     * Encode errors as JSON API string.
+     *
+     * @param ErrorInterface[] $errors
+     *
+     * @return string
+     */
+    public function errors($errors);
 }
