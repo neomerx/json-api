@@ -93,8 +93,10 @@ EOL;
             "data" : {
                 "type"       : "people",
                 "id"         : "9",
-                "first_name" : "Dan",
-                "last_name"  : "Gebhardt",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
                 "links" : {
                     "self" : "http://example.com/people/9"
                 }
@@ -128,8 +130,10 @@ EOL;
             "data" : [{
                 "type"       : "people",
                 "id"         : "9",
-                "first_name" : "Dan",
-                "last_name"  : "Gebhardt",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
                 "links" : {
                     "self" : "http://example.com/people/9"
                 }
@@ -163,8 +167,10 @@ EOL;
     "data": {
         "type": "people",
         "id": "9",
-        "first_name": "Dan",
-        "last_name": "Gebhardt",
+        "attributes": {
+            "first_name": "Dan",
+            "last_name": "Gebhardt"
+        },
         "links": {
             "self": "http:\/\/example.com\/people\/9"
         }
@@ -198,8 +204,10 @@ EOL;
                 {
                     "type"       : "people",
                     "id"         : "7",
-                    "first_name" : "First",
-                    "last_name"  : "Last",
+                    "attributes" : {
+                        "first_name" : "First",
+                        "last_name"  : "Last"
+                    },
                     "links" : {
                         "self" : "http://example.com/people/7"
                     }
@@ -207,8 +215,10 @@ EOL;
                 {
                     "type"       : "people",
                     "id"         : "9",
-                    "first_name" : "Dan",
-                    "last_name"  : "Gebhardt",
+                    "attributes" : {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
                     "links" : {
                         "self" : "http://example.com/people/9"
                     }
@@ -262,8 +272,10 @@ EOL;
             "data" : {
                 "type"       : "people",
                 "id"         : "9",
-                "first_name" : "Dan",
-                "last_name"  : "Gebhardt",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
                 "links" : {
                     "self" : "http://example.com/people/9"
                 }

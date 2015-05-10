@@ -29,31 +29,33 @@ use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 class Document implements DocumentInterface
 {
     /** Reserved keyword */
-    const KEYWORD_LINKS     = 'links';
+    const KEYWORD_LINKS      = 'links';
     /** Reserved keyword */
-    const KEYWORD_SELF      = 'self';
+    const KEYWORD_SELF       = 'self';
     /** Reserved keyword */
-    const KEYWORD_FIRST     = 'first';
+    const KEYWORD_FIRST      = 'first';
     /** Reserved keyword */
-    const KEYWORD_LAST      = 'last';
+    const KEYWORD_LAST       = 'last';
     /** Reserved keyword */
-    const KEYWORD_NEXT      = 'next';
+    const KEYWORD_NEXT       = 'next';
     /** Reserved keyword */
-    const KEYWORD_PREV      = 'prev';
+    const KEYWORD_PREV       = 'prev';
     /** Reserved keyword */
-    const KEYWORD_RELATED   = 'related';
+    const KEYWORD_RELATED    = 'related';
     /** Reserved keyword */
-    const KEYWORD_LINKAGE   = 'linkage';
+    const KEYWORD_LINKAGE    = 'linkage';
     /** Reserved keyword */
-    const KEYWORD_TYPE      = 'type';
+    const KEYWORD_TYPE       = 'type';
     /** Reserved keyword */
-    const KEYWORD_ID        = 'id';
+    const KEYWORD_ID         = 'id';
     /** Reserved keyword */
-    const KEYWORD_META      = 'meta';
+    const KEYWORD_ATTRIBUTES = 'attributes';
     /** Reserved keyword */
-    const KEYWORD_DATA      = 'data';
+    const KEYWORD_META       = 'meta';
     /** Reserved keyword */
-    const KEYWORD_INCLUDED  = 'included';
+    const KEYWORD_DATA       = 'data';
+    /** Reserved keyword */
+    const KEYWORD_INCLUDED   = 'included';
 
     /** Reserved keyword */
     const KEYWORD_ERRORS        = 'errors';

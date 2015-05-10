@@ -279,7 +279,7 @@ class ElementPresenter
             '"type" and "id" are reserved keywords and cannot be used as resource object attributes'
         );
         if (empty($attributes) === false) {
-            $representation += $attributes;
+            $representation[Document::KEYWORD_ATTRIBUTES] = $attributes;
         }
 
         if ($isShowSelf === true) {

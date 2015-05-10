@@ -104,9 +104,11 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
         $expected = <<<EOL
         {
             "data" : {
-                "type"  : "sites",
-                "id"    : "2",
-                "name"  : "site name",
+                "type" : "sites",
+                "id"   : "2",
+                "attributes" : {
+                    "name" : "site name"
+                },
                 "links" : {
                     "self" : "http://example.com/sites/2",
                     "posts" : {
@@ -120,7 +122,9 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
             "included" : [{
                 "type"  : "comments",
                 "id"    : "5",
-                "body"  : "First!",
+                "attributes" : {
+                    "body" : "First!"
+                },
                 "links" : {
                     "self"   : "http://example.com/comments/5",
                     "author" : {
@@ -130,7 +134,9 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
             }, {
                 "type"  : "comments",
                 "id"    : "12",
-                "body"  : "I like XML better",
+                "attributes" : {
+                    "body" : "I like XML better"
+                },
                 "links" : {
                     "self"   : "http://example.com/comments/12",
                     "author" : {
@@ -138,10 +144,12 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
                     }
                 }
             },{
-                "type"  : "posts",
-                "id"    : "1",
-                "title" : "JSON API paints my bikeshed!",
-                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "type" : "posts",
+                "id"   : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
                 "links" : {
                     "author" : {
                         "linkage" : { "type" : "people", "id" : "9" }
@@ -218,8 +226,10 @@ EOL;
             }, {
                 "type"       : "people",
                 "id"         : "9",
-                "first_name" : "Dan",
-                "last_name"  : "Gebhardt"
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                }
             }, {
                 "type" : "posts",
                 "id"   : "1"

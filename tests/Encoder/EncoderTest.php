@@ -55,8 +55,10 @@ class EncoderTest extends BaseTestCase
                 {
                     "type"       : "people",
                     "id"         : "9",
-                    "first_name" : "Dan",
-                    "last_name"  : "Gebhardt",
+                    "attributes" : {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
                     "links" : {
                         "self" : "http://example.com/people/9"
                     }
@@ -64,8 +66,10 @@ class EncoderTest extends BaseTestCase
                 {
                     "type"       : "people",
                     "id"         : "9",
-                    "first_name" : "Dan",
-                    "last_name"  : "Gebhardt",
+                    "attributes" : {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
                     "links" : {
                         "self" : "http://example.com/people/9"
                     }
@@ -106,8 +110,10 @@ EOL;
                 {
                     "type"       : "people",
                     "id"         : "9",
-                    "first_name" : "Dan",
-                    "last_name"  : "Gebhardt",
+                    "attributes" : {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
                     "links" : {
                         "self"     : "http://example.com/people/9",
                         "comments" : {
@@ -117,8 +123,10 @@ EOL;
                 }, {
                     "type"       : "people",
                     "id"         : "9",
-                    "first_name" : "Dan",
-                    "last_name"  : "Gebhardt",
+                    "attributes" : {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
                     "links" : {
                         "self"     : "http://example.com/people/9",
                         "comments" : {
@@ -167,8 +175,10 @@ EOL;
                 {
                     "type"       : "people",
                     "id"         : "9",
-                    "first_name" : "Dan",
-                    "last_name"  : "Gebhardt",
+                    "attributes" : {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
                     "links" : {
                         "self" : "http://example.com/people/9"
                     }
@@ -176,8 +186,10 @@ EOL;
                 {
                     "type"       : "people",
                     "id"         : "9",
-                    "first_name" : "Dan",
-                    "last_name"  : "Gebhardt",
+                    "attributes" : {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
                     "links" : {
                         "self" : "http://example.com/people/9"
                     }
@@ -207,8 +219,10 @@ EOL;
             "data" : {
                 "type"  : "posts",
                 "id"    : "1",
-                "title" : "JSON API paints my bikeshed!",
-                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
                 "links" : {
                     "self" : "http://example.com/posts/1",
                     "author" : {
@@ -251,10 +265,12 @@ EOL;
         $expected = <<<EOL
         {
             "data" : {
-                "type"  : "posts",
-                "id"    : "1",
-                "title" : "JSON API paints my bikeshed!",
-                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "type" : "posts",
+                "id"   : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
                 "links" : {
                     "self"     : "http://example.com/posts/1",
                     "author"   : "http://example.com/posts/1/author",
@@ -288,10 +304,12 @@ EOL;
         $expected = <<<EOL
         {
             "data" : {
-                "type"  : "posts",
-                "id"    : "1",
-                "title" : "JSON API paints my bikeshed!",
-                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "type" : "posts",
+                "id"   : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
                 "links" : {
                     "self"     : "http://example.com/posts/1",
                     "author"   : null,
@@ -340,9 +358,11 @@ EOL;
         $expected = <<<EOL
         {
             "data" : {
-                "type"  : "sites",
-                "id"    : "2",
-                "name"  : "site name",
+                "type" : "sites",
+                "id"   : "2",
+                "attributes" : {
+                    "name"  : "site name"
+                },
                 "links" : {
                     "self" : "http://example.com/sites/2",
                     "posts" : {

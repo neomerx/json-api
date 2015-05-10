@@ -97,10 +97,12 @@ class EncodeIncludedObjectsTest extends BaseTestCase
         $expected = <<<EOL
         {
             "data" : {
-                "type"  : "posts",
-                "id"    : "1",
-                "title" : "JSON API paints my bikeshed!",
-                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "type" : "posts",
+                "id"   : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
                 "links" : {
                     "self" : "http://example.com/posts/1",
                     "author" : {
@@ -117,14 +119,18 @@ class EncodeIncludedObjectsTest extends BaseTestCase
             "included" : [{
                 "type"  : "comments",
                 "id"    : "5",
-                "body"  : "First!",
+                "attributes" : {
+                    "body"  : "First!"
+                },
                 "links" : {
                     "self" : "http://example.com/comments/5"
                 }
             }, {
                 "type"  : "comments",
                 "id"    : "12",
-                "body"  : "I like XML better",
+                "attributes" : {
+                    "body"  : "I like XML better"
+                },
                 "links" : {
                     "self" : "http://example.com/comments/12"
                 }
@@ -182,7 +188,9 @@ EOL;
             "included" : [{
                 "type"  : "comments",
                 "id"    : "5",
-                "body"  : "First!",
+                "attributes" : {
+                    "body"  : "First!"
+                },
                 "links" : {
                     "self"   : "http://example.com/comments/5",
                     "author" : {
@@ -192,7 +200,9 @@ EOL;
             }, {
                 "type"  : "comments",
                 "id"    : "12",
-                "body"  : "I like XML better",
+                "attributes" : {
+                    "body"  : "I like XML better"
+                },
                 "links" : {
                     "self"   : "http://example.com/comments/12",
                     "author" : {
@@ -233,7 +243,9 @@ EOL;
             "data" : {
                 "type"  : "sites",
                 "id"    : "2",
-                "name"  : "site name",
+                "attributes" : {
+                    "name"  : "site name"
+                },
                 "links" : {
                     "self" : "http://example.com/sites/2",
                     "posts" : {
@@ -247,8 +259,10 @@ EOL;
             "included" : [{
                 "type"  : "posts",
                 "id"    : "1",
-                "title" : "JSON API paints my bikeshed!",
-                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
                 "links" : {
                     "author"   : null,
                     "comments" : []
@@ -289,7 +303,9 @@ EOL;
             "data" : {
                 "type"  : "sites",
                 "id"    : "2",
-                "name"  : "site name",
+                "attributes" : {
+                    "name"  : "site name"
+                },
                 "links" : {
                     "self" : "http://example.com/sites/2",
                     "posts" : {
@@ -303,8 +319,10 @@ EOL;
             "included" : [{
                 "type"  : "posts",
                 "id"    : "1",
-                "title" : "JSON API paints my bikeshed!",
-                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
                 "links" : {
                     "author"   : {
                         "linkage" : { "type" : "posts", "id" : "1" }
@@ -344,7 +362,9 @@ EOL;
             "data" : {
                 "type"  : "sites",
                 "id"    : "2",
-                "name"  : "site name",
+                "attributes" : {
+                    "name"  : "site name"
+                },
                 "links" : {
                     "self" : "http://example.com/sites/2",
                     "posts" : {
@@ -358,8 +378,10 @@ EOL;
             "included" : [{
                 "type"  : "posts",
                 "id"    : "1",
-                "title" : "JSON API paints my bikeshed!",
-                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
                 "links" : {
                     "author"   : "http://example.com/posts/1/author",
                     "comments" : "http://example.com/posts/1/comments"
@@ -404,7 +426,9 @@ EOL;
             "data" : {
                 "type"  : "sites",
                 "id"    : "2",
-                "name"  : "site name",
+                "attributes" : {
+                    "name"  : "site name"
+                },
                 "links" : {
                     "self" : "http://example.com/sites/2",
                     "posts" : {
@@ -418,8 +442,10 @@ EOL;
             "included" : [{
                 "type"  : "posts",
                 "id"    : "1",
-                "title" : "JSON API paints my bikeshed!",
-                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
                 "links" : {
                     "author" : {
                         "linkage" : { "type" : "people", "id" : "9" }
@@ -469,8 +495,10 @@ EOL;
             "data" : {
                 "type"  : "posts",
                 "id"    : "1",
-                "title" : "JSON API paints my bikeshed!",
-                "body"  : "Outside every fat man there was an even fatter man trying to close in",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
                 "links" : {
                     "self" : "http://example.com/posts/1",
                     "author" : {

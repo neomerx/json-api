@@ -139,10 +139,12 @@ EOL;
         {
             "data" : [
                 {
-                    "type"      : "people",
-                    "id"        : "123",
-                    "firstName" : "John",
-                    "lastName"  : "Dow",
+                    "type"       : "people",
+                    "id"         : "123",
+                    "attributes" : {
+                        "firstName" : "John",
+                        "lastName"  : "Dow"
+                    },
                     "links" : {
                         "self" : "selfUrl"
                     },
@@ -180,10 +182,12 @@ EOL;
         $expected = <<<EOL
         {
             "data" : {
-                "type"      : "people",
-                "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow"
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                }
             }
         }
 EOL;
@@ -277,8 +281,10 @@ EOL;
             "data" : {
                 "type"      : "people",
                 "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "link-name" : {
                         "self"    : "peopleSelfUrl/selfSubUrl",
@@ -351,8 +357,10 @@ EOL;
             "data" : {
                 "type"      : "people",
                 "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "link-name" : {
                         "linkage" : { "type" : "comments", "id" : "321" }
@@ -420,10 +428,12 @@ EOL;
         $expected = <<<EOL
         {
             "data" : {
-                "type"      : "people",
-                "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "link-name" : {
                         "linkage" : [
@@ -493,10 +503,12 @@ EOL;
         $expected = <<<EOL
         {
             "data" : {
-                "type"      : "people",
-                "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "link-name" : {
                         "meta" : { "some" : "comment meta" }
@@ -563,10 +575,12 @@ EOL;
         $expected = <<<EOL
         {
             "data" : {
-                "type"      : "people",
-                "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "link-name" : "peopleSelfUrl/relatedSubUrl"
                 }
@@ -617,10 +631,12 @@ EOL;
         $expected = <<<EOL
         {
             "data" : {
-                "type"      : "people",
-                "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "link-name" : []
                 }
@@ -671,10 +687,12 @@ EOL;
         $expected = <<<EOL
         {
             "data" : {
-                "type"      : "people",
-                "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "link-name" : null
                 }
@@ -710,10 +728,12 @@ EOL;
             "data"     : null,
             "included" : [
                 {
-                    "type"      : "people",
-                    "id"        : "123",
-                    "firstName" : "John",
-                    "lastName"  : "Dow",
+                    "type"       : "people",
+                    "id"         : "123",
+                    "attributes" : {
+                        "firstName" : "John",
+                        "lastName"  : "Dow"
+                    },
                     "links" : {
                         "self" : "selfUrl"
                     },
@@ -753,10 +773,12 @@ EOL;
             "data"     : null,
             "included" : [
                 {
-                    "type"      : "people",
-                    "id"        : "123",
-                    "firstName" : "John",
-                    "lastName"  : "Dow"
+                    "type"       : "people",
+                    "id"         : "123",
+                    "attributes" : {
+                        "firstName" : "John",
+                        "lastName"  : "Dow"
+                    }
                 }
             ]
         }
@@ -820,10 +842,12 @@ EOL;
         {
             "data"     : null,
             "included" : [{
-                "type"      : "people",
-                "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "self" : "peopleSelfUrl/",
                     "link-name" : {
@@ -898,10 +922,12 @@ EOL;
         {
             "data"     : null,
             "included" : [{
-                "type"      : "people",
-                "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "self" : "peopleSelfUrl/",
                     "link-name" : {
@@ -959,10 +985,12 @@ EOL;
         {
             "data"     : null,
             "included" : [{
-                "type"      : "people",
-                "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "self"      : "peopleSelfUrl/",
                     "link-name" : []
@@ -1018,10 +1046,12 @@ EOL;
         {
             "data"     : null,
             "included" : [{
-                "type"      : "people",
-                "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "self"      : "peopleSelfUrl/",
                     "link-name" : null
@@ -1077,10 +1107,12 @@ EOL;
         {
             "data"     : null,
             "included" : [{
-                "type"      : "people",
-                "id"        : "123",
-                "firstName" : "John",
-                "lastName"  : "Dow",
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
                 "links" : {
                     "self"      : "peopleSelfUrl/",
                     "link-name" : "peopleSelfUrl/relatedSubUrl"
