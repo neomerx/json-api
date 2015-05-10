@@ -1,4 +1,4 @@
-<?php namespace Neomerx\Tests\JsonApi;
+<?php namespace Neomerx\JsonApi\Contracts\Integration;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,20 +16,31 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \PHPUnit_Framework_TestCase;
-
 /**
  * @package Neomerx\JsonApi
  */
-abstract class BaseTestCase extends PHPUnit_Framework_TestCase
+interface CurrentRequestInterface
 {
     /**
-     * Tear down test.
+     * Get content.
+     *
+     * @return string|null
      */
-    protected function tearDown()
-    {
-        parent::tearDown();
-        Mockery::close();
-    }
+    public function getContent();
+
+    /**
+     * Get inputs.
+     *
+     * @return array
+     */
+    public function getInput();
+
+    /**
+     * Get header value.
+     *
+     * @param string $name
+     *
+     * @return string|null
+     */
+    public function getHeader($name);
 }

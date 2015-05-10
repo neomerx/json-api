@@ -1,4 +1,4 @@
-<?php namespace Neomerx\Tests\JsonApi;
+<?php namespace Neomerx\JsonApi\Contracts\Parameters;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,20 +16,16 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \PHPUnit_Framework_TestCase;
-
 /**
  * @package Neomerx\JsonApi
  */
-abstract class BaseTestCase extends PHPUnit_Framework_TestCase
+
+interface ParameterCheckerInterface
 {
     /**
-     * Tear down test.
+     * @param ParametersInterface $parameters
+     *
+     * @return void
      */
-    protected function tearDown()
-    {
-        parent::tearDown();
-        Mockery::close();
-    }
+    public function check(ParametersInterface $parameters);
 }

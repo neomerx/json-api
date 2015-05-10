@@ -1,4 +1,4 @@
-<?php namespace Neomerx\Tests\JsonApi;
+<?php namespace Neomerx\JsonApi\Contracts\Parameters;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,20 +16,29 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \PHPUnit_Framework_TestCase;
-
 /**
  * @package Neomerx\JsonApi
  */
-abstract class BaseTestCase extends PHPUnit_Framework_TestCase
+interface SortParameterInterface
 {
     /**
-     * Tear down test.
+     * Get sort field name.
+     *
+     * @return string
      */
-    protected function tearDown()
-    {
-        parent::tearDown();
-        Mockery::close();
-    }
+    public function getField();
+
+    /**
+     * Get true if parameter is ascending.
+     *
+     * @return bool
+     */
+    public function isAscending();
+
+    /**
+     * Get true if parameter is descending.
+     *
+     * @return bool
+     */
+    public function isDescending();
 }

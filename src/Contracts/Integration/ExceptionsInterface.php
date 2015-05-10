@@ -1,4 +1,4 @@
-<?php namespace Neomerx\Tests\JsonApi;
+<?php namespace Neomerx\JsonApi\Contracts\Integration;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,20 +16,29 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \PHPUnit_Framework_TestCase;
-
 /**
  * @package Neomerx\JsonApi
  */
-abstract class BaseTestCase extends PHPUnit_Framework_TestCase
+interface ExceptionsInterface
 {
     /**
-     * Tear down test.
+     * Throw 'Bad request' exception (HTTP code 400).
+     *
+     * @return void
      */
-    protected function tearDown()
-    {
-        parent::tearDown();
-        Mockery::close();
-    }
+    public function throwBadRequest();
+
+    /**
+     * Throw 'Not Acceptable' exception (HTTP code 406).
+     *
+     * @return void
+     */
+    public function throwNotAcceptable();
+
+    /**
+     * Throw 'Unsupported Media Type' exception (HTTP code 415).
+     *
+     * @return void
+     */
+    public function throwUnsupportedMediaType();
 }
