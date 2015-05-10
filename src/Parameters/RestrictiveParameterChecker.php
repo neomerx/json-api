@@ -47,27 +47,27 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     private $allowUnrecognized;
 
     /**
-     * @var array
+     * @var array|null
      */
     private $includePaths;
 
     /**
-     * @var array
+     * @var array|null
      */
     private $fieldSetTypes;
 
     /**
-     * @var array
+     * @var array|null
      */
     private $pagingParameters;
 
     /**
-     * @var array
+     * @var array|null
      */
     private $sortParameters;
 
     /**
-     * @var array
+     * @var array|null
      */
     private $filteringParameters;
 
@@ -76,11 +76,11 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
      * @param array               $inputMediaTypes
      * @param array               $outputMediaTypes
      * @param bool                $allowUnrecognized
-     * @param array               $includePaths
-     * @param array               $fieldSetTypes
-     * @param array               $sortParameters
-     * @param array               $pagingParameters
-     * @param array               $filteringParameters
+     * @param array|null          $includePaths
+     * @param array|null          $fieldSetTypes
+     * @param array|null          $sortParameters
+     * @param array|null          $pagingParameters
+     * @param array|null          $filteringParameters
      */
     public function __construct(
         ExceptionsInterface $exceptions,

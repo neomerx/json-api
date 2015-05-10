@@ -27,7 +27,7 @@ class ParametersFactory implements ParametersFactoryInterface
     /**
      * @inheritdoc
      */
-    public function createEncodingParameters(array $includePaths = null, array $fieldSets = null)
+    public function createEncodingParameters($includePaths = null, array $fieldSets = null)
     {
         return new EncodingParameters($includePaths, $fieldSets);
     }
@@ -51,7 +51,7 @@ class ParametersFactory implements ParametersFactoryInterface
         array $sortParameters = null,
         array $pagingParameters = null,
         array $filteringParameters = null,
-        array $unrecognizedParameters = null
+        array $unrecognizedParams = null
     ) {
         return new Parameters(
             $inputType,
@@ -61,7 +61,7 @@ class ParametersFactory implements ParametersFactoryInterface
             $sortParameters,
             $pagingParameters,
             $filteringParameters,
-            $unrecognizedParameters
+            $unrecognizedParams
         );
     }
 

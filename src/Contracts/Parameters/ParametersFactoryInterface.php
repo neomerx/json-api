@@ -29,7 +29,7 @@ interface ParametersFactoryInterface
      *
      * @return EncodingParametersInterface
      */
-    public function createEncodingParameters(array $includePaths = null, array $fieldSets = null);
+    public function createEncodingParameters($includePaths = null, array $fieldSets = null);
 
     /**
      * Create media type.
@@ -51,7 +51,7 @@ interface ParametersFactoryInterface
      * @param SortParameterInterface[]|null $sortParameters
      * @param array|null                    $pagingParameters
      * @param array|null                    $filteringParameters
-     * @param array|null                    $unrecognizedParameters
+     * @param array|null                    $unrecognizedParams
      *
      * @return ParametersInterface
      */
@@ -63,7 +63,7 @@ interface ParametersFactoryInterface
         array $sortParameters = null,
         array $pagingParameters = null,
         array $filteringParameters = null,
-        array $unrecognizedParameters = null
+        array $unrecognizedParams = null
     );
 
     /**

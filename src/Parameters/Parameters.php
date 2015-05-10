@@ -36,7 +36,7 @@ class Parameters extends EncodingParameters implements ParametersInterface
     private $outputType;
 
     /**
-     * @var array|null
+     * @var SortParameterInterface[]|null
      */
     private $sortParameters;
 
@@ -53,7 +53,7 @@ class Parameters extends EncodingParameters implements ParametersInterface
     /**
      * @var array|null
      */
-    private $unrecognizedParameters;
+    private $unrecognizedParams;
 
     /**
      * @param MediaTypeInterface            $inputType
@@ -63,7 +63,7 @@ class Parameters extends EncodingParameters implements ParametersInterface
      * @param SortParameterInterface[]|null $sortParameters
      * @param array|null                    $pagingParameters
      * @param array|null                    $filteringParameters
-     * @param array|null                    $unrecognizedParameters
+     * @param array|null                    $unrecognizedParams
      */
     public function __construct(
         MediaTypeInterface $inputType,
@@ -73,16 +73,16 @@ class Parameters extends EncodingParameters implements ParametersInterface
         array $sortParameters = null,
         array $pagingParameters = null,
         array $filteringParameters = null,
-        array $unrecognizedParameters = null
+        array $unrecognizedParams = null
     ) {
         parent::__construct($includePaths, $fieldSets);
 
-        $this->inputType              = $inputType;
-        $this->outputType             = $outputType;
-        $this->sortParameters         = $sortParameters;
-        $this->pagingParameters       = $pagingParameters;
-        $this->filteringParameters    = $filteringParameters;
-        $this->unrecognizedParameters = $unrecognizedParameters;
+        $this->inputType           = $inputType;
+        $this->outputType          = $outputType;
+        $this->sortParameters      = $sortParameters;
+        $this->pagingParameters    = $pagingParameters;
+        $this->unrecognizedParams  = $unrecognizedParams;
+        $this->filteringParameters = $filteringParameters;
     }
 
     /**
@@ -130,6 +130,6 @@ class Parameters extends EncodingParameters implements ParametersInterface
      */
     public function getUnrecognizedParameters()
     {
-        return $this->unrecognizedParameters;
+        return $this->unrecognizedParams;
     }
 }

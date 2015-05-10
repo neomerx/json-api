@@ -42,7 +42,7 @@ class EncodingParameters implements EncodingParametersInterface
      * @param string[]|null $includePaths
      * @param array|null    $fieldSets
      */
-    public function __construct(array $includePaths = null, array $fieldSets = null)
+    public function __construct($includePaths = null, array $fieldSets = null)
     {
         $this->fieldSets    = $fieldSets;
         $this->includePaths = $includePaths;
