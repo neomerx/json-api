@@ -247,6 +247,24 @@ Note that output does not contain objects from neither ```posts``` nor ```posts.
 }
 ```
 
+### Dynamic Schemas
+
+Encoder supports dynamic schemas. Instead of schema class name you can specify ```Closure``` which will be invoked on schema creation. This feature could be used for setting up schemas based on configuration settings, environment variables, user input and etc. 
+
+```php
+$schemaClosure = function () {
+    $schema = new CommentSchema(..., ..., ...);
+    return $schema;
+};
+
+$encoder = Encoder::instance([
+    Author::class  => AuthorSchema::class,
+    Comment::class => $schemaClosure,
+    Post::class    => PostSchema::class,
+    Site::class    => SiteSchema::class
+]);
+```
+
 ### View customization
 
 You can fully customize how your output result will look like
