@@ -25,10 +25,6 @@ This package covers encoding PHP objects to JavaScript Object Notation (JSON) as
 This package implements the latest [JSON API](http://jsonapi.org/) version RC3 and is using [Semantic Versioning](http://semver.org/).
 The package version reflects the fact JSON API specification has not been finally released yet but not the package readiness.
 
-## Contributing and TODO
-
-This package implements encoding to JSON and this part looks pretty solid however JSON API is not only data semantics it's about web requests as well. An experimental branch ```web``` :octocat: is created which aims to add such support and combine it with one of the popular PHP frameworks (e.g. Laravel/Lumen). Let's discuss it  on [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/neomerx/json-api).
-
 ## Install
 
 Via Composer
