@@ -248,8 +248,8 @@ class Parser implements ParserInterface
         foreach ($this->stack as $frame) {
             /** @var StackFrameReadOnlyInterface $frame */
             if (($stackResource = $frame->getResourceObject()) !== null &&
-                $stackResource->getType() === $resourceObject->getType() &&
-                $stackResource->getId()   === $resourceObject->getId()) {
+                $stackResource->getId() === $resourceObject->getId() &&
+                $stackResource->getType() === $resourceObject->getType()) {
                 return true;
             }
         }

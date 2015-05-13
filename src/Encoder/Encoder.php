@@ -149,8 +149,6 @@ class Encoder implements EncoderInterface
      */
     public static function instance(array $schemas, JsonEncodeOptions $encodeOptions = null)
     {
-        assert('empty($schemas) === false', 'Schema providers should be specified.');
-
         /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
         $schemaFactory = new \Neomerx\JsonApi\Schema\SchemaFactory();
         $container     = $schemaFactory->createContainer($schemas);

@@ -73,7 +73,7 @@ class ParserManager implements ParserManagerInterface
             return [true, true];
         }
 
-        $parentIsTarget = $this->parameters->isPathIncluded($stack->end(1)->getPath());
+        $parentIsTarget = $this->parameters->isPathIncluded($stack->penult()->getPath());
 
         $onTheWay = false;
         $path     = $stack->end()->getPath();

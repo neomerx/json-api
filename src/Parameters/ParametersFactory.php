@@ -37,7 +37,7 @@ class ParametersFactory implements ParametersFactoryInterface
      */
     public function createMediaType($mediaType, $extensions)
     {
-        return new MediaType($mediaType, $extensions);
+        return $extensions === null ? new MediaType($mediaType) : new MediaType($mediaType, $extensions);
     }
 
     /**
@@ -79,5 +79,13 @@ class ParametersFactory implements ParametersFactoryInterface
     public function createSortParam($sortField, $isAscending)
     {
         return new SortParameter($sortField, $isAscending);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createSupportedExtensions($extensions = MediaTypeInterface::NO_EXT)
+    {
+        return new SupportedExtensions($extensions);
     }
 }

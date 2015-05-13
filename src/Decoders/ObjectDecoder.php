@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Integration;
+<?php namespace Neomerx\JsonApi\Decoders;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,29 +16,20 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Decoder\DecoderInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
-interface ExceptionsInterface
+class ObjectDecoder implements DecoderInterface
 {
     /**
-     * Throw 'Bad request' exception (HTTP code 400).
+     * @inheritdoc
      *
-     * @return void
+     * @return object
      */
-    public function throwBadRequest();
-
-    /**
-     * Throw 'Not Acceptable' exception (HTTP code 406).
-     *
-     * @return void
-     */
-    public function throwNotAcceptable();
-
-    /**
-     * Throw 'Unsupported Media Type' exception (HTTP code 415).
-     *
-     * @return void
-     */
-    public function throwUnsupportedMediaType();
+    public function decode($content)
+    {
+        return json_decode($content);
+    }
 }

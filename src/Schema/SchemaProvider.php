@@ -140,6 +140,14 @@ abstract class SchemaProvider implements SchemaProviderInterface
             'If set depth should be positive int.'
         );
 
+        assert(
+            'is_bool($this->isShowSelfInIncluded) &&'.
+            'is_bool($this->isShowLinksInIncluded) &&'.
+            'is_bool($this->isShowMetaInIncluded)'
+        );
+
+        assert('is_string($this->baseSelfUrl) && empty($this->baseSelfUrl) === false', 'Base \'self\' not set.');
+
         $this->factory   = $factory;
         $this->container = $container;
     }
@@ -169,8 +177,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     {
         // Note: $resource is available as input parameter
 
-        assert('is_string($this->baseSelfUrl) && empty($this->baseSelfUrl) === false', 'Base \'self\' not set.');
-
         substr($this->baseSelfUrl, -1) === '/' ?: $this->baseSelfUrl .= '/';
 
         return $this->baseSelfUrl;
@@ -189,7 +195,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function isShowSelfInIncluded()
     {
-        assert('is_bool($this->isShowSelfInIncluded)');
         return $this->isShowSelfInIncluded;
     }
 
@@ -198,7 +203,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function isShowLinksInIncluded()
     {
-        assert('is_bool($this->isShowLinksInIncluded)');
         return $this->isShowLinksInIncluded;
     }
 
@@ -207,7 +211,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function isShowMetaInIncluded()
     {
-        assert('is_bool($this->isShowMetaInIncluded)');
         return $this->isShowMetaInIncluded;
     }
 
@@ -234,9 +237,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function getLinkObjectIterator($resource)
     {
         foreach ($this->getLinks($resource) as $name => $desc) {
-            assert('is_string($name) === true && empty($name) === false');
-            assert('is_array($desc) === true');
-
             $relatedController = $this->getNotEmptyValue($desc, self::RELATED_CONTROLLER);
             $selfController    = $this->getNotEmptyValue($desc, self::SELF_CONTROLLER);
             $data              = $this->readData($desc);
@@ -251,12 +251,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
 
             $selfSubUrl    = $this->getValue($desc, self::SELF_SUB_URL, '/links/'.$name);
             $relatedSubUrl = $this->getValue($desc, self::RELATED_SUB_URL, '/'.$name);
-            assert('is_string($selfSubUrl) && is_string($relatedSubUrl)');
 
             $selfSubUrl    = ($selfController    === null ? null : $selfSubUrl);
             $relatedSubUrl = ($relatedController === null ? null : $relatedSubUrl);
-
-            assert('is_object($data) || is_array($data) || $data === null');
 
             yield $this->factory->createLinkObject(
                 $name,

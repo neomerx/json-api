@@ -20,9 +20,11 @@ use \Mockery;
 use \Mockery\MockInterface;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Parameters\ParametersFactory;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionsInterface;
+use \Neomerx\JsonApi\Contracts\Codec\CodecContainerInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
+use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -30,7 +32,7 @@ use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
 class ParameterParserTest extends BaseTestCase
 {
     /** JSON API type */
-    const TYPE = 'application/vnd.api+json';
+    const TYPE = CodecContainerInterface::JSON_API_TYPE;
 
     /**
      * @var ParametersParserInterface
@@ -45,7 +47,7 @@ class ParameterParserTest extends BaseTestCase
     /**
      * @var MockInterface
      */
-    private $mockExceptions;
+    private $mockThrower;
 
     /**
      * Set up.
@@ -54,9 +56,9 @@ class ParameterParserTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->parser         = (new ParametersFactory())->createParametersParser();
-        $this->mockRequest    = Mockery::mock(CurrentRequestInterface::class);
-        $this->mockExceptions = Mockery::mock(ExceptionsInterface::class);
+        $this->parser      = (new ParametersFactory())->createParametersParser();
+        $this->mockRequest = Mockery::mock(CurrentRequestInterface::class);
+        $this->mockThrower = Mockery::mock(ExceptionThrowerInterface::class);
     }
 
     /**
@@ -71,8 +73,8 @@ class ParameterParserTest extends BaseTestCase
 
         $this->assertEquals(self::TYPE, $parameters->getInputMediaType()->getMediaType());
         $this->assertEquals(self::TYPE, $parameters->getOutputMediaType()->getMediaType());
-        $this->assertNull($parameters->getInputMediaType()->getExtensions());
-        $this->assertNull($parameters->getOutputMediaType()->getExtensions());
+        $this->assertEquals(MediaTypeInterface::NO_EXT, $parameters->getInputMediaType()->getExtensions());
+        $this->assertEquals(MediaTypeInterface::NO_EXT, $parameters->getOutputMediaType()->getExtensions());
 
         $this->assertNull($parameters->getFieldSets());
         $this->assertNull($parameters->getIncludePaths());
@@ -147,8 +149,8 @@ class ParameterParserTest extends BaseTestCase
 
         $this->assertEquals(self::TYPE, $parameters->getInputMediaType()->getMediaType());
         $this->assertEquals(self::TYPE, $parameters->getOutputMediaType()->getMediaType());
-        $this->assertNull($parameters->getInputMediaType()->getExtensions());
-        $this->assertNull($parameters->getOutputMediaType()->getExtensions());
+        $this->assertEquals(MediaTypeInterface::NO_EXT, $parameters->getInputMediaType()->getExtensions());
+        $this->assertEquals(MediaTypeInterface::NO_EXT, $parameters->getOutputMediaType()->getExtensions());
     }
 
     /**
@@ -215,7 +217,7 @@ class ParameterParserTest extends BaseTestCase
     {
         $this->mockRequest->shouldReceive('getHeader')->with('Content-Type')->once()->andReturn($contentType);
         $this->mockRequest->shouldReceive('getHeader')->with('Accept')->once()->andReturn($accept);
-        $this->mockRequest->shouldReceive('getInput')->withNoArgs()->once()->andReturn($input);
+        $this->mockRequest->shouldReceive('getQueryParameters')->withNoArgs()->once()->andReturn($input);
 
         /** @var CurrentRequestInterface $request */
         $request = $this->mockRequest;
@@ -226,16 +228,16 @@ class ParameterParserTest extends BaseTestCase
     /**
      * @param string $exceptionMethod
      *
-     * @return ExceptionsInterface
+     * @return ExceptionThrowerInterface
      */
     private function prepareExceptions($exceptionMethod = null)
     {
         if ($exceptionMethod !== null) {
-            $this->mockExceptions->shouldReceive($exceptionMethod)->atLeast(1)->withNoArgs()->andReturnUndefined();
+            $this->mockThrower->shouldReceive($exceptionMethod)->atLeast(1)->withNoArgs()->andReturnUndefined();
         }
 
-        /** @var ExceptionsInterface $exceptions */
-        $exceptions = $this->mockExceptions;
+        /** @var ExceptionThrowerInterface $exceptions */
+        $exceptions = $this->mockThrower;
 
         return $exceptions;
     }

@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
+<?php namespace Neomerx\JsonApi\Contracts\Exceptions;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,25 +16,39 @@
  * limitations under the License.
  */
 
-use \Countable;
-use \IteratorAggregate;
+use \Closure;
+use \Exception;
 
 /**
  * @package Neomerx\JsonApi
  */
-interface StackReadOnlyInterface extends IteratorAggregate, Countable
+interface RenderContainerInterface
 {
     /**
-     * Get a stack frame from end.
+     * Register exception render
      *
-     * @return StackFrameReadOnlyInterface|null
+     * @param string  $exceptionClass
+     * @param Closure $render
+     *
+     * @return void
      */
-    public function end();
+    public function registerRender($exceptionClass, Closure $render);
 
     /**
-     * Get a penult stack frame.
+     * Register HTTP status code mapping for exceptions.
      *
-     * @return StackFrameReadOnlyInterface|null
+     * @param array $exceptionMapping
+     *
+     * @return void
      */
-    public function penult();
+    public function registerMapping(array $exceptionMapping);
+
+    /**
+     * Get registered or default render for exception.
+     *
+     * @param Exception $exception
+     *
+     * @return Closure
+     */
+    public function getRender(Exception $exception);
 }

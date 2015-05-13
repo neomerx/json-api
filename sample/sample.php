@@ -143,6 +143,17 @@ class Application
      */
     private function runPerformanceTest($iterations)
     {
+        $options = new EncodingParameters(
+            ['posts.author'],
+            ['sites' => ['name'], 'people' => ['first_name']]
+        );
+        $encoder = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => PostSchema::class,
+            Site::class    => SiteSchema::class
+        ]);
+
         for ($index = 0; $index < $iterations; ++$index) {
             $rand = rand();
 
@@ -153,17 +164,6 @@ class Application
             ];
             $post     = Post::instance('321', 'Included objects' . $rand, 'Yes, it is supported', $author, $comments);
             $site     = Site::instance('1', 'JSON API Samples' . $rand, [$post]);
-
-            $options = new EncodingParameters(
-                ['posts.author'],
-                ['sites' => ['name'], 'people' => ['first_name']]
-            );
-            $encoder = Encoder::instance([
-                Author::class  => AuthorSchema::class,
-                Comment::class => CommentSchema::class,
-                Post::class    => PostSchema::class,
-                Site::class    => SiteSchema::class
-            ]);
 
             $encoder->encode(
                 $site,

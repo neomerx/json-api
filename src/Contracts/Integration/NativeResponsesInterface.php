@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
+<?php namespace Neomerx\JsonApi\Contracts\Integration;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,25 +16,19 @@
  * limitations under the License.
  */
 
-use \Countable;
-use \IteratorAggregate;
-
 /**
  * @package Neomerx\JsonApi
  */
-interface StackReadOnlyInterface extends IteratorAggregate, Countable
+interface NativeResponsesInterface
 {
     /**
-     * Get a stack frame from end.
+     * Create HTTP response.
      *
-     * @return StackFrameReadOnlyInterface|null
-     */
-    public function end();
-
-    /**
-     * Get a penult stack frame.
+     * @param string|null $content
+     * @param int         $statusCode
+     * @param array       $headers
      *
-     * @return StackFrameReadOnlyInterface|null
+     * @return mixed
      */
-    public function penult();
+    public function createResponse($content, $statusCode, array $headers);
 }

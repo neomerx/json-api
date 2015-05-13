@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Codec\CodecContainerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersInterface;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionsInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParameterCheckerInterface;
+use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -28,19 +28,14 @@ use \Neomerx\JsonApi\Contracts\Parameters\ParameterCheckerInterface;
 class RestrictiveParameterChecker implements ParameterCheckerInterface
 {
     /**
-     * @var ExceptionsInterface
+     * @var ExceptionThrowerInterface
      */
-    private $exceptions;
+    private $exceptionThrower;
 
     /**
-     * @var array
+     * @var CodecContainerInterface
      */
-    private $inputMediaTypes;
-
-    /**
-     * @var array
-     */
-    private $outputMediaTypes;
+    private $codecContainer;
 
     /**
      * @var bool
@@ -73,20 +68,18 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     private $filteringParameters;
 
     /**
-     * @param ExceptionsInterface $exceptions
-     * @param array               $inputMediaTypes
-     * @param array               $outputMediaTypes
-     * @param bool                $allowUnrecognized
-     * @param array|null          $includePaths
-     * @param array|null          $fieldSetTypes
-     * @param array|null          $sortParameters
-     * @param array|null          $pagingParameters
-     * @param array|null          $filteringParameters
+     * @param ExceptionThrowerInterface $exceptionThrower
+     * @param CodecContainerInterface   $codecContainer
+     * @param bool                      $allowUnrecognized
+     * @param array|null                $includePaths
+     * @param array|null                $fieldSetTypes
+     * @param array|null                $sortParameters
+     * @param array|null                $pagingParameters
+     * @param array|null                $filteringParameters
      */
     public function __construct(
-        ExceptionsInterface $exceptions,
-        array $inputMediaTypes,
-        array $outputMediaTypes,
+        ExceptionThrowerInterface $exceptionThrower,
+        CodecContainerInterface $codecContainer,
         $allowUnrecognized = false,
         array $includePaths = null,
         array $fieldSetTypes = null,
@@ -94,9 +87,8 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
         array $pagingParameters = null,
         array $filteringParameters = null
     ) {
-        $this->exceptions          = $exceptions;
-        $this->inputMediaTypes     = $inputMediaTypes;
-        $this->outputMediaTypes    = $outputMediaTypes;
+        $this->exceptionThrower    = $exceptionThrower;
+        $this->codecContainer      = $codecContainer;
         $this->includePaths        = $includePaths;
         $this->allowUnrecognized   = $allowUnrecognized;
         $this->fieldSetTypes       = $this->flip($fieldSetTypes);
@@ -133,8 +125,8 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
         // with the Accept header. Servers that do not support a requested extension or combination of extensions MUST
         // return a 406 Not Acceptable status code.
         // For example, application/vnd.api+json; ext="ext1,ext2"
-        if ($this->checkMediaTypeFailed($parameters->getOutputMediaType(), $this->outputMediaTypes) === true) {
-            $this->exceptions->throwNotAcceptable();
+        if ($this->codecContainer->isEncoderRegistered($parameters->getOutputMediaType()) === false) {
+            $this->exceptionThrower->throwNotAcceptable();
         }
     }
 
@@ -147,8 +139,8 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     {
         // If the media type in the Accept header is supported by a server but the media type in the
         // Content-Type header is unsupported, the server MUST return a 415 Unsupported Media Type status code.
-        if ($this->checkMediaTypeFailed($parameters->getInputMediaType(), $this->inputMediaTypes) === true) {
-            $this->exceptions->throwUnsupportedMediaType();
+        if ($this->codecContainer->isDecoderRegistered($parameters->getInputMediaType()) === false) {
+            $this->exceptionThrower->throwUnsupportedMediaType();
         }
     }
 
@@ -158,7 +150,7 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     protected function checkIncludePaths(ParametersInterface $parameters)
     {
         $withinAllowed = $this->valuesWithinAllowed($parameters->getIncludePaths(), $this->includePaths);
-        $withinAllowed === true ?: $this->exceptions->throwBadRequest();
+        $withinAllowed === true ?: $this->exceptionThrower->throwBadRequest();
     }
 
     /**
@@ -167,7 +159,7 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     protected function checkFieldSets(ParametersInterface $parameters)
     {
         $withinAllowed = $this->keysWithinAllowed($parameters->getFieldSets(), $this->fieldSetTypes);
-        $withinAllowed === true ?: $this->exceptions->throwBadRequest();
+        $withinAllowed === true ?: $this->exceptionThrower->throwBadRequest();
     }
 
     /**
@@ -176,7 +168,7 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     protected function checkFiltering(ParametersInterface $parameters)
     {
         $withinAllowed = $this->keysWithinAllowed($parameters->getFilteringParameters(), $this->filteringParameters);
-        $withinAllowed === true ?: $this->exceptions->throwBadRequest();
+        $withinAllowed === true ?: $this->exceptionThrower->throwBadRequest();
     }
 
     /**
@@ -188,7 +180,7 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
             foreach ($parameters->getSortParameters() as $sortParameter) {
                 /** @var SortParameterInterface $sortParameter */
                 if (array_key_exists($sortParameter->getField(), $this->sortParameters) === false) {
-                    $this->exceptions->throwBadRequest();
+                    $this->exceptionThrower->throwBadRequest();
                 }
             }
         }
@@ -200,7 +192,7 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     protected function checkPaging(ParametersInterface $parameters)
     {
         $withinAllowed = $this->keysWithinAllowed($parameters->getPaginationParameters(), $this->pagingParameters);
-        $withinAllowed === true ?: $this->exceptions->throwBadRequest();
+        $withinAllowed === true ?: $this->exceptionThrower->throwBadRequest();
     }
 
     /**
@@ -209,33 +201,7 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     protected function checkUnrecognized(ParametersInterface $parameters)
     {
         $this->allowUnrecognized === true || empty($parameters->getUnrecognizedParameters()) === true ?:
-            $this->exceptions->throwBadRequest();
-    }
-
-    /**
-     * @param MediaTypeInterface $mediaType
-     * @param array              $supportedTypes
-     *
-     * @return bool
-     */
-    private function checkMediaTypeFailed(MediaTypeInterface $mediaType, array $supportedTypes)
-    {
-        $type = $mediaType->getMediaType();
-        $ext  = $mediaType->getExtensions();
-
-        return ($type === null || $this->isMediaTypeSupported($supportedTypes, $type, $ext) === false);
-    }
-
-    /**
-     * @param array       $types
-     * @param string      $mediaType
-     * @param string|null $extensions
-     *
-     * @return bool
-     */
-    private function isMediaTypeSupported(array $types, $mediaType, $extensions = null)
-    {
-        return ($extensions === null ? isset($types[$mediaType]) : isset($types[$mediaType][$extensions]));
+            $this->exceptionThrower->throwBadRequest();
     }
 
     /**

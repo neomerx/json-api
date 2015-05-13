@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Encoder\Parser;
+<?php namespace Neomerx\JsonApi\Parameters;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,47 +16,41 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-abstract class BaseReply implements ParserReplyInterface
+class SupportedExtensions implements SupportedExtensionsInterface
 {
     /**
-     * @var int
+     * @var string
      */
-    private $replyType;
+    private $extensions;
 
     /**
-     * @var StackReadOnlyInterface
+     * @param string $extensions
      */
-    private $stack;
-
-    /**
-     * @param int                    $replyType
-     * @param StackReadOnlyInterface $stack
-     */
-    public function __construct($replyType, StackReadOnlyInterface $stack)
+    public function __construct($extensions = MediaTypeInterface::NO_EXT)
     {
-        $this->stack     = $stack;
-        $this->replyType = $replyType;
+        $this->setExtensions($extensions);
     }
 
     /**
      * @inheritdoc
      */
-    public function getReplyType()
+    public function setExtensions($extensions)
     {
-        return $this->replyType;
+        assert('is_string($extensions) === true');
+        $this->extensions = $extensions;
     }
 
     /**
      * @inheritdoc
      */
-    public function getStack()
+    public function getExtensions()
     {
-        return $this->stack;
+        return $this->extensions;
     }
 }

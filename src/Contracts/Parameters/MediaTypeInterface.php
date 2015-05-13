@@ -21,6 +21,9 @@
  */
 interface MediaTypeInterface
 {
+    /** Constant for 'no-extensions' */
+    const NO_EXT = '';
+
     /**
      * Get media type.
      *

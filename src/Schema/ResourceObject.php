@@ -111,16 +111,11 @@ class ResourceObject implements ResourceObjectInterface
         $isShowLinksInIncluded,
         $isShowMetaInIncluded
     ) {
-        assert('is_bool($isInArray)');
-        assert('is_string($type)');
-        assert('is_string($idx)');
-        assert('is_array($attributes)');
-        assert('is_string($selfUrl)');
-        assert('is_bool($isShowSelf)');
-        assert('is_bool($isShowMeta)');
-        assert('is_bool($isShowSelfInIncluded)');
-        assert('is_bool($isShowLinksInIncluded)');
-        assert('is_bool($isShowMetaInIncluded)');
+        assert(
+            'is_bool($isInArray) && is_string($type) && is_string($idx) && is_array($attributes) &&'.
+            'is_string($selfUrl) && is_bool($isShowSelf) && is_bool($isShowMeta) &&'.
+            'is_bool($isShowSelfInIncluded) && is_bool($isShowLinksInIncluded) && is_bool($isShowMetaInIncluded)'
+        );
 
         $this->isInArray             = $isInArray;
         $this->type                  = $type;

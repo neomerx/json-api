@@ -66,7 +66,6 @@ class EncodingParameters implements EncodingParametersInterface
      */
     public function isPathIncluded($path)
     {
-        assert('is_null($path) || is_string($path)');
         return $this->pathIndexes === null || isset($this->pathIndexes[$path]) === true;
     }
 

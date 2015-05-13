@@ -122,4 +122,16 @@ class FactoryTest extends BaseTestCase
         $this->assertEquals($isAscending, $parameter->isAscending());
         $this->assertEquals(!$isAscending, $parameter->isDescending());
     }
+
+    /**
+     * Test create supported extensions.
+     */
+    public function testCreateSupportedExtensions()
+    {
+        $this->assertNotNull($supported = $this->factory->createSupportedExtensions(
+            $extensions = 'ext1,ext2'
+        ));
+
+        $this->assertEquals($extensions, $supported->getExtensions());
+    }
 }

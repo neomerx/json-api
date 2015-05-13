@@ -67,7 +67,7 @@ class StackTest extends BaseTestCase
         $this->assertNull($this->stack->end());
         $this->stack->pop();
         $this->assertNull($this->stack->end());
-        $this->assertNull($this->stack->end(1));
+        $this->assertNull($this->stack->penult());
 
         $checkEmpty = true;
         foreach ($this->stack as $frame) {
@@ -90,8 +90,7 @@ class StackTest extends BaseTestCase
 
         $this->stack->setCurrentResourceObject($this->mockResourceObject);
         $this->assertSame($this->mockResourceObject, $this->stack->end()->getResourceObject());
-        $this->assertNull($this->stack->end(1));
-        $this->assertNull($this->stack->end(2));
+        $this->assertNull($this->stack->penult());
 
         $frame2 = $this->stack->push();
         $this->stack->setCurrentLinkObject($this->mockLinkObject);
@@ -101,7 +100,8 @@ class StackTest extends BaseTestCase
         $this->assertSame($frame2, $this->stack->end());
         $this->assertNull($this->stack->end()->getResourceObject());
         $this->assertSame($this->mockLinkObject, $this->stack->end()->getLinkObject());
-        $this->assertNull($this->stack->end(2));
+        $this->stack->pop();
+        $this->assertNull($this->stack->penult());
     }
 
     /**
@@ -118,12 +118,11 @@ class StackTest extends BaseTestCase
         $this->assertNotNull($frame1 = $this->stack->push());
         $this->assertNotNull($frame2 = $this->stack->push());
         $this->assertSame($frame2, $this->stack->end());
-        $this->assertSame($frame1, $this->stack->end(1));
-        $this->assertNull($this->stack->end(2));
+        $this->assertSame($frame1, $this->stack->penult());
 
         $this->stack->pop();
         $this->assertSame($frame1, $this->stack->end());
-        $this->assertNull($this->stack->end(1));
+        $this->assertNull($this->stack->penult());
 
         $this->stack->pop();
         $this->assertEquals(0, $this->stack->count());

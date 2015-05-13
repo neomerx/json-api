@@ -33,14 +33,14 @@ interface CurrentRequestInterface
      *
      * @return array
      */
-    public function getInput();
+    public function getQueryParameters();
 
     /**
      * Get header value.
      *
      * @param string $name
      *
-     * @return string|null
+     * @return string|array|null
      */
     public function getHeader($name);
 }

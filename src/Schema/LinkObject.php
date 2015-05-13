@@ -126,18 +126,19 @@ class LinkObject implements LinkObjectInterface
         $relatedControllerData,
         $pagination
     ) {
-        assert('is_string($name)');
-        assert('is_object($data) || is_array($data) || is_null($data)');
-        assert('is_null($selfSubUrl) || is_string($selfSubUrl)');
-        assert('is_null($relatedSubUrl) || is_string($relatedSubUrl)');
-        assert('is_bool($isShowAsRef) && is_bool($isShowSelf) && is_bool($isShowRelated) && is_bool($isShowMeta)');
-        assert('is_bool($isIncluded)');
-        assert('is_bool($isShowPagination)');
+        assert(
+            'is_string($name) &&'.
+            '(is_object($data) || is_array($data) || is_null($data)) &&'.
+            '(is_null($selfSubUrl) || is_string($selfSubUrl)) &&'.
+            '(is_null($relatedSubUrl) || is_string($relatedSubUrl)) &&'.
+            'is_bool($isShowAsRef) && is_bool($isShowSelf) && is_bool($isShowRelated) && is_bool($isShowMeta) &&'.
+            'is_bool($isIncluded) && is_bool($isShowPagination) &&'.
+            '(is_null($pagination) || $pagination instanceof ' . PaginationLinksInterface::class . ')'
+        );
         assert(
             '$isShowSelf || $isShowRelated || $isShowLinkage || $isShowMeta',
             'Specification requires at least one of them to be shown'
         );
-        assert('is_null($pagination) || $pagination instanceof ' . PaginationLinksInterface::class);
 
         $this->name                  = $name;
         $this->data                  = $data;
@@ -151,8 +152,8 @@ class LinkObject implements LinkObjectInterface
         $this->isShouldBeIncluded    = $isIncluded;
         $this->selfControllerData    = $selfControllerData;
         $this->relatedControllerData = $relatedControllerData;
-        $this->isShowPagination = $isShowPagination;
-        $this->pagination = $pagination;
+        $this->isShowPagination      = $isShowPagination;
+        $this->pagination            = $pagination;
     }
 
     /**

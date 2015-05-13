@@ -62,17 +62,16 @@ class StackFrame implements StackFrameInterface
      */
     public function __construct($level, StackFrameReadOnlyInterface $previous = null)
     {
-        assert('is_int($level) && $level > 0');
+        settype($level, 'int');
         assert(
-            '($level === 1 && $previous === null) || '.
-            '($level > 1 && $previous !== null && $level === $previous->getLevel() + 1)'
+            '$level > 0 &&'.
+            '(($level === 1 && $previous === null) || '.
+            '($level > 1 && $previous !== null && $level === $previous->getLevel() + 1)) &&'.
+            '($level <= 2 || $previous->getLinkObject() !== null)'
         );
 
         $this->level    = $level;
         $this->previous = $previous;
-
-        // all level have link object except the root level and it's available on frame creation.
-        assert('$this->level <= 2 || $this->previous->getLinkObject() !== null');
     }
 
     /**

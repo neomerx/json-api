@@ -17,10 +17,10 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionsInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
+use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
 
 /**
@@ -58,9 +58,9 @@ class ParametersParser implements ParametersParserInterface
     private $factory;
 
     /**
-     * @var ExceptionsInterface
+     * @var ExceptionThrowerInterface
      */
-    private $exceptions;
+    private $exceptionThrower;
 
     /**
      * @param ParametersFactoryInterface $factory
@@ -73,13 +73,13 @@ class ParametersParser implements ParametersParserInterface
     /**
      * @inheritdoc
      */
-    public function parse(CurrentRequestInterface $request, ExceptionsInterface $exceptions)
+    public function parse(CurrentRequestInterface $request, ExceptionThrowerInterface $exceptionThrower)
     {
-        $this->exceptions = $exceptions;
+        $this->exceptionThrower = $exceptionThrower;
 
         $contentTypeHeader = $request->getHeader(self::HEADER_CONTENT_TYPE);
         $acceptHeader      = $request->getHeader(self::HEADER_ACCEPT);
-        $parameters        = $request->getInput();
+        $parameters        = $request->getQueryParameters();
 
         return $this->factory->createParameters(
             $this->createMediaType($contentTypeHeader),
@@ -162,9 +162,9 @@ class ParametersParser implements ParametersParserInterface
         if ($sortParam !== null) {
             foreach (explode(',', $sortParam) as $param) {
                 $isDesc = false;
-                empty($param) === false ? $isDesc = ($param[0] === '-') : $this->exceptions->throwBadRequest();
+                empty($param) === false ? $isDesc = ($param[0] === '-') : $this->exceptionThrower->throwBadRequest();
                 $sortField = ltrim($param, '+-');
-                empty($sortField) === false ?: $this->exceptions->throwBadRequest();
+                empty($sortField) === false ?: $this->exceptionThrower->throwBadRequest();
                 $sortParams[] = $this->factory->createSortParam($sortField, $isDesc === false);
             }
         }

@@ -74,10 +74,21 @@ interface ParametersFactoryInterface
     public function createParametersParser();
 
     /**
+     * Create sort parameter.
+     *
      * @param string $sortField
      * @param bool   $isAscending
      *
      * @return SortParameterInterface
      */
     public function createSortParam($sortField, $isAscending);
+
+    /**
+     * Create supported extensions.
+     *
+     * @param string $extensions
+     *
+     * @return SupportedExtensionsInterface
+     */
+    public function createSupportedExtensions($extensions = MediaTypeInterface::NO_EXT);
 }

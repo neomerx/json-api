@@ -19,7 +19,6 @@
 use \Closure;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -43,42 +42,44 @@ class Container implements ContainerInterface
 
     /**
      * @param SchemaFactoryInterface $factory
-     * @param array            $providers
+     * @param array                  $schemas
      */
-    public function __construct(SchemaFactoryInterface $factory, array $providers = [])
+    public function __construct(SchemaFactoryInterface $factory, array $schemas = [])
     {
         $this->factory = $factory;
-        $this->registerArray($providers);
+        $this->registerArray($schemas);
     }
 
     /**
      * Register provider for resource type.
      *
      * @param string        $resourceType
-     * @param string|object $provider
+     * @param string|object $schema
      *
      * @return void
      */
-    public function register($resourceType, $provider)
+    public function register($resourceType, $schema)
     {
-        assert('is_string($resourceType) && empty($resourceType) === false');
-        assert('(is_string($provider) && empty($provider) === false) || $provider instanceof '. Closure::class);
-        assert('isset($this->providerMapping[$resourceType]) === false');
+        assert(
+            'is_string($resourceType) && empty($resourceType) === false &&'.
+            'isset($this->providerMapping[$resourceType]) === false &&'.
+            '((is_string($schema) && empty($schema) === false) || $schema instanceof '. Closure::class . ')'
+        );
 
-        $this->providerMapping[$resourceType] = $provider;
+        $this->providerMapping[$resourceType] = $schema;
     }
 
     /**
      * Register providers for resource types.
      *
-     * @param array $providers
+     * @param array $schemas
      *
      * @return void
      */
-    public function registerArray(array $providers)
+    public function registerArray(array $schemas)
     {
-        foreach ($providers as $type => $provider) {
-            $this->register($type, $provider);
+        foreach ($schemas as $type => $schema) {
+            $this->register($type, $schema);
         }
     }
 
@@ -97,13 +98,11 @@ class Container implements ContainerInterface
 
         $classNameOrClosure = $this->providerMapping[$resourceType];
         if ($classNameOrClosure instanceof Closure) {
-            $this->createdProviders[$resourceType] = ($provider = $classNameOrClosure($this->factory, $this));
+            $this->createdProviders[$resourceType] = ($schema = $classNameOrClosure($this->factory, $this));
         } else {
-            $this->createdProviders[$resourceType] = ($provider = new $classNameOrClosure($this->factory, $this));
+            $this->createdProviders[$resourceType] = ($schema = new $classNameOrClosure($this->factory, $this));
         }
 
-        assert('$provider instanceof '.SchemaProviderInterface::class);
-
-        return $provider;
+        return $schema;
     }
 }

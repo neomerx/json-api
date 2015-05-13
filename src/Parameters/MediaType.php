@@ -29,17 +29,17 @@ class MediaType implements MediaTypeInterface
     private $mediaType;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $extensions;
 
     /**
-     * @param string      $mediaType
-     * @param string|null $extensions
+     * @param string $mediaType
+     * @param string $extensions
      */
-    public function __construct($mediaType, $extensions)
+    public function __construct($mediaType, $extensions = self::NO_EXT)
     {
-        assert('is_string($mediaType) && (is_null($extensions) || is_string($extensions))');
+        assert('is_string($mediaType) && is_string($extensions)');
 
         $this->mediaType  = $mediaType;
         $this->extensions = $extensions;

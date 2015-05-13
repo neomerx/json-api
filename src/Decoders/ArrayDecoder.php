@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Integration;
+<?php namespace Neomerx\JsonApi\Decoders;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,19 +16,20 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Decoder\DecoderInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
-interface ResponsesInterface
+class ArrayDecoder implements DecoderInterface
 {
     /**
-     * Create HTTP response.
+     * @inheritdoc
      *
-     * @param string|null $content
-     * @param int         $statusCode
-     * @param array       $headers
-     *
-     * @return mixed
+     * @return array
      */
-    public function createResponse($content, $statusCode, array $headers);
+    public function decode($content)
+    {
+        return json_decode($content, true);
+    }
 }

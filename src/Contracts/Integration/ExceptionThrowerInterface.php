@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
+<?php namespace Neomerx\JsonApi\Contracts\Integration;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,25 +16,29 @@
  * limitations under the License.
  */
 
-use \Countable;
-use \IteratorAggregate;
-
 /**
  * @package Neomerx\JsonApi
  */
-interface StackReadOnlyInterface extends IteratorAggregate, Countable
+interface ExceptionThrowerInterface
 {
     /**
-     * Get a stack frame from end.
+     * Throw 'Bad request' exception (HTTP code 400).
      *
-     * @return StackFrameReadOnlyInterface|null
+     * @return void
      */
-    public function end();
+    public function throwBadRequest();
 
     /**
-     * Get a penult stack frame.
+     * Throw 'Not Acceptable' exception (HTTP code 406).
      *
-     * @return StackFrameReadOnlyInterface|null
+     * @return void
      */
-    public function penult();
+    public function throwNotAcceptable();
+
+    /**
+     * Throw 'Unsupported Media Type' exception (HTTP code 415).
+     *
+     * @return void
+     */
+    public function throwUnsupportedMediaType();
 }

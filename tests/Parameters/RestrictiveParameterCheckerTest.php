@@ -17,13 +17,18 @@
  */
 
 use \Mockery;
+use \Exception;
 use \Mockery\MockInterface;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
+use \Neomerx\JsonApi\Codec\CodecContainer;
+use \Neomerx\JsonApi\Parameters\MediaType;
 use \Neomerx\JsonApi\Parameters\ParametersFactory;
 use \Neomerx\JsonApi\Parameters\RestrictiveParameterChecker;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionsInterface;
+use \Neomerx\JsonApi\Contracts\Codec\CodecContainerInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
+use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -31,7 +36,7 @@ use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
 class RestrictiveParameterCheckerTest extends BaseTestCase
 {
     /** JSON API type */
-    const TYPE = 'application/vnd.api+json';
+    const TYPE = CodecContainerInterface::JSON_API_TYPE;
 
     /**
      * @var ParametersParserInterface
@@ -57,7 +62,7 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     /**
      * @var MockInterface
      */
-    private $mockExceptions;
+    private $mockThrower;
 
     /**
      * Set up.
@@ -66,9 +71,9 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->parser         = (new ParametersFactory())->createParametersParser();
-        $this->mockRequest    = Mockery::mock(CurrentRequestInterface::class);
-        $this->mockExceptions = Mockery::mock(ExceptionsInterface::class);
+        $this->parser      = (new ParametersFactory())->createParametersParser();
+        $this->mockRequest = Mockery::mock(CurrentRequestInterface::class);
+        $this->mockThrower = Mockery::mock(ExceptionThrowerInterface::class);
     }
 
     /**
@@ -78,8 +83,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions(),
-            [self::TYPE => ['ext2']],
-            [self::TYPE => ['ext1,ext3']]
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT, 'ext2']],
+                [self::TYPE => [MediaTypeInterface::NO_EXT, 'ext1,ext3']]
+            )
         );
 
         $parameters = $this->parser->parse(
@@ -97,8 +104,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions(),
-            [self::TYPE => ['ext2' => 'fake-encoder-ext2']],
-            [self::TYPE => ['ext1,ext3' => 'fake-encoder-ext1,ext3']]
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT, 'ext2']],
+                [self::TYPE => [MediaTypeInterface::NO_EXT, 'ext1,ext3']]
+            )
         );
 
         $parameters = $this->parser->parse(
@@ -116,8 +125,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions('throwUnsupportedMediaType'),
-            [self::TYPE => ['ext2']],
-            [self::TYPE => ['ext1,ext3']]
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT, 'ext2']],
+                [self::TYPE => [MediaTypeInterface::NO_EXT, 'ext1,ext3']]
+            )
         );
 
         $parameters = $this->parser->parse(
@@ -135,8 +146,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions('throwNotAcceptable'),
-            [self::TYPE => ['ext2']],
-            [self::TYPE => ['ext1,ext3']]
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT, 'ext2']],
+                [self::TYPE => [MediaTypeInterface::NO_EXT, 'ext1,ext3']]
+            )
         );
 
         $parameters = $this->parser->parse(
@@ -154,8 +167,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions(),
-            [self::TYPE => []],
-            [self::TYPE => []],
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT]],
+                [self::TYPE => [MediaTypeInterface::NO_EXT]]
+            ),
             false,
             ['author', 'comments', 'comments.author', 'and.one.more.path']
         );
@@ -175,8 +190,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions('throwBadRequest'),
-            [self::TYPE => []],
-            [self::TYPE => []],
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT]],
+                [self::TYPE => [MediaTypeInterface::NO_EXT]]
+            ),
             false,
             ['author', 'comments']
         );
@@ -196,8 +213,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions(),
-            [self::TYPE => []],
-            [self::TYPE => []],
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT]],
+                [self::TYPE => [MediaTypeInterface::NO_EXT]]
+            ),
             false,
             null,
             ['type1', 'anotherType']
@@ -218,8 +237,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions('throwBadRequest'),
-            [self::TYPE => []],
-            [self::TYPE => []],
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT]],
+                [self::TYPE => [MediaTypeInterface::NO_EXT]]
+            ),
             false,
             null,
             ['anotherType']
@@ -241,8 +262,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
         $allowedSortParams = ['created', 'title', 'name', 'and-others'];
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions(),
-            [self::TYPE => []],
-            [self::TYPE => []],
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT]],
+                [self::TYPE => [MediaTypeInterface::NO_EXT]]
+            ),
             false,
             null,
             null,
@@ -265,8 +288,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
         $allowedSortParams = ['created', 'name']; // in input will be 'title' which is not on the list
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions('throwBadRequest'),
-            [self::TYPE => []],
-            [self::TYPE => []],
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT]],
+                [self::TYPE => [MediaTypeInterface::NO_EXT]]
+            ),
             false,
             null,
             null,
@@ -288,8 +313,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions(),
-            [self::TYPE => []],
-            [self::TYPE => []],
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT]],
+                [self::TYPE => [MediaTypeInterface::NO_EXT]]
+            ),
             true
         );
 
@@ -312,8 +339,10 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $checker = new RestrictiveParameterChecker(
             $this->prepareExceptions('throwBadRequest'),
-            [self::TYPE => []],
-            [self::TYPE => []],
+            $this->prepareCodecContainer(
+                [self::TYPE => [MediaTypeInterface::NO_EXT]],
+                [self::TYPE => [MediaTypeInterface::NO_EXT]]
+            ),
             false
         );
 
@@ -340,7 +369,7 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $this->mockRequest->shouldReceive('getHeader')->with('Content-Type')->once()->andReturn($contentType);
         $this->mockRequest->shouldReceive('getHeader')->with('Accept')->once()->andReturn($accept);
-        $this->mockRequest->shouldReceive('getInput')->withNoArgs()->once()->andReturn($input);
+        $this->mockRequest->shouldReceive('getQueryParameters')->withNoArgs()->once()->andReturn($input);
 
         /** @var CurrentRequestInterface $request */
         $request = $this->mockRequest;
@@ -351,17 +380,47 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     /**
      * @param string $exceptionMethod
      *
-     * @return ExceptionsInterface
+     * @return ExceptionThrowerInterface
      */
     private function prepareExceptions($exceptionMethod = null)
     {
         if ($exceptionMethod !== null) {
-            $this->mockExceptions->shouldReceive($exceptionMethod)->atLeast(1)->withNoArgs()->andReturnUndefined();
+            $this->mockThrower->shouldReceive($exceptionMethod)->atLeast(1)->withNoArgs()->andReturnUndefined();
         }
 
-        /** @var ExceptionsInterface $exceptions */
-        $exceptions = $this->mockExceptions;
+        /** @var ExceptionThrowerInterface $exceptions */
+        $exceptions = $this->mockThrower;
 
         return $exceptions;
+    }
+
+    /**
+     * @param array $decoders
+     * @param array $encoders
+     *
+     * @return CodecContainerInterface
+     */
+    private function prepareCodecContainer(array $decoders, array $encoders)
+    {
+        $container = new CodecContainer();
+        $codecClosure = function () {
+            throw new Exception('Encoder or decoder should not be created during this test');
+        };
+
+        foreach ($decoders as $type => $extensions) {
+            foreach ($extensions as $extensionsItem) {
+                $mediaType = new MediaType($type, $extensionsItem);
+                $container->registerDecoder($mediaType, $codecClosure);
+            }
+        }
+
+        foreach ($encoders as $type => $extensions) {
+            foreach ($extensions as $extensionsItem) {
+                $mediaType = new MediaType($type, $extensionsItem);
+                $container->registerEncoder($mediaType, $codecClosure);
+            }
+        }
+
+        return $container;
     }
 }

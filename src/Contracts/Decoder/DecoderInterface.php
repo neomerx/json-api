@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
+<?php namespace Neomerx\JsonApi\Contracts\Decoder;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,25 +16,17 @@
  * limitations under the License.
  */
 
-use \Countable;
-use \IteratorAggregate;
-
 /**
  * @package Neomerx\JsonApi
  */
-interface StackReadOnlyInterface extends IteratorAggregate, Countable
+interface DecoderInterface
 {
     /**
-     * Get a stack frame from end.
+     * Decode input JSON API data.
      *
-     * @return StackFrameReadOnlyInterface|null
-     */
-    public function end();
-
-    /**
-     * Get a penult stack frame.
+     * @param string $content Request content.
      *
-     * @return StackFrameReadOnlyInterface|null
+     * @return mixed
      */
-    public function penult();
+    public function decode($content);
 }

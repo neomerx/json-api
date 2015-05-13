@@ -19,7 +19,6 @@
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\ReplyInterpreterInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface as Frame;
 
@@ -54,46 +53,63 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     public function handle(ParserReplyInterface $reply)
     {
         $current = $reply->getStack()->end();
-        assert('$current !== null');
 
         if ($reply->getReplyType() === ParserReplyInterface::REPLY_TYPE_RESOURCE_COMPLETED) {
             $this->setResourceCompleted($current);
             return;
         }
 
-        $previous    = $reply->getStack()->end(1);
-        $includeRes  = ($current->getLevel() === 1 || $current->isPathIncluded() === true);
-        $includeLink = ($current->getLevel() <= 2  || $previous->isPathIncluded() === true);
-
-        assert('$current->getLevel() > 0');
-
-        list($parentIsTarget, $currentIsTarget) = $this->getIfTargets($current, $previous, $this->parameters);
-
-        $isAddResToIncluded  = ($includeRes === true  && $currentIsTarget === true);
-        $isAddLinkToIncluded = ($includeLink === true && $parentIsTarget === true);
+        $previous = $reply->getStack()->penult();
 
         switch($current->getLevel()) {
             case 1:
                 $this->addToData($reply, $current);
                 break;
             case 2:
-                assert('$previous !== null');
-                if ($this->isLinkInFieldSet($current, $previous) === true) {
-                    $this->addLinkToData($reply, $current, $previous);
-                }
-                if ($isAddResToIncluded === true) {
-                    $this->addToIncluded($reply, $current);
-                }
+                $this->handleLinks($reply, $current, $previous);
                 break;
             default:
-                if ($isAddLinkToIncluded === true && $this->isLinkInFieldSet($current, $previous) === true) {
-                    assert('$previous !== null');
-                    $this->addLinkToIncluded($reply, $current, $previous);
-                }
-                if ($isAddResToIncluded === true) {
-                    $this->addToIncluded($reply, $current);
-                }
+                $this->handleIncluded($reply, $current, $previous);
                 break;
+        }
+    }
+
+    /**
+     * @param ParserReplyInterface $reply
+     * @param Frame                $current
+     * @param Frame                $previous
+     */
+    protected function handleLinks(ParserReplyInterface $reply, Frame $current, Frame $previous)
+    {
+        assert('$previous !== null');
+        if ($this->isLinkInFieldSet($current, $previous) === true) {
+            $this->addLinkToData($reply, $current, $previous);
+        }
+        if ($current->isPathIncluded() === true) {
+            list(, $currentIsTarget) = $this->getIfTargets($current, $previous, $this->parameters);
+            if ($currentIsTarget === true) {
+                $this->addToIncluded($reply, $current);
+            }
+        }
+    }
+
+    /**
+     * @param ParserReplyInterface $reply
+     * @param Frame                $current
+     * @param Frame                $previous
+     */
+    protected function handleIncluded(ParserReplyInterface $reply, Frame $current, Frame $previous)
+    {
+        list($parentIsTarget, $currentIsTarget) = $this->getIfTargets($current, $previous, $this->parameters);
+
+        if ($previous->isPathIncluded() === true && $parentIsTarget === true &&
+            $this->isLinkInFieldSet($current, $previous) === true
+        ) {
+            $this->addLinkToIncluded($reply, $current, $previous);
+        }
+
+        if ($current->isPathIncluded() === true && $currentIsTarget === true) {
+            $this->addToIncluded($reply, $current);
         }
     }
 
@@ -105,19 +121,16 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     private function addToData(ParserReplyInterface $reply, Frame $current)
     {
-        $replyType = $reply->getReplyType();
-        switch($replyType) {
+        switch($reply->getReplyType()) {
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
                 $this->document->setNullData();
                 break;
             case ParserReplyInterface::REPLY_TYPE_EMPTY_RESOURCE_STARTED:
                 $this->document->setEmptyData();
                 break;
-            default:
-                assert('$replyType === ' . ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED);
-                $resourceObject = $current->getResourceObject();
-                assert('$resourceObject !== null');
-                $this->document->addToData($resourceObject);
+            case ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED:
+                $this->document->addToData($current->getResourceObject());
+                break;
         }
     }
 
@@ -131,7 +144,6 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     {
         if ($reply->getReplyType() === ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED) {
             $resourceObject = $current->getResourceObject();
-            assert('$resourceObject !== null');
             $this->document->addToIncluded($resourceObject);
         }
     }
@@ -145,14 +157,12 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     private function addLinkToData(ParserReplyInterface $reply, Frame $current, Frame $previous)
     {
-        $replyType = $reply->getReplyType();
-        $link      = $current->getLinkObject();
-        $parent    = $previous->getResourceObject();
-        assert('$link !== null && $parent !== null');
+        $link   = $current->getLinkObject();
+        $parent = $previous->getResourceObject();
 
-        switch($replyType) {
+        switch($reply->getReplyType()) {
             case ParserReplyInterface::REPLY_TYPE_REFERENCE_STARTED:
-                assert($link->isShowAsReference() === true);
+                assert('$link->isShowAsReference() === true');
                 $this->document->addReferenceToData($parent, $link);
                 break;
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
@@ -161,11 +171,9 @@ class ReplyInterpreter implements ReplyInterpreterInterface
             case ParserReplyInterface::REPLY_TYPE_EMPTY_RESOURCE_STARTED:
                 $this->document->addEmptyLinkToData($parent, $link);
                 break;
-            default:
-                assert('$replyType === ' . ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED);
-                $resourceObject = $current->getResourceObject();
-                assert('$resourceObject !== null');
-                $this->document->addLinkToData($parent, $link, $resourceObject);
+            case ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED:
+                $this->document->addLinkToData($parent, $link, $current->getResourceObject());
+                break;
         }
     }
 
@@ -178,14 +186,12 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     private function addLinkToIncluded(ParserReplyInterface $reply, Frame $current, Frame $previous)
     {
-        $replyType = $reply->getReplyType();
-        $link      = $current->getLinkObject();
-        $parent    = $previous->getResourceObject();
-        assert('$link !== null && $parent !== null');
+        $link   = $current->getLinkObject();
+        $parent = $previous->getResourceObject();
 
-        switch($replyType) {
+        switch($reply->getReplyType()) {
             case ParserReplyInterface::REPLY_TYPE_REFERENCE_STARTED:
-                assert($link->isShowAsReference() === true);
+                assert('$link->isShowAsReference() === true');
                 $this->document->addReferenceToIncluded($parent, $link);
                 break;
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
@@ -194,11 +200,9 @@ class ReplyInterpreter implements ReplyInterpreterInterface
             case ParserReplyInterface::REPLY_TYPE_EMPTY_RESOURCE_STARTED:
                 $this->document->addEmptyLinkToIncluded($parent, $link);
                 break;
-            default:
-                assert('$replyType === ' . ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED);
-                $resourceObject = $current->getResourceObject();
-                assert('$resourceObject !== null');
-                $this->document->addLinkToIncluded($parent, $link, $resourceObject);
+            case ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED:
+                $this->document->addLinkToIncluded($parent, $link, $current->getResourceObject());
+                break;
         }
     }
 
@@ -210,20 +214,19 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     private function setResourceCompleted(Frame $current)
     {
         $resourceObject = $current->getResourceObject();
-        assert('$resourceObject !== null');
         $this->document->setResourceCompleted($resourceObject);
     }
 
     /**
-     * @param StackFrameReadOnlyInterface      $current
-     * @param StackFrameReadOnlyInterface|null $previous
+     * @param Frame                            $current
+     * @param Frame|null                       $previous
      * @param EncodingParametersInterface|null $parameters
      *
      * @return bool[]
      */
     private function getIfTargets(
-        StackFrameReadOnlyInterface $current,
-        StackFrameReadOnlyInterface $previous = null,
+        Frame $current,
+        Frame $previous = null,
         EncodingParametersInterface $parameters = null
     ) {
         if ($parameters === null) {
@@ -244,7 +247,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      *
      * @return bool
      */
-    private function isLinkInFieldSet(StackFrameReadOnlyInterface $current, StackFrameReadOnlyInterface $previous)
+    private function isLinkInFieldSet(Frame $current, Frame $previous)
     {
         if ($this->parameters === null ||
             ($fieldSet = $this->parameters->getFieldSet($previous->getResourceObject()->getType())) === null

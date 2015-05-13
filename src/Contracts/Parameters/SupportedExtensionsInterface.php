@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
+<?php namespace Neomerx\JsonApi\Contracts\Parameters;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,25 +16,24 @@
  * limitations under the License.
  */
 
-use \Countable;
-use \IteratorAggregate;
-
 /**
  * @package Neomerx\JsonApi
  */
-interface StackReadOnlyInterface extends IteratorAggregate, Countable
+interface SupportedExtensionsInterface
 {
     /**
-     * Get a stack frame from end.
+     * Set supported extensions.
      *
-     * @return StackFrameReadOnlyInterface|null
+     * @param string $extensions Not empty comma-separated list of extensions.
+     *
+     * @return void
      */
-    public function end();
+    public function setExtensions($extensions);
 
     /**
-     * Get a penult stack frame.
+     * Get supported extensions.
      *
-     * @return StackFrameReadOnlyInterface|null
+     * @return string
      */
-    public function penult();
+    public function getExtensions();
 }

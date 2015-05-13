@@ -39,6 +39,11 @@ class Stack implements StackInterface
     private $factory;
 
     /**
+     * @var int
+     */
+    private $size;
+
+    /**
      * Constructor.
      *
      * @param StackFactoryInterface $factory
@@ -47,6 +52,7 @@ class Stack implements StackInterface
     {
         $this->factory = $factory;
         $this->stack   = [];
+        $this->size    = 0;
     }
 
     /**
@@ -54,8 +60,9 @@ class Stack implements StackInterface
      */
     public function push()
     {
-        $frame = $this->factory->createFrame($this->count() + 1, $this->end());
+        $frame = $this->factory->createFrame($this->size + 1, $this->end());
         array_push($this->stack, $frame);
+        $this->size++;
         return $frame;
     }
 
@@ -65,18 +72,23 @@ class Stack implements StackInterface
     public function pop()
     {
         array_pop($this->stack);
+        $this->size <= 0 ?: $this->size--;
     }
 
     /**
      * @inheritdoc
      */
-    public function end($number = 0)
+    public function end()
     {
-        assert('is_int($number) && $number >= 0');
+        return $this->size > 0 ? $this->stack[$this->size - 1] : null;
+    }
 
-        $count = $this->count();
-        $frameIndex = $count - 1 - $number;
-        return (0 <= $frameIndex && $frameIndex < $count ? $this->stack[$frameIndex] : null);
+    /**
+     * @inheritdoc
+     */
+    public function penult()
+    {
+        return $this->size > 1 ? $this->stack[$this->size - 2] : null;
     }
 
     /**
@@ -84,7 +96,7 @@ class Stack implements StackInterface
      */
     public function count()
     {
-        return count($this->stack);
+        return $this->size;
     }
 
     /**
