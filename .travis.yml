@@ -8,6 +8,8 @@ matrix:
     - php: 5.5
       after_script:
       - php vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover
+  allow_failures:
+    - php: 7
 before_script:
 - travis_retry composer self-update
 - travis_retry composer install --no-interaction --prefer-dist
