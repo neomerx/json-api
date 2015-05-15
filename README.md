@@ -6,24 +6,37 @@
 
 ## Description
 
-Framework agnostic [JSON API](http://jsonapi.org/) implementation.
+A good API is one of most effective ways to improve the experience for your clients. Standardized approaches for data formats and communication protocols increase productivity and make integration between applications smooth.
 
-This package covers encoding PHP objects to JavaScript Object Notation (JSON) as described in [JSON API Format](http://jsonapi.org/format/).
+This framework agnostic package fully implements [JSON API](http://jsonapi.org/) specification and helps you to focus on core application functionality rather than on protocol implementation. It supports document structure, errors and data fetching as described in [JSON API Format](http://jsonapi.org/format/). As it is designed to stay framework agnostic for practical usage it requires framework integration. [Limoncello](https://github.com/neomerx/limoncello) is an example of integration with Symfony based projects.
+
+If you are looking for quick start application consider [Limoncello collins](https://github.com/neomerx/limoncello-collins) which is a pre-configured Laravel-based quick start application.
+
+Encoding fully support
 
 * Resource attributes and complex attributes
+* Compound documents with included resources
+* Circular resource references
 * Meta information for document, resources and link objects
 * Link objects (including links as references, links to null and empty arrays)
-* Compound documents with included resources
 * Limits for input data parsing depth
-* Circular references in resources
 * Sparse fieldset filter rules
 * Pagination links
 * Errors
 
-## Versioning
+The package covers all the complexity of parsing and checking request parameters and headers. For instance it helps to correctly respond with ```Unsupported Media Type``` (HTTP code 415) and ```Not Acceptable``` (HTTP code 406) to invalid requests. You don't need to manually validate all input parameters on every request. You can configure what parameters are supported by your services and this package will check incoming requests automatically. It greatly simplifies API development. All parameters from the specification are supported
 
-This package implements the latest [JSON API](http://jsonapi.org/) version RC3 and is using [Semantic Versioning](http://semver.org/).
-The package version reflects the fact JSON API specification has not been finally released yet but not the package readiness.
+* Inclusion of related resources
+* Sparse fields
+* Sorting
+* Pagination
+* Filtering
+
+## Contributing
+
+JSON API specification is at a third release candidate state and may have some tweaks. If you have spotted any specification changes that are not reflected in this package please post an [issue](https://github.com/neomerx/json-api/issues).
+
+Thank you for your support :star:. 
 
 ## Install
 
@@ -63,7 +76,7 @@ will output
 }
 ```
 
-The ```AuthorSchema``` looks like
+The ```AuthorSchema``` provides information about resource's fields and might look like
 
 ```php
 class AuthorSchema extends SchemaProvider
@@ -437,6 +450,10 @@ Do not hesitate to contact us on [![Gitter](https://badges.gitter.im/Join%20Chat
 ``` bash
 $ phpunit
 ```
+
+## Versioning
+
+This package is using [Semantic Versioning](http://semver.org/).
 
 ## Credits
 
