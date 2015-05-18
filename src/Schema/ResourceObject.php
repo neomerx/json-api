@@ -59,11 +59,6 @@ class ResourceObject implements ResourceObjectInterface
     private $isShowMeta;
 
     /**
-     * @var mixed
-     */
-    private $selfControllerData;
-
-    /**
      * @var bool
      */
     private $isShowSelfInIncluded;
@@ -81,6 +76,11 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @var bool
      */
+    private $isShowMetaInLinkage;
+
+    /**
+     * @var bool
+     */
     private $isInArray;
 
     /**
@@ -90,12 +90,12 @@ class ResourceObject implements ResourceObjectInterface
      * @param array  $attributes
      * @param mixed  $meta
      * @param string $selfUrl
-     * @param mixed  $selfControllerData
      * @param bool   $isShowSelf
      * @param bool   $isShowMeta
      * @param bool   $isShowSelfInIncluded
      * @param bool   $isShowLinksInIncluded
      * @param bool   $isShowMetaInIncluded
+     * @param bool   $isShowMetaInLinkage
      */
     public function __construct(
         $isInArray,
@@ -104,16 +104,16 @@ class ResourceObject implements ResourceObjectInterface
         array $attributes,
         $meta,
         $selfUrl,
-        $selfControllerData,
         $isShowSelf,
         $isShowMeta,
         $isShowSelfInIncluded,
         $isShowLinksInIncluded,
-        $isShowMetaInIncluded
+        $isShowMetaInIncluded,
+        $isShowMetaInLinkage
     ) {
         assert(
             'is_bool($isInArray) && is_string($type) && is_string($idx) && is_array($attributes) &&'.
-            'is_string($selfUrl) && is_bool($isShowSelf) && is_bool($isShowMeta) &&'.
+            'is_string($selfUrl) && is_bool($isShowSelf) && is_bool($isShowMeta) && is_bool($isShowMetaInLinkage) &&'.
             'is_bool($isShowSelfInIncluded) && is_bool($isShowLinksInIncluded) && is_bool($isShowMetaInIncluded)'
         );
 
@@ -125,10 +125,10 @@ class ResourceObject implements ResourceObjectInterface
         $this->isShowSelf            = $isShowSelf;
         $this->selfUrl               = $selfUrl;
         $this->isShowMeta            = $isShowMeta;
-        $this->selfControllerData    = $selfControllerData;
         $this->isShowSelfInIncluded  = $isShowSelfInIncluded;
         $this->isShowLinksInIncluded = $isShowLinksInIncluded;
         $this->isShowMetaInIncluded  = $isShowMetaInIncluded;
+        $this->isShowMetaInLinkage   = $isShowMetaInLinkage;
     }
 
     /**
@@ -174,14 +174,6 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function getSelfControllerData()
-    {
-        return $this->selfControllerData;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function isShowSelf()
     {
         return $this->isShowSelf;
@@ -209,6 +201,14 @@ class ResourceObject implements ResourceObjectInterface
     public function isShowMetaInIncluded()
     {
         return $this->isShowMetaInIncluded;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isShowMetaInLinkage()
+    {
+        return $this->isShowMetaInLinkage;
     }
 
     /**

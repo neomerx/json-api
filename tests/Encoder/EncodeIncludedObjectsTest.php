@@ -89,7 +89,7 @@ class EncodeIncludedObjectsTest extends BaseTestCase
             },
             Post::class    => function ($factory, $container) {
                 $schema = new PostSchema($factory, $container);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::INCLUDED, true);
+                $schema->setIncludePaths([Post::LINK_COMMENTS]);
                 return $schema;
             },
         ])->encode($this->post);
@@ -153,12 +153,7 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::INCLUDED, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::INCLUDED, true);
-                return $schema;
-            },
+            Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
         ])->encode($this->site, null, null, new EncodingParameters(
             // include only this relation
@@ -229,12 +224,7 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::INCLUDED, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::INCLUDED, true);
-                return $schema;
-            },
+            Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
         ])->encode($this->site);
 
@@ -289,12 +279,7 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::INCLUDED, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::INCLUDED, true);
-                return $schema;
-            },
+            Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
         ])->encode($this->site);
 
@@ -349,9 +334,7 @@ EOL;
             Post::class    => function ($factory, $container) {
                 $schema = new PostSchema($factory, $container);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_AS_REF, true);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::RELATED_CONTROLLER, 'author-controller-info');
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_AS_REF, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::RELATED_CONTROLLER, 'comments-controller-info');
                 return $schema;
             },
             Site::class => SiteSchema::class,
@@ -402,23 +385,14 @@ EOL;
     public function testEncodeLinkNonIncludableWithIncludableLinks()
     {
         $actual = Encoder::instance([
-            Author::class  => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
-                $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::INCLUDED, true);
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => PostSchema::class,
+            Site::class    => function ($factory, $container) {
+                $schema = new SiteSchema($factory, $container);
+                $schema->setIncludePaths([Site::LINK_POSTS]);
                 return $schema;
             },
-            Comment::class => function ($factory, $container) {
-                $schema = new CommentSchema($factory, $container);
-                $schema->linkAddTo(Comment::LINK_AUTHOR, CommentSchema::INCLUDED, true);
-                return $schema;
-            },
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::INCLUDED, false);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::INCLUDED, false);
-                return $schema;
-            },
-            Site::class => SiteSchema::class,
         ])->encode($this->site);
 
         $expected = <<<EOL
@@ -473,11 +447,7 @@ EOL;
     {
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
-            Comment::class => function ($factory, $container) {
-                $schema = new CommentSchema($factory, $container);
-                $schema->linkRemove(Comment::LINK_AUTHOR);
-                return $schema;
-            },
+            Comment::class => CommentSchema::class,
             Post::class    => function ($factory, $container) {
                 $schema = new PostSchema($factory, $container);
                 $schema->linkAddTo(

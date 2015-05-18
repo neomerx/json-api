@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+
 /**
  * @package Neomerx\Tests\JsonApi
  */
@@ -30,6 +33,21 @@ class SiteSchema extends DevSchemaProvider
      * @inheritdoc
      */
     protected $baseSelfUrl = 'http://example.com/sites';
+
+    /**
+     * @param SchemaFactoryInterface $factory
+     * @param ContainerInterface     $container
+     */
+    public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
+    {
+        parent::__construct($factory, $container);
+
+        $this->setIncludePaths([
+            Site::LINK_POSTS,
+            Site::LINK_POSTS . '.' . Post::LINK_AUTHOR,
+            Site::LINK_POSTS . '.' . Post::LINK_COMMENTS,
+        ]);
+    }
 
     /**
      * @inheritdoc
@@ -59,10 +77,7 @@ class SiteSchema extends DevSchemaProvider
         assert('$site instanceof '.Site::class);
 
         return [
-            Site::LINK_POSTS => [
-                self::DATA     => $site->{Site::LINK_POSTS},
-                self::INCLUDED => true,
-            ],
+            Site::LINK_POSTS => [self::DATA => $site->{Site::LINK_POSTS}],
         ];
     }
 }

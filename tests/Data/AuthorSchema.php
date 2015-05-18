@@ -59,11 +59,10 @@ class AuthorSchema extends DevSchemaProvider
 
         $links = [
             Author::LINK_COMMENTS => [
-                // closures for data are supported also
-                self::DATA        => function () use ($author) {
+                // closures for data are supported as well
+                self::DATA => function () use ($author) {
                     return isset($author->{Author::LINK_COMMENTS}) ? $author->{Author::LINK_COMMENTS} : null;
                 },
-                self::INCLUDED    => true,
             ],
         ];
 

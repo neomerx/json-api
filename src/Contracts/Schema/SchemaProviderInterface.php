@@ -76,6 +76,20 @@ interface SchemaProviderInterface
     public function getMeta($resource);
 
     /**
+     * If 'self' endpoint URL.
+     *
+     * @return bool
+     */
+    public function isShowSelf();
+
+    /**
+     * If 'meta' should be shown for resource.
+     *
+     * @return bool
+     */
+    public function isShowMeta();
+
+    /**
      * If 'self' endpoint URL should be shown for included resources.
      *
      * @return bool
@@ -97,12 +111,11 @@ interface SchemaProviderInterface
     public function isShowMetaInIncluded();
 
     /**
-     * Get default depth for object inclusion to 'include' section.
-     * If any other setting is not available this value will be used as a limiter.
+     * If 'meta' should be shown in linkages.
      *
-     * @return int
+     * @return bool
      */
-    public function getDefaultParseDepth();
+    public function isShowMetaInLinkage();
 
     /**
      * Create resource object.
@@ -114,4 +127,11 @@ interface SchemaProviderInterface
      * @return ResourceObjectInterface
      */
     public function createResourceObject($resource, $isOriginallyArrayed, array $attributeKeysFilter = null);
+
+    /**
+     * Get schema default include paths.
+     *
+     * @return string[]
+     */
+    public function getIncludePaths();
 }

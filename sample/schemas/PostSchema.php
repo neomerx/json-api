@@ -45,8 +45,8 @@ class PostSchema extends SchemaProvider
     {
         /** @var Post $post */
         return [
-            'author'   => [self::DATA => $post->author, self::INCLUDED => true],
-            'comments' => [self::DATA => $post->comments, self::INCLUDED => true],
+            'author'   => [self::DATA => $post->author],
+            'comments' => [self::DATA => $post->comments],
         ];
     }
 }

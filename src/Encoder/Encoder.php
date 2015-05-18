@@ -18,6 +18,7 @@
 
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
+use Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
@@ -51,29 +52,37 @@ class Encoder implements EncoderInterface
     private $handlerFactory;
 
     /**
+     * @var ParametersFactoryInterface
+     */
+    private $parametersFactory;
+
+    /**
      * @var JsonEncodeOptions|null
      */
     protected $encodeOptions;
 
     /**
-     * @param DocumentFactoryInterface $documentFactory
-     * @param ParserFactoryInterface   $parserFactory
-     * @param HandlerFactoryInterface  $handlerFactory
-     * @param ContainerInterface       $container
-     * @param JsonEncodeOptions|null   $encodeOptions
+     * @param DocumentFactoryInterface   $documentFactory
+     * @param ParserFactoryInterface     $parserFactory
+     * @param HandlerFactoryInterface    $handlerFactory
+     * @param ParametersFactoryInterface $parametersFactory
+     * @param ContainerInterface         $container
+     * @param JsonEncodeOptions|null     $encodeOptions
      */
     public function __construct(
         DocumentFactoryInterface $documentFactory,
         ParserFactoryInterface $parserFactory,
         HandlerFactoryInterface $handlerFactory,
+        ParametersFactoryInterface $parametersFactory,
         ContainerInterface $container,
         JsonEncodeOptions $encodeOptions = null
     ) {
-        $this->container       = $container;
-        $this->encodeOptions   = $encodeOptions;
-        $this->parserFactory   = $parserFactory;
-        $this->handlerFactory  = $handlerFactory;
-        $this->documentFactory = $documentFactory;
+        $this->container         = $container;
+        $this->encodeOptions     = $encodeOptions;
+        $this->parserFactory     = $parserFactory;
+        $this->handlerFactory    = $handlerFactory;
+        $this->documentFactory   = $documentFactory;
+        $this->parametersFactory = $parametersFactory;
     }
 
     /**
@@ -86,7 +95,8 @@ class Encoder implements EncoderInterface
         EncodingParametersInterface $parameters = null
     ) {
         $docWriter     = $this->documentFactory->createDocument();
-        $parserManager = $parameters !== null ? $this->parserFactory->createManager($parameters) : null;
+        $parameters    = $this->getEncodingParameters($data, $parameters);
+        $parserManager = $this->parserFactory->createManager($parameters);
         $parser        = $this->parserFactory->createParser($this->container, $parserManager);
         $interpreter   = $this->handlerFactory->createReplyInterpreter($docWriter, $parameters);
         foreach ($parser->parse($data) as $reply) {
@@ -156,7 +166,37 @@ class Encoder implements EncoderInterface
         $documentFactory = new \Neomerx\JsonApi\Document\DocumentFactory();
         /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
         $encoderFactory = new \Neomerx\JsonApi\Encoder\Factory\EncoderFactory();
+        /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
+        $parameterFactory = new \Neomerx\JsonApi\Parameters\ParametersFactory();
 
-        return new self($documentFactory, $encoderFactory, $encoderFactory, $container, $encodeOptions);
+        return new self(
+            $documentFactory,
+            $encoderFactory,
+            $encoderFactory,
+            $parameterFactory,
+            $container,
+            $encodeOptions
+        );
+    }
+
+    /**
+     * @param array|object|null                $data
+     * @param EncodingParametersInterface|null $parameters
+     *
+     * @return EncodingParametersInterface
+     */
+    private function getEncodingParameters($data, EncodingParametersInterface $parameters = null)
+    {
+        if (empty($data) === true && $parameters === null) {
+            return $this->parametersFactory->createEncodingParameters();
+        } elseif ($parameters !== null && $parameters->getIncludePaths() !== null) {
+            return $parameters;
+        } else {
+            $schema       = $this->container->getSchema(is_array($data) ? $data[0] : $data);
+            $includePaths = $schema->getIncludePaths();
+            $fieldSets    = $parameters === null ? null : $parameters->getFieldSets();
+
+            return $this->parametersFactory->createEncodingParameters($includePaths, $fieldSets);
+        }
     }
 }

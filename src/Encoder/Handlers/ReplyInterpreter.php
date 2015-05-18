@@ -38,10 +38,10 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     private $parameters;
 
     /**
-     * @param DocumentInterface                $document
-     * @param EncodingParametersInterface|null $parameters
+     * @param DocumentInterface           $document
+     * @param EncodingParametersInterface $parameters
      */
-    public function __construct(DocumentInterface $document, EncodingParametersInterface $parameters = null)
+    public function __construct(DocumentInterface $document, EncodingParametersInterface $parameters)
     {
         $this->document   = $document;
         $this->parameters = $parameters;
@@ -81,15 +81,10 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     protected function handleLinks(ParserReplyInterface $reply, Frame $current, Frame $previous)
     {
-        assert('$previous !== null');
+        $this->addToIncludedAndCheckIfParentIsTarget($reply, $current, $previous);
+
         if ($this->isLinkInFieldSet($current, $previous) === true) {
             $this->addLinkToData($reply, $current, $previous);
-        }
-        if ($current->isPathIncluded() === true) {
-            list(, $currentIsTarget) = $this->getIfTargets($current, $previous, $this->parameters);
-            if ($currentIsTarget === true) {
-                $this->addToIncluded($reply, $current);
-            }
         }
     }
 
@@ -100,17 +95,29 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     protected function handleIncluded(ParserReplyInterface $reply, Frame $current, Frame $previous)
     {
-        list($parentIsTarget, $currentIsTarget) = $this->getIfTargets($current, $previous, $this->parameters);
-
-        if ($previous->isPathIncluded() === true && $parentIsTarget === true &&
+        if ($this->addToIncludedAndCheckIfParentIsTarget($reply, $current, $previous) === true &&
             $this->isLinkInFieldSet($current, $previous) === true
         ) {
             $this->addLinkToIncluded($reply, $current, $previous);
         }
+    }
 
-        if ($current->isPathIncluded() === true && $currentIsTarget === true) {
+    /**
+     * @param ParserReplyInterface $reply
+     * @param Frame                $current
+     * @param Frame                $previous
+     *
+     * @return bool
+     */
+    private function addToIncludedAndCheckIfParentIsTarget(ParserReplyInterface $reply, Frame $current, Frame $previous)
+    {
+        list($parentIsTarget, $currentIsTarget) = $this->getIfTargets($current, $previous);
+
+        if ($currentIsTarget === true) {
             $this->addToIncluded($reply, $current);
         }
+
+        return $parentIsTarget;
     }
 
     /**
@@ -218,21 +225,15 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     }
 
     /**
-     * @param Frame                            $current
-     * @param Frame|null                       $previous
-     * @param EncodingParametersInterface|null $parameters
+     * @param Frame      $current
+     * @param Frame|null $previous
      *
      * @return bool[]
      */
     private function getIfTargets(
         Frame $current,
-        Frame $previous = null,
-        EncodingParametersInterface $parameters = null
+        Frame $previous = null
     ) {
-        if ($parameters === null) {
-            return [true, true];
-        }
-
         $parentIsTarget  = ($previous === null || $this->parameters->isPathIncluded($previous->getPath()));
         $currentIsTarget = $this->parameters->isPathIncluded($current->getPath());
 
@@ -249,9 +250,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     private function isLinkInFieldSet(Frame $current, Frame $previous)
     {
-        if ($this->parameters === null ||
-            ($fieldSet = $this->parameters->getFieldSet($previous->getResourceObject()->getType())) === null
-        ) {
+        if (($fieldSet = $this->parameters->getFieldSet($previous->getResourceObject()->getType())) === null) {
             return true;
         }
 

@@ -32,9 +32,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /** If link should be shown as reference. */
     const SHOW_AS_REF = 'asRef';
 
-    /** If link objects by default should be included to response. */
-    const INCLUDED = 'included';
-
     /** If meta information should be shown. */
     const SHOW_META = 'showMeta';
 
@@ -49,12 +46,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
 
     /** If link pagination information should be shown. */
     const SHOW_PAGINATION = 'showPagination';
-
-    /** Arbitrary data describing 'self' controller. */
-    const SELF_CONTROLLER = 'selfController';
-
-    /** Arbitrary data describing 'related' controller. */
-    const RELATED_CONTROLLER = 'relatedController';
 
     /** Link pagination information */
     const PAGINATION = 'pagination';
@@ -100,6 +91,11 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @var bool
      */
+    protected $isShowMetaInLinkage = false;
+
+    /**
+     * @var bool
+     */
     protected $isShowSelfInIncluded = false;
 
     /**
@@ -111,11 +107,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
      * @var bool
      */
     protected $isShowMetaInIncluded = false;
-
-    /**
-     * @var int
-     */
-    protected $defaultParseDepth = null;
 
     /**
      * @var SchemaFactoryInterface
@@ -134,12 +125,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
     {
         assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set.');
-        assert(
-            'is_null($this->defaultParseDepth) || '.
-            '(is_int($this->defaultParseDepth) && $this->defaultParseDepth > 0)',
-            'If set depth should be positive int.'
-        );
-
         assert(
             'is_bool($this->isShowSelfInIncluded) &&'.
             'is_bool($this->isShowLinksInIncluded) &&'.
@@ -169,25 +154,27 @@ abstract class SchemaProvider implements SchemaProviderInterface
     }
 
     /**
-     * Get the base self URL
-     *
-     * @return string
-     */
-    protected function getBaseSelfUrl()
-    {
-        // Note: $resource is available as input parameter
-
-        substr($this->baseSelfUrl, -1) === '/' ?: $this->baseSelfUrl .= '/';
-
-        return $this->baseSelfUrl;
-    }
-
-    /**
      * @inheritdoc
      */
     public function getMeta($resource)
     {
         return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isShowSelf()
+    {
+        return $this->isShowSelf;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isShowMeta()
+    {
+        return $this->isShowMeta;
     }
 
     /**
@@ -217,13 +204,17 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getDefaultParseDepth()
+    public function isShowMetaInLinkage()
     {
-        return $this->defaultParseDepth;
+        return $this->isShowMetaInLinkage;
     }
 
     /**
-     * @inheritdoc
+     * Get resource links.
+     *
+     * @param object $resource
+     *
+     * @return array
      */
     public function getLinks($resource)
     {
@@ -237,23 +228,17 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function getLinkObjectIterator($resource)
     {
         foreach ($this->getLinks($resource) as $name => $desc) {
-            $relatedController = $this->getNotEmptyValue($desc, self::RELATED_CONTROLLER);
-            $selfController    = $this->getNotEmptyValue($desc, self::SELF_CONTROLLER);
-            $data              = $this->readData($desc);
-            $isIncluded        = ($this->getValue($desc, self::INCLUDED) === true);
-            $isShowMeta        = ($this->getValue($desc, self::SHOW_META) === true);
-            $isShowSelf        = $this->isShowControllerUrl($selfController, $desc, self::SHOW_SELF);
-            $isShowAsRef       = $this->isShowControllerUrl($relatedController, $desc, self::SHOW_AS_REF);
-            $isShowRelated     = $this->isShowControllerUrl($relatedController, $desc, self::SHOW_RELATED);
-            $isShowLinkage     = ($this->getValue($desc, self::SHOW_LINKAGE, true) === true);
+            $data          = $this->readData($desc);
+            $isShowMeta    = ($this->getValue($desc, self::SHOW_META, false) === true);
+            $isShowSelf    = ($this->getValue($desc, self::SHOW_SELF, false) === true);
+            $isShowAsRef   = ($this->getValue($desc, self::SHOW_AS_REF, false) === true);
+            $isShowRelated = ($this->getValue($desc, self::SHOW_RELATED, false) === true);
+            $isShowLinkage = ($this->getValue($desc, self::SHOW_LINKAGE, true) === true);
 
             list($isShowPagination, $pagination) = $this->readPagination($desc);
 
             $selfSubUrl    = $this->getValue($desc, self::SELF_SUB_URL, '/links/'.$name);
             $relatedSubUrl = $this->getValue($desc, self::RELATED_SUB_URL, '/'.$name);
-
-            $selfSubUrl    = ($selfController    === null ? null : $selfSubUrl);
-            $relatedSubUrl = ($relatedController === null ? null : $relatedSubUrl);
 
             yield $this->factory->createLinkObject(
                 $name,
@@ -266,9 +251,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
                 $isShowLinkage,
                 $isShowMeta,
                 $isShowPagination,
-                $isIncluded,
-                $selfController,
-                $relatedController,
                 $pagination
             );
         }
@@ -290,23 +272,37 @@ abstract class SchemaProvider implements SchemaProviderInterface
             $attributes,
             $this->getMeta($resource),
             $this->getSelfUrl($resource),
-            $this->getSelfControllerData(),
-            $this->isShowSelf,
-            $this->isShowMeta,
+            $this->isShowSelf(),
+            $this->isShowMeta(),
             $this->isShowSelfInIncluded(),
             $this->isShowLinksInIncluded(),
-            $this->isShowMetaInIncluded()
+            $this->isShowMetaInIncluded(),
+            $this->isShowMetaInLinkage()
         );
     }
 
     /**
-     * Get 'self' controller data.
-     *
-     * @return mixed
+     * @inheritdoc
      */
-    protected function getSelfControllerData()
+    public function getIncludePaths()
     {
-        return null;
+        return [];
+    }
+
+    /**
+     * Get the base self URL
+     *
+     * @param object $resource
+     *
+     * @return string
+     */
+    protected function getBaseSelfUrl($resource)
+    {
+        $resource ?: null;
+
+        substr($this->baseSelfUrl, -1) === '/' ?: $this->baseSelfUrl .= '/';
+
+        return $this->baseSelfUrl;
     }
 
     /**
@@ -319,36 +315,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     private function getValue(array $array, $key, $default = null)
     {
         return (isset($array[$key]) === true ? $array[$key] : $default);
-    }
-
-    /**
-     * @param array  $array
-     * @param string $key
-     * @param mixed  $default
-     *
-     * @return mixed
-     */
-    private function getNotEmptyValue(array $array, $key, $default = null)
-    {
-        if (isset($array[$key]) === true) {
-            $value = $array[$key];
-            if (empty($value) === false) {
-                return $value;
-            }
-        }
-        return $default;
-    }
-
-    /**
-     * @param mixed  $controllerData
-     * @param array  $description
-     * @param string $showKey
-     *
-     * @return bool
-     */
-    private function isShowControllerUrl($controllerData, array $description, $showKey)
-    {
-        return ($controllerData !== null && $this->getValue($description, $showKey) === true);
     }
 
     /**

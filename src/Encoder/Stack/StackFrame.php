@@ -52,11 +52,6 @@ class StackFrame implements StackFrameInterface
     private $path = null;
 
     /**
-     * @var bool|null
-     */
-    private $isPathIncluded = null;
-
-    /**
      * @param int                              $level
      * @param StackFrameReadOnlyInterface|null $previous
      */
@@ -98,7 +93,6 @@ class StackFrame implements StackFrameInterface
         $this->linkObject = $linkObject;
 
         $this->setCurrentPath();
-        $this->setIsPathToCurrentIsIncluded();
     }
 
     /**
@@ -126,14 +120,6 @@ class StackFrame implements StackFrameInterface
     }
 
     /**
-     * @inheritdoc
-     */
-    public function isPathIncluded()
-    {
-        return $this->isPathIncluded;
-    }
-
-    /**
      * Set path to current frame.
      */
     private function setCurrentPath()
@@ -142,21 +128,6 @@ class StackFrame implements StackFrameInterface
             $this->path = $this->linkObject->getName();
         } else {
             $this->path = $this->previous->getPath() . '.' . $this->linkObject->getName();
-        }
-    }
-
-    /**
-     * Determine if all elements on the path to current frame should be included.
-     */
-    private function setIsPathToCurrentIsIncluded()
-    {
-        assert('$this->level > 1');
-        if ($this->level === 2) {
-            $this->isPathIncluded = $this->linkObject->isShouldBeIncluded();
-        } elseif ($this->level > 2) {
-            $isPreviousIncluded = $this->previous->isPathIncluded();
-            assert('is_bool($isPreviousIncluded)');
-            $this->isPathIncluded = $isPreviousIncluded && $this->linkObject->isShouldBeIncluded();
         }
     }
 }

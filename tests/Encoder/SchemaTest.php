@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \ReflectionMethod;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Schema\SchemaFactory;
 use \Neomerx\Tests\JsonApi\Data\DummySchema;
@@ -40,20 +39,6 @@ class SchemaTest extends BaseTestCase
 
         $schemaFactory = new SchemaFactory();
         $this->schema  = new DummySchema($schemaFactory, $schemaFactory->createContainer());
-    }
-
-    /**
-     * Test getNotEmptyValue.
-     */
-    public function testGetNotEmptyValue()
-    {
-        $reflectionMethod = new ReflectionMethod(DummySchema::class, 'getNotEmptyValue');
-        $reflectionMethod->setAccessible(true);
-
-        $this->assertEquals('default', $reflectionMethod->invoke($this->schema, [], 'key', 'default'));
-        $this->assertEquals('default', $reflectionMethod->invoke($this->schema, ['key' => null], 'key', 'default'));
-        $this->assertEquals('default', $reflectionMethod->invoke($this->schema, ['key' => ''], 'key', 'default'));
-        $this->assertEquals('value', $reflectionMethod->invoke($this->schema, ['key' => 'value'], 'key', 'default'));
     }
 
     public function testGetLinks()

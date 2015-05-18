@@ -126,9 +126,9 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'meta'],
             'selfUrl',
-            'some-self-controller-data',
             true,
             true,
+            false,
             false,
             false,
             false
@@ -170,9 +170,9 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'meta'],
             'selfUrl',
-            'some-self-controller-data',
             false,
             false,
+            true,
             true,
             true,
             true
@@ -236,7 +236,7 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'peopleSelfUrl/',
-            'some-self-controller-data',
+            false,
             false,
             false,
             false,
@@ -250,7 +250,7 @@ EOL;
             ['title' => 'some title', 'body' => 'some body'],
             ['some' => 'comment meta'],
             'commentsSelfUrl/',
-            'some-self-controller-data',
+            false,
             false,
             false,
             false,
@@ -268,9 +268,6 @@ EOL;
             true,
             true,
             true,
-            false,
-            'some-self-controller-data',
-            'some-related-controller-data',
             $this->schemaFactory->createPaginationLinks('/first')
         );
         $this->document->addLinkToData($parent, $link, $resource);
@@ -312,7 +309,7 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'selfUrl/',
-            'some-self-controller-data',
+            false,
             false,
             false,
             false,
@@ -326,7 +323,7 @@ EOL;
             ['title' => 'some title', 'body' => 'some body'],
             ['some' => 'comment meta'],
             'selfUrl/',
-            'some-self-controller-data',
+            true,
             true,
             true,
             true,
@@ -344,9 +341,6 @@ EOL;
             true,
             false,
             false,
-            false,
-            'some-self-controller-data',
-            'some-related-controller-data',
             null
         );
         $this->document->addLinkToData($parent, $link, $resource);
@@ -363,7 +357,7 @@ EOL;
                 },
                 "links" : {
                     "link-name" : {
-                        "linkage" : { "type" : "comments", "id" : "321" }
+                        "linkage" : { "type" : "comments", "id" : "321", "meta" : {"some" : "comment meta"} }
                     }
                 }
             }
@@ -384,7 +378,7 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'selfUrl/',
-            'some-self-controller-data',
+            false,
             false,
             false,
             false,
@@ -398,7 +392,7 @@ EOL;
             ['title' => 'some title', 'body' => 'some body'],
             ['some' => 'comment meta'],
             'selfUrl/',
-            'some-self-controller-data',
+            true,
             true,
             true,
             true,
@@ -416,9 +410,6 @@ EOL;
             true,
             false,
             false,
-            false,
-            'some-self-controller-data',
-            'some-related-controller-data',
             null
         );
         $this->document->addLinkToData($parent, $link, $resource);
@@ -437,8 +428,8 @@ EOL;
                 "links" : {
                     "link-name" : {
                         "linkage" : [
-                            { "type" : "comments", "id" : "321" },
-                            { "type" : "comments", "id" : "321" }
+                            { "type" : "comments", "id" : "321", "meta" : {"some" : "comment meta"} },
+                            { "type" : "comments", "id" : "321", "meta" : {"some" : "comment meta"} }
                         ]
                     }
                 }
@@ -460,7 +451,7 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'selfUrl',
-            'some-self-controller-data',
+            false,
             false,
             false,
             false,
@@ -474,7 +465,7 @@ EOL;
             ['title' => 'some title', 'body' => 'some body'],
             ['some' => 'comment meta'],
             'selfUrl/',
-            'some-self-controller-data',
+            true,
             true,
             true,
             true,
@@ -492,9 +483,6 @@ EOL;
             false,
             true,
             false,
-            false,
-            'some-self-controller-data',
-            'some-related-controller-data',
             null
         );
         $this->document->addLinkToData($parent, $link, $resource);
@@ -532,7 +520,7 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'peopleSelfUrl',
-            'some-self-controller-data',
+            false,
             false,
             false,
             false,
@@ -546,7 +534,7 @@ EOL;
             ['title' => 'some title', 'body' => 'some body'],
             ['some' => 'comment meta'],
             'ommentsSelfUrl',
-            'some-self-controller-data',
+            false,
             false,
             false,
             false,
@@ -564,9 +552,6 @@ EOL;
             true,
             true,
             false,
-            true,
-            'some-self-controller-data',
-            'some-related-controller-data',
             null
         );
         $this->document->addReferenceToData($parent, $link, $resource);
@@ -602,7 +587,7 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'selfUrl',
-            'some-self-controller-data',
+            false,
             false,
             false,
             false,
@@ -620,9 +605,6 @@ EOL;
             false,
             true,
             false,
-            false,
-            'some-self-controller-data',
-            'some-related-controller-data',
             null
         );
         $this->document->addEmptyLinkToData($parent, $link);
@@ -658,7 +640,7 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'selfUrl',
-            'some-self-controller-data',
+            false,
             false,
             false,
             false,
@@ -676,9 +658,6 @@ EOL;
             false,
             true,
             false,
-            false,
-            'some-self-controller-data',
-            'some-related-controller-data',
             null
         );
         $this->document->addNullLinkToData($parent, $link);
@@ -714,9 +693,9 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'meta'],
             'selfUrl',
-            'some-self-controller-data',
             false,
             false,
+            true,
             true,
             true,
             true
@@ -759,9 +738,9 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'meta'],
             'selfUrl',
-            'some-self-controller-data',
             true,
             true,
+            false,
             false,
             false,
             false
@@ -798,9 +777,9 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'peopleSelfUrl/',
-            'some-self-controller-data',
             false,
             false,
+            true,
             true,
             true,
             true
@@ -812,7 +791,7 @@ EOL;
             ['title' => 'some title', 'body' => 'some body'],
             ['some' => 'comment meta'],
             'commentsSelfUrl/',
-            'some-self-controller-data',
+            true,
             true,
             true,
             true,
@@ -830,9 +809,6 @@ EOL;
             true,
             true,
             false,
-            true,
-            'some-self-controller-data',
-            'some-related-controller-data',
             null
         );
         $this->document->addLinkToIncluded($parent, $link, $resource);
@@ -854,7 +830,7 @@ EOL;
                         "self"    : "peopleSelfUrl/selfSubUrl",
                         "related" : "peopleSelfUrl/relatedSubUrl",
                         "meta"    : { "some" : "comment meta" },
-                        "linkage" : { "type" : "comments", "id" : "321" }
+                        "linkage" : { "type" : "comments", "id" : "321", "meta" : {"some" : "comment meta"} }
                     }
                 },
                 "meta" : {
@@ -878,9 +854,9 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'peopleSelfUrl/',
-            'some-self-controller-data',
             false,
             false,
+            true,
             true,
             true,
             true
@@ -892,7 +868,7 @@ EOL;
             ['title' => 'some title', 'body' => 'some body'],
             ['some' => 'comment meta'],
             'commentsSelfUrl/',
-            'some-self-controller-data',
+            true,
             true,
             true,
             true,
@@ -910,9 +886,6 @@ EOL;
             true,
             false,
             false,
-            true,
-            'some-self-controller-data',
-            'some-related-controller-data',
             null
         );
         $this->document->addLinkToIncluded($parent, $link, $resource);
@@ -931,7 +904,7 @@ EOL;
                 "links" : {
                     "self" : "peopleSelfUrl/",
                     "link-name" : {
-                        "linkage" : { "type" : "comments", "id" : "321" }
+                        "linkage" : { "type" : "comments", "id" : "321", "meta" : {"some" : "comment meta"} }
                     }
                 },
                 "meta" : {
@@ -955,9 +928,9 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'peopleSelfUrl/',
-            'some-self-controller-data',
             false,
             false,
+            true,
             true,
             true,
             true
@@ -973,9 +946,6 @@ EOL;
             true,
             true,
             false,
-            true,
-            'some-self-controller-data',
-            'some-related-controller-data',
             null
         );
         $this->document->addEmptyLinkToIncluded($parent, $link);
@@ -1016,9 +986,9 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'peopleSelfUrl/',
-            'some-self-controller-data',
             false,
             false,
+            true,
             true,
             true,
             true
@@ -1034,9 +1004,6 @@ EOL;
             true,
             true,
             false,
-            true,
-            'some-self-controller-data',
-            'some-related-controller-data',
             null
         );
         $this->document->addNullLinkToIncluded($parent, $link);
@@ -1077,9 +1044,9 @@ EOL;
             ['firstName' => 'John', 'lastName' => 'Dow'],
             ['some' => 'author meta'],
             'peopleSelfUrl/',
-            'some-self-controller-data',
             false,
             false,
+            true,
             true,
             true,
             true
@@ -1095,9 +1062,6 @@ EOL;
             true,
             true,
             false,
-            true,
-            'some-self-controller-data',
-            'some-related-controller-data',
             null
         );
         $this->document->addReferenceToIncluded($parent, $link);
@@ -1138,7 +1102,7 @@ EOL;
             [],
             null,
             '',
-            null,
+            false,
             false,
             false,
             false,

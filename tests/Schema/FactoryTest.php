@@ -62,12 +62,12 @@ class FactoryTest extends BaseTestCase
             $attributes = ['firstName' => 'John', 'lastName' => 'Dow'],
             $meta = ['some' => 'author meta'],
             $selfUrl = 'peopleSelfUrl/',
-            $selfCtrlData = 'some-self-controller-data',
             $isShowSelf = false,
             $isShowMeta = false,
             $isShowSelfInIncluded = true,
             $isShowLinksInIncluded = true,
-            $isShowMetaInIncluded = true
+            $isShowMetaInIncluded = true,
+            $isShowMetaInLinkage = true
         ));
 
         $this->assertEquals($isInArray, $resource->isInArray());
@@ -76,12 +76,12 @@ class FactoryTest extends BaseTestCase
         $this->assertEquals($attributes, $resource->getAttributes());
         $this->assertEquals($meta, $resource->getMeta());
         $this->assertEquals($selfUrl, $resource->getSelfUrl());
-        $this->assertEquals($selfCtrlData, $resource->getSelfControllerData());
         $this->assertEquals($isShowSelf, $resource->isShowSelf());
         $this->assertEquals($isShowMeta, $resource->isShowMeta());
         $this->assertEquals($isShowSelfInIncluded, $resource->isShowSelfInIncluded());
         $this->assertEquals($isShowLinksInIncluded, $resource->isShowLinksInIncluded());
         $this->assertEquals($isShowMetaInIncluded, $resource->isShowMetaInIncluded());
+        $this->assertEquals($isShowMetaInLinkage, $resource->isShowMetaInLinkage());
     }
 
     /**
@@ -100,9 +100,6 @@ class FactoryTest extends BaseTestCase
             $isShowLinkage = true,
             $isShowMeta = true,
             $isShowPagination = true,
-            $isIncluded = true,
-            $selfControllerData = 'some-self-controller-data',
-            $relatedControllerData = 'some-related-controller-data',
             $pagination = Mockery::mock(PaginationLinksInterface::class)
         ));
 
@@ -116,9 +113,6 @@ class FactoryTest extends BaseTestCase
         $this->assertEquals($isShowLinkage, $link->isShowLinkage());
         $this->assertEquals($isShowMeta, $link->isShowMeta());
         $this->assertEquals($isShowPagination, $link->isShowPagination());
-        $this->assertEquals($isIncluded, $link->isShouldBeIncluded());
-        $this->assertEquals($selfControllerData, $link->getSelfControllerData());
-        $this->assertEquals($relatedControllerData, $link->getRelatedControllerData());
         $this->assertSame($pagination, $link->getPagination());
     }
 

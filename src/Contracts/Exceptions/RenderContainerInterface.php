@@ -41,7 +41,16 @@ interface RenderContainerInterface
      *
      * @return void
      */
-    public function registerMapping(array $exceptionMapping);
+    public function registerHttpCodeMapping(array $exceptionMapping);
+
+    /**
+     * Register JSON API Error object renders mapping for exceptions.
+     *
+     * @param array $exceptionMapping
+     *
+     * @return void
+     */
+    public function registerJsonApiErrorMapping(array $exceptionMapping);
 
     /**
      * Get registered or default render for exception.

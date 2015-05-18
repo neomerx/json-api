@@ -41,12 +41,12 @@ class SchemaFactory implements SchemaFactoryInterface
         array $attributes,
         $meta,
         $selfUrl,
-        $selfControllerData,
         $isShowSelf,
         $isShowMeta,
         $isShowSelfInIncluded,
         $isShowLinksInIncluded,
-        $isShowMetaInIncluded
+        $isShowMetaInIncluded,
+        $isShowMetaInLinkage
     ) {
         return new ResourceObject(
             $isInArray,
@@ -55,12 +55,12 @@ class SchemaFactory implements SchemaFactoryInterface
             $attributes,
             $meta,
             $selfUrl,
-            $selfControllerData,
             $isShowSelf,
             $isShowMeta,
             $isShowSelfInIncluded,
             $isShowLinksInIncluded,
-            $isShowMetaInIncluded
+            $isShowMetaInIncluded,
+            $isShowMetaInLinkage
         );
     }
 
@@ -78,9 +78,6 @@ class SchemaFactory implements SchemaFactoryInterface
         $isShowLinkage,
         $isShowMeta,
         $isShowPagination,
-        $isIncluded,
-        $selfControllerData,
-        $relatedControllerData,
         $pagination
     ) {
         return new LinkObject(
@@ -94,9 +91,6 @@ class SchemaFactory implements SchemaFactoryInterface
             $isShowLinkage,
             $isShowMeta,
             $isShowPagination,
-            $isIncluded,
-            $selfControllerData,
-            $relatedControllerData,
             $pagination
         );
     }

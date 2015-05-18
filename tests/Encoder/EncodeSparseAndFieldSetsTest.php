@@ -85,12 +85,7 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::INCLUDED, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::INCLUDED, true);
-                return $schema;
-            },
+            Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
         ])->encode($this->site, null, null, new EncodingParameters(
             [
@@ -180,12 +175,7 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::INCLUDED, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::INCLUDED, true);
-                return $schema;
-            },
+            Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
         ])->encode($this->site, null, null, new EncodingParameters(
             null,
@@ -212,6 +202,13 @@ EOL;
                 }
             },
             "included" : [{
+                "type"       : "people",
+                "id"         : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                }
+            }, {
                 "type"  : "comments",
                 "id"    : "5",
                 "links" : {
@@ -222,13 +219,6 @@ EOL;
                 "id"    : "12",
                 "links" : {
                     "self" : "http://example.com/comments/12"
-                }
-            }, {
-                "type"       : "people",
-                "id"         : "9",
-                "attributes" : {
-                    "first_name" : "Dan",
-                    "last_name"  : "Gebhardt"
                 }
             }, {
                 "type" : "posts",

@@ -16,12 +16,18 @@
  * limitations under the License.
  */
 
+use \Mockery;
 use \Exception;
 use \LogicException;
+use \Mockery\MockInterface;
 use \InvalidArgumentException;
+use Neomerx\JsonApi\Document\Error;
+use Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Exceptions\RenderContainer;
 use \Neomerx\JsonApi\Contracts\Exceptions\RenderContainerInterface;
+use \Neomerx\JsonApi\Contracts\Integration\NativeResponsesInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -37,17 +43,29 @@ class RenderContainerTest extends BaseTestCase
     private $container;
 
     /**
+     * @var MockInterface
+     */
+    private $mockResponses;
+
+    /**
      * Set up tests.
      */
     protected function setUp()
     {
         parent::setUp();
 
-        $responseClosure = function ($statusCode) {
-            return 'error: '. $statusCode;
+        $mockSupportedExtensions = Mockery::mock(SupportedExtensionsInterface::class);
+        $mockSupportedExtensions->shouldReceive('getExtensions')->zeroOrMoreTimes()->withNoArgs()->andReturn([]);
+        $extensionsClosure = function () use ($mockSupportedExtensions) {
+            return $mockSupportedExtensions;
         };
 
-        $this->container = new RenderContainer($responseClosure, self::DEFAULT_CODE);
+        $this->mockResponses = Mockery::mock(NativeResponsesInterface::class);
+
+        /** @var NativeResponsesInterface $mockResponses */
+        $mockResponses = $this->mockResponses;
+
+        $this->container = new RenderContainer($mockResponses, $extensionsClosure, self::DEFAULT_CODE);
     }
 
     /**
@@ -55,6 +73,10 @@ class RenderContainerTest extends BaseTestCase
      */
     public function testGetRenderForUnknownException()
     {
+        $this->mockResponses->shouldReceive('createResponse')->once()
+            ->withArgs([null, self::DEFAULT_CODE, Mockery::any()])
+            ->andReturn('error: '. self::DEFAULT_CODE);
+
         // we haven't registered any renders yet so any exception will be unknown
 
         $this->assertNotNull($render = $this->container->getRender(new Exception()));
@@ -66,6 +88,10 @@ class RenderContainerTest extends BaseTestCase
      */
     public function testGetRenderForKnownException()
     {
+        $this->mockResponses->shouldReceive('createResponse')->once()
+            ->withArgs([null, self::DEFAULT_CODE, Mockery::any()])
+            ->andReturn('error: '. self::DEFAULT_CODE);
+
         $customRender = function ($arg1, $arg2, $arg3) {
             return $arg1 . ' ' . $arg2 . ' ' . $arg3;
         };
@@ -81,20 +107,52 @@ class RenderContainerTest extends BaseTestCase
     /**
      * Test register exception mapping to status codes.
      */
-    public function testRegisterMapping()
+    public function testRegisterHttpCodeMapping()
     {
-        $this->container->registerMapping([
+        $this->container->registerHttpCodeMapping([
             InvalidArgumentException::class => 123,
             LogicException::class           => 456,
         ]);
 
+        $this->mockResponses->shouldReceive('createResponse')->once()
+            ->withArgs([null, 123, Mockery::any()])
+            ->andReturn('error: '. 123);
         $this->assertNotNull($render = $this->container->getRender(new InvalidArgumentException()));
         $this->assertEquals('error: '. 123, $render());
 
+        $this->mockResponses->shouldReceive('createResponse')->once()
+            ->withArgs([null, 456, Mockery::any()])
+            ->andReturn('error: '. 456);
         $this->assertNotNull($render = $this->container->getRender(new LogicException()));
         $this->assertEquals('error: '. 456, $render());
 
+        $this->mockResponses->shouldReceive('createResponse')->once()
+            ->withArgs([null, self::DEFAULT_CODE, Mockery::any()])
+            ->andReturn('error: '. self::DEFAULT_CODE);
         $this->assertNotNull($render = $this->container->getRender(new Exception()));
         $this->assertEquals('error: '. self::DEFAULT_CODE, $render());
+    }
+
+    /**
+     * Test register exception mapping for JSON API Errors.
+     */
+    public function testRegisterJsonApiErrorMapping()
+    {
+        $this->container->registerJsonApiErrorMapping([
+            InvalidArgumentException::class => 123,
+        ]);
+
+        $title = 'Error title';
+        $error = new Error(null, null, null, null, $title);
+        $errorDocument = Encoder::instance([])->error($error);
+
+        $this->mockResponses->shouldReceive('createResponse')->once()
+            ->withArgs([Mockery::type('string'), 123, Mockery::any()])
+            ->andReturn($errorDocument);
+        $this->assertNotNull($render = $this->container->getRender(new InvalidArgumentException()));
+
+        // let's assume our exception can provide JSON API Error information somehow.
+
+        $this->assertEquals($errorDocument, $render([$error]));
     }
 }

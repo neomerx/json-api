@@ -86,9 +86,7 @@ class ParserTest extends BaseTestCase
             Post::class    => function ($factory, $container) {
                 $schema = new PostSchema($factory, $container);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_AS_REF, true);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::RELATED_CONTROLLER, 'author-controller-info');
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_AS_REF, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::RELATED_CONTROLLER, 'comments-controller-info');
                 return $schema;
             },
         ];

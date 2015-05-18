@@ -39,12 +39,12 @@ interface SchemaFactoryInterface
      * @param array  $attributes
      * @param mixed  $meta
      * @param string $selfUrl
-     * @param mixed  $selfControllerData
      * @param bool   $isShowSelf
      * @param bool   $isShowMeta
      * @param bool   $isShowSelfInIncluded
      * @param bool   $isShowLinksInIncluded
      * @param bool   $isShowMetaInIncluded
+     * @param bool   $isShowMetaInLinkage
      *
      * @return ResourceObjectInterface
      */
@@ -55,12 +55,12 @@ interface SchemaFactoryInterface
         array $attributes,
         $meta,
         $selfUrl,
-        $selfControllerData,
         $isShowSelf,
         $isShowMeta,
         $isShowSelfInIncluded,
         $isShowLinksInIncluded,
-        $isShowMetaInIncluded
+        $isShowMetaInIncluded,
+        $isShowMetaInLinkage
     );
 
     /**
@@ -76,9 +76,6 @@ interface SchemaFactoryInterface
      * @param bool                          $isShowLinkage
      * @param bool                          $isShowMeta
      * @param bool                          $isShowPagination
-     * @param bool                          $isIncluded
-     * @param mixed                         $selfControllerData
-     * @param mixed                         $relatedControllerData
      * @param PaginationLinksInterface|null $pagination
      *
      * @return LinkObjectInterface
@@ -94,9 +91,6 @@ interface SchemaFactoryInterface
         $isShowLinkage,
         $isShowMeta,
         $isShowPagination,
-        $isIncluded,
-        $selfControllerData,
-        $relatedControllerData,
         $pagination
     );
 

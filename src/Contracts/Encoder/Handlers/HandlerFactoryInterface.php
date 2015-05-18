@@ -27,10 +27,10 @@ interface HandlerFactoryInterface
     /**
      * Create parser reply interpreter.
      *
-     * @param DocumentInterface                $document
-     * @param EncodingParametersInterface|null $parameters
+     * @param DocumentInterface           $document
+     * @param EncodingParametersInterface $parameters
      *
      * @return ReplyInterpreterInterface
      */
-    public function createReplyInterpreter(DocumentInterface $document, EncodingParametersInterface $parameters = null);
+    public function createReplyInterpreter(DocumentInterface $document, EncodingParametersInterface $parameters);
 }

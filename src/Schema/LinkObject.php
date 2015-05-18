@@ -55,11 +55,6 @@ class LinkObject implements LinkObjectInterface
     private $isShowLinkage;
 
     /**
-     * @var bool
-     */
-    private $isShouldBeIncluded;
-
-    /**
      * @var string|null
      */
     private $selfSubUrl;
@@ -80,16 +75,6 @@ class LinkObject implements LinkObjectInterface
     private $isShowPagination;
 
     /**
-     * @var mixed
-     */
-    private $selfControllerData;
-
-    /**
-     * @var mixed
-     */
-    private $relatedControllerData;
-
-    /**
      * @var PaginationLinksInterface|null
      */
     private $pagination;
@@ -105,9 +90,6 @@ class LinkObject implements LinkObjectInterface
      * @param bool                          $isShowLinkage
      * @param bool                          $isShowMeta
      * @param bool                          $isShowPagination
-     * @param bool                          $isIncluded
-     * @param mixed                         $selfControllerData
-     * @param mixed                         $relatedControllerData
      * @param PaginationLinksInterface|null $pagination
      */
     public function __construct(
@@ -121,9 +103,6 @@ class LinkObject implements LinkObjectInterface
         $isShowLinkage,
         $isShowMeta,
         $isShowPagination,
-        $isIncluded,
-        $selfControllerData,
-        $relatedControllerData,
         $pagination
     ) {
         assert(
@@ -132,7 +111,7 @@ class LinkObject implements LinkObjectInterface
             '(is_null($selfSubUrl) || is_string($selfSubUrl)) &&'.
             '(is_null($relatedSubUrl) || is_string($relatedSubUrl)) &&'.
             'is_bool($isShowAsRef) && is_bool($isShowSelf) && is_bool($isShowRelated) && is_bool($isShowMeta) &&'.
-            'is_bool($isIncluded) && is_bool($isShowPagination) &&'.
+            'is_bool($isShowPagination) &&'.
             '(is_null($pagination) || $pagination instanceof ' . PaginationLinksInterface::class . ')'
         );
         assert(
@@ -149,9 +128,6 @@ class LinkObject implements LinkObjectInterface
         $this->isShowRelated         = $isShowRelated;
         $this->isShowLinkage         = $isShowLinkage;
         $this->isShowMeta            = $isShowMeta;
-        $this->isShouldBeIncluded    = $isIncluded;
-        $this->selfControllerData    = $selfControllerData;
-        $this->relatedControllerData = $relatedControllerData;
         $this->isShowPagination      = $isShowPagination;
         $this->pagination            = $pagination;
     }
@@ -215,14 +191,6 @@ class LinkObject implements LinkObjectInterface
     /**
      * @inheritdoc
      */
-    public function isShouldBeIncluded()
-    {
-        return $this->isShouldBeIncluded;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function isShowMeta()
     {
         return $this->isShowMeta;
@@ -242,22 +210,6 @@ class LinkObject implements LinkObjectInterface
     public function getLinkedData()
     {
         return $this->data;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSelfControllerData()
-    {
-        return $this->selfControllerData;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getRelatedControllerData()
-    {
-        return $this->relatedControllerData;
     }
 
     /**

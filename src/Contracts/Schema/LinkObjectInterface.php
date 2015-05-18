@@ -71,13 +71,6 @@ interface LinkObjectInterface
     public function getRelatedSubUrl();
 
     /**
-     * If link object should be included.
-     *
-     * @return bool
-     */
-    public function isShouldBeIncluded();
-
-    /**
      * If 'meta' should be shown.
      *
      * @return bool
@@ -97,20 +90,6 @@ interface LinkObjectInterface
      * @return object|array|null
      */
     public function getLinkedData();
-
-    /**
-     * Get 'self' controller data.
-     *
-     * @return mixed
-     */
-    public function getSelfControllerData();
-
-    /**
-     * Get 'related' controller data.
-     *
-     * @return mixed
-     */
-    public function getRelatedControllerData();
 
     /**
      * Get pagination information.

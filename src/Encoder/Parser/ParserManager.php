@@ -68,21 +68,22 @@ class ParserManager implements ParserManagerInterface
         if ($stack->count() < 2) {
             // top level, no resources ware started to parse yet
             return [true, false];
-        } elseif (($includePaths = $this->parameters->getIncludePaths()) === null) {
-            // not include path filter => all resources should be considered as targets
-            return [true, true];
         }
 
+        $onTheWay       = true;
         $parentIsTarget = $this->parameters->isPathIncluded($stack->penult()->getPath());
 
-        $onTheWay = false;
-        $path     = $stack->end()->getPath();
-        foreach ($includePaths as $targetPath) {
-            if (strpos($targetPath, $path) === 0) {
-                $onTheWay = true;
-                break;
+        if (($includePaths = $this->parameters->getIncludePaths()) !== null) {
+            $onTheWay = false;
+            $path     = $stack->end()->getPath();
+            foreach ($includePaths as $targetPath) {
+                if (strpos($targetPath, $path) === 0) {
+                    $onTheWay = true;
+                    break;
+                }
             }
         }
+
         return [$onTheWay, $parentIsTarget];
     }
 }

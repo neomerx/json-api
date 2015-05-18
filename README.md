@@ -8,11 +8,11 @@
 
 A good API is one of most effective ways to improve the experience for your clients. Standardized approaches for data formats and communication protocols increase productivity and make integration between applications smooth.
 
-This framework agnostic package fully implements [JSON API](http://jsonapi.org/) specification and helps you to focus on core application functionality rather than on protocol implementation. It supports document structure, errors and data fetching as described in [JSON API Format](http://jsonapi.org/format/). As it is designed to stay framework agnostic for practical usage it requires framework integration. [Limoncello](https://github.com/neomerx/limoncello) is an example of integration with Symfony based projects.
+This framework agnostic package fully implements [JSON API](http://jsonapi.org/) specification and helps focusing on core application functionality rather than on protocol implementation. It supports document structure, errors and data fetching as described in [JSON API Format](http://jsonapi.org/format/). As it is designed to stay framework agnostic for practical usage it requires framework integration. [Limoncello](https://github.com/neomerx/limoncello) is an example of integration with Symfony based projects.
 
-If you are looking for quick start application consider [Limoncello collins](https://github.com/neomerx/limoncello-collins) which is a pre-configured Laravel-based quick start application.
+If you are looking for quick start application consider [Limoncello Collins](https://github.com/neomerx/limoncello-collins) which is a pre-configured Laravel-based quick start application.
 
-Encoding fully support
+Encoding fully support specification. In particular
 
 * Resource attributes and complex attributes
 * Compound documents with included resources
@@ -24,7 +24,7 @@ Encoding fully support
 * Pagination links
 * Errors
 
-The package covers all the complexity of parsing and checking request parameters and headers. For instance it helps to correctly respond with ```Unsupported Media Type``` (HTTP code 415) and ```Not Acceptable``` (HTTP code 406) to invalid requests. You don't need to manually validate all input parameters on every request. You can configure what parameters are supported by your services and this package will check incoming requests automatically. It greatly simplifies API development. All parameters from the specification are supported
+The package covers all the complexity of parsing and checking HTTP request parameters and headers. For instance it helps to correctly respond with ```Unsupported Media Type``` (HTTP code 415) and ```Not Acceptable``` (HTTP code 406) to invalid requests. You don't need to manually validate all input parameters on every request. You can configure what parameters are supported by your services and this package will check incoming requests automatically. It greatly simplifies API development. All parameters from the specification are supported
 
 * Inclusion of related resources
 * Sparse fields
@@ -43,7 +43,7 @@ Thank you for your support :star:.
 Via Composer
 
 ```
-$ composer require neomerx/json-api ~0.2
+$ composer require neomerx/json-api ~0.3
 ```
 
 ## Usage
@@ -294,12 +294,33 @@ class PostSchema extends SchemaProvider
 
 Apart from ```self::DATA``` the following keys are supported
 
-* ```self::INCLUDED``` (bool) - if resource(s) from this link should be added to ```included``` section.
-* ```self::SHOW_META``` (bool) - if resource meta information should be added to output link description.
-* ```self::SHOW_LINKAGE``` (bool) - if linkage information should be added to output link description.
-* ```self::SHOW_SELF``` (bool) - if link ```self``` URL should be added to output link description. Setting this option to ```true``` requires ```self::SELF_CONTROLLER``` (```mixed```) to be set as well.
-* ```self::SHOW_RELATED``` (bool) - if link ```self``` URL should be added to output link description. Setting this option to ```true``` requires ```self::RELATED_CONTROLLER``` (```mixed```) to be set as well.
-* ```self::SHOW_AS_REF``` (bool) - if this key is set to ```true``` the link will be rendered as a reference.
+* ```self::SHOW_AS_REF``` (bool) - if this key is set to ```true``` the link will be rendered as a reference. Default ```false```.
+* ```self::SHOW_META``` (bool) - if resource meta information should be added to output link description. Default ```false```.
+* ```self::SHOW_LINKAGE``` (bool) - if linkage information should be added to output link description. Default ```true```.
+* ```self::SHOW_SELF``` (bool) - if link ```self``` URL should be added to output link description. Default ```false```.
+* ```self::SHOW_RELATED``` (bool) - if link ```related``` URL should be added to output link description. Default ```false```.
+
+### Include linked resources
+
+By default linked resources will not be included to ```included``` output section. However you can change this behaviour by defining 'include paths'. Nested links should be separated by a dot ('.'). For instance
+
+```php
+class PostSchema extends SchemaProvider
+{
+    ...
+    public function getIncludePaths()
+    {
+        return [
+            'posts',
+            'posts.author',
+            'posts.comments',
+        ];
+    }
+    ...
+}
+```
+
+If you specify ```EncodingParametersInterface``` with 'included paths' set to ```Encoder::encode``` method it will override include paths in the ```Schema```.
 
 ### Provide resource's meta information
 
@@ -344,19 +365,6 @@ class YourSchema extends SchemaProvider
     protected $isShowSelfInIncluded  = false;
     protected $isShowLinksInIncluded = false;
     protected $isShowMetaInIncluded  = false;
-    ...
-}
-```
-
-### Limit depth of resource inclusion
-
-By default the inclusion depth is unlimited thus all the data you pass to encoder will be put to json. You can limit the parsing depth for resource and its links by setting ```$defaultParseDepth```.
-
-```php
-class YourSchema extends SchemaProvider
-{
-    ...
-    protected $defaultParseDepth = 1;
     ...
 }
 ```

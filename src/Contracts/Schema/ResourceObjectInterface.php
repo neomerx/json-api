@@ -57,13 +57,6 @@ interface ResourceObjectInterface
     public function getSelfUrl();
 
     /**
-     * Get 'self' controller data.
-     *
-     * @return mixed
-     */
-    public function getSelfControllerData();
-
-    /**
      * If 'self' endpoint URL should be shown for resource in 'data' section.
      *
      * @return bool
@@ -90,6 +83,13 @@ interface ResourceObjectInterface
      * @return bool
      */
     public function isShowMetaInIncluded();
+
+    /**
+     * If 'meta' should be shown in linkages.
+     *
+     * @return bool
+     */
+    public function isShowMetaInLinkage();
 
     /**
      * If resources links should be shown for included resources.

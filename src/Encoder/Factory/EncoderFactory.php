@@ -91,7 +91,7 @@ class EncoderFactory implements ParserFactoryInterface, StackFactoryInterface, H
     /**
      * @inheritdoc
      */
-    public function createReplyInterpreter(DocumentInterface $document, EncodingParametersInterface $parameters = null)
+    public function createReplyInterpreter(DocumentInterface $document, EncodingParametersInterface $parameters)
     {
         return new ReplyInterpreter($document, $parameters);
     }

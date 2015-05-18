@@ -46,7 +46,7 @@ class CommentSchema extends SchemaProvider
     {
         /** @var Comment $comment */
         return [
-            'author' => [self::DATA => $comment->author, self::INCLUDED => true],
+            'author' => [self::DATA => $comment->author],
         ];
     }
 }

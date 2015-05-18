@@ -63,8 +63,7 @@ class CommentSchema extends DevSchemaProvider
 
         $links = [
             Comment::LINK_AUTHOR => [
-                self::DATA       => isset($comment->{Comment::LINK_AUTHOR}) ? $comment->{Comment::LINK_AUTHOR} : null,
-                self::INCLUDED   => true,
+                self::DATA => isset($comment->{Comment::LINK_AUTHOR}) ? $comment->{Comment::LINK_AUTHOR} : null,
             ],
         ];
 

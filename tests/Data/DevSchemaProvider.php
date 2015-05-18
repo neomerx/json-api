@@ -41,6 +41,11 @@ abstract class DevSchemaProvider extends SchemaProvider
     private $linkRemove = [];
 
     /**
+     * @var string[]
+     */
+    private $includePaths = [];
+
+    /**
      * Add to 'add to link' list.
      *
      * @param string $name
@@ -83,13 +88,23 @@ abstract class DevSchemaProvider extends SchemaProvider
     }
 
     /**
-     * Set parser's max depth level.
+     * Get include paths.
      *
-     * @param int $depthLevel
+     * @return string[]
      */
-    public function setDefaultParseDepth($depthLevel)
+    public function getIncludePaths()
     {
-        $this->defaultParseDepth = $depthLevel;
+        return empty($this->includePaths) === false ? $this->includePaths : parent::getIncludePaths();
+    }
+
+    /**
+     * Set include paths.
+     *
+     * @param string[] $includePaths
+     */
+    public function setIncludePaths($includePaths)
+    {
+        $this->includePaths = $includePaths;
     }
 
     /**

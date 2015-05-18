@@ -180,10 +180,14 @@ class ElementPresenter
      */
     private function getLinkageRepresentation(ResourceObjectInterface $resource)
     {
-        return [
+        $representation = [
             Document::KEYWORD_TYPE => $resource->getType(),
             Document::KEYWORD_ID   => $resource->getId(),
         ];
+        if ($resource->isShowMetaInLinkage() === true) {
+            $representation[Document::KEYWORD_META] = $resource->getMeta();
+        }
+        return $representation;
     }
 
     /**
