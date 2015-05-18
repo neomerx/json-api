@@ -48,8 +48,8 @@ If your system has debug assertions enabled it is recommended to turn them off. 
 
 |Debug asserts mode   |Command                                           |Execution time|
 |---------------------|--------------------------------------------------|--------------|
-|Enabled              |```$ php -d assert.active=1 sample.php -t=10000```|12.877s       |
-|Disabled             |```$ php -d assert.active=0 sample.php -t=10000```|6.758s        |
+|Enabled              |```$ php -d assert.active=1 sample.php -t=10000```|7.589s        |
+|Disabled             |```$ php -d assert.active=0 sample.php -t=10000```|2.884s        |
 
 The following command could be used for performance profiling with [blackfire.io](https://blackfire.io/)
 
@@ -57,4 +57,4 @@ The following command could be used for performance profiling with [blackfire.io
 $ blackfire --slot <slot number here> --samples 1 run php -d assert.active=0 sample.php -t=100
 ```
 
-Are you in a mood to optimize performance? You can start from this [performance baseline profile](https://blackfire.io/profiles/62063105-9033-498a-b14d-00c6facf68fd/graph).
+Are you in a mood to optimize performance? You can start from this [performance baseline profile](https://blackfire.io/profiles/a25af07b-b0c2-4a80-ae0b-8e64222b1e10/graph).
