@@ -8,9 +8,11 @@
 
 A good API is one of most effective ways to improve the experience for your clients. Standardized approaches for data formats and communication protocols increase productivity and make integration between applications smooth.
 
-This framework agnostic package fully implements [JSON API](http://jsonapi.org/) specification and helps focusing on core application functionality rather than on protocol implementation. It supports document structure, errors and data fetching as described in [JSON API Format](http://jsonapi.org/format/). As it is designed to stay framework agnostic for practical usage it requires framework integration. [Limoncello](https://github.com/neomerx/limoncello) is an example of integration with Symfony based projects.
+This framework agnostic package fully implements [JSON API](http://jsonapi.org/) specification and helps focusing on core application functionality rather than on protocol implementation. It supports document structure, errors and data fetching as described in [JSON API Format](http://jsonapi.org/format/). As it is designed to stay framework agnostic for practical usage it requires framework integration. If you are looking for quick start application consider one of the following
+- [Limoncello Collins](https://github.com/neomerx/limoncello-collins) is a pre-configured Laravel-based quick start application.
+- [Limoncello Shot](https://github.com/neomerx/limoncello-shot) is a pre-configured Lumen-based quick start application.
 
-If you are looking for quick start application consider [Limoncello Collins](https://github.com/neomerx/limoncello-collins) which is a pre-configured Laravel-based quick start application.
+These applications use [Limoncello](https://github.com/neomerx/limoncello) as integration level with Symfony based projects.
 
 Encoding fully support specification. In particular
 
@@ -36,7 +38,9 @@ The package covers all the complexity of parsing and checking HTTP request param
 
 JSON API specification is at a third release candidate state and may have some tweaks. If you have spotted any specification changes that are not reflected in this package please post an [issue](https://github.com/neomerx/json-api/issues).
 
-Thank you for your support :star:. 
+Thank you for your support :star:.
+
+For development a ```dev``` branch is created. Current JSON API specification is updated from time to time and those changes are reflected in this branch. It is merged to ```master``` and released on monthly basis. Current development tasks are in [issues](https://github.com/neomerx/json-api/issues).
 
 ## Install
 
