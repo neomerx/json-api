@@ -54,9 +54,11 @@ $ composer require neomerx/json-api ~0.3
 
 ### Basic usage
 
+Assuming you've got an ```$author``` of type ```\Author``` you can encode it to JSON API as simple as this
+
 ```php
 $encoder = Encoder::instance([
-    Author::class  => AuthorSchema::class,
+    '\Author'  => '\AuthorSchema',
 ], new JsonEncodeOptions(JSON_PRETTY_PRINT));
 
 echo $encoder->encode($author) . PHP_EOL;
@@ -108,6 +110,7 @@ class AuthorSchema extends SchemaProvider
 ### Object hierarchy with included objects
 
 ```php
+// '::class' constant (PHP 5.5 and above) convenient for classes in namespaces 
 $encoder  = Encoder::instance([
     Author::class  => AuthorSchema::class,
     Comment::class => CommentSchema::class,
