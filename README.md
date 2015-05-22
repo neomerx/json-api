@@ -36,11 +36,11 @@ The package covers all the complexity of parsing and checking HTTP request param
 
 ## Contributing
 
-JSON API specification is at a third release candidate state and may have some tweaks. If you have spotted any specification changes that are not reflected in this package please post an [issue](https://github.com/neomerx/json-api/issues).
+JSON API specification v1.0 is planned to be released on May 28, 2015. During the May 2015 JSON API team has been committing changes at more than 10x usual rate. For those changes a development branch ```dev``` is created. Development of those changes will be completed in early June. Current development tasks are in [issues](https://github.com/neomerx/json-api/issues). 
+
+If you have spotted any specification changes that are not reflected in this package please post an [issue](https://github.com/neomerx/json-api/issues).
 
 Thank you for your support :star:.
-
-For development a ```dev``` branch is created. Current JSON API specification is updated from time to time and those changes are reflected in this branch. It is merged to ```master``` and released on monthly basis. Current development tasks are in [issues](https://github.com/neomerx/json-api/issues).
 
 ## Install
 
