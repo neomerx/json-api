@@ -83,6 +83,10 @@ class AuthorSchema extends SchemaProvider
 
 Do not hesitate to contact us on [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/neomerx/json-api) or post an [issue](https://github.com/neomerx/json-api/issues).
 
+## Need help?
+
+Are you planning to add JSON API and need help? We'd love to talk to you [sales@neomerx.com](mailto:sales@neomerx.com).
+
 ## Contributing
 
 If you have spotted any specification changes that are not reflected in this package please post an [issue](https://github.com/neomerx/json-api/issues). Pull requests for documentation and code improvements are welcome.
