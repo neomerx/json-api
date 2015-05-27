@@ -20,11 +20,12 @@ use \Mockery;
 use \Mockery\MockInterface;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Responses\Responses;
-use \Neomerx\JsonApi\Parameters\MediaType;
+use \Neomerx\JsonApi\Parameters\Headers\MediaType;
 use \Neomerx\JsonApi\Parameters\SupportedExtensions;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Responses\ResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Integration\NativeResponsesInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 
 /**
@@ -64,7 +65,7 @@ class ResponsesTest extends BaseTestCase
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type']])->andReturn('something');
 
-        $mediaType = new MediaType('some/type');
+        $mediaType = new MediaType('some', 'type');
         $this->assertEquals('something', $this->factory->getResponse(123, $mediaType));
     }
 
@@ -76,7 +77,7 @@ class ResponsesTest extends BaseTestCase
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type;ext="ext1"']])->andReturn('something');
 
-        $mediaType = new MediaType('some/type', 'ext1');
+        $mediaType = new MediaType('some', 'type', [MediaTypeInterface::PARAM_EXT => 'ext1']);
         $this->assertEquals('something', $this->factory->getResponse(123, $mediaType));
     }
 
@@ -89,7 +90,7 @@ class ResponsesTest extends BaseTestCase
             ->withArgs([null, 123, ['Content-Type' => 'some/type;ext="ext1",supported-ext="sup-ext1"']])
             ->andReturn('something');
 
-        $mediaType        = new MediaType('some/type', 'ext1');
+        $mediaType = new MediaType('some', 'type', [MediaTypeInterface::PARAM_EXT => 'ext1']);
         $mockSupportedExt = Mockery::mock(SupportedExtensionsInterface::class);
         $mockSupportedExt->shouldReceive('getExtensions')->once()->withNoArgs()->andReturn('sup-ext1');
 
@@ -106,7 +107,7 @@ class ResponsesTest extends BaseTestCase
             ->withArgs([null, 123, ['Content-Type' => 'some/type;supported-ext="sup-ext1"']])
             ->andReturn('something');
 
-        $mediaType        = new MediaType('some/type');
+        $mediaType = new MediaType('some', 'type');
         $mockSupportedExt = Mockery::mock(SupportedExtensionsInterface::class);
         $mockSupportedExt->shouldReceive('getExtensions')->once()->withNoArgs()->andReturn('sup-ext1');
 
@@ -123,7 +124,7 @@ class ResponsesTest extends BaseTestCase
             ->withArgs([null, 123, ['Content-Type' => 'some/type']])
             ->andReturn('something');
 
-        $mediaType    = new MediaType('some/type');
+        $mediaType = new MediaType('some', 'type');
         $supportedExt = new SupportedExtensions();
 
         $this->assertEquals('something', $this->factory->getResponse(123, $mediaType, null, $supportedExt));
@@ -138,7 +139,7 @@ class ResponsesTest extends BaseTestCase
             ->withArgs(['content', 201, ['Location' => '/resource/123', 'Content-Type' => 'some/type']])
             ->andReturn('something');
 
-        $mediaType = new MediaType('some/type');
+        $mediaType = new MediaType('some', 'type');
 
         /** @var EncoderInterface $encoder */
         $this->assertEquals('something', $this->factory->getCreatedResponse(
@@ -157,7 +158,7 @@ class ResponsesTest extends BaseTestCase
             ->withArgs(['content', 456, ['Content-Type' => 'some/type']])
             ->andReturn('something');
 
-        $mediaType = new MediaType('some/type');
+        $mediaType = new MediaType('some', 'type');
 
         /** @var EncoderInterface $encoder */
         $this->assertEquals('something', $this->factory->getResponse(456, $mediaType, 'content'));

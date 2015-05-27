@@ -58,13 +58,13 @@ interface SchemaProviderInterface
     public function getAttributes($resource);
 
     /**
-     * Get resource's link objects.
+     * Get resource's relationship objects.
      *
      * @param object $resource
      *
      * @return Iterator LinkObjectInterface[]
      */
-    public function getLinkObjectIterator($resource);
+    public function getRelationshipObjectIterator($resource);
 
     /**
      * Get resource meta information.
@@ -101,7 +101,7 @@ interface SchemaProviderInterface
      *
      * @return bool
      */
-    public function isShowLinksInIncluded();
+    public function isShowRelationshipsInIncluded();
 
     /**
      * If 'meta' should be shown for included resources.
@@ -111,11 +111,11 @@ interface SchemaProviderInterface
     public function isShowMetaInIncluded();
 
     /**
-     * If 'meta' should be shown in linkages.
+     * If 'meta' should be shown in relationships.
      *
      * @return bool
      */
-    public function isShowMetaInLinkage();
+    public function isShowMetaInRelationships();
 
     /**
      * Create resource object.

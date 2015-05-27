@@ -54,19 +54,14 @@ class Error implements ErrorInterface
     private $detail;
 
     /**
-     * @var string[]|null
+     * @var mixed|null
      */
-    private $paths;
-
-    /**
-     * @var string[]|null
-     */
-    private $links;
+    private $source;
 
     /**
      * @var array|null
      */
-    private $members;
+    private $meta;
 
     /**
      * @param int|string|null $idx
@@ -75,9 +70,8 @@ class Error implements ErrorInterface
      * @param string|null     $code
      * @param string|null     $title
      * @param string|null     $detail
-     * @param string[]|null   $links
-     * @param string[]|null   $paths
-     * @param array|null      $members Array of additional members in [memberName => memberValue, ...] format
+     * @param array|null      $source
+     * @param array|null      $meta
      */
     public function __construct(
         $idx = null,
@@ -86,9 +80,8 @@ class Error implements ErrorInterface
         $code = null,
         $title = null,
         $detail = null,
-        array $links = null,
-        array $paths = null,
-        array $members = null
+        array $source = null,
+        array $meta = null
     ) {
         assert('$idx === null     || is_int($idx) || is_string($idx)');
         assert('$href === null    || is_string($href)');
@@ -97,19 +90,16 @@ class Error implements ErrorInterface
         assert('$title === null   || is_string($title)');
         assert('$title === null   || is_string($title)');
         assert('$detail === null  || is_string($detail)');
-        assert('$links === null   || is_array($links)');
-        assert('$paths === null   || is_array($paths)');
-        assert('$members === null || is_array($members)');
+        assert('$meta === null    || is_array($meta)');
 
         $this->idx     = $idx;
         $this->href    = $href;
         $this->status  = $status;
         $this->code    = $code;
         $this->title   = $title;
-        $this->paths   = $paths;
-        $this->links   = $links;
+        $this->source  = $source;
         $this->detail  = $detail;
-        $this->members = $members;
+        $this->meta    = $meta;
     }
 
     /**
@@ -163,24 +153,16 @@ class Error implements ErrorInterface
     /**
      * @inheritdoc
      */
-    public function getLinks()
+    public function getSource()
     {
-        return $this->links;
+        return $this->source;
     }
 
     /**
      * @inheritdoc
      */
-    public function getPaths()
+    public function getMeta()
     {
-        return $this->paths;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getAdditionalMembers()
-    {
-        return $this->members;
+        return $this->meta;
     }
 }

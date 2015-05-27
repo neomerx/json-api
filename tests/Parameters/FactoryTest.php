@@ -18,10 +18,12 @@
 
 use \Mockery;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
+use \Neomerx\JsonApi\Parameters\Headers\MediaType;
 use \Neomerx\JsonApi\Parameters\ParametersFactory;
-use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -48,12 +50,13 @@ class FactoryTest extends BaseTestCase
     public function testCreateMediaType()
     {
         $this->assertNotNull($type = $this->factory->createMediaType(
-            $mediaType = 'media/type.abc',
-            $extensions = 'ext1,ext2'
+            $mediaType = 'media',
+            $mediaSubType = 'type.abc',
+            $parameters = ['someKey' => 'ext1,ext2']
         ));
 
-        $this->assertEquals($mediaType, $type->getMediaType());
-        $this->assertEquals($extensions, $type->getExtensions());
+        $this->assertEquals("$mediaType/$mediaSubType", $type->getMediaType());
+        $this->assertEquals($parameters, $type->getParameters());
     }
 
     /**
@@ -61,15 +64,15 @@ class FactoryTest extends BaseTestCase
      */
     public function testCreateParameters()
     {
-        /** @var MediaTypeInterface $inputType */
-        $inputType = Mockery::mock(MediaTypeInterface::class);
-        /** @var MediaTypeInterface $outputType */
-        $outputType = Mockery::mock(MediaTypeInterface::class);
+        /** @var HeaderInterface $contentTypeHeader */
+        $contentTypeHeader = Mockery::mock(HeaderInterface::class);
+        /** @var AcceptHeaderInterface $acceptHeader */
+        $acceptHeader = Mockery::mock(AcceptHeaderInterface::class);
         /** @var SortParameterInterface $sortParam */
         $sortParam = Mockery::mock(SortParameterInterface::class);
         $this->assertNotNull($parameters = $this->factory->createParameters(
-            $inputType,
-            $outputType,
+            $contentTypeHeader,
+            $acceptHeader,
             $includePaths = ['p1', 'p2'],
             $fieldSets = ['s1' => ['value11', 'value12']],
             $sortParameters = [$sortParam],
@@ -77,8 +80,8 @@ class FactoryTest extends BaseTestCase
             $filteringParameters = ['some' => 'filter']
         ));
 
-        $this->assertSame($inputType, $parameters->getInputMediaType());
-        $this->assertSame($outputType, $parameters->getOutputMediaType());
+        $this->assertSame($contentTypeHeader, $parameters->getContentTypeHeader());
+        $this->assertSame($acceptHeader, $parameters->getAcceptHeader());
         $this->assertEquals($includePaths, $parameters->getIncludePaths());
         $this->assertEquals($fieldSets, $parameters->getFieldSets());
         $this->assertEquals($sortParameters, $parameters->getSortParameters());
@@ -133,5 +136,36 @@ class FactoryTest extends BaseTestCase
         ));
 
         $this->assertEquals($extensions, $supported->getExtensions());
+    }
+
+    /**
+     * Test create media type for 'Accept' header.
+     */
+    public function testCreateAcceptMediaType()
+    {
+        $mediaType = $this->factory->createAcceptMediaType(
+            $position = 3,
+            $type = 'type',
+            $subType = 'subType',
+            $parameters = ['param' => 'value'],
+            $quality = 0.7,
+            $extensions = ['extension' => 'value']
+        );
+
+        $this->assertNotNull($mediaType);
+        $this->assertEquals($position, $mediaType->getPosition());
+        $this->assertEquals($type, $mediaType->getType());
+        $this->assertEquals($subType, $mediaType->getSubType());
+        $this->assertEquals($parameters, $mediaType->getParameters());
+        $this->assertEquals($quality, $mediaType->getQuality());
+        $this->assertEquals($extensions, $mediaType->getExtensions());
+    }
+
+    public function testCreateAcceptHeader()
+    {
+        $header = $this->factory->createAcceptHeader([new MediaType('type', 'subType')]);
+        $this->assertNotNull($header);
+        $this->assertCount(1, $header->getMediaTypes());
+        $this->assertEquals('type/subType', $header->getMediaTypes()[0]->getMediaType());
     }
 }

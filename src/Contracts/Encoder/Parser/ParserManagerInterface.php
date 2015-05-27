@@ -25,7 +25,7 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 interface ParserManagerInterface
 {
     /**
-     * If parser should parse links for the resource.
+     * If parser should parse relationships for the resource.
      *
      * @param ResourceObjectInterface $resource
      * @param bool                    $isCircular
@@ -33,7 +33,11 @@ interface ParserManagerInterface
      *
      * @return bool
      */
-    public function isShouldParseLinks(ResourceObjectInterface $resource, $isCircular, StackReadOnlyInterface $stack);
+    public function isShouldParseRelationships(
+        ResourceObjectInterface $resource,
+        $isCircular,
+        StackReadOnlyInterface $stack
+    );
 
     /**
      * Get field set for resource. Required fields will be array keys.

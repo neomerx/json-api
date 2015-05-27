@@ -17,10 +17,10 @@
  */
 
 use \ArrayIterator;
-use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
 
 /**
@@ -110,22 +110,22 @@ class Stack implements StackInterface
     /**
      * @inheritdoc
      */
-    public function setCurrentResourceObject(ResourceObjectInterface $resourceObject)
+    public function setCurrentResource(ResourceObjectInterface $resource)
     {
         /** @var StackFrameInterface $lastFrame */
         $lastFrame = end($this->stack);
         assert('is_null($lastFrame) === false');
-        $lastFrame->setResourceObject($resourceObject);
+        $lastFrame->setResource($resource);
     }
 
     /**
      * @inheritdoc
      */
-    public function setCurrentLinkObject(LinkObjectInterface $linkObject)
+    public function setCurrentRelationship(RelationshipObjectInterface $relationship)
     {
         /** @var StackFrameInterface $lastFrame */
         $lastFrame = end($this->stack);
         assert('is_null($lastFrame) === false');
-        $lastFrame->setLinkObject($linkObject);
+        $lastFrame->setRelationship($relationship);
     }
 }

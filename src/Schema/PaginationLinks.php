@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
 
 /**
@@ -24,38 +25,37 @@ use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
 class PaginationLinks implements PaginationLinksInterface
 {
     /**
-     * @var string|null
+     * @var LinkInterface|null
      */
     private $firstUrl;
 
     /**
-     * @var string|null
+     * @var LinkInterface|null
      */
     private $lastUrl;
 
     /**
-     * @var string|null
+     * @var LinkInterface|null
      */
     private $prevUrl;
 
     /**
-     * @var string|null
+     * @var LinkInterface|null
      */
     private $nextUrl;
 
     /**
-     * @param string|null $firstUrl
-     * @param string|null $lastUrl
-     * @param string|null $prevUrl
-     * @param string|null $nextUrl
+     * @param LinkInterface|null $firstUrl
+     * @param LinkInterface|null $lastUrl
+     * @param LinkInterface|null $prevUrl
+     * @param LinkInterface|null $nextUrl
      */
-    public function __construct($firstUrl = null, $lastUrl = null, $prevUrl = null, $nextUrl = null)
-    {
-        assert('$firstUrl === null || is_string($firstUrl)');
-        assert('$lastUrl  === null || is_string($lastUrl)');
-        assert('$prevUrl  === null || is_string($prevUrl)');
-        assert('$nextUrl  === null || is_string($nextUrl)');
-
+    public function __construct(
+        LinkInterface $firstUrl = null,
+        LinkInterface $lastUrl = null,
+        LinkInterface $prevUrl = null,
+        LinkInterface $nextUrl = null
+    ) {
         $this->firstUrl = $firstUrl;
         $this->lastUrl  = $lastUrl;
         $this->prevUrl  = $prevUrl;

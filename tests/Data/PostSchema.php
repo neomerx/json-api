@@ -55,7 +55,7 @@ class PostSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getLinks($post)
+    public function getRelationships($post)
     {
         assert('$post instanceof '.Post::class);
 

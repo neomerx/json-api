@@ -66,7 +66,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
                 $this->addToData($reply, $current);
                 break;
             case 2:
-                $this->handleLinks($reply, $current, $previous);
+                $this->handleRelationships($reply, $current, $previous);
                 break;
             default:
                 $this->handleIncluded($reply, $current, $previous);
@@ -79,12 +79,12 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      * @param Frame                $current
      * @param Frame                $previous
      */
-    protected function handleLinks(ParserReplyInterface $reply, Frame $current, Frame $previous)
+    protected function handleRelationships(ParserReplyInterface $reply, Frame $current, Frame $previous)
     {
         $this->addToIncludedAndCheckIfParentIsTarget($reply, $current, $previous);
 
-        if ($this->isLinkInFieldSet($current, $previous) === true) {
-            $this->addLinkToData($reply, $current, $previous);
+        if ($this->isRelationshipInFieldSet($current, $previous) === true) {
+            $this->addRelationshipToData($reply, $current, $previous);
         }
     }
 
@@ -96,9 +96,9 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     protected function handleIncluded(ParserReplyInterface $reply, Frame $current, Frame $previous)
     {
         if ($this->addToIncludedAndCheckIfParentIsTarget($reply, $current, $previous) === true &&
-            $this->isLinkInFieldSet($current, $previous) === true
+            $this->isRelationshipInFieldSet($current, $previous) === true
         ) {
-            $this->addLinkToIncluded($reply, $current, $previous);
+            $this->addRelationshipToIncluded($reply, $current, $previous);
         }
     }
 
@@ -136,7 +136,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
                 $this->document->setEmptyData();
                 break;
             case ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED:
-                $this->document->addToData($current->getResourceObject());
+                $this->document->addToData($current->getResource());
                 break;
         }
     }
@@ -150,7 +150,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     private function addToIncluded(ParserReplyInterface $reply, Frame $current)
     {
         if ($reply->getReplyType() === ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED) {
-            $resourceObject = $current->getResourceObject();
+            $resourceObject = $current->getResource();
             $this->document->addToIncluded($resourceObject);
         }
     }
@@ -162,24 +162,24 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      *
      * @return void
      */
-    private function addLinkToData(ParserReplyInterface $reply, Frame $current, Frame $previous)
+    private function addRelationshipToData(ParserReplyInterface $reply, Frame $current, Frame $previous)
     {
-        $link   = $current->getLinkObject();
-        $parent = $previous->getResourceObject();
+        $relationship = $current->getRelationship();
+        $parent       = $previous->getResource();
 
         switch($reply->getReplyType()) {
             case ParserReplyInterface::REPLY_TYPE_REFERENCE_STARTED:
-                assert('$link->isShowAsReference() === true');
-                $this->document->addReferenceToData($parent, $link);
+                assert('$relationship->isShowAsReference() === true');
+                $this->document->addReferenceToData($parent, $relationship);
                 break;
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
-                $this->document->addNullLinkToData($parent, $link);
+                $this->document->addNullRelationshipToData($parent, $relationship);
                 break;
             case ParserReplyInterface::REPLY_TYPE_EMPTY_RESOURCE_STARTED:
-                $this->document->addEmptyLinkToData($parent, $link);
+                $this->document->addEmptyRelationshipToData($parent, $relationship);
                 break;
             case ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED:
-                $this->document->addLinkToData($parent, $link, $current->getResourceObject());
+                $this->document->addRelationshipToData($parent, $relationship, $current->getResource());
                 break;
         }
     }
@@ -191,24 +191,24 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      *
      * @return void
      */
-    private function addLinkToIncluded(ParserReplyInterface $reply, Frame $current, Frame $previous)
+    private function addRelationshipToIncluded(ParserReplyInterface $reply, Frame $current, Frame $previous)
     {
-        $link   = $current->getLinkObject();
-        $parent = $previous->getResourceObject();
+        $relationship = $current->getRelationship();
+        $parent       = $previous->getResource();
 
         switch($reply->getReplyType()) {
             case ParserReplyInterface::REPLY_TYPE_REFERENCE_STARTED:
-                assert('$link->isShowAsReference() === true');
-                $this->document->addReferenceToIncluded($parent, $link);
+                assert('$relationship->isShowAsReference() === true');
+                $this->document->addReferenceToIncluded($parent, $relationship);
                 break;
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
-                $this->document->addNullLinkToIncluded($parent, $link);
+                $this->document->addNullRelationshipToIncluded($parent, $relationship);
                 break;
             case ParserReplyInterface::REPLY_TYPE_EMPTY_RESOURCE_STARTED:
-                $this->document->addEmptyLinkToIncluded($parent, $link);
+                $this->document->addEmptyRelationshipToIncluded($parent, $relationship);
                 break;
             case ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED:
-                $this->document->addLinkToIncluded($parent, $link, $current->getResourceObject());
+                $this->document->addRelationshipToIncluded($parent, $relationship, $current->getResource());
                 break;
         }
     }
@@ -220,7 +220,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     private function setResourceCompleted(Frame $current)
     {
-        $resourceObject = $current->getResourceObject();
+        $resourceObject = $current->getResource();
         $this->document->setResourceCompleted($resourceObject);
     }
 
@@ -230,10 +230,8 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      *
      * @return bool[]
      */
-    private function getIfTargets(
-        Frame $current,
-        Frame $previous = null
-    ) {
+    private function getIfTargets(Frame $current, Frame $previous = null)
+    {
         $parentIsTarget  = ($previous === null || $this->parameters->isPathIncluded($previous->getPath()));
         $currentIsTarget = $this->parameters->isPathIncluded($current->getPath());
 
@@ -241,19 +239,19 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     }
 
     /**
-     * If link from 'parent' to 'current' resource passes field set filter.
+     * If relationship from 'parent' to 'current' resource passes field set filter.
      *
      * @param Frame $current
      * @param Frame $previous
      *
      * @return bool
      */
-    private function isLinkInFieldSet(Frame $current, Frame $previous)
+    private function isRelationshipInFieldSet(Frame $current, Frame $previous)
     {
-        if (($fieldSet = $this->parameters->getFieldSet($previous->getResourceObject()->getType())) === null) {
+        if (($fieldSet = $this->parameters->getFieldSet($previous->getResource()->getType())) === null) {
             return true;
         }
 
-        return (in_array($current->getLinkObject()->getName(), $fieldSet) === true);
+        return (in_array($current->getRelationship()->getName(), $fieldSet) === true);
     }
 }

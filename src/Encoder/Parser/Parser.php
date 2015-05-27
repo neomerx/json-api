@@ -18,10 +18,10 @@
 
 use \Iterator;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
@@ -35,11 +35,11 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
  *   ^^^^
  *     This is 'sparse' JSON API feature and 'fields set' feature (for attributes)
  *
- * Parser does not decide if particular resource or its relations are actually added to final JSON document.
+ * Parser does not decide if particular resource or its relationships are actually added to final JSON document.
  * Parsing reply interpreter does this job. Parser interpreter might not include some intermediate resources
  * that parser has found while reaching targets.
  *   ^^^^
- *     This is 'sparse' JSON API feature again and 'fields set' feature (for links)
+ *     This is 'sparse' JSON API feature again and 'fields set' feature (for relationships)
  *
  * The final JSON view of an element is chosen by document which uses settings to decide if 'self', 'meta', and
  * other members should be rendered.
@@ -47,9 +47,9 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
  *     This is generic JSON API features
  *
  * Once again, it basically works this way:
- *   - Parser finds all targeted relations and outputs them with all intermediate results (looks like a tree).
+ *   - Parser finds all targeted relationships and outputs them with all intermediate results (looks like a tree).
  *     Resource attributes are already filtered.
- *   - Reply interpreter filters intermediate results and resource relations and then send it to document.
+ *   - Reply interpreter filters intermediate results and resource relationships and then send it to document.
  *   - The document is just a renderer which saves the input data in one of a few variations depending on settings.
  *   - When all data are parsed the document converts collected data to json.
  *
@@ -148,21 +148,21 @@ class Parser implements ParserInterface
                 $resourceObject = $schema->createResourceObject($resource, $isOriginallyArrayed, $fieldSet);
                 $isCircular     = $this->checkCircular($resourceObject);
 
-                $this->stack->setCurrentResourceObject($resourceObject);
+                $this->stack->setCurrentResource($resourceObject);
                 yield $this->createReplyResourceStarted();
 
                 if (($isCircular === true && $isDupAllowed === false) ||
-                    $this->shouldParseLinks($resourceObject, $isCircular) === false
+                    $this->shouldParseRelationships($resourceObject, $isCircular) === false
                 ) {
                     continue;
                 }
 
-                foreach ($schema->getLinkObjectIterator($resource) as $linkObject) {
-                    /** @var LinkObjectInterface $linkObject */
+                foreach ($schema->getRelationshipObjectIterator($resource) as $relationship) {
+                    /** @var RelationshipObjectInterface $relationship */
                     $nextFrame = $this->stack->push();
-                    $nextFrame->setLinkObject($linkObject);
+                    $nextFrame->setRelationship($relationship);
                     try {
-                        foreach ($this->parseData($linkObject->getLinkedData()) as $parseResult) {
+                        foreach ($this->parseData($relationship->getData()) as $parseResult) {
                             yield $parseResult;
                         }
                     } finally {
@@ -222,10 +222,10 @@ class Parser implements ParserInterface
      *
      * @return bool
      */
-    private function shouldParseLinks(ResourceObjectInterface $resource, $isCircular)
+    private function shouldParseRelationships(ResourceObjectInterface $resource, $isCircular)
     {
         return $this->manager === null ? true :
-            $this->manager->isShouldParseLinks($resource, $isCircular, $this->stack);
+            $this->manager->isShouldParseRelationships($resource, $isCircular, $this->stack);
     }
 
     /**
@@ -237,7 +237,7 @@ class Parser implements ParserInterface
     {
         foreach ($this->stack as $frame) {
             /** @var StackFrameReadOnlyInterface $frame */
-            if (($stackResource = $frame->getResourceObject()) !== null &&
+            if (($stackResource = $frame->getResource()) !== null &&
                 $stackResource->getId() === $resourceObject->getId() &&
                 $stackResource->getType() === $resourceObject->getType()) {
                 return true;
@@ -253,9 +253,9 @@ class Parser implements ParserInterface
      */
     private function isRefFrame()
     {
-        /** @var LinkObjectInterface $curLinkObject */
-        $curLinkObject = $this->stack->end()->getLinkObject();
-        return ($curLinkObject !== null && $curLinkObject->isShowAsReference() === true);
+        /** @var RelationshipObjectInterface $curRelObject */
+        $curRelObject = $this->stack->end()->getRelationship();
+        return ($curRelObject !== null && $curRelObject->isShowAsReference() === true);
     }
 
     /**

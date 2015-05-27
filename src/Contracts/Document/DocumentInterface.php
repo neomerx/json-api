@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -66,49 +66,49 @@ interface DocumentInterface
     public function setNullData();
 
     /**
-     * Add a link to resource in 'data' section.
+     * Add a relationship to resource in 'data' section.
      *
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $link
-     * @param ResourceObjectInterface $resource
+     * @param ResourceObjectInterface     $parent
+     * @param RelationshipObjectInterface $relationship
+     * @param ResourceObjectInterface     $resource
      *
      * @return void
      */
-    public function addLinkToData(
+    public function addRelationshipToData(
         ResourceObjectInterface $parent,
-        LinkObjectInterface $link,
+        RelationshipObjectInterface $relationship,
         ResourceObjectInterface $resource
     );
 
     /**
      * Add a reference to resource in 'data' section.
      *
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $current
+     * @param ResourceObjectInterface     $parent
+     * @param RelationshipObjectInterface $current
      *
      * @return void
      */
-    public function addReferenceToData(ResourceObjectInterface $parent, LinkObjectInterface $current);
+    public function addReferenceToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current);
 
     /**
-     * Add an empty link to resource in 'data' section.
+     * Add an empty relationship to resource in 'data' section.
      *
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $current
+     * @param ResourceObjectInterface     $parent
+     * @param RelationshipObjectInterface $current
      *
      * @return void
      */
-    public function addEmptyLinkToData(ResourceObjectInterface $parent, LinkObjectInterface $current);
+    public function addEmptyRelationshipToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current);
 
     /**
-     * Add a null link to resource in 'data' section.
+     * Add a null relationship to resource in 'data' section.
      *
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $current
+     * @param ResourceObjectInterface     $parent
+     * @param RelationshipObjectInterface $current
      *
      * @return void
      */
-    public function addNullLinkToData(ResourceObjectInterface $parent, LinkObjectInterface $current);
+    public function addNullRelationshipToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current);
 
     /**
      * Add resource to 'included' section.
@@ -120,52 +120,58 @@ interface DocumentInterface
     public function addToIncluded(ResourceObjectInterface $resource);
 
     /**
-     * Add a link to resource in 'included' section.
+     * Add a relationship to resource in 'included' section.
      *
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $link
-     * @param ResourceObjectInterface $resource
+     * @param ResourceObjectInterface     $parent
+     * @param RelationshipObjectInterface $relationship
+     * @param ResourceObjectInterface     $resource
      *
      * @return void
      */
-    public function addLinkToIncluded(
+    public function addRelationshipToIncluded(
         ResourceObjectInterface $parent,
-        LinkObjectInterface $link,
+        RelationshipObjectInterface $relationship,
         ResourceObjectInterface $resource
     );
 
     /**
      * Add a reference to resource in 'included' section.
      *
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $current
+     * @param ResourceObjectInterface     $parent
+     * @param RelationshipObjectInterface $current
      *
      * @return void
      */
-    public function addReferenceToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current);
+    public function addReferenceToIncluded(ResourceObjectInterface $parent, RelationshipObjectInterface $current);
 
     /**
-     * Add an empty link to resource in 'included' section.
+     * Add an empty relationship to resource in 'included' section.
      *
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $current
+     * @param ResourceObjectInterface     $parent
+     * @param RelationshipObjectInterface $current
      *
      * @return void
      */
-    public function addEmptyLinkToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current);
+    public function addEmptyRelationshipToIncluded(
+        ResourceObjectInterface $parent,
+        RelationshipObjectInterface $current
+    );
 
     /**
-     * Add a null link to resource in 'included' section.
+     * Add a null relationship to resource in 'included' section.
      *
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $current
+     * @param ResourceObjectInterface     $parent
+     * @param RelationshipObjectInterface $current
      *
      * @return void
      */
-    public function addNullLinkToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current);
+    public function addNullRelationshipToIncluded(
+        ResourceObjectInterface $parent,
+        RelationshipObjectInterface $current
+    );
 
     /**
-     * Mark resource as completed (no new links will be added to the resource anymore).
+     * Mark resource as completed (no new relations/links/etc will be added to the resource anymore).
      *
      * @param ResourceObjectInterface $resource
      *
@@ -183,6 +189,13 @@ interface DocumentInterface
      * @return void
      */
     public function addError(ErrorInterface $error);
+
+    /**
+     * Remove 'data' top-level section.
+     *
+     * @return void
+     */
+    public function unsetData();
 
     /**
      * Get document as array.

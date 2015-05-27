@@ -43,6 +43,6 @@ class SchemaTest extends BaseTestCase
 
     public function testGetLinks()
     {
-        $this->assertEmpty($this->schema->getLinks(null));
+        $this->assertEmpty($this->schema->getRelationships(null));
     }
 }

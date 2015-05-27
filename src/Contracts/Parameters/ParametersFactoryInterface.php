@@ -16,6 +16,11 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptMediaTypeInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
@@ -34,18 +39,19 @@ interface ParametersFactoryInterface
     /**
      * Create media type.
      *
-     * @param string      $mediaType
-     * @param string|null $extensions
+     * @param string                    $type
+     * @param string                    $subType
+     * @param array<string,string>|null $parameters
      *
      * @return MediaTypeInterface
      */
-    public function createMediaType($mediaType, $extensions);
+    public function createMediaType($type, $subType, $parameters = null);
 
     /**
      * Create parameters.
      *
-     * @param MediaTypeInterface            $inputType
-     * @param MediaTypeInterface            $outputType
+     * @param HeaderInterface               $contentType
+     * @param AcceptHeaderInterface         $accept
      * @param string[]|null                 $includePaths
      * @param array|null                    $fieldSets
      * @param SortParameterInterface[]|null $sortParameters
@@ -56,8 +62,8 @@ interface ParametersFactoryInterface
      * @return ParametersInterface
      */
     public function createParameters(
-        MediaTypeInterface $inputType,
-        MediaTypeInterface $outputType,
+        HeaderInterface $contentType,
+        AcceptHeaderInterface $accept,
         $includePaths = null,
         array $fieldSets = null,
         $sortParameters = null,
@@ -91,4 +97,34 @@ interface ParametersFactoryInterface
      * @return SupportedExtensionsInterface
      */
     public function createSupportedExtensions($extensions = MediaTypeInterface::NO_EXT);
+
+    /**
+     * Create media type for Accept HTTP header.
+     *
+     * @param int                       $position
+     * @param string                    $type
+     * @param string                    $subType
+     * @param array<string,string>|null $parameters
+     * @param float                     $quality
+     * @param array<string,string>|null $extensions
+     *
+     * @return AcceptMediaTypeInterface
+     */
+    public function createAcceptMediaType(
+        $position,
+        $type,
+        $subType,
+        $parameters = null,
+        $quality = 1.0,
+        $extensions = null
+    );
+
+    /**
+     * Create Accept HTTP header.
+     *
+     * @param AcceptMediaTypeInterface[] $unsortedMediaTypes
+     *
+     * @return AcceptHeaderInterface
+     */
+    public function createAcceptHeader($unsortedMediaTypes);
 }

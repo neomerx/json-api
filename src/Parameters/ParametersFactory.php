@@ -16,8 +16,13 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
+use \Neomerx\JsonApi\Parameters\Headers\MediaType;
+use \Neomerx\JsonApi\Parameters\Headers\AcceptHeader;
+use \Neomerx\JsonApi\Parameters\Headers\AcceptMediaType;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -35,17 +40,17 @@ class ParametersFactory implements ParametersFactoryInterface
     /**
      * @inheritdoc
      */
-    public function createMediaType($mediaType, $extensions)
+    public function createMediaType($type, $subType, $parameters = null)
     {
-        return $extensions === null ? new MediaType($mediaType) : new MediaType($mediaType, $extensions);
+        return new MediaType($type, $subType, $parameters);
     }
 
     /**
      * @inheritdoc
      */
     public function createParameters(
-        MediaTypeInterface $inputType,
-        MediaTypeInterface $outputType,
+        HeaderInterface $contentType,
+        AcceptHeaderInterface $accept,
         $includePaths = null,
         array $fieldSets = null,
         $sortParameters = null,
@@ -54,8 +59,8 @@ class ParametersFactory implements ParametersFactoryInterface
         array $unrecognizedParams = null
     ) {
         return new Parameters(
-            $inputType,
-            $outputType,
+            $contentType,
+            $accept,
             $includePaths,
             $fieldSets,
             $sortParameters,
@@ -87,5 +92,27 @@ class ParametersFactory implements ParametersFactoryInterface
     public function createSupportedExtensions($extensions = MediaTypeInterface::NO_EXT)
     {
         return new SupportedExtensions($extensions);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createAcceptMediaType(
+        $position,
+        $type,
+        $subType,
+        $parameters = null,
+        $quality = 1.0,
+        $extensions = null
+    ) {
+        return new AcceptMediaType($position, $type, $subType, $parameters, $quality, $extensions);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createAcceptHeader($unsortedMediaTypes)
+    {
+        return new AcceptHeader($unsortedMediaTypes);
     }
 }

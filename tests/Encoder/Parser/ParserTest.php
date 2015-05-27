@@ -239,8 +239,8 @@ class ParserTest extends BaseTestCase
     private function replyToArray(ParserReplyInterface $reply)
     {
         $current  = $reply->getStack()->end();
-        $link     = $current->getLinkObject();
-        $resource = $current->getResourceObject();
+        $link     = $current->getRelationship();
+        $resource = $current->getResource();
         return [
             $reply->getReplyType(),
             $current->getLevel(),

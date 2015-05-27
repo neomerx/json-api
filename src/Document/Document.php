@@ -18,10 +18,10 @@
 
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Document\Presenters\ElementPresenter;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -29,33 +29,37 @@ use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 class Document implements DocumentInterface
 {
     /** Reserved keyword */
-    const KEYWORD_LINKS      = 'links';
+    const KEYWORD_LINKS         = 'links';
     /** Reserved keyword */
-    const KEYWORD_SELF       = 'self';
+    const KEYWORD_HREF          = 'href';
     /** Reserved keyword */
-    const KEYWORD_FIRST      = 'first';
+    const KEYWORD_RELATIONSHIPS = 'relationships';
     /** Reserved keyword */
-    const KEYWORD_LAST       = 'last';
+    const KEYWORD_SELF          = 'self';
     /** Reserved keyword */
-    const KEYWORD_NEXT       = 'next';
+    const KEYWORD_FIRST         = 'first';
     /** Reserved keyword */
-    const KEYWORD_PREV       = 'prev';
+    const KEYWORD_LAST          = 'last';
     /** Reserved keyword */
-    const KEYWORD_RELATED    = 'related';
+    const KEYWORD_NEXT          = 'next';
     /** Reserved keyword */
-    const KEYWORD_LINKAGE    = 'linkage';
+    const KEYWORD_PREV          = 'prev';
     /** Reserved keyword */
-    const KEYWORD_TYPE       = 'type';
+    const KEYWORD_RELATED       = 'related';
     /** Reserved keyword */
-    const KEYWORD_ID         = 'id';
+    const KEYWORD_LINKAGE_DATA  = self::KEYWORD_DATA;
     /** Reserved keyword */
-    const KEYWORD_ATTRIBUTES = 'attributes';
+    const KEYWORD_TYPE          = 'type';
     /** Reserved keyword */
-    const KEYWORD_META       = 'meta';
+    const KEYWORD_ID            = 'id';
     /** Reserved keyword */
-    const KEYWORD_DATA       = 'data';
+    const KEYWORD_ATTRIBUTES    = 'attributes';
     /** Reserved keyword */
-    const KEYWORD_INCLUDED   = 'included';
+    const KEYWORD_META          = 'meta';
+    /** Reserved keyword */
+    const KEYWORD_DATA          = 'data';
+    /** Reserved keyword */
+    const KEYWORD_INCLUDED      = 'included';
 
     /** Reserved keyword */
     const KEYWORD_ERRORS        = 'errors';
@@ -72,9 +76,9 @@ class Document implements DocumentInterface
     /** Reserved keyword */
     const KEYWORD_ERRORS_DETAIL = 'detail';
     /** Reserved keyword */
-    const KEYWORD_ERRORS_LINKS  = 'links';
+    const KEYWORD_ERRORS_META   = 'meta';
     /** Reserved keyword */
-    const KEYWORD_ERRORS_PATHS  = 'paths';
+    const KEYWORD_ERRORS_SOURCE = 'source';
 
     /**
      * @var array
@@ -127,6 +131,11 @@ class Document implements DocumentInterface
      * @var ElementPresenter
      */
     private $presenter;
+
+    /**
+     * @var bool
+     */
+    private $showData = true;
 
     /**
      * Constructor.
@@ -204,73 +213,75 @@ class Document implements DocumentInterface
     /**
      * @inheritdoc
      */
-    public function addLinkToData(
+    public function addRelationshipToData(
         ResourceObjectInterface $parent,
-        LinkObjectInterface $link,
+        RelationshipObjectInterface $relationship,
         ResourceObjectInterface $resource
     ) {
-        $this->presenter->addLinkTo($this->bufferForData, $parent, $link, $resource);
+        $this->presenter->addRelationshipTo($this->bufferForData, $parent, $relationship, $resource);
     }
 
     /**
      * @inheritdoc
      */
-    public function addLinkToIncluded(
+    public function addRelationshipToIncluded(
         ResourceObjectInterface $parent,
-        LinkObjectInterface $link,
+        RelationshipObjectInterface $relationship,
         ResourceObjectInterface $resource
     ) {
-        $this->presenter->addLinkTo($this->bufferForIncluded, $parent, $link, $resource);
+        $this->presenter->addRelationshipTo($this->bufferForIncluded, $parent, $relationship, $resource);
     }
 
     /**
      * @inheritdoc
      */
-    public function addReferenceToData(ResourceObjectInterface $parent, LinkObjectInterface $current)
+    public function addReferenceToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
     {
-        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getRelatedSubUrl());
-        $this->presenter->setLinkTo($this->bufferForData, $parent, $current, $url);
+        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getRelatedLink());
+        $this->presenter->setRelationshipTo($this->bufferForData, $parent, $current, $url);
     }
 
     /**
      * @inheritdoc
      */
-    public function addReferenceToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current)
+    public function addReferenceToIncluded(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
     {
-        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getRelatedSubUrl());
-        $this->presenter->setLinkTo($this->bufferForIncluded, $parent, $current, $url);
+        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getRelatedLink());
+        $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $current, $url);
     }
 
     /**
      * @inheritdoc
      */
-    public function addEmptyLinkToData(ResourceObjectInterface $parent, LinkObjectInterface $current)
+    public function addEmptyRelationshipToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
     {
-        $this->presenter->setLinkTo($this->bufferForData, $parent, $current, []);
+        $this->presenter->setRelationshipTo($this->bufferForData, $parent, $current, []);
     }
 
     /**
      * @inheritdoc
      */
-    public function addNullLinkToData(ResourceObjectInterface $parent, LinkObjectInterface $current)
+    public function addNullRelationshipToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
     {
-        $this->presenter->setLinkTo($this->bufferForData, $parent, $current, null);
+        $this->presenter->setRelationshipTo($this->bufferForData, $parent, $current, null);
     }
 
     /**
      * @inheritdoc
      */
-    public function addEmptyLinkToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current)
-    {
-        $this->presenter->setLinkTo($this->bufferForIncluded, $parent, $current, []);
+    public function addEmptyRelationshipToIncluded(
+        ResourceObjectInterface $parent,
+        RelationshipObjectInterface $current
+    ) {
+        $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $current, []);
     }
 
     /**
      * @inheritdoc
      */
-    public function addNullLinkToIncluded(ResourceObjectInterface $parent, LinkObjectInterface $current)
+    public function addNullRelationshipToIncluded(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
     {
-        $this->presenter->setLinkTo($this->bufferForIncluded, $parent, $current, null);
+        $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $current, null);
     }
 
     /**
@@ -285,12 +296,12 @@ class Document implements DocumentInterface
         $foundInIncluded = isset($this->bufferForIncluded[$type][$idx]);
 
         if ($foundInData === true) {
-            $this->data[] = $this->presenter->correctSingleLinks($this->bufferForData[$type][$idx]);
+            $this->data[] = $this->presenter->correctRelationships($this->bufferForData[$type][$idx]);
             unset($this->bufferForData[$type][$idx]);
         }
 
         if ($foundInIncluded === true) {
-            $this->included[] = $this->presenter->correctSingleLinks($this->bufferForIncluded[$type][$idx]);
+            $this->included[] = $this->presenter->correctRelationships($this->bufferForIncluded[$type][$idx]);
             unset($this->bufferForIncluded[$type][$idx]);
         }
     }
@@ -313,10 +324,22 @@ class Document implements DocumentInterface
             return $value !== null;
         });
 
-        $isDataNotArray = ($this->isDataArrayed === false && empty($this->data) === false);
-        $document[self::KEYWORD_DATA] = ($isDataNotArray ? $this->data[0] : $this->data);
+        if ($this->showData === true) {
+            $isDataNotArray               = ($this->isDataArrayed === false && empty($this->data) === false);
+            $document[self::KEYWORD_DATA] = ($isDataNotArray ? $this->data[0] : $this->data);
+        } else {
+            unset($document[self::KEYWORD_DATA]);
+        }
 
         return $document;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function unsetData()
+    {
+        $this->showData = false;
     }
 
     /**
@@ -333,16 +356,11 @@ class Document implements DocumentInterface
             self::KEYWORD_ERRORS_CODE   => $error->getCode(),
             self::KEYWORD_ERRORS_TITLE  => $error->getTitle(),
             self::KEYWORD_ERRORS_DETAIL => $error->getDetail(),
-            self::KEYWORD_ERRORS_LINKS  => $error->getLinks(),
-            self::KEYWORD_ERRORS_PATHS  => $error->getPaths(),
+            self::KEYWORD_ERRORS_SOURCE => $error->getSource(),
+            self::KEYWORD_ERRORS_META   => $error->getMeta(),
         ], function ($value) {
             return $value !== null;
         });
-
-        $members = $error->getAdditionalMembers();
-        if (empty($members) === false) {
-            $representation += $members;
-        }
 
         $this->errors[] = $representation;
     }

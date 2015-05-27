@@ -19,9 +19,9 @@
 use \Mockery;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Encoder\Factory\EncoderFactory;
-use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -34,7 +34,7 @@ class StackTest extends BaseTestCase
     private $stack;
 
     /**
-     * @var LinkObjectInterface
+     * @var RelationshipObjectInterface
      */
     private $mockLinkObject;
 
@@ -51,7 +51,7 @@ class StackTest extends BaseTestCase
         parent::setUp();
 
         $this->stack              = (new EncoderFactory())->createStack();
-        $this->mockLinkObject     = Mockery::mock(LinkObjectInterface::class);
+        $this->mockLinkObject     = Mockery::mock(RelationshipObjectInterface::class);
         $this->mockResourceObject = Mockery::mock(ResourceObjectInterface::class);
 
         $this->mockLinkObject->shouldReceive('getName')->zeroOrMoreTimes()->withAnyArgs()->andReturn('someName');
@@ -85,21 +85,21 @@ class StackTest extends BaseTestCase
         $this->stack->push();
         $this->assertEquals(1, $this->stack->count());
         $this->assertEquals(1, $this->stack->end()->getLevel());
-        $this->assertNull($this->stack->end()->getResourceObject());
-        $this->assertNull($this->stack->end()->getLinkObject());
+        $this->assertNull($this->stack->end()->getResource());
+        $this->assertNull($this->stack->end()->getRelationship());
 
-        $this->stack->setCurrentResourceObject($this->mockResourceObject);
-        $this->assertSame($this->mockResourceObject, $this->stack->end()->getResourceObject());
+        $this->stack->setCurrentResource($this->mockResourceObject);
+        $this->assertSame($this->mockResourceObject, $this->stack->end()->getResource());
         $this->assertNull($this->stack->penult());
 
         $frame2 = $this->stack->push();
-        $this->stack->setCurrentLinkObject($this->mockLinkObject);
-        $this->assertSame($this->mockLinkObject, $this->stack->end()->getLinkObject());
+        $this->stack->setCurrentRelationship($this->mockLinkObject);
+        $this->assertSame($this->mockLinkObject, $this->stack->end()->getRelationship());
         $this->assertEquals(2, $this->stack->count());
         $this->assertEquals(2, $this->stack->end()->getLevel());
         $this->assertSame($frame2, $this->stack->end());
-        $this->assertNull($this->stack->end()->getResourceObject());
-        $this->assertSame($this->mockLinkObject, $this->stack->end()->getLinkObject());
+        $this->assertNull($this->stack->end()->getResource());
+        $this->assertSame($this->mockLinkObject, $this->stack->end()->getRelationship());
         $this->stack->pop();
         $this->assertNull($this->stack->penult());
     }

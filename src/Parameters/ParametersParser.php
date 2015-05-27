@@ -16,11 +16,15 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
+use \InvalidArgumentException;
+use \Neomerx\JsonApi\Parameters\Headers\Header;
+use \Neomerx\JsonApi\Parameters\Headers\AcceptHeader;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
 
 /**
@@ -28,15 +32,6 @@ use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
  */
 class ParametersParser implements ParametersParserInterface
 {
-    /** Header name that contains format of output data from client */
-    const HEADER_ACCEPT = 'Accept';
-
-    /** Header name that contains format of input data from client */
-    const HEADER_CONTENT_TYPE = 'Content-Type';
-
-    /** Header parameter name that contains format extension names */
-    const HEADER_PARAM_EXT = 'ext';
-
     /** Parameter name */
     const PARAM_INCLUDE = 'include';
 
@@ -77,13 +72,39 @@ class ParametersParser implements ParametersParserInterface
     {
         $this->exceptionThrower = $exceptionThrower;
 
-        $contentTypeHeader = $request->getHeader(self::HEADER_CONTENT_TYPE);
-        $acceptHeader      = $request->getHeader(self::HEADER_ACCEPT);
-        $parameters        = $request->getQueryParameters();
+        $acceptHeader      = null;
+        $contentTypeHeader = null;
+
+        try {
+            $contentTypeHeader = Header::parse(
+                $request->getHeader(HeaderInterface::HEADER_CONTENT_TYPE),
+                HeaderInterface::HEADER_CONTENT_TYPE
+            );
+        } catch (InvalidArgumentException $exception) {
+            $this->exceptionThrower->throwBadRequest();
+        }
+
+        try {
+            $headerString = $request->getHeader(HeaderInterface::HEADER_ACCEPT);
+            if (empty($headerString) === false) {
+                $acceptHeader = AcceptHeader::parse($headerString);
+            } else {
+                $jsonMediaType = $this->factory->createAcceptMediaType(
+                    0,
+                    MediaTypeInterface::JSON_API_TYPE,
+                    MediaTypeInterface::JSON_API_SUB_TYPE
+                );
+                $acceptHeader = $this->factory->createAcceptHeader([$jsonMediaType]);
+            }
+        } catch (InvalidArgumentException $exception) {
+            $this->exceptionThrower->throwBadRequest();
+        }
+
+        $parameters = $request->getQueryParameters();
 
         return $this->factory->createParameters(
-            $this->createMediaType($contentTypeHeader),
-            $this->createMediaType($acceptHeader),
+            $contentTypeHeader,
+            $acceptHeader,
             $this->getIncludePaths($parameters),
             $this->getFieldSets($parameters),
             $this->getSortParameters($parameters),
@@ -91,84 +112,6 @@ class ParametersParser implements ParametersParserInterface
             $this->getFilteringParameters($parameters),
             $this->getUnrecognizedParameters($parameters)
         );
-    }
-
-    /**
-     * @param string $header
-     * @param string $parameterName
-     *
-     * @return array
-     */
-    protected function parseHeader($header, $parameterName)
-    {
-        $regexp = '/^'.
-            '([^;]*)\;?'. // Match everything until ';'. The semicolon at the end is optional.
-            '(?:'.        // In this non-capturing group try to find parameter or match anything
-
-            // here we skip anything until we find parameter we want followed by '="' with possible spaces and
-            // then capture everything until closing '"' then we skip all the rest ("s are optional)
-            '.*?(?:'.$parameterName.'\s*=\s*(?|\"([^\"]*)\"|([^\s\",]*))).*'. // capture value in paramName = "..."
-            // skip spaces and = from^   to^     ^      ^   ^         ^
-            // capture value in "..." ___________|______|   |         |
-            // or capture not in "s ________________________|_________| (take all till space, " or ,)
-
-            // Thus the following formats are supported
-            // 1) value
-            // 2) value;
-            // 3) value; ... param = paramValue ... (with or without spaces)
-            // 4) value; ... param = "paramValue, ..." ... (with or without spaces)
-            // Yes, I love regex too. Mostly for writing comments to them.
-
-            '|'. // or
-            '.*' // if not found then match anything but capture nothing
-
-            .')'.
-            '$/';
-
-        $value      = null;
-        $paramValue = null;
-        if (preg_match($regexp, $header, $matches) === 1) {
-            $value = $matches[1];
-            isset($matches[2]) === false ?: $paramValue = $matches[2];
-        }
-
-        return [$value, $paramValue];
-    }
-
-    /**
-     * @param $header
-     *
-     * @return MediaTypeInterface
-     */
-    protected function createMediaType($header)
-    {
-        list($mediaType, $typeExtensions) = $this->parseHeader($header, self::HEADER_PARAM_EXT);
-
-        $mediaType = trim($mediaType);
-        $typeExtensions === null ?: $typeExtensions = rtrim(str_replace(' ', '', $typeExtensions), ',');
-
-        return $this->factory->createMediaType($mediaType, $typeExtensions);
-    }
-
-    /**
-     * @param array $parameters
-     *
-     * @return SortParameterInterface[]|null
-     */
-    protected function getSortParameters(array $parameters)
-    {
-        $sortParams = null;
-        $sortParam  = $this->getParamOrNull($parameters, self::PARAM_SORT);
-        if ($sortParam !== null) {
-            foreach (explode(',', $sortParam) as $param) {
-                $isDesc = false;
-                empty($param) === false ? $isDesc = ($param[0] === '-') : $this->exceptionThrower->throwBadRequest();
-                $sortField = ltrim($param, '+-');
-                empty($sortField) === false ?: $this->exceptionThrower->throwBadRequest();
-                $sortParams[] = $this->factory->createSortParam($sortField, $isDesc === false);
-            }
-        }
-        return $sortParams;
     }
 
     /**
@@ -200,6 +143,27 @@ class ParametersParser implements ParametersParserInterface
         }
 
         return $result;
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return SortParameterInterface[]|null
+     */
+    protected function getSortParameters(array $parameters)
+    {
+        $sortParams = null;
+        $sortParam  = $this->getParamOrNull($parameters, self::PARAM_SORT);
+        if ($sortParam !== null) {
+            foreach (explode(',', $sortParam) as $param) {
+                $isDesc = false;
+                empty($param) === false ? $isDesc = ($param[0] === '-') : $this->exceptionThrower->throwBadRequest();
+                $sortField = ltrim($param, '+-');
+                empty($sortField) === false ?: $this->exceptionThrower->throwBadRequest();
+                $sortParams[] = $this->factory->createSortParam($sortField, $isDesc === false);
+            }
+        }
+        return $sortParams;
     }
 
     /**

@@ -16,24 +16,27 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
 interface ParametersInterface extends EncodingParametersInterface
 {
     /**
-     * Get media type of input data.
+     * Get get 'Content-Type' header.
      *
-     * @return MediaTypeInterface
+     * @return HeaderInterface
      */
-    public function getInputMediaType();
+    public function getContentTypeHeader();
 
     /**
-     * Get requested media type for output data.
+     * Get 'Accept' header.
      *
-     * @return MediaTypeInterface
+     * @return AcceptHeaderInterface
      */
-    public function getOutputMediaType();
+    public function getAcceptHeader();
 
     /**
      * Get sort parameters.

@@ -46,6 +46,11 @@ abstract class DevSchemaProvider extends SchemaProvider
     private $includePaths = [];
 
     /**
+     * @var array
+     */
+    private $relationshipMeta;
+
+    /**
      * Add to 'add to link' list.
      *
      * @param string $name
@@ -108,6 +113,14 @@ abstract class DevSchemaProvider extends SchemaProvider
     }
 
     /**
+     * @param array $relationshipMeta
+     */
+    public function setRelationshipMeta($relationshipMeta)
+    {
+        $this->relationshipMeta = $relationshipMeta;
+    }
+
+    /**
      * Add/remove values in input array.
      *
      * @param array $links
@@ -125,5 +138,18 @@ abstract class DevSchemaProvider extends SchemaProvider
         foreach ($this->linkRemove as $key) {
             unset($links[$key]);
         }
+    }
+
+    /**
+     * @param string $relationshipName
+     * @param array  $description
+     * @param mixed  $relationshipData
+     * @param null   $meta
+     *
+     * @return \Neomerx\JsonApi\Contracts\Schema\LinkInterface
+     */
+    protected function getSelfLink($relationshipName, array $description, $relationshipData, $meta = null)
+    {
+        return parent::getSelfLink($relationshipName, $description, $relationshipData, $this->relationshipMeta);
     }
 }

@@ -20,10 +20,9 @@ use \Mockery;
 use \Mockery\MockInterface;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Parameters\ParametersFactory;
-use \Neomerx\JsonApi\Contracts\Codec\CodecContainerInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
@@ -32,7 +31,7 @@ use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 class ParameterParserTest extends BaseTestCase
 {
     /** JSON API type */
-    const TYPE = CodecContainerInterface::JSON_API_TYPE;
+    const TYPE = MediaTypeInterface::JSON_API_MEDIA_TYPE;
 
     /**
      * @var ParametersParserInterface
@@ -71,10 +70,14 @@ class ParameterParserTest extends BaseTestCase
             $this->prepareExceptions()
         );
 
-        $this->assertEquals(self::TYPE, $parameters->getInputMediaType()->getMediaType());
-        $this->assertEquals(self::TYPE, $parameters->getOutputMediaType()->getMediaType());
-        $this->assertEquals(MediaTypeInterface::NO_EXT, $parameters->getInputMediaType()->getExtensions());
-        $this->assertEquals(MediaTypeInterface::NO_EXT, $parameters->getOutputMediaType()->getExtensions());
+        $this->assertCount(1, $parameters->getContentTypeHeader()->getMediaTypes());
+        $this->assertNotNull($contentType = $parameters->getContentTypeHeader()->getMediaTypes()[0]);
+        $this->assertEquals(self::TYPE, $contentType->getMediaType());
+        $this->assertCount(1, $parameters->getAcceptHeader()->getMediaTypes());
+        $this->assertNotNull($accept = $parameters->getAcceptHeader()->getMediaTypes()[0]);
+        $this->assertEquals(self::TYPE, $accept->getMediaType());
+        $this->assertNull($contentType->getParameters());
+        $this->assertNull($accept->getParameters());
 
         $this->assertNull($parameters->getFieldSets());
         $this->assertNull($parameters->getIncludePaths());
@@ -125,6 +128,8 @@ class ParameterParserTest extends BaseTestCase
 
     /**
      * Test miss field in sort params.
+     *
+     * @expectedException \Exception
      */
     public function testSendIncorrectSortParams()
     {
@@ -147,10 +152,10 @@ class ParameterParserTest extends BaseTestCase
             $this->prepareExceptions()
         );
 
-        $this->assertEquals(self::TYPE, $parameters->getInputMediaType()->getMediaType());
-        $this->assertEquals(self::TYPE, $parameters->getOutputMediaType()->getMediaType());
-        $this->assertEquals(MediaTypeInterface::NO_EXT, $parameters->getInputMediaType()->getExtensions());
-        $this->assertEquals(MediaTypeInterface::NO_EXT, $parameters->getOutputMediaType()->getExtensions());
+        $this->assertEquals(self::TYPE, $parameters->getContentTypeHeader()->getMediaTypes()[0]->getMediaType());
+        $this->assertEquals(self::TYPE, $parameters->getAcceptHeader()->getMediaTypes()[0]->getMediaType());
+        $this->assertNull($parameters->getContentTypeHeader()->getMediaTypes()[0]->getParameters());
+        $this->assertNull($parameters->getAcceptHeader()->getMediaTypes()[0]->getParameters());
     }
 
     /**
@@ -163,10 +168,13 @@ class ParameterParserTest extends BaseTestCase
             $this->prepareExceptions()
         );
 
-        $this->assertEquals(self::TYPE, $parameters->getInputMediaType()->getMediaType());
-        $this->assertEquals(self::TYPE, $parameters->getOutputMediaType()->getMediaType());
-        $this->assertEquals('ext1,ext2', $parameters->getInputMediaType()->getExtensions());
-        $this->assertEquals('ext1', $parameters->getOutputMediaType()->getExtensions());
+        $contentType = $parameters->getContentTypeHeader();
+        $accept = $parameters->getAcceptHeader();
+
+        $this->assertEquals(self::TYPE, $contentType->getMediaTypes()[0]->getMediaType());
+        $this->assertEquals(self::TYPE, $accept->getMediaTypes()[0]->getMediaType());
+        $this->assertEquals(['ext' => 'ext1,ext2'], $contentType->getMediaTypes()[0]->getParameters());
+        $this->assertEquals(['ext' => 'ext1'], $accept->getMediaTypes()[0]->getParameters());
     }
 
     /**
@@ -176,17 +184,26 @@ class ParameterParserTest extends BaseTestCase
     {
         $parameters = $this->parser->parse(
             $this->prepareRequest(
-                self::TYPE . ' ;  boo = foo, ext="ext1,ext2",  boo = foo ',
-                self::TYPE . ' ; boo = foo, ext=ext1,  boo = foo',
+                self::TYPE . ' ;  boo = foo; ext="ext1,ext2";  foo = boo ',
+                self::TYPE . ' ; boo = foo; ext=ext1;  foo = boo',
                 []
             ),
             $this->prepareExceptions()
         );
 
-        $this->assertEquals(self::TYPE, $parameters->getInputMediaType()->getMediaType());
-        $this->assertEquals(self::TYPE, $parameters->getOutputMediaType()->getMediaType());
-        $this->assertEquals('ext1', $parameters->getOutputMediaType()->getExtensions());
-        $this->assertEquals('ext1,ext2', $parameters->getInputMediaType()->getExtensions());
+        $contentType = $parameters->getContentTypeHeader();
+        $accept = $parameters->getAcceptHeader();
+
+        $this->assertEquals(self::TYPE, $contentType->getMediaTypes()[0]->getMediaType());
+        $this->assertEquals(self::TYPE, $accept->getMediaTypes()[0]->getMediaType());
+        $this->assertEquals(
+            ['boo' => 'foo', 'ext' => 'ext1,ext2', 'foo' => 'boo'],
+            $contentType->getMediaTypes()[0]->getParameters()
+        );
+        $this->assertEquals(
+            ['boo' => 'foo', 'ext' => 'ext1', 'foo' => 'boo'],
+            $accept->getMediaTypes()[0]->getParameters()
+        );
     }
 
     /**
@@ -207,17 +224,69 @@ class ParameterParserTest extends BaseTestCase
     }
 
     /**
+     * Test parse headers when 'Accept' header is not given.
+     */
+    public function testParseWithEmptyAcceptHeader()
+    {
+        $parameters = $this->parser->parse(
+            $this->prepareRequest(self::TYPE, '', []),
+            $this->prepareExceptions()
+        );
+
+        $accept = $parameters->getAcceptHeader();
+        $this->assertCount(1, $accept->getMediaTypes());
+        $this->assertEquals(self::TYPE, $accept->getMediaTypes()[0]->getMediaType());
+    }
+
+    /**
+     * Test parse invalid headers.
+     *
+     * @expectedException \Exception
+     */
+    public function testParseIvalidHeaders1()
+    {
+        $this->parser->parse(
+            $this->prepareRequest(self::TYPE.';foo', self::TYPE, [], 1, 0, 0),
+            $this->prepareExceptions('throwBadRequest')
+        );
+    }
+
+    /**
+     * Test parse invalid headers.
+     *
+     * @expectedException \Exception
+     */
+    public function testParseIvalidHeaders2()
+    {
+        $this->parser->parse(
+            $this->prepareRequest(self::TYPE, self::TYPE.';foo', [], 1, 1, 0),
+            $this->prepareExceptions('throwBadRequest')
+        );
+    }
+
+    /**
      * @param string $contentType
      * @param string $accept
      * @param array  $input
+     * @param int    $contentTypeTimes
+     * @param int    $acceptTimes
+     * @param int    $parametersTimes
      *
      * @return CurrentRequestInterface
      */
-    private function prepareRequest($contentType, $accept, array $input)
-    {
-        $this->mockRequest->shouldReceive('getHeader')->with('Content-Type')->once()->andReturn($contentType);
-        $this->mockRequest->shouldReceive('getHeader')->with('Accept')->once()->andReturn($accept);
-        $this->mockRequest->shouldReceive('getQueryParameters')->withNoArgs()->once()->andReturn($input);
+    private function prepareRequest(
+        $contentType,
+        $accept,
+        array $input,
+        $contentTypeTimes = 1,
+        $acceptTimes = 1,
+        $parametersTimes = 1
+    ) {
+        $this->mockRequest->shouldReceive('getHeader')->with('Content-Type')
+            ->times($contentTypeTimes)->andReturn($contentType);
+        $this->mockRequest->shouldReceive('getHeader')->with('Accept')->times($acceptTimes)->andReturn($accept);
+        $this->mockRequest->shouldReceive('getQueryParameters')
+            ->withNoArgs()->times($parametersTimes)->andReturn($input);
 
         /** @var CurrentRequestInterface $request */
         $request = $this->mockRequest;
@@ -233,7 +302,7 @@ class ParameterParserTest extends BaseTestCase
     private function prepareExceptions($exceptionMethod = null)
     {
         if ($exceptionMethod !== null) {
-            $this->mockThrower->shouldReceive($exceptionMethod)->atLeast(1)->withNoArgs()->andReturnUndefined();
+            $this->mockThrower->shouldReceive($exceptionMethod)->atLeast(1)->withNoArgs()->andThrow(new \Exception());
         }
 
         /** @var ExceptionThrowerInterface $exceptions */

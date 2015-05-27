@@ -42,10 +42,13 @@ class ParserManager implements ParserManagerInterface
     /**
      * @inheritdoc
      */
-    public function isShouldParseLinks(ResourceObjectInterface $resource, $isCircular, StackReadOnlyInterface $stack)
-    {
-        list($onTheWay, $parentIsTarget)= $this->foundInPaths($stack);
-        $shouldContinue = $onTheWay || ($parentIsTarget && $resource->isShowLinksInIncluded());
+    public function isShouldParseRelationships(
+        ResourceObjectInterface $resource,
+        $isCircular,
+        StackReadOnlyInterface $stack
+    ) {
+        list($onTheWay, $parentIsTarget) = $this->foundInPaths($stack);
+        $shouldContinue = $onTheWay || ($parentIsTarget && $resource->isShowRelationshipsInIncluded());
         return $shouldContinue;
     }
 
@@ -67,21 +70,11 @@ class ParserManager implements ParserManagerInterface
     {
         if ($stack->count() < 2) {
             // top level, no resources ware started to parse yet
-            return [true, false];
-        }
-
-        $onTheWay       = true;
-        $parentIsTarget = $this->parameters->isPathIncluded($stack->penult()->getPath());
-
-        if (($includePaths = $this->parameters->getIncludePaths()) !== null) {
-            $onTheWay = false;
-            $path     = $stack->end()->getPath();
-            foreach ($includePaths as $targetPath) {
-                if (strpos($targetPath, $path) === 0) {
-                    $onTheWay = true;
-                    break;
-                }
-            }
+            $onTheWay       = true;
+            $parentIsTarget = false;
+        } else {
+            $onTheWay       = $this->parameters->hasMatchWithIncludedPaths($stack->end()->getPath());
+            $parentIsTarget = $this->parameters->isPathIncluded($stack->penult()->getPath());
         }
 
         return [$onTheWay, $parentIsTarget];

@@ -19,16 +19,16 @@
 use \Closure;
 use \Neomerx\JsonApi\Contracts\Decoder\DecoderInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptMediaTypeInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-interface CodecContainerInterface
+interface CodecMatcherInterface
 {
-    /** JSON API type */
-    const JSON_API_TYPE = 'application/vnd.api+json';
-
     /**
      * Register encoder.
      *
@@ -52,36 +52,60 @@ interface CodecContainerInterface
     /**
      * Get encoder.
      *
-     * @param MediaTypeInterface $mediaType
-     *
      * @return EncoderInterface|null
      */
-    public function getEncoder(MediaTypeInterface $mediaType);
+    public function getEncoder();
 
     /**
      * Get decoder.
-     *
-     * @param MediaTypeInterface $mediaType
      *
      * @return DecoderInterface|null
      */
-    public function getDecoder(MediaTypeInterface $mediaType);
+    public function getDecoder();
 
     /**
-     * Get encoder.
+     * Find best encoder match for 'Accept' header.
      *
-     * @param MediaTypeInterface $mediaType
+     * @param AcceptHeaderInterface $acceptHeader
      *
-     * @return bool
+     * @return void
      */
-    public function isEncoderRegistered(MediaTypeInterface $mediaType);
+    public function matchEncoder(AcceptHeaderInterface $acceptHeader);
 
     /**
-     * Get decoder.
+     * Find best decoder match for 'Content-Type' header.
      *
-     * @param MediaTypeInterface $mediaType
+     * @param HeaderInterface $contentTypeHeader
      *
-     * @return bool
+     * @return void
      */
-    public function isDecoderRegistered(MediaTypeInterface $mediaType);
+    public function findDecoder(HeaderInterface $contentTypeHeader);
+
+    /**
+     * Get media type from 'Accept' header that matched to one of the registered encoder media types.
+     *
+     * @return AcceptMediaTypeInterface|null
+     */
+    public function getEncoderHeaderMatchedType();
+
+    /**
+     * Get media type that was registered for matched encoder.
+     *
+     * @return MediaTypeInterface|null
+     */
+    public function getEncoderRegisteredMatchedType();
+
+    /**
+     * Get media type from 'Content-Type' header that matched to one of the registered decoder media types.
+     *
+     * @return MediaTypeInterface|null
+     */
+    public function getDecoderHeaderMatchedType();
+
+    /**
+     * Get media type that was registered for matched decoder.
+     *
+     * @return MediaTypeInterface|null
+     */
+    public function getDecoderRegisteredMatchedType();
 }

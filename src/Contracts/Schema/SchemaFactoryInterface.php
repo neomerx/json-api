@@ -42,9 +42,9 @@ interface SchemaFactoryInterface
      * @param bool   $isShowSelf
      * @param bool   $isShowMeta
      * @param bool   $isShowSelfInIncluded
-     * @param bool   $isShowLinksInIncluded
+     * @param bool   $isShowRelShipsInIncluded
      * @param bool   $isShowMetaInIncluded
-     * @param bool   $isShowMetaInLinkage
+     * @param bool   $isShowMetaInRlShips
      *
      * @return ResourceObjectInterface
      */
@@ -58,37 +58,37 @@ interface SchemaFactoryInterface
         $isShowSelf,
         $isShowMeta,
         $isShowSelfInIncluded,
-        $isShowLinksInIncluded,
+        $isShowRelShipsInIncluded,
         $isShowMetaInIncluded,
-        $isShowMetaInLinkage
+        $isShowMetaInRlShips
     );
 
     /**
-     * Create link object.
+     * Create relationship object.
      *
      * @param string                        $name
      * @param object|array|null             $data
-     * @param string|null                   $selfSubUrl
-     * @param string|null                   $relatedSubUrl
+     * @param LinkInterface                 $selfLink
+     * @param LinkInterface                 $relatedLink
      * @param bool                          $isShowAsRef
      * @param bool                          $isShowSelf
      * @param bool                          $isShowRelated
-     * @param bool                          $isShowLinkage
+     * @param bool                          $isShowData
      * @param bool                          $isShowMeta
      * @param bool                          $isShowPagination
      * @param PaginationLinksInterface|null $pagination
      *
-     * @return LinkObjectInterface
+     * @return RelationshipObjectInterface
      */
-    public function createLinkObject(
+    public function createRelationshipObject(
         $name,
         $data,
-        $selfSubUrl,
-        $relatedSubUrl,
+        LinkInterface $selfLink,
+        LinkInterface $relatedLink,
         $isShowAsRef,
         $isShowSelf,
         $isShowRelated,
-        $isShowLinkage,
+        $isShowData,
         $isShowMeta,
         $isShowPagination,
         $pagination
@@ -97,12 +97,27 @@ interface SchemaFactoryInterface
     /**
      * Create pagination links.
      *
-     * @param string|null $firstUrl
-     * @param string|null $lastUrl
-     * @param string|null $prevUrl
-     * @param string|null $nextUrl
+     * @param LinkInterface|null $firstUrl
+     * @param LinkInterface|null $lastUrl
+     * @param LinkInterface|null $prevUrl
+     * @param LinkInterface|null $nextUrl
      *
      * @return PaginationLinksInterface
      */
-    public function createPaginationLinks($firstUrl = null, $lastUrl = null, $prevUrl = null, $nextUrl = null);
+    public function createPaginationLinks(
+        LinkInterface $firstUrl = null,
+        LinkInterface $lastUrl = null,
+        LinkInterface $prevUrl = null,
+        LinkInterface $nextUrl = null
+    );
+
+    /**
+     * Create link.
+     *
+     * @param string            $subHref
+     * @param array|object|null $meta
+     *
+     * @return LinkInterface
+     */
+    public function createLink($subHref, $meta = null);
 }

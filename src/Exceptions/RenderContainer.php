@@ -19,14 +19,14 @@
 use \Closure;
 use \Exception;
 use \Neomerx\JsonApi\Encoder\Encoder;
-use Neomerx\JsonApi\Encoder\JsonEncodeOptions;
 use \Neomerx\JsonApi\Responses\Responses;
-use \Neomerx\JsonApi\Parameters\MediaType;
+use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Responses\ResponsesInterface;
-use \Neomerx\JsonApi\Contracts\Codec\CodecContainerInterface;
 use \Neomerx\JsonApi\Contracts\Exceptions\RenderContainerInterface;
 use \Neomerx\JsonApi\Contracts\Integration\NativeResponsesInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 
 /**
@@ -53,16 +53,26 @@ class RenderContainer implements RenderContainerInterface
      * @var int
      */
     private $defaultStatusCode;
+    /**
+     * @var ParametersFactoryInterface
+     */
+    private $factory;
 
     /**
-     * @param NativeResponsesInterface $responses
-     * @param Closure                  $extensionsClosure Closure returns extensions for the current request/controller.
-     * @param int                      $defaultStatusCode Default status code for unknown exceptions.
+     * @param ParametersFactoryInterface $factory
+     * @param NativeResponsesInterface   $responses
+     * @param Closure                    $extensionsClosure Returns extensions for the current request/controller.
+     * @param int                        $defaultStatusCode Default status code for unknown exceptions.
      */
-    public function __construct(NativeResponsesInterface $responses, Closure $extensionsClosure, $defaultStatusCode)
-    {
+    public function __construct(
+        ParametersFactoryInterface $factory,
+        NativeResponsesInterface $responses,
+        Closure $extensionsClosure,
+        $defaultStatusCode
+    ) {
         assert('is_int($defaultStatusCode) && $defaultStatusCode >= 500 && $defaultStatusCode < 600');
 
+        $this->factory           = $factory;
         $this->responses         = new Responses($responses);
         $this->extensionsClosure = $extensionsClosure;
         $this->defaultStatusCode = $defaultStatusCode;
@@ -134,7 +144,10 @@ class RenderContainer implements RenderContainerInterface
             $supportedExtensions = $extensionsClosure();
 
             $content   = null;
-            $mediaType = new MediaType(CodecContainerInterface::JSON_API_TYPE);
+            $mediaType = $this->factory->createMediaType(
+                MediaTypeInterface::JSON_API_TYPE,
+                MediaTypeInterface::JSON_API_SUB_TYPE
+            );
 
             return $this->responses->getResponse($statusCode, $mediaType, $content, $supportedExtensions);
         };
@@ -161,7 +174,10 @@ class RenderContainer implements RenderContainerInterface
             $supportedExtensions = $extensionsClosure();
 
             $content   = Encoder::instance([], $encodeOptions)->errors($errors);
-            $mediaType = new MediaType(CodecContainerInterface::JSON_API_TYPE);
+            $mediaType = $this->factory->createMediaType(
+                MediaTypeInterface::JSON_API_TYPE,
+                MediaTypeInterface::JSON_API_SUB_TYPE
+            );
 
             return $this->responses->getResponse($statusCode, $mediaType, $content, $supportedExtensions);
         };

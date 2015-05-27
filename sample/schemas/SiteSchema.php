@@ -40,7 +40,7 @@ class SiteSchema extends SchemaProvider
         ];
     }
 
-    public function getLinks($site)
+    public function getRelationships($site)
     {
         /** @var Site $site */
         return [

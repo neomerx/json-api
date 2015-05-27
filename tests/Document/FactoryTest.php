@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Document\DocumentFactory;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
@@ -54,18 +55,18 @@ class FactoryTest extends BaseTestCase
     public function testDocumentLinks()
     {
         $this->assertNotNull($links = $this->factory->createDocumentLinks(
-            $selfUrl  = 'selfUrl',
-            $firstUrl = 'firstUrl',
-            $lastUrl  = 'lastUrl',
-            $prevUrl  = 'prevUrl',
-            $nextUrl  = 'nextUrl'
+            new Link($selfUrl  = 'selfUrl'),
+            new Link($firstUrl = 'firstUrl'),
+            new Link($lastUrl  = 'lastUrl'),
+            new Link($prevUrl  = 'prevUrl'),
+            new Link($nextUrl  = 'nextUrl')
         ));
 
-        $this->assertEquals($selfUrl, $links->getSelfUrl());
-        $this->assertEquals($firstUrl, $links->getFirstUrl());
-        $this->assertEquals($lastUrl, $links->getLastUrl());
-        $this->assertEquals($prevUrl, $links->getPrevUrl());
-        $this->assertEquals($nextUrl, $links->getNextUrl());
+        $this->assertEquals($selfUrl, $links->getSelfUrl()->getSubHref());
+        $this->assertEquals($firstUrl, $links->getFirstUrl()->getSubHref());
+        $this->assertEquals($lastUrl, $links->getLastUrl()->getSubHref());
+        $this->assertEquals($prevUrl, $links->getPrevUrl()->getSubHref());
+        $this->assertEquals($nextUrl, $links->getNextUrl()->getSubHref());
     }
 
     /**
@@ -80,9 +81,8 @@ class FactoryTest extends BaseTestCase
             $code = 'some-code',
             $title = 'some-title',
             $detail = 'some-detail',
-            $links = ['link1'],
-            $paths = ['paths'],
-            $members = ['members']
+            $source = ['source' => 'info'],
+            $meta = ['meta' => 'info']
         ));
 
         $this->assertEquals($idx, $error->getId());
@@ -91,8 +91,7 @@ class FactoryTest extends BaseTestCase
         $this->assertEquals($code, $error->getCode());
         $this->assertEquals($title, $error->getTitle());
         $this->assertEquals($detail, $error->getDetail());
-        $this->assertEquals($links, $error->getLinks());
-        $this->assertEquals($paths, $error->getPaths());
-        $this->assertEquals($members, $error->getAdditionalMembers());
+        $this->assertEquals($source, $error->getSource());
+        $this->assertEquals($meta, $error->getMeta());
     }
 }

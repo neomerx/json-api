@@ -41,7 +41,7 @@ class PostSchema extends SchemaProvider
         ];
     }
 
-    public function getLinks($post)
+    public function getRelationships($post)
     {
         /** @var Post $post */
         return [

@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -26,14 +27,14 @@ use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 class Parameters extends EncodingParameters implements ParametersInterface
 {
     /**
-     * @var MediaTypeInterface
+     * @var HeaderInterface
      */
-    private $inputType;
+    private $contentType;
 
     /**
-     * @var MediaTypeInterface
+     * @var AcceptHeaderInterface
      */
-    private $outputType;
+    private $accept;
 
     /**
      * @var SortParameterInterface[]|null
@@ -56,8 +57,8 @@ class Parameters extends EncodingParameters implements ParametersInterface
     private $unrecognizedParams;
 
     /**
-     * @param MediaTypeInterface            $inputType
-     * @param MediaTypeInterface            $outputType
+     * @param HeaderInterface               $contentType
+     * @param AcceptHeaderInterface         $accept
      * @param string[]|null                 $includePaths
      * @param array|null                    $fieldSets
      * @param SortParameterInterface[]|null $sortParameters
@@ -66,8 +67,8 @@ class Parameters extends EncodingParameters implements ParametersInterface
      * @param array|null                    $unrecognizedParams
      */
     public function __construct(
-        MediaTypeInterface $inputType,
-        MediaTypeInterface $outputType,
+        HeaderInterface $contentType,
+        AcceptHeaderInterface $accept,
         $includePaths = null,
         array $fieldSets = null,
         $sortParameters = null,
@@ -77,8 +78,8 @@ class Parameters extends EncodingParameters implements ParametersInterface
     ) {
         parent::__construct($includePaths, $fieldSets);
 
-        $this->inputType           = $inputType;
-        $this->outputType          = $outputType;
+        $this->contentType         = $contentType;
+        $this->accept              = $accept;
         $this->sortParameters      = $sortParameters;
         $this->pagingParameters    = $pagingParameters;
         $this->unrecognizedParams  = $unrecognizedParams;
@@ -88,17 +89,17 @@ class Parameters extends EncodingParameters implements ParametersInterface
     /**
      * @inheritdoc
      */
-    public function getInputMediaType()
+    public function getContentTypeHeader()
     {
-        return $this->inputType;
+        return $this->contentType;
     }
 
     /**
      * @inheritdoc
      */
-    public function getOutputMediaType()
+    public function getAcceptHeader()
     {
-        return $this->outputType;
+        return $this->accept;
     }
 
     /**

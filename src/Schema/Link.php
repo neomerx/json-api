@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Parameters;
+<?php namespace Neomerx\JsonApi\Schema;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,48 +16,48 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class MediaType implements MediaTypeInterface
+class Link implements LinkInterface
 {
     /**
      * @var string
      */
-    private $mediaType;
+    private $subHref;
 
     /**
-     * @var string
+     * @var array|object|null
      */
-    private $extensions;
+    private $meta;
 
     /**
-     * @param string $mediaType
-     * @param string $extensions
+     * @param string            $subHref
+     * @param array|object|null $meta
      */
-    public function __construct($mediaType, $extensions = self::NO_EXT)
+    public function __construct($subHref, $meta = null)
     {
-        assert('is_string($mediaType) && is_string($extensions)');
+        assert('is_string($subHref) && (is_null($meta) || is_object($meta) || is_array($meta))');
 
-        $this->mediaType  = $mediaType;
-        $this->extensions = $extensions;
+        $this->subHref = $subHref;
+        $this->meta    = $meta;
     }
 
     /**
      * @inheritdoc
      */
-    public function getMediaType()
+    public function getSubHref()
     {
-        return $this->mediaType;
+        return $this->subHref;
     }
 
     /**
      * @inheritdoc
      */
-    public function getExtensions()
+    public function getMeta()
     {
-        return $this->extensions;
+        return $this->meta;
     }
 }

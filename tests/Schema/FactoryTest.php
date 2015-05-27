@@ -67,7 +67,7 @@ class FactoryTest extends BaseTestCase
             $isShowSelfInIncluded = true,
             $isShowLinksInIncluded = true,
             $isShowMetaInIncluded = true,
-            $isShowMetaInLinkage = true
+            $isShowMetaInRelShips = true
         ));
 
         $this->assertEquals($isInArray, $resource->isInArray());
@@ -79,9 +79,9 @@ class FactoryTest extends BaseTestCase
         $this->assertEquals($isShowSelf, $resource->isShowSelf());
         $this->assertEquals($isShowMeta, $resource->isShowMeta());
         $this->assertEquals($isShowSelfInIncluded, $resource->isShowSelfInIncluded());
-        $this->assertEquals($isShowLinksInIncluded, $resource->isShowLinksInIncluded());
+        $this->assertEquals($isShowLinksInIncluded, $resource->isShowRelationshipsInIncluded());
         $this->assertEquals($isShowMetaInIncluded, $resource->isShowMetaInIncluded());
-        $this->assertEquals($isShowMetaInLinkage, $resource->isShowMetaInLinkage());
+        $this->assertEquals($isShowMetaInRelShips, $resource->isShowMetaInRelationships());
     }
 
     /**
@@ -89,28 +89,28 @@ class FactoryTest extends BaseTestCase
      */
     public function testCreateLinkObject()
     {
-        $this->assertNotNull($link = $this->factory->createLinkObject(
+        $this->assertNotNull($link = $this->factory->createRelationshipObject(
             $name = 'link-name',
             $data = new stdClass(),
-            $selfSubUrl = 'selfSubUrl',
-            $relatedSubUrl = 'relatedSubUrl',
+            $selfSubUrl = $this->factory->createLink('selfSubUrl'),
+            $relatedSubUrl = $this->factory->createLink('relatedSubUrl'),
             $isShowAsRef = false,
             $isShowSelf = true,
             $isShowRelated = true,
-            $isShowLinkage = true,
+            $isShowData = true,
             $isShowMeta = true,
             $isShowPagination = true,
             $pagination = Mockery::mock(PaginationLinksInterface::class)
         ));
 
         $this->assertEquals($name, $link->getName());
-        $this->assertEquals($data, $link->getLinkedData());
-        $this->assertEquals($selfSubUrl, $link->getSelfSubUrl());
-        $this->assertEquals($relatedSubUrl, $link->getRelatedSubUrl());
+        $this->assertEquals($data, $link->getData());
+        $this->assertEquals($selfSubUrl, $link->getSelfLink());
+        $this->assertEquals($relatedSubUrl, $link->getRelatedLink());
         $this->assertEquals($isShowAsRef, $link->isShowAsReference());
         $this->assertEquals($isShowSelf, $link->isShowSelf());
         $this->assertEquals($isShowRelated, $link->isShowRelated());
-        $this->assertEquals($isShowLinkage, $link->isShowLinkage());
+        $this->assertEquals($isShowData, $link->isShowData());
         $this->assertEquals($isShowMeta, $link->isShowMeta());
         $this->assertEquals($isShowPagination, $link->isShowPagination());
         $this->assertSame($pagination, $link->getPagination());
@@ -122,15 +122,15 @@ class FactoryTest extends BaseTestCase
     public function testCreatePaginationLinks()
     {
         $this->assertNotNull($link = $this->factory->createPaginationLinks(
-            $firstUrl = 'first',
-            $lastUrl  = 'last',
-            $prevUrl  = 'prev',
-            $nextUrl  = 'next'
+            $this->factory->createLink($firstUrl = 'first'),
+            $this->factory->createLink($lastUrl  = 'last'),
+            $this->factory->createLink($prevUrl  = 'prev'),
+            $this->factory->createLink($nextUrl  = 'next')
         ));
 
-        $this->assertEquals($firstUrl, $link->getFirstUrl());
-        $this->assertEquals($lastUrl, $link->getLastUrl());
-        $this->assertEquals($prevUrl, $link->getPrevUrl());
-        $this->assertEquals($nextUrl, $link->getNextUrl());
+        $this->assertEquals($firstUrl, $link->getFirstUrl()->getSubHref());
+        $this->assertEquals($lastUrl, $link->getLastUrl()->getSubHref());
+        $this->assertEquals($prevUrl, $link->getPrevUrl()->getSubHref());
+        $this->assertEquals($nextUrl, $link->getNextUrl()->getSubHref());
     }
 }

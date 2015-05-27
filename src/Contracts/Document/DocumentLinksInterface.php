@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
 
 /**
@@ -26,7 +27,7 @@ interface DocumentLinksInterface extends PaginationLinksInterface
     /**
      * Get 'self' URL for top-level 'links' section.
      *
-     * @return string|null
+     * @return LinkInterface|null
      */
     public function getSelfUrl();
 }

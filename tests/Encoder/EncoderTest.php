@@ -112,11 +112,13 @@ EOL;
                         "first_name" : "Dan",
                         "last_name"  : "Gebhardt"
                     },
-                    "links" : {
-                        "self"     : "http://example.com/people/9",
+                    "relationships" : {
                         "comments" : {
-                            "linkage" : { "type" : "people", "id" : "9" }
+                            "data" : { "type" : "people", "id" : "9" }
                         }
+                    },
+                    "links" : {
+                        "self"     : "http://example.com/people/9"
                     }
                 }, {
                     "type"       : "people",
@@ -125,11 +127,13 @@ EOL;
                         "first_name" : "Dan",
                         "last_name"  : "Gebhardt"
                     },
-                    "links" : {
-                        "self"     : "http://example.com/people/9",
+                    "relationships" : {
                         "comments" : {
-                            "linkage" : { "type" : "people", "id" : "9" }
+                            "data" : { "type" : "people", "id" : "9" }
                         }
+                    },
+                    "links" : {
+                        "self" : "http://example.com/people/9"
                     }
                 }
             ]
@@ -217,17 +221,19 @@ EOL;
                     "title" : "JSON API paints my bikeshed!",
                     "body"  : "Outside every fat man there was an even fatter man trying to close in"
                 },
-                "links" : {
-                    "self" : "http://example.com/posts/1",
+                "relationships" : {
                     "author" : {
-                        "linkage" : { "type" : "people", "id" : "9" }
+                        "data" : { "type" : "people", "id" : "9" }
                     },
                     "comments" : {
-                        "linkage" : [
+                        "data" : [
                             { "type":"comments", "id":"5" },
                             { "type":"comments", "id":"12" }
                         ]
                     }
+                },
+                "links" : {
+                    "self" : "http://example.com/posts/1"
                 }
             }
         }
@@ -263,10 +269,12 @@ EOL;
                     "title" : "JSON API paints my bikeshed!",
                     "body"  : "Outside every fat man there was an even fatter man trying to close in"
                 },
-                "links" : {
-                    "self"     : "http://example.com/posts/1",
+                "relationships" : {
                     "author"   : "http://example.com/posts/1/author",
                     "comments" : "http://example.com/posts/1/comments"
+                },
+                "links" : {
+                    "self"     : "http://example.com/posts/1"
                 }
             }
         }
@@ -302,10 +310,125 @@ EOL;
                     "title" : "JSON API paints my bikeshed!",
                     "body"  : "Outside every fat man there was an even fatter man trying to close in"
                 },
-                "links" : {
-                    "self"     : "http://example.com/posts/1",
+                "relationships" : {
                     "author"   : null,
                     "comments" : []
+                },
+                "links" : {
+                    "self"     : "http://example.com/posts/1"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode with 'self' and 'related' URLs in main document and relationships.
+     */
+    public function testEncodeLinksInDocumentAndRelationships()
+    {
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_SELF, true);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_RELATED, true);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_SELF, true);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_RELATED, true);
+                return $schema;
+            },
+        ])->encode($this->getStandardPost());
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "posts",
+                "id"   : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
+                "relationships" : {
+                    "author" : {
+                        "links" : {
+                            "self"    : "http://example.com/posts/1/relationships/author",
+                            "related" : "http://example.com/posts/1/author"
+                        },
+                        "data" : { "type" : "people", "id" : "9" }
+                    },
+                    "comments" : {
+                        "links" : {
+                            "self"    : "http://example.com/posts/1/relationships/comments",
+                            "related" : "http://example.com/posts/1/comments"
+                        },
+                        "data":[
+                            { "type" : "comments", "id" : "5" },
+                            { "type" : "comments", "id" : "12" }
+                        ]
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/posts/1"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode with 'self' and 'related' URLs in main document and relationships.
+     */
+    public function testEncodeLinkWithMeta()
+    {
+        $comments = [
+            Comment::instance(5, 'First!'),
+            Comment::instance(12, 'I like XML better'),
+        ];
+        $author   = Author::instance(9, 'Dan', 'Gebhardt', $comments);
+        $actual = Encoder::instance([
+            Author::class  => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_SELF, true);
+                $schema->setRelationshipMeta(['some' => 'meta']);
+                return $schema;
+            },
+            Comment::class => CommentSchema::class,
+        ])->encode($author);
+
+        $expected = <<<EOL
+        {
+            "data":{
+                "type" : "people",
+                "id"   : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "relationships" : {
+                    "comments"  : {
+                        "links" : {
+                            "self" : {
+                                "href" : "http://example.com/people/9/relationships/comments",
+                                "meta" : { "some":"meta" }
+                            }
+                        },
+                        "data":[
+                            { "type":"comments", "id":"5" },
+                            { "type":"comments", "id":"12" }
+                        ]
+                    }
+                },
+                "links":{
+                    "self":"http://example.com/people/9"
                 }
             }
         }

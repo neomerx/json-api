@@ -17,6 +17,7 @@
  */
 
 use \Neomerx\JsonApi\Schema\PaginationLinks;
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface as Link;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 
 /**
@@ -25,23 +26,26 @@ use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 class DocumentLinks extends PaginationLinks implements DocumentLinksInterface
 {
     /**
-     * @var string|null
+     * @var Link|null
      */
     private $selfUrl;
 
     /**
-     * @param string|null $selfUrl
-     * @param string|null $firstUrl
-     * @param string|null $lastUrl
-     * @param string|null $prevUrl
-     * @param string|null $nextUrl
+     * @param Link|null $self
+     * @param Link|null $first
+     * @param Link|null $last
+     * @param Link|null $prev
+     * @param Link|null $next
      */
-    public function __construct($selfUrl = null, $firstUrl = null, $lastUrl = null, $prevUrl = null, $nextUrl = null)
-    {
-        assert('$selfUrl  === null || is_string($selfUrl)');
-
-        parent::__construct($firstUrl, $lastUrl, $prevUrl, $nextUrl);
-        $this->selfUrl = $selfUrl;
+    public function __construct(
+        Link $self = null,
+        Link $first = null,
+        Link $last = null,
+        Link $prev = null,
+        Link $next = null
+    ) {
+        parent::__construct($first, $last, $prev, $next);
+        $this->selfUrl = $self;
     }
 
     /**

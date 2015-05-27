@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Codec\CodecContainerInterface;
+use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParameterCheckerInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
@@ -33,9 +34,9 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     private $exceptionThrower;
 
     /**
-     * @var CodecContainerInterface
+     * @var CodecMatcherInterface
      */
-    private $codecContainer;
+    private $codecMatcher;
 
     /**
      * @var bool
@@ -68,33 +69,41 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     private $filteringParameters;
 
     /**
+     * @var bool
+     */
+    private $allowExtensionsSupport;
+
+    /**
      * @param ExceptionThrowerInterface $exceptionThrower
-     * @param CodecContainerInterface   $codecContainer
+     * @param CodecMatcherInterface     $codecMatcher
      * @param bool                      $allowUnrecognized
      * @param array|null                $includePaths
      * @param array|null                $fieldSetTypes
      * @param array|null                $sortParameters
      * @param array|null                $pagingParameters
      * @param array|null                $filteringParameters
+     * @param bool                      $allowExtSupport If JSON API extensions support is allowed.
      */
     public function __construct(
         ExceptionThrowerInterface $exceptionThrower,
-        CodecContainerInterface $codecContainer,
+        CodecMatcherInterface $codecMatcher,
         $allowUnrecognized = false,
         array $includePaths = null,
         array $fieldSetTypes = null,
         array $sortParameters = null,
         array $pagingParameters = null,
-        array $filteringParameters = null
+        array $filteringParameters = null,
+        $allowExtSupport = false
     ) {
-        $this->exceptionThrower    = $exceptionThrower;
-        $this->codecContainer      = $codecContainer;
-        $this->includePaths        = $includePaths;
-        $this->allowUnrecognized   = $allowUnrecognized;
-        $this->fieldSetTypes       = $this->flip($fieldSetTypes);
-        $this->sortParameters      = $this->flip($sortParameters);
-        $this->pagingParameters    = $this->flip($pagingParameters);
-        $this->filteringParameters = $this->flip($filteringParameters);
+        $this->exceptionThrower       = $exceptionThrower;
+        $this->codecMatcher           = $codecMatcher;
+        $this->includePaths           = $includePaths;
+        $this->allowUnrecognized      = $allowUnrecognized;
+        $this->fieldSetTypes          = $this->flip($fieldSetTypes);
+        $this->sortParameters         = $this->flip($sortParameters);
+        $this->pagingParameters       = $this->flip($pagingParameters);
+        $this->filteringParameters    = $this->flip($filteringParameters);
+        $this->allowExtensionsSupport = $allowExtSupport;
     }
 
     /**
@@ -103,8 +112,8 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     public function check(ParametersInterface $parameters)
     {
         // Note: for the next 2 checks the order is specified by spec. See details inside.
-        $this->checkOutputMediaType($parameters);
-        $this->checkInputMediaType($parameters);
+        $this->checkAcceptHeader($parameters);
+        $this->checkContentTypeHeader($parameters);
 
         $this->checkIncludePaths($parameters);
         $this->checkFieldSets($parameters);
@@ -119,13 +128,20 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
      *
      * @return void
      */
-    protected function checkOutputMediaType(ParametersInterface $parameters)
+    protected function checkAcceptHeader(ParametersInterface $parameters)
     {
-        // Clients MAY request a particular media type extension by including its name in the ext media type parameter
-        // with the Accept header. Servers that do not support a requested extension or combination of extensions MUST
-        // return a 406 Not Acceptable status code.
-        // For example, application/vnd.api+json; ext="ext1,ext2"
-        if ($this->codecContainer->isEncoderRegistered($parameters->getOutputMediaType()) === false) {
+        $this->codecMatcher->matchEncoder($parameters->getAcceptHeader());
+
+        // From spec: Servers MUST return a 406 Not Acceptable status code if
+        // the application/vnd.api+json media type is modified by the ext parameter
+        // in the Accept header of a request.
+
+        // We return 406 if no match found for encoder or
+        // if 'allowExtensionsSupport' set to false (and match found) we check 'ext' **parameter** to be not set.
+        // Thus it can be configured whether we support extensions or not.
+
+        $inputMediaType = $this->codecMatcher->getEncoderHeaderMatchedType();
+        if ($this->isBadMediaType($inputMediaType)) {
             $this->exceptionThrower->throwNotAcceptable();
         }
     }
@@ -135,11 +151,25 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
      *
      * @return void
      */
-    protected function checkInputMediaType(ParametersInterface $parameters)
+    protected function checkContentTypeHeader(ParametersInterface $parameters)
     {
-        // If the media type in the Accept header is supported by a server but the media type in the
-        // Content-Type header is unsupported, the server MUST return a 415 Unsupported Media Type status code.
-        if ($this->codecContainer->isDecoderRegistered($parameters->getInputMediaType()) === false) {
+        // Do not allow specify more than 1 media type for input data. Otherwise which one is correct?
+        if (count($parameters->getContentTypeHeader()->getMediaTypes()) > 1) {
+            $this->exceptionThrower->throwBadRequest();
+        }
+
+        $this->codecMatcher->findDecoder($parameters->getContentTypeHeader());
+
+        // From spec: servers MUST return a 415 Unsupported Media Type status code if
+        // the application/vnd.api+json media type is modified by the ext parameter
+        // in the Content-Type header of a request.
+
+        // We return 415 if no match found for decoder or
+        // if 'allowExtensionsSupport' set to false (and match found) we check 'ext' **parameter** to be not set.
+        // Thus it can be configured whether we support extensions or not.
+
+        $inputMediaType = $this->codecMatcher->getDecoderHeaderMatchedType();
+        if ($this->isBadMediaType($inputMediaType)) {
             $this->exceptionThrower->throwUnsupportedMediaType();
         }
     }
@@ -234,5 +264,19 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     private function flip(array $array = null)
     {
         return $array === null ? null : array_flip($array);
+    }
+
+    /**
+     * @param MediaTypeInterface|null $mediaType
+     *
+     * @return bool
+     */
+    private function isBadMediaType(MediaTypeInterface $mediaType = null)
+    {
+        return $mediaType === null || (
+            $this->allowExtensionsSupport === false &&
+            $mediaType->getMediaType() === MediaTypeInterface::JSON_API_MEDIA_TYPE &&
+            $mediaType->getParameters() !== null &&
+            array_key_exists(MediaTypeInterface::PARAM_EXT, $mediaType->getParameters()) === true);
     }
 }

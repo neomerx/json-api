@@ -17,10 +17,11 @@
  */
 
 use \Neomerx\JsonApi\Document\Document;
-use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
  * This is an auxiliary class for Document that help presenting elements.
@@ -30,17 +31,17 @@ use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 class ElementPresenter
 {
     /**
-     * @param array                   $target
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $current
-     * @param mixed                   $url
+     * @param array                       $target
+     * @param ResourceObjectInterface     $parent
+     * @param RelationshipObjectInterface $current
+     * @param mixed                       $url
      *
      * @return void
      */
-    public function setLinkTo(
+    public function setRelationshipTo(
         array &$target,
         ResourceObjectInterface $parent,
-        LinkObjectInterface $current,
+        RelationshipObjectInterface $current,
         $url
     ) {
         $parentId     = $parent->getId();
@@ -49,25 +50,25 @@ class ElementPresenter
         $parentExists = isset($target[$parentType][$parentId]);
 
         assert('$parentExists === true');
-        assert('isset($target[$parentType][$parentId][\''.Document::KEYWORD_LINKS.'\'][$name]) === false');
+        assert('isset($target[$parentType][$parentId][\''.Document::KEYWORD_RELATIONSHIPS.'\'][$name]) === false');
 
         if ($parentExists === true) {
-            $target[$parentType][$parentId][Document::KEYWORD_LINKS][$name] = $url;
+            $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] = $url;
         }
     }
 
     /**
-     * @param array                   $target
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $link
-     * @param ResourceObjectInterface $resource
+     * @param array                       $target
+     * @param ResourceObjectInterface     $parent
+     * @param RelationshipObjectInterface $relationship
+     * @param ResourceObjectInterface     $resource
      *
      * @return void
      */
-    public function addLinkTo(
+    public function addRelationshipTo(
         array &$target,
         ResourceObjectInterface $parent,
-        LinkObjectInterface $link,
+        RelationshipObjectInterface $relationship,
         ResourceObjectInterface $resource
     ) {
         $parentId     = $parent->getId();
@@ -76,16 +77,16 @@ class ElementPresenter
 
         // parent might be already added to included to it won't be in 'target' buffer
         if ($parentExists === true) {
-            $name = $link->getName();
-            $alreadyGotLinkages = isset($target[$parentType][$parentId][Document::KEYWORD_LINKS][$name]);
-            if ($alreadyGotLinkages === false) {
+            $name = $relationship->getName();
+            $alreadyGotData = isset($target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name]);
+            if ($alreadyGotData === false) {
                 // ... add the first one
-                $target[$parentType][$parentId][Document::KEYWORD_LINKS][$name] =
-                    $this->getLinkRepresentation($parent, $link, $resource);
+                $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] =
+                    $this->getRelationRepresentation($parent, $relationship, $resource);
             } else {
-                // ... or add another linkage
-                $target[$parentType][$parentId][Document::KEYWORD_LINKS][$name][Document::KEYWORD_LINKAGE][] =
-                    $this->getLinkageRepresentation($resource);
+                // ... or add another relation
+                $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS]
+                    [$name][Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
             }
         }
     }
@@ -98,7 +99,7 @@ class ElementPresenter
     public function getDocumentLinksRepresentation(DocumentLinksInterface $links)
     {
         $representation = array_merge([
-            Document::KEYWORD_SELF  => $links->getSelfUrl(),
+            Document::KEYWORD_SELF  => $this->getLinkRepresentation($links->getSelfUrl()),
         ], $this->getPaginationLinksRepresentation($links));
 
         return array_filter($representation, function ($value) {
@@ -107,23 +108,27 @@ class ElementPresenter
     }
 
     /**
+     * Correct empty or single relationships.
+     *
      * @param array $resource
      *
      * @return array
      */
-    public function correctSingleLinks(array $resource)
+    public function correctRelationships(array $resource)
     {
-        if (empty($resource[Document::KEYWORD_LINKS]) === false) {
-            foreach ($resource[Document::KEYWORD_LINKS] as &$linkOrSelf) {
-                if (isset($linkOrSelf[Document::KEYWORD_LINKAGE]) === true &&
-                    empty($linkOrSelf[Document::KEYWORD_LINKAGE]) === false &&
-                    count($linkOrSelf[Document::KEYWORD_LINKAGE]) === 1
+        if (empty($resource[Document::KEYWORD_RELATIONSHIPS]) === false) {
+            foreach ($resource[Document::KEYWORD_RELATIONSHIPS] as &$relation) {
+                if (isset($relation[Document::KEYWORD_LINKAGE_DATA]) === true &&
+                    empty($relation[Document::KEYWORD_LINKAGE_DATA]) === false &&
+                    count($relation[Document::KEYWORD_LINKAGE_DATA]) === 1
                 ) {
-                    $tmp = $linkOrSelf[Document::KEYWORD_LINKAGE][0];
-                    unset($linkOrSelf[Document::KEYWORD_LINKAGE]);
-                    $linkOrSelf[Document::KEYWORD_LINKAGE] = $tmp;
+                    $tmp = $relation[Document::KEYWORD_LINKAGE_DATA][0];
+                    unset($relation[Document::KEYWORD_LINKAGE_DATA][0]);
+                    $relation[Document::KEYWORD_LINKAGE_DATA] = $tmp;
                 }
             }
+        } else {
+            unset($resource[Document::KEYWORD_RELATIONSHIPS]);
         }
 
         return $resource;
@@ -155,22 +160,54 @@ class ElementPresenter
     }
 
     /**
-     * @param string $url
-     * @param string $subUrl
+     * @param string        $url
+     * @param LinkInterface $subLink
      *
-     * @return string
+     * @return string|array
      */
-    public function concatUrls($url, $subUrl)
+    public function concatUrls($url, LinkInterface $subLink)
     {
+        $subUrl = $subLink->getSubHref();
+
         $urlEndsWithSlash   = (substr($url, -1) === '/');
         $subStartsWithSlash = (substr($subUrl, 0, 1) === '/');
         if ($urlEndsWithSlash === false && $subStartsWithSlash === false) {
-            return $url . '/' . $subUrl;
+            $resultUrl = $url . '/' . $subUrl;
         } elseif (($urlEndsWithSlash xor $subStartsWithSlash) === true) {
-            return $url . $subUrl;
+            $resultUrl = $url . $subUrl;
         } else {
-            return rtrim($url, '/') . $subUrl;
+            $resultUrl = rtrim($url, '/') . $subUrl;
         }
+
+        return $this->getUrlRepresentation($resultUrl, $subLink->getMeta());
+    }
+
+    /**
+     * @param string            $url
+     * @param null|object|array $meta
+     *
+     * @return string|array
+     */
+    private function getUrlRepresentation($url, $meta = null)
+    {
+        if ($meta === null) {
+            return $url;
+        } else {
+            return [
+                Document::KEYWORD_HREF => $url,
+                Document::KEYWORD_META => $meta,
+            ];
+        }
+    }
+
+    /**
+     * @param LinkInterface|null $link
+     *
+     * @return string|null|array
+     */
+    private function getLinkRepresentation(LinkInterface $link = null)
+    {
+        return $link === null ? null : $this->getUrlRepresentation($link->getSubHref(), $link->getMeta());
     }
 
     /**
@@ -184,57 +221,62 @@ class ElementPresenter
             Document::KEYWORD_TYPE => $resource->getType(),
             Document::KEYWORD_ID   => $resource->getId(),
         ];
-        if ($resource->isShowMetaInLinkage() === true) {
+        if ($resource->isShowMetaInRelationships() === true) {
             $representation[Document::KEYWORD_META] = $resource->getMeta();
         }
         return $representation;
     }
 
     /**
-     * @param ResourceObjectInterface $parent
-     * @param LinkObjectInterface     $link
-     * @param ResourceObjectInterface $resource
+     * @param ResourceObjectInterface     $parent
+     * @param RelationshipObjectInterface $relation
+     * @param ResourceObjectInterface     $resource
      *
      * @return array
      */
-    private function getLinkRepresentation(
+    private function getRelationRepresentation(
         ResourceObjectInterface $parent,
-        LinkObjectInterface $link,
+        RelationshipObjectInterface $relation,
         ResourceObjectInterface $resource
     ) {
         assert(
-            '$link->getName() !== \''.Document::KEYWORD_SELF.'\'',
+            '$relation->getName() !== \''.Document::KEYWORD_SELF.'\'',
             '"self" is a reserved keyword and cannot be used as a related resource link name'
         );
 
         $selfUrl = $parent->getSelfUrl();
 
         $representation = [];
-        if ($link->isShowSelf() === true) {
-            $representation[Document::KEYWORD_SELF] = $this->concatUrls($selfUrl, $link->getSelfSubUrl());
+        if ($relation->isShowSelf() === true) {
+            $representation[Document::KEYWORD_LINKS][Document::KEYWORD_SELF] =
+                $this->concatUrls($selfUrl, $relation->getSelfLink());
         }
 
-        if ($link->isShowRelated() === true) {
-            $representation[Document::KEYWORD_RELATED] = $this->concatUrls($selfUrl, $link->getRelatedSubUrl());
+        if ($relation->isShowRelated() === true) {
+            $representation[Document::KEYWORD_LINKS][Document::KEYWORD_RELATED] =
+                $this->concatUrls($selfUrl, $relation->getRelatedLink());
         }
 
-        if ($link->isShowLinkage() === true) {
-            $representation[Document::KEYWORD_LINKAGE][] = $this->getLinkageRepresentation($resource);
+        if ($relation->isShowData() === true) {
+            $representation[Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
         }
 
-        if ($link->isShowMeta() === true) {
+        if ($relation->isShowMeta() === true) {
             $representation[Document::KEYWORD_META] = $resource->getMeta();
         }
 
-        if ($link->isShowPagination() === true) {
-            $representation = array_merge(
-                $representation,
-                $this->getPaginationLinksRepresentation($link->getPagination())
-            );
+        if ($relation->isShowPagination() === true && $relation->getPagination() !== null) {
+            if (empty($representation[Document::KEYWORD_LINKS]) === true) {
+                $representation[Document::KEYWORD_LINKS] =
+                    $this->getPaginationLinksRepresentation($relation->getPagination());
+            } else {
+                $representation[Document::KEYWORD_LINKS] +=
+                    $this->getPaginationLinksRepresentation($relation->getPagination());
+            }
         }
 
         assert(
-            '$link->isShowSelf() || $link->isShowRelated() || $link->isShowLinkage() || $link->isShowMeta()',
+            '$relation->isShowSelf()||$relation->isShowRelated()||$relation->isShowData()||$relation->isShowMeta()',
             'Specification requires at least one of them to be shown'
         );
 
@@ -249,10 +291,10 @@ class ElementPresenter
     private function getPaginationLinksRepresentation(PaginationLinksInterface $links)
     {
         return array_filter([
-            Document::KEYWORD_FIRST => $links->getFirstUrl(),
-            Document::KEYWORD_LAST  => $links->getLastUrl(),
-            Document::KEYWORD_PREV  => $links->getPrevUrl(),
-            Document::KEYWORD_NEXT  => $links->getNextUrl(),
+            Document::KEYWORD_FIRST => $this->getLinkRepresentation($links->getFirstUrl()),
+            Document::KEYWORD_LAST  => $this->getLinkRepresentation($links->getLastUrl()),
+            Document::KEYWORD_PREV  => $this->getLinkRepresentation($links->getPrevUrl()),
+            Document::KEYWORD_NEXT  => $this->getLinkRepresentation($links->getNextUrl()),
         ], function ($value) {
             return $value !== null;
         });
@@ -285,6 +327,10 @@ class ElementPresenter
         if (empty($attributes) === false) {
             $representation[Document::KEYWORD_ATTRIBUTES] = $attributes;
         }
+
+        // reserve placeholder for relationships, otherwise it would be added after
+        // links and meta which is not visually beautiful
+        $representation[Document::KEYWORD_RELATIONSHIPS] = null;
 
         if ($isShowSelf === true) {
             $representation[Document::KEYWORD_LINKS][Document::KEYWORD_SELF] = $resource->getSelfUrl();

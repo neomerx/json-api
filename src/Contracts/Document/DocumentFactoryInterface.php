@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
@@ -31,20 +33,20 @@ interface DocumentFactoryInterface
     /**
      * Create document links.
      *
-     * @param string|null $selfUrl
-     * @param string|null $firstUrl
-     * @param string|null $lastUrl
-     * @param string|null $prevUrl
-     * @param string|null $nextUrl
+     * @param LinkInterface|null $selfUrl
+     * @param LinkInterface|null $firstUrl
+     * @param LinkInterface|null $lastUrl
+     * @param LinkInterface|null $prevUrl
+     * @param LinkInterface|null $nextUrl
      *
      * @return DocumentLinksInterface
      */
     public function createDocumentLinks(
-        $selfUrl = null,
-        $firstUrl = null,
-        $lastUrl = null,
-        $prevUrl = null,
-        $nextUrl = null
+        LinkInterface $selfUrl = null,
+        LinkInterface $firstUrl = null,
+        LinkInterface $lastUrl = null,
+        LinkInterface $prevUrl = null,
+        LinkInterface $nextUrl = null
     );
 
     /**
@@ -56,9 +58,8 @@ interface DocumentFactoryInterface
      * @param string|null     $code
      * @param string|null     $title
      * @param string|null     $detail
-     * @param string[]|null   $links
-     * @param string[]|null   $paths
-     * @param array|null      $members Array of additional members in [memberName => memberValue, ...] format
+     * @param mixed|null      $source
+     * @param array|null      $meta
      *
      * @return ErrorInterface
      */
@@ -69,8 +70,7 @@ interface DocumentFactoryInterface
         $code = null,
         $title = null,
         $detail = null,
-        array $links = null,
-        array $paths = null,
-        array $members = null
+        $source = null,
+        array $meta = null
     );
 }

@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
@@ -238,7 +239,7 @@ EOL;
     public function testEncodeMetaAndtopLinksForSimpleObject()
     {
         $author = Author::instance(9, 'Dan', 'Gebhardt');
-        $links  = new DocumentLinks('http://example.com/people/9');
+        $links  = new DocumentLinks(new Link('http://example.com/people/9'));
         $meta   = [
             "copyright" => "Copyright 2015 Example Corp.",
             "authors"   => [
@@ -279,6 +280,46 @@ EOL;
                 "links" : {
                     "self" : "http://example.com/people/9"
                 }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode meta.
+     */
+    public function testEncodeMeta()
+    {
+        $meta = [
+            "copyright" => "Copyright 2015 Example Corp.",
+            "authors"   => [
+                "Yehuda Katz",
+                "Steve Klabnik",
+                "Dan Gebhardt"
+            ]
+        ];
+
+        $actual = Encoder::instance([
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkRemove(Author::LINK_COMMENTS);
+                return $schema;
+            }
+        ])->meta($meta);
+
+        $expected = <<<EOL
+        {
+            "meta" : {
+                "copyright" : "Copyright 2015 Example Corp.",
+                "authors" : [
+                    "Yehuda Katz",
+                    "Steve Klabnik",
+                    "Dan Gebhardt"
+                ]
             }
         }
 EOL;

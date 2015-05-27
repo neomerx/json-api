@@ -24,28 +24,28 @@ interface PaginationLinksInterface
     /**
      * Get 'first' URL for top-level 'links' section.
      *
-     * @return string|null
+     * @return LinkInterface|null
      */
     public function getFirstUrl();
 
     /**
      * Get 'last' URL for top-level 'links' section.
      *
-     * @return string|null
+     * @return LinkInterface|null
      */
     public function getLastUrl();
 
     /**
      * Get 'prev' URL for top-level 'links' section.
      *
-     * @return string|null
+     * @return LinkInterface|null
      */
     public function getPrevUrl();
 
     /**
      * Get 'next' URL for top-level 'links' section.
      *
-     * @return string|null
+     * @return LinkInterface|null
      */
     public function getNextUrl();
 }

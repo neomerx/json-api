@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 
 /**
@@ -44,9 +45,9 @@ class SchemaFactory implements SchemaFactoryInterface
         $isShowSelf,
         $isShowMeta,
         $isShowSelfInIncluded,
-        $isShowLinksInIncluded,
+        $isShowRelShipsInIncluded,
         $isShowMetaInIncluded,
-        $isShowMetaInLinkage
+        $isShowMetaInRlShips
     ) {
         return new ResourceObject(
             $isInArray,
@@ -58,37 +59,37 @@ class SchemaFactory implements SchemaFactoryInterface
             $isShowSelf,
             $isShowMeta,
             $isShowSelfInIncluded,
-            $isShowLinksInIncluded,
+            $isShowRelShipsInIncluded,
             $isShowMetaInIncluded,
-            $isShowMetaInLinkage
+            $isShowMetaInRlShips
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function createLinkObject(
+    public function createRelationshipObject(
         $name,
         $data,
-        $selfSubUrl,
-        $relatedSubUrl,
+        LinkInterface $selfLink,
+        LinkInterface $relatedLink,
         $isShowAsRef,
         $isShowSelf,
         $isShowRelated,
-        $isShowLinkage,
+        $isShowData,
         $isShowMeta,
         $isShowPagination,
         $pagination
     ) {
-        return new LinkObject(
+        return new RelationshipObject(
             $name,
             $data,
-            $selfSubUrl,
-            $relatedSubUrl,
+            $selfLink,
+            $relatedLink,
             $isShowAsRef,
             $isShowSelf,
             $isShowRelated,
-            $isShowLinkage,
+            $isShowData,
             $isShowMeta,
             $isShowPagination,
             $pagination
@@ -98,8 +99,20 @@ class SchemaFactory implements SchemaFactoryInterface
     /**
      * @inheritdoc
      */
-    public function createPaginationLinks($firstUrl = null, $lastUrl = null, $prevUrl = null, $nextUrl = null)
-    {
+    public function createPaginationLinks(
+        LinkInterface $firstUrl = null,
+        LinkInterface $lastUrl = null,
+        LinkInterface $prevUrl = null,
+        LinkInterface $nextUrl = null
+    ) {
         return new PaginationLinks($firstUrl, $lastUrl, $prevUrl, $nextUrl);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createLink($subHref, $meta = null)
+    {
+        return new Link($subHref, $meta);
     }
 }

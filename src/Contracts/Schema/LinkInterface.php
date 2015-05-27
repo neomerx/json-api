@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Parameters;
+<?php namespace Neomerx\JsonApi\Contracts\Schema;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -9,7 +9,7 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed for in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -19,22 +19,19 @@
 /**
  * @package Neomerx\JsonApi
  */
-interface MediaTypeInterface
+interface LinkInterface
 {
-    /** Constant for 'no-extensions' */
-    const NO_EXT = '';
-
     /**
-     * Get media type.
+     * Get 'href' (URL) value.
      *
      * @return string
      */
-    public function getMediaType();
+    public function getSubHref();
 
     /**
-     * Get comma separated list of extensions.
+     * Get meta information.
      *
-     * @return string
+     * @return array|object|null
      */
-    public function getExtensions();
+    public function getMeta();
 }

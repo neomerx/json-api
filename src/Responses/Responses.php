@@ -17,8 +17,9 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Responses\ResponsesInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Integration\NativeResponsesInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 
 /**
@@ -27,16 +28,10 @@ use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 class Responses implements ResponsesInterface
 {
     /** Header name that contains format of input data from client */
-    const HEADER_CONTENT_TYPE = 'Content-Type';
+    const HEADER_CONTENT_TYPE = HeaderInterface::HEADER_CONTENT_TYPE;
 
     /** Header name that location of newly created resource */
-    const HEADER_LOCATION = 'Location';
-
-    /** Parameter name for storing supported extensions in Content-Type header */
-    const SUPPORTED_EXT = 'supported-ext';
-
-    /** Parameter name for storing applied extensions in Content-Type header */
-    const EXT = 'ext';
+    const HEADER_LOCATION = HeaderInterface::HEADER_LOCATION;
 
     /** HTTP 'created' status code */
     const HTTP_CREATED = 201;
@@ -112,16 +107,20 @@ class Responses implements ResponsesInterface
         SupportedExtensionsInterface $supportedExtensions = null
     ) {
         $contentType = $mediaType->getMediaType();
-        $ext         = $mediaType->getExtensions();
+        $params      = $mediaType->getParameters();
         $supExt      = $supportedExtensions === null ? null : $supportedExtensions->getExtensions();
 
         $separator = ';';
-        if (empty($ext) === false) {
-            $contentType .= $separator . self::EXT . '="' . $ext . '"';
-            $separator = ',';
+        if (isset($params[MediaTypeInterface::PARAM_EXT])) {
+            $ext = $params[MediaTypeInterface::PARAM_EXT];
+            if (empty($ext) === false) {
+                $contentType .= $separator . MediaTypeInterface::PARAM_EXT . '="' . $ext . '"';
+                $separator = ',';
+            }
         }
 
-        empty($supExt) === true ?: $contentType .= $separator . self::SUPPORTED_EXT . '="' . $supExt . '"';
+        empty($supExt) === true ?:
+            $contentType .= $separator . MediaTypeInterface::PARAM_SUPPORTED_EXT . '="' . $supExt . '"';
 
         return $contentType;
     }

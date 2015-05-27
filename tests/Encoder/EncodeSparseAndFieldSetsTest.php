@@ -104,14 +104,16 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
                 "attributes" : {
                     "name" : "site name"
                 },
-                "links" : {
-                    "self" : "http://example.com/sites/2",
+                "relationships" : {
                     "posts" : {
-                        "linkage" : {
+                        "data" : {
                             "type" : "posts",
                             "id" : "1"
                         }
                     }
+                },
+                "links" : {
+                    "self" : "http://example.com/sites/2"
                 }
             },
             "included" : [{
@@ -120,11 +122,13 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
                 "attributes" : {
                     "body" : "First!"
                 },
-                "links" : {
-                    "self"   : "http://example.com/comments/5",
+                "relationships" : {
                     "author" : {
-                        "linkage" : { "type" : "people", "id" : "9" }
+                        "data" : { "type" : "people", "id" : "9" }
                     }
+                },
+                "links" : {
+                    "self"   : "http://example.com/comments/5"
                 }
             }, {
                 "type"  : "comments",
@@ -132,11 +136,13 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
                 "attributes" : {
                     "body" : "I like XML better"
                 },
-                "links" : {
-                    "self"   : "http://example.com/comments/12",
+                "relationships" : {
                     "author" : {
-                        "linkage" : { "type" : "people", "id" : "9" }
+                        "data" : { "type" : "people", "id" : "9" }
                     }
+                },
+                "links" : {
+                    "self"   : "http://example.com/comments/12"
                 }
             },{
                 "type" : "posts",
@@ -145,12 +151,12 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
                     "title" : "JSON API paints my bikeshed!",
                     "body"  : "Outside every fat man there was an even fatter man trying to close in"
                 },
-                "links" : {
+                "relationships" : {
                     "author" : {
-                        "linkage" : { "type" : "people", "id" : "9" }
+                        "data" : { "type" : "people", "id" : "9" }
                     },
                     "comments" : {
-                        "linkage" : [
+                        "data" : [
                             { "type" : "comments", "id" : "5" },
                             { "type" : "comments", "id" : "12" }
                         ]
@@ -191,14 +197,16 @@ EOL;
             "data" : {
                 "type"  : "sites",
                 "id"    : "2",
-                "links" : {
-                    "self" : "http://example.com/sites/2",
+                "relationships" : {
                     "posts" : {
-                        "linkage" : {
+                        "data" : {
                             "type" : "posts",
                             "id" : "1"
                         }
                     }
+                },
+                "links" : {
+                    "self" : "http://example.com/sites/2"
                 }
             },
             "included" : [{

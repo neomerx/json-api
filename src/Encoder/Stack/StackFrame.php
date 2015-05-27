@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 
 /**
@@ -34,12 +34,12 @@ class StackFrame implements StackFrameInterface
     /**
      * @var ResourceObjectInterface
      */
-    private $resourceObject;
+    private $resource;
 
     /**
-     * @var LinkObjectInterface
+     * @var RelationshipObjectInterface
      */
-    private $linkObject;
+    private $relationship;
 
     /**
      * @var StackFrameReadOnlyInterface
@@ -62,7 +62,7 @@ class StackFrame implements StackFrameInterface
             '$level > 0 &&'.
             '(($level === 1 && $previous === null) || '.
             '($level > 1 && $previous !== null && $level === $previous->getLevel() + 1)) &&'.
-            '($level <= 2 || $previous->getLinkObject() !== null)'
+            '($level <= 2 || $previous->getRelationship() !== null)'
         );
 
         $this->level    = $level;
@@ -80,17 +80,17 @@ class StackFrame implements StackFrameInterface
     /**
      * @inheritdoc
      */
-    public function setResourceObject(ResourceObjectInterface $resourceObject)
+    public function setResource(ResourceObjectInterface $resource)
     {
-        $this->resourceObject = $resourceObject;
+        $this->resource = $resource;
     }
 
     /**
      * @inheritdoc
      */
-    public function setLinkObject(LinkObjectInterface $linkObject)
+    public function setRelationship(RelationshipObjectInterface $relationship)
     {
-        $this->linkObject = $linkObject;
+        $this->relationship = $relationship;
 
         $this->setCurrentPath();
     }
@@ -98,17 +98,17 @@ class StackFrame implements StackFrameInterface
     /**
      * @inheritdoc
      */
-    public function getResourceObject()
+    public function getResource()
     {
-        return $this->resourceObject;
+        return $this->resource;
     }
 
     /**
      * @inheritdoc
      */
-    public function getLinkObject()
+    public function getRelationship()
     {
-        return $this->linkObject;
+        return $this->relationship;
     }
 
     /**
@@ -125,9 +125,9 @@ class StackFrame implements StackFrameInterface
     private function setCurrentPath()
     {
         if ($this->previous === null || $this->previous->getPath() === null) {
-            $this->path = $this->linkObject->getName();
+            $this->path = $this->relationship->getName();
         } else {
-            $this->path = $this->previous->getPath() . '.' . $this->linkObject->getName();
+            $this->path = $this->previous->getPath() . '.' . $this->relationship->getName();
         }
     }
 }

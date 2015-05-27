@@ -52,4 +52,13 @@ interface EncodingParametersInterface
      * @return string[]|null
      */
     public function getFieldSet($type);
+
+    /**
+     * If path matches one of the included paths.
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
+    public function hasMatchWithIncludedPaths($path);
 }

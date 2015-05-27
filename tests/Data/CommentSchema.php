@@ -57,7 +57,7 @@ class CommentSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getLinks($comment)
+    public function getRelationships($comment)
     {
         assert('$comment instanceof '.Comment::class);
 

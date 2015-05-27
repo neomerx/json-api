@@ -18,11 +18,11 @@
 
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\HandlerFactoryInterface;
 
@@ -131,6 +131,19 @@ class Encoder implements EncoderInterface
             assert('$error instanceof '.ErrorInterface::class);
             $docWriter->addError($error);
         }
+
+        return $this->encodeToJson($docWriter->getDocument());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function meta($meta)
+    {
+        $docWriter = $this->documentFactory->createDocument();
+
+        $docWriter->setMetaToDocument($meta);
+        $docWriter->unsetData();
 
         return $this->encodeToJson($docWriter->getDocument());
     }

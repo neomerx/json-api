@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -27,18 +27,18 @@ interface StackFrameInterface extends StackFrameReadOnlyInterface
     /**
      * Set associated resource object.
      *
-     * @param ResourceObjectInterface $resourceObject
+     * @param ResourceObjectInterface $resource
      *
      * @return void
      */
-    public function setResourceObject(ResourceObjectInterface $resourceObject);
+    public function setResource(ResourceObjectInterface $resource);
 
     /**
-     * Set associated link object.
+     * Set associated relationship object.
      *
-     * @param LinkObjectInterface $linkObject
+     * @param RelationshipObjectInterface $relationship
      *
      * @return void
      */
-    public function setLinkObject(LinkObjectInterface $linkObject);
+    public function setRelationship(RelationshipObjectInterface $relationship);
 }

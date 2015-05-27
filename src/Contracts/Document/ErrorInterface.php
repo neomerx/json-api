@@ -66,24 +66,19 @@ interface ErrorInterface
     public function getDetail();
 
     /**
-     * Get an array of JSON Pointers [RFC6901] to the associated resource(s) within the request document.
+     * An object containing references to the source of the error, optionally including any of the following members:
+     *    "pointer"   - A JSON Pointer [RFC6901] to the associated entity in the request document
+     *                  [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].
+     *    "parameter" - An optional string indicating which query parameter caused the error.
      *
-     * @return string[]|null
+     * @return mixed|null
      */
-    public function getLinks();
+    public function getSource();
 
     /**
-     * Get an array of JSON Pointers [RFC6901] to the relevant attribute(s) within the associated resource(s)
-     * in the request document.
-     *
-     * @return string[]|null
-     */
-    public function getPaths();
-
-    /**
-     * Get additional members.
+     * Get error meta information.
      *
      * @return array|null
      */
-    public function getAdditionalMembers();
+    public function getMeta();
 }

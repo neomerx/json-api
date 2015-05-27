@@ -17,8 +17,9 @@
  */
 
 use \Closure;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
 /**
@@ -41,8 +42,8 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /** If 'related' URL should be shown. Requires 'related' controller to be set. */
     const SHOW_RELATED = 'related';
 
-    /** If linkage information should be shown. */
-    const SHOW_LINKAGE = 'showLinkage';
+    /** If data should be shown in relationships. */
+    const SHOW_DATA_IN_RELATIONSHIPS = 'showDataInRelationships';
 
     /** If link pagination information should be shown. */
     const SHOW_PAGINATION = 'showPagination';
@@ -91,7 +92,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @var bool
      */
-    protected $isShowMetaInLinkage = false;
+    protected $isShowMetaInRelationships = false;
 
     /**
      * @var bool
@@ -101,7 +102,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @var bool
      */
-    protected $isShowLinksInIncluded = false;
+    protected $isShowRelShipsInIncluded = false;
 
     /**
      * @var bool
@@ -127,7 +128,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
         assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set.');
         assert(
             'is_bool($this->isShowSelfInIncluded) &&'.
-            'is_bool($this->isShowLinksInIncluded) &&'.
+            'is_bool($this->isShowRelShipsInIncluded) &&'.
             'is_bool($this->isShowMetaInIncluded)'
         );
 
@@ -188,9 +189,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function isShowLinksInIncluded()
+    public function isShowRelationshipsInIncluded()
     {
-        return $this->isShowLinksInIncluded;
+        return $this->isShowRelShipsInIncluded;
     }
 
     /**
@@ -204,9 +205,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function isShowMetaInLinkage()
+    public function isShowMetaInRelationships()
     {
-        return $this->isShowMetaInLinkage;
+        return $this->isShowMetaInRelationships;
     }
 
     /**
@@ -216,7 +217,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
      *
      * @return array
      */
-    public function getLinks($resource)
+    public function getRelationships($resource)
     {
         $resource ?: null;
         return [];
@@ -225,26 +226,26 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getLinkObjectIterator($resource)
+    public function getRelationshipObjectIterator($resource)
     {
-        foreach ($this->getLinks($resource) as $name => $desc) {
+        foreach ($this->getRelationships($resource) as $name => $desc) {
             $data          = $this->readData($desc);
             $isShowMeta    = ($this->getValue($desc, self::SHOW_META, false) === true);
             $isShowSelf    = ($this->getValue($desc, self::SHOW_SELF, false) === true);
             $isShowAsRef   = ($this->getValue($desc, self::SHOW_AS_REF, false) === true);
             $isShowRelated = ($this->getValue($desc, self::SHOW_RELATED, false) === true);
-            $isShowLinkage = ($this->getValue($desc, self::SHOW_LINKAGE, true) === true);
+            $isShowLinkage = ($this->getValue($desc, self::SHOW_DATA_IN_RELATIONSHIPS, true) === true);
 
             list($isShowPagination, $pagination) = $this->readPagination($desc);
 
-            $selfSubUrl    = $this->getValue($desc, self::SELF_SUB_URL, '/links/'.$name);
-            $relatedSubUrl = $this->getValue($desc, self::RELATED_SUB_URL, '/'.$name);
+            $selfLink    = $this->getSelfLink($name, $desc, $data);
+            $relatedLink = $this->getRelatedLink($name, $desc, $data);
 
-            yield $this->factory->createLinkObject(
+            yield $this->factory->createRelationshipObject(
                 $name,
                 $data,
-                $selfSubUrl,
-                $relatedSubUrl,
+                $selfLink,
+                $relatedLink,
                 $isShowAsRef,
                 $isShowSelf,
                 $isShowRelated,
@@ -275,9 +276,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
             $this->isShowSelf(),
             $this->isShowMeta(),
             $this->isShowSelfInIncluded(),
-            $this->isShowLinksInIncluded(),
+            $this->isShowRelationshipsInIncluded(),
             $this->isShowMetaInIncluded(),
-            $this->isShowMetaInLinkage()
+            $this->isShowMetaInRelationships()
         );
     }
 
@@ -303,6 +304,40 @@ abstract class SchemaProvider implements SchemaProviderInterface
         substr($this->baseSelfUrl, -1) === '/' ?: $this->baseSelfUrl .= '/';
 
         return $this->baseSelfUrl;
+    }
+
+    /**
+     * Get link for 'self' relationship url.
+     *
+     * @param string            $relationshipName
+     * @param array             $description
+     * @param mixed             $relationshipData
+     * @param null|array|object $meta
+     *
+     * @return LinkInterface
+     */
+    protected function getSelfLink($relationshipName, array $description, $relationshipData, $meta = null)
+    {
+        $relationshipData ?: null;
+        $subHref = $this->getValue($description, self::SELF_SUB_URL, '/relationships/'.$relationshipName);
+        return $this->factory->createLink($subHref, $meta);
+    }
+
+    /**
+     * Get link for 'self' relationship url.
+     *
+     * @param string            $relationshipName
+     * @param array             $description
+     * @param mixed             $relationshipData
+     * @param null|array|object $meta
+     *
+     * @return LinkInterface
+     */
+    protected function getRelatedLink($relationshipName, array $description, $relationshipData, $meta = null)
+    {
+        $relationshipData ?: null;
+        $href = $this->getValue($description, self::RELATED_SUB_URL, '/'.$relationshipName);
+        return $this->factory->createLink($href, $meta);
     }
 
     /**

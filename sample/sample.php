@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\JsonApi\Document\DocumentLinks;
 use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
@@ -85,7 +86,7 @@ class Application
         $site     = Site::instance('1', 'JSON API Samples', [$post]);
 
         $options  = new EncodingParameters(
-            ['posts.author'], // Paths to be included. Note neither 'posts' nor 'posts.comments' will be shown.
+            ['posts.author'], // Paths to be included. Note 'posts.comments' will not be shown.
             [
                 // Attributes and links that should be shown
                 'sites'  => ['name'],
@@ -120,10 +121,10 @@ class Application
         ];
         $links  = new DocumentLinks(
             null,
-            'http://example.com/people?first',
-            'http://example.com/people?last',
-            'http://example.com/people?prev',
-            'http://example.com/people?next'
+            new Link('http://example.com/people?first'),
+            new Link('http://example.com/people?last'),
+            new Link('http://example.com/people?prev'),
+            new Link('http://example.com/people?next')
         );
 
         $encoder  = Encoder::instance([
@@ -167,7 +168,7 @@ class Application
 
             $encoder->encode(
                 $site,
-                new DocumentLinks('http://example.com/sites/1?' . $rand),
+                new DocumentLinks(new Link('http://example.com/sites/1?' . $rand)),
                 ['some' => ['meta' => 'information' . $rand]],
                 $options
             );
