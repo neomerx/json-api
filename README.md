@@ -77,7 +77,7 @@ class AuthorSchema extends SchemaProvider
 }
 ```
 
-**For more advanced usage please check out the [Wiki](/https://github.com/neomerx/json-api/wiki)**.
+**For more advanced usage please check out the [Wiki](https://github.com/neomerx/json-api/wiki)**.
 
 ## Questions?
 
