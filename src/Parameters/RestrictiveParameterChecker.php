@@ -99,7 +99,7 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
         $this->codecMatcher           = $codecMatcher;
         $this->includePaths           = $includePaths;
         $this->allowUnrecognized      = $allowUnrecognized;
-        $this->fieldSetTypes          = $this->flip($fieldSetTypes);
+        $this->fieldSetTypes          = $fieldSetTypes;
         $this->sortParameters         = $this->flip($sortParameters);
         $this->pagingParameters       = $this->flip($pagingParameters);
         $this->filteringParameters    = $this->flip($filteringParameters);
@@ -188,7 +188,7 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
      */
     protected function checkFieldSets(ParametersInterface $parameters)
     {
-        $withinAllowed = $this->keysWithinAllowed($parameters->getFieldSets(), $this->fieldSetTypes);
+        $withinAllowed = $this->isFieldsAllowed($parameters->getFieldSets());
         $withinAllowed === true ?: $this->exceptionThrower->throwBadRequest();
     }
 
@@ -278,5 +278,34 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
             $mediaType->getMediaType() === MediaTypeInterface::JSON_API_MEDIA_TYPE &&
             $mediaType->getParameters() !== null &&
             array_key_exists(MediaTypeInterface::PARAM_EXT, $mediaType->getParameters()) === true);
+    }
+
+    /**
+     * Check input fields against allowed.
+     *
+     * @param array|null $fields
+     *
+     * @return bool
+     */
+    private function isFieldsAllowed(array $fields = null)
+    {
+        if ($this->fieldSetTypes === null || $fields === null) {
+            return true;
+        }
+
+        foreach ($fields as $type => $requestedFields) {
+            if (array_key_exists($type, $this->fieldSetTypes) === false) {
+                return false;
+            }
+
+            $allowedFields = $this->fieldSetTypes[$type];
+
+            // if not all fields are allowed and requested more fields than allowed
+            if ($allowedFields !== null && empty(array_diff($requestedFields, $allowedFields)) === false) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

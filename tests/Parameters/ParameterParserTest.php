@@ -265,6 +265,39 @@ class ParameterParserTest extends BaseTestCase
     }
 
     /**
+     * Test miss field in sort params. Sample /posts/1?fields[posts]=
+     */
+    public function testFieldSetWithEmptyField()
+    {
+        $input = [
+            'fields' => ['type1' => 'fields1,fields2', 'type2' => '']
+        ];
+        $result = $this->parser->parse(
+            $this->prepareRequest(self::TYPE, self::TYPE, $input),
+            $this->prepareExceptions()
+        );
+
+        // note type2 was ignored
+        $this->assertEquals(['type1' => ['fields1', 'fields2']], $result->getFieldSets());
+    }
+
+    /**
+     * Test miss field in sort params. Sample /posts/1?fields[posts][foo]=title
+     *
+     * @expectedException \Exception
+     */
+    public function testInvalidFieldSetWithMultiDimensionArray()
+    {
+        $input = [
+            'fields' => ['type' => ['subtype' => 'fields1,fields2']]
+        ];
+        $this->parser->parse(
+            $this->prepareRequest(self::TYPE, self::TYPE, $input),
+            $this->prepareExceptions('throwBadRequest')
+        );
+    }
+
+    /**
      * @param string $contentType
      * @param string $accept
      * @param array  $input
@@ -296,13 +329,15 @@ class ParameterParserTest extends BaseTestCase
 
     /**
      * @param string $exceptionMethod
+     * @param int    $times
      *
      * @return ExceptionThrowerInterface
      */
-    private function prepareExceptions($exceptionMethod = null)
+    private function prepareExceptions($exceptionMethod = null, $times = 1)
     {
         if ($exceptionMethod !== null) {
-            $this->mockThrower->shouldReceive($exceptionMethod)->atLeast(1)->withNoArgs()->andThrow(new \Exception());
+            $this->mockThrower->shouldReceive($exceptionMethod)
+                ->times($times)->withNoArgs()->andThrow(new \Exception());
         }
 
         /** @var ExceptionThrowerInterface $exceptions */
