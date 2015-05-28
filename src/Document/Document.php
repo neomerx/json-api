@@ -97,7 +97,7 @@ class Document implements DocumentInterface
      */
     public function setDocumentLinks($links)
     {
-        $links === null ?: $this->links = $this->presenter->getLinksRepresentation($links);
+        $this->links = $this->presenter->getLinksRepresentation($links);
     }
 
     /**

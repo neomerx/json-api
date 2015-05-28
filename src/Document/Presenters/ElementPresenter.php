@@ -169,7 +169,7 @@ class ElementPresenter
      *
      * @return string|null|array
      */
-    public function getLinksRepresentation($links)
+    public function getLinksRepresentation($links = null)
     {
         $result = null;
         if ($links !== null) {
