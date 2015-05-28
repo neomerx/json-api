@@ -136,7 +136,10 @@ class ParametersParser implements ParametersParserInterface
         $fieldSets = $this->getParamOrNull($parameters, self::PARAM_FIELDS);
         if (empty($fieldSets) === false && is_array($fieldSets)) {
             foreach ($fieldSets as $type => $fields) {
-                $result[$type] = explode(',', $fields);
+                // We expect fields to be comma separated strings. Multi-dimension arrays are not allowed.
+                is_string($fields) ?: $this->exceptionThrower->throwBadRequest();
+                // do not parse and add empty fields
+                empty($fields) === true ?: $result[$type] = explode(',', $fields);
             }
         } else {
             $result = null;

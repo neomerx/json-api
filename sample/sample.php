@@ -18,7 +18,6 @@
 
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Document\DocumentLinks;
 use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
 use \Neomerx\JsonApi\Parameters\EncodingParameters;
 
@@ -119,13 +118,12 @@ class Application
                 "Dan Gebhardt"
             ]
         ];
-        $links  = new DocumentLinks(
-            null,
-            new Link('http://example.com/people?first'),
-            new Link('http://example.com/people?last'),
-            new Link('http://example.com/people?prev'),
-            new Link('http://example.com/people?next')
-        );
+        $links  = [
+            Link::FIRST => new Link('http://example.com/people?first'),
+            Link::LAST  => new Link('http://example.com/people?last'),
+            Link::PREV  => new Link('http://example.com/people?prev'),
+            Link::NEXT  => new Link('http://example.com/people?next'),
+        ];
 
         $encoder  = Encoder::instance([
             Author::class  => AuthorSchema::class,
@@ -168,7 +166,7 @@ class Application
 
             $encoder->encode(
                 $site,
-                new DocumentLinks(new Link('http://example.com/sites/1?' . $rand)),
+                [Link::SELF => new Link('http://example.com/sites/1?' . $rand)],
                 ['some' => ['meta' => 'information' . $rand]],
                 $options
             );

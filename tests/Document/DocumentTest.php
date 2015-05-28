@@ -63,13 +63,13 @@ class DocumentTest extends BaseTestCase
      */
     public function testSetDocumentLinks()
     {
-        $this->document->setDocumentLinks($this->documentFactory->createDocumentLinks(
-            new Link($selfUrl  = 'selfUrl'),
-            new Link($firstUrl = 'firstUrl'),
-            new Link($lastUrl  = 'lastUrl'),
-            new Link($prevUrl  = 'prevUrl'),
-            new Link($nextUrl  = 'nextUrl')
-        ));
+        $this->document->setDocumentLinks([
+            Link::SELF  => new Link($selfUrl = 'selfUrl'),
+            Link::FIRST => new Link($firstUrl = 'firstUrl'),
+            Link::LAST  => new Link($lastUrl = 'lastUrl'),
+            Link::PREV  => new Link($prevUrl = 'prevUrl'),
+            Link::NEXT  => new Link($nextUrl = 'nextUrl'),
+        ]);
 
         $expected = <<<EOL
         {
@@ -270,7 +270,7 @@ EOL;
             true,
             true,
             true,
-            $this->schemaFactory->createPaginationLinks(new Link('/first'))
+            [Link::FIRST => new Link('/first')]
         );
         $this->document->addRelationshipToData($parent, $link, $resource);
         $this->document->setResourceCompleted($parent);
@@ -1144,9 +1144,7 @@ EOL;
     public function testAddError()
     {
         // First add something to document. When error is added nothing except errors must be in result
-        $this->document->setDocumentLinks($this->documentFactory->createDocumentLinks(
-            new Link('selfUrl')
-        ));
+        $this->document->setDocumentLinks([Link::SELF => new Link('selfUrl')]);
 
         $this->document->addError($this->documentFactory->createError(
             'some-id',

@@ -20,7 +20,6 @@ use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Document\DocumentLinks;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
 
@@ -239,7 +238,7 @@ EOL;
     public function testEncodeMetaAndtopLinksForSimpleObject()
     {
         $author = Author::instance(9, 'Dan', 'Gebhardt');
-        $links  = new DocumentLinks(new Link('http://example.com/people/9'));
+        $links  = [Link::SELF => new Link('http://example.com/people/9')];
         $meta   = [
             "copyright" => "Copyright 2015 Example Corp.",
             "authors"   => [

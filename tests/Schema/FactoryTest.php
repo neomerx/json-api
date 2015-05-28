@@ -20,8 +20,8 @@ use \Mockery;
 use \stdClass;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Schema\SchemaFactory;
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -100,7 +100,7 @@ class FactoryTest extends BaseTestCase
             $isShowData = true,
             $isShowMeta = true,
             $isShowPagination = true,
-            $pagination = Mockery::mock(PaginationLinksInterface::class)
+            $pagination = [Mockery::mock(LinkInterface::class)]
         ));
 
         $this->assertEquals($name, $link->getName());
@@ -114,23 +114,5 @@ class FactoryTest extends BaseTestCase
         $this->assertEquals($isShowMeta, $link->isShowMeta());
         $this->assertEquals($isShowPagination, $link->isShowPagination());
         $this->assertSame($pagination, $link->getPagination());
-    }
-
-    /**
-     * Test create pagination links.
-     */
-    public function testCreatePaginationLinks()
-    {
-        $this->assertNotNull($link = $this->factory->createPaginationLinks(
-            $this->factory->createLink($firstUrl = 'first'),
-            $this->factory->createLink($lastUrl  = 'last'),
-            $this->factory->createLink($prevUrl  = 'prev'),
-            $this->factory->createLink($nextUrl  = 'next')
-        ));
-
-        $this->assertEquals($firstUrl, $link->getFirstUrl()->getSubHref());
-        $this->assertEquals($lastUrl, $link->getLastUrl()->getSubHref());
-        $this->assertEquals($prevUrl, $link->getPrevUrl()->getSubHref());
-        $this->assertEquals($nextUrl, $link->getNextUrl()->getSubHref());
     }
 }

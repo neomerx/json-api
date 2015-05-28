@@ -473,7 +473,7 @@ EOL;
                 $schema->linkAddTo(
                     Post::LINK_COMMENTS,
                     PostSchema::PAGINATION,
-                    [PostSchema::PAGINATION_FIRST => new Link('/first')]
+                    [Link::FIRST => new Link('/first')]
                 );
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_PAGINATION, true);
                 return $schema;

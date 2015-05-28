@@ -94,7 +94,7 @@ interface RelationshipObjectInterface
     /**
      * Get pagination information.
      *
-     * @return PaginationLinksInterface|null
+     * @return LinkInterface[]|null
      */
     public function getPagination();
 }

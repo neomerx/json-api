@@ -99,18 +99,6 @@ class SchemaFactory implements SchemaFactoryInterface
     /**
      * @inheritdoc
      */
-    public function createPaginationLinks(
-        LinkInterface $firstUrl = null,
-        LinkInterface $lastUrl = null,
-        LinkInterface $prevUrl = null,
-        LinkInterface $nextUrl = null
-    ) {
-        return new PaginationLinks($firstUrl, $lastUrl, $prevUrl, $nextUrl);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function createLink($subHref, $meta = null)
     {
         return new Link($subHref, $meta);

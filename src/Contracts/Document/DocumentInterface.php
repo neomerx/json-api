@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
@@ -24,14 +25,66 @@ use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
  */
 interface DocumentInterface
 {
+    /** Reserved keyword */
+    const KEYWORD_LINKS         = 'links';
+    /** Reserved keyword */
+    const KEYWORD_HREF          = 'href';
+    /** Reserved keyword */
+    const KEYWORD_RELATIONSHIPS = 'relationships';
+    /** Reserved keyword */
+    const KEYWORD_SELF          = 'self';
+    /** Reserved keyword */
+    const KEYWORD_FIRST         = 'first';
+    /** Reserved keyword */
+    const KEYWORD_LAST          = 'last';
+    /** Reserved keyword */
+    const KEYWORD_NEXT          = 'next';
+    /** Reserved keyword */
+    const KEYWORD_PREV          = 'prev';
+    /** Reserved keyword */
+    const KEYWORD_RELATED       = 'related';
+    /** Reserved keyword */
+    const KEYWORD_LINKAGE_DATA  = self::KEYWORD_DATA;
+    /** Reserved keyword */
+    const KEYWORD_TYPE          = 'type';
+    /** Reserved keyword */
+    const KEYWORD_ID            = 'id';
+    /** Reserved keyword */
+    const KEYWORD_ATTRIBUTES    = 'attributes';
+    /** Reserved keyword */
+    const KEYWORD_META          = 'meta';
+    /** Reserved keyword */
+    const KEYWORD_DATA          = 'data';
+    /** Reserved keyword */
+    const KEYWORD_INCLUDED      = 'included';
+
+    /** Reserved keyword */
+    const KEYWORD_ERRORS        = 'errors';
+    /** Reserved keyword */
+    const KEYWORD_ERRORS_ID     = 'id';
+    /** Reserved keyword */
+    const KEYWORD_ERRORS_HREF   = 'href';
+    /** Reserved keyword */
+    const KEYWORD_ERRORS_STATUS = 'status';
+    /** Reserved keyword */
+    const KEYWORD_ERRORS_CODE   = 'code';
+    /** Reserved keyword */
+    const KEYWORD_ERRORS_TITLE  = 'title';
+    /** Reserved keyword */
+    const KEYWORD_ERRORS_DETAIL = 'detail';
+    /** Reserved keyword */
+    const KEYWORD_ERRORS_META   = 'meta';
+    /** Reserved keyword */
+    const KEYWORD_ERRORS_SOURCE = 'source';
+
     /**
      * Set URLs to top-level 'links' section.
      *
-     * @param DocumentLinksInterface $links
+     * @param LinkInterface[]|null $links
      *
      * @return void
      */
-    public function setDocumentLinks(DocumentLinksInterface $links);
+    public function setDocumentLinks($links);
 
     /**
      * Set arbitrary meta-information about primary data to top-level 'meta' section.

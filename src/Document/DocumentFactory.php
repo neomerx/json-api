@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
 
 /**
@@ -30,19 +29,6 @@ class DocumentFactory implements DocumentFactoryInterface
     public function createDocument()
     {
         return new Document();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createDocumentLinks(
-        LinkInterface $selfUrl = null,
-        LinkInterface $firstUrl = null,
-        LinkInterface $lastUrl = null,
-        LinkInterface $prevUrl = null,
-        LinkInterface $nextUrl = null
-    ) {
-        return new DocumentLinks($selfUrl, $firstUrl, $lastUrl, $prevUrl, $nextUrl);
     }
 
     /**

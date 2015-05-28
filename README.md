@@ -22,6 +22,11 @@ This framework agnostic package implements [JSON API](http://jsonapi.org/) speci
 
 **To find out more, please check out the [Wiki](https://github.com/neomerx/json-api/wiki) and [Sample App](/sample)**.
 
+<blockquote align="right">
+    &ldquo;I'm loving how easy it makes it to quickly implement an api&rdquo;
+</blockquote>
+<p align="right">&ndash;<strong>Jeremy Cloutier</strong></p>
+
 ## Sample usage
 
 Assuming you've got an ```$author``` of type ```\Author``` you can encode it to JSON API as simple as this
@@ -77,11 +82,15 @@ class AuthorSchema extends SchemaProvider
 }
 ```
 
-**For more advanced usage please check out the [Wiki](/https://github.com/neomerx/json-api/wiki)**.
+**For more advanced usage please check out the [Wiki](https://github.com/neomerx/json-api/wiki)**.
 
 ## Questions?
 
 Do not hesitate to contact us on [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/neomerx/json-api) or post an [issue](https://github.com/neomerx/json-api/issues).
+
+## Need help?
+
+Are you planning to add JSON API and need help? We'd love to talk to you [sales@neomerx.com](mailto:sales@neomerx.com).
 
 ## Contributing
 

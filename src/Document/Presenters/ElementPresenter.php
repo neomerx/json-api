@@ -19,8 +19,6 @@
 use \Neomerx\JsonApi\Document\Document;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
-use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
@@ -89,22 +87,6 @@ class ElementPresenter
                     [$name][Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
             }
         }
-    }
-
-    /**
-     * @param DocumentLinksInterface $links
-     *
-     * @return array
-     */
-    public function getDocumentLinksRepresentation(DocumentLinksInterface $links)
-    {
-        $representation = array_merge([
-            Document::KEYWORD_SELF  => $this->getLinkRepresentation($links->getSelfUrl()),
-        ], $this->getPaginationLinksRepresentation($links));
-
-        return array_filter($representation, function ($value) {
-            return $value !== null;
-        });
     }
 
     /**
@@ -183,6 +165,24 @@ class ElementPresenter
     }
 
     /**
+     * @param LinkInterface[]|null $links
+     *
+     * @return string|null|array
+     */
+    public function getLinksRepresentation($links)
+    {
+        $result = null;
+        if ($links !== null) {
+            foreach ($links as $name => $link) {
+                /** @var LinkInterface $link */
+                $result[$name] = $this->getLinkRepresentation($link);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * @param string            $url
      * @param null|object|array $meta
      *
@@ -201,16 +201,6 @@ class ElementPresenter
     }
 
     /**
-     * @param LinkInterface|null $link
-     *
-     * @return string|null|array
-     */
-    private function getLinkRepresentation(LinkInterface $link = null)
-    {
-        return $link === null ? null : $this->getUrlRepresentation($link->getSubHref(), $link->getMeta());
-    }
-
-    /**
      * @param ResourceObjectInterface $resource
      *
      * @return array<string,string>
@@ -225,6 +215,16 @@ class ElementPresenter
             $representation[Document::KEYWORD_META] = $resource->getMeta();
         }
         return $representation;
+    }
+
+    /**
+     * @param LinkInterface|null $link
+     *
+     * @return string|null|array
+     */
+    private function getLinkRepresentation(LinkInterface $link = null)
+    {
+        return $link === null ? null : $this->getUrlRepresentation($link->getSubHref(), $link->getMeta());
     }
 
     /**
@@ -268,10 +268,10 @@ class ElementPresenter
         if ($relation->isShowPagination() === true && $relation->getPagination() !== null) {
             if (empty($representation[Document::KEYWORD_LINKS]) === true) {
                 $representation[Document::KEYWORD_LINKS] =
-                    $this->getPaginationLinksRepresentation($relation->getPagination());
+                    $this->getLinksRepresentation($relation->getPagination());
             } else {
                 $representation[Document::KEYWORD_LINKS] +=
-                    $this->getPaginationLinksRepresentation($relation->getPagination());
+                    $this->getLinksRepresentation($relation->getPagination());
             }
         }
 
@@ -281,23 +281,6 @@ class ElementPresenter
         );
 
         return $representation;
-    }
-
-    /**
-     * @param PaginationLinksInterface $links
-     *
-     * @return array
-     */
-    private function getPaginationLinksRepresentation(PaginationLinksInterface $links)
-    {
-        return array_filter([
-            Document::KEYWORD_FIRST => $this->getLinkRepresentation($links->getFirstUrl()),
-            Document::KEYWORD_LAST  => $this->getLinkRepresentation($links->getLastUrl()),
-            Document::KEYWORD_PREV  => $this->getLinkRepresentation($links->getPrevUrl()),
-            Document::KEYWORD_NEXT  => $this->getLinkRepresentation($links->getNextUrl()),
-        ], function ($value) {
-            return $value !== null;
-        });
     }
 
     /**

@@ -19,7 +19,6 @@
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
@@ -90,7 +89,7 @@ class Encoder implements EncoderInterface
      */
     public function encode(
         $data,
-        DocumentLinksInterface $links = null,
+        $links = null,
         $meta = null,
         EncodingParametersInterface $parameters = null
     ) {

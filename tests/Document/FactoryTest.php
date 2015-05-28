@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Document\DocumentFactory;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
@@ -47,26 +46,6 @@ class FactoryTest extends BaseTestCase
     public function testCreateDocument()
     {
         $this->assertNotNull($this->factory->createDocument());
-    }
-
-    /**
-     * Test create error.
-     */
-    public function testDocumentLinks()
-    {
-        $this->assertNotNull($links = $this->factory->createDocumentLinks(
-            new Link($selfUrl  = 'selfUrl'),
-            new Link($firstUrl = 'firstUrl'),
-            new Link($lastUrl  = 'lastUrl'),
-            new Link($prevUrl  = 'prevUrl'),
-            new Link($nextUrl  = 'nextUrl')
-        ));
-
-        $this->assertEquals($selfUrl, $links->getSelfUrl()->getSubHref());
-        $this->assertEquals($firstUrl, $links->getFirstUrl()->getSubHref());
-        $this->assertEquals($lastUrl, $links->getLastUrl()->getSubHref());
-        $this->assertEquals($prevUrl, $links->getPrevUrl()->getSubHref());
-        $this->assertEquals($nextUrl, $links->getNextUrl()->getSubHref());
     }
 
     /**

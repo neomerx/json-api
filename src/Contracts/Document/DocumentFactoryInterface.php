@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
-
 /**
  * @package Neomerx\JsonApi
  */
@@ -29,25 +27,6 @@ interface DocumentFactoryInterface
      * @return DocumentInterface
      */
     public function createDocument();
-
-    /**
-     * Create document links.
-     *
-     * @param LinkInterface|null $selfUrl
-     * @param LinkInterface|null $firstUrl
-     * @param LinkInterface|null $lastUrl
-     * @param LinkInterface|null $prevUrl
-     * @param LinkInterface|null $nextUrl
-     *
-     * @return DocumentLinksInterface
-     */
-    public function createDocumentLinks(
-        LinkInterface $selfUrl = null,
-        LinkInterface $firstUrl = null,
-        LinkInterface $lastUrl = null,
-        LinkInterface $prevUrl = null,
-        LinkInterface $nextUrl = null
-    );
 
     /**
      * Create error instance.

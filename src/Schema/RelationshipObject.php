@@ -17,7 +17,6 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
-use \Neomerx\JsonApi\Contracts\Schema\PaginationLinksInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
@@ -76,22 +75,22 @@ class RelationshipObject implements RelationshipObjectInterface
     private $isShowPagination;
 
     /**
-     * @var PaginationLinksInterface|null
+     * @var LinkInterface[]|null
      */
     private $pagination;
 
     /**
-     * @param string                        $name
-     * @param object|array|null             $data
-     * @param LinkInterface                 $selfLink
-     * @param LinkInterface                 $relatedLink
-     * @param bool                          $isShowAsRef
-     * @param bool                          $isShowSelf
-     * @param bool                          $isShowRelated
-     * @param bool                          $isShowData
-     * @param bool                          $isShowMeta
-     * @param bool                          $isShowPagination
-     * @param PaginationLinksInterface|null $pagination
+     * @param string               $name
+     * @param object|array|null    $data
+     * @param LinkInterface        $selfLink
+     * @param LinkInterface        $relatedLink
+     * @param bool                 $isShowAsRef
+     * @param bool                 $isShowSelf
+     * @param bool                 $isShowRelated
+     * @param bool                 $isShowData
+     * @param bool                 $isShowMeta
+     * @param bool                 $isShowPagination
+     * @param LinkInterface[]|null $pagination
      */
     public function __construct(
         $name,
@@ -111,7 +110,7 @@ class RelationshipObject implements RelationshipObjectInterface
             '(is_object($data) || is_array($data) || is_null($data)) &&'.
             'is_bool($isShowAsRef) && is_bool($isShowSelf) && is_bool($isShowRelated) && is_bool($isShowMeta) &&'.
             'is_bool($isShowPagination) &&'.
-            '(is_null($pagination) || $pagination instanceof ' . PaginationLinksInterface::class . ')'
+            '(is_null($pagination) || is_array($pagination))'
         );
         assert(
             '$isShowSelf || $isShowRelated || $isShowData || $isShowMeta',

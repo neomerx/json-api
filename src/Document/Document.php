@@ -20,7 +20,6 @@ use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Document\Presenters\ElementPresenter;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Document\DocumentLinksInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
@@ -28,58 +27,6 @@ use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
  */
 class Document implements DocumentInterface
 {
-    /** Reserved keyword */
-    const KEYWORD_LINKS         = 'links';
-    /** Reserved keyword */
-    const KEYWORD_HREF          = 'href';
-    /** Reserved keyword */
-    const KEYWORD_RELATIONSHIPS = 'relationships';
-    /** Reserved keyword */
-    const KEYWORD_SELF          = 'self';
-    /** Reserved keyword */
-    const KEYWORD_FIRST         = 'first';
-    /** Reserved keyword */
-    const KEYWORD_LAST          = 'last';
-    /** Reserved keyword */
-    const KEYWORD_NEXT          = 'next';
-    /** Reserved keyword */
-    const KEYWORD_PREV          = 'prev';
-    /** Reserved keyword */
-    const KEYWORD_RELATED       = 'related';
-    /** Reserved keyword */
-    const KEYWORD_LINKAGE_DATA  = self::KEYWORD_DATA;
-    /** Reserved keyword */
-    const KEYWORD_TYPE          = 'type';
-    /** Reserved keyword */
-    const KEYWORD_ID            = 'id';
-    /** Reserved keyword */
-    const KEYWORD_ATTRIBUTES    = 'attributes';
-    /** Reserved keyword */
-    const KEYWORD_META          = 'meta';
-    /** Reserved keyword */
-    const KEYWORD_DATA          = 'data';
-    /** Reserved keyword */
-    const KEYWORD_INCLUDED      = 'included';
-
-    /** Reserved keyword */
-    const KEYWORD_ERRORS        = 'errors';
-    /** Reserved keyword */
-    const KEYWORD_ERRORS_ID     = 'id';
-    /** Reserved keyword */
-    const KEYWORD_ERRORS_HREF   = 'href';
-    /** Reserved keyword */
-    const KEYWORD_ERRORS_STATUS = 'status';
-    /** Reserved keyword */
-    const KEYWORD_ERRORS_CODE   = 'code';
-    /** Reserved keyword */
-    const KEYWORD_ERRORS_TITLE  = 'title';
-    /** Reserved keyword */
-    const KEYWORD_ERRORS_DETAIL = 'detail';
-    /** Reserved keyword */
-    const KEYWORD_ERRORS_META   = 'meta';
-    /** Reserved keyword */
-    const KEYWORD_ERRORS_SOURCE = 'source';
-
     /**
      * @var array
      */
@@ -148,9 +95,9 @@ class Document implements DocumentInterface
     /**
      * @inheritdoc
      */
-    public function setDocumentLinks(DocumentLinksInterface $links)
+    public function setDocumentLinks($links)
     {
-        $this->links = $this->presenter->getDocumentLinksRepresentation($links);
+        $links === null ?: $this->links = $this->presenter->getLinksRepresentation($links);
     }
 
     /**

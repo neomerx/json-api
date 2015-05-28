@@ -66,17 +66,17 @@ interface SchemaFactoryInterface
     /**
      * Create relationship object.
      *
-     * @param string                        $name
-     * @param object|array|null             $data
-     * @param LinkInterface                 $selfLink
-     * @param LinkInterface                 $relatedLink
-     * @param bool                          $isShowAsRef
-     * @param bool                          $isShowSelf
-     * @param bool                          $isShowRelated
-     * @param bool                          $isShowData
-     * @param bool                          $isShowMeta
-     * @param bool                          $isShowPagination
-     * @param PaginationLinksInterface|null $pagination
+     * @param string               $name
+     * @param object|array|null    $data
+     * @param LinkInterface        $selfLink
+     * @param LinkInterface        $relatedLink
+     * @param bool                 $isShowAsRef
+     * @param bool                 $isShowSelf
+     * @param bool                 $isShowRelated
+     * @param bool                 $isShowData
+     * @param bool                 $isShowMeta
+     * @param bool                 $isShowPagination
+     * @param LinkInterface[]|null $pagination
      *
      * @return RelationshipObjectInterface
      */
@@ -92,23 +92,6 @@ interface SchemaFactoryInterface
         $isShowMeta,
         $isShowPagination,
         $pagination
-    );
-
-    /**
-     * Create pagination links.
-     *
-     * @param LinkInterface|null $firstUrl
-     * @param LinkInterface|null $lastUrl
-     * @param LinkInterface|null $prevUrl
-     * @param LinkInterface|null $nextUrl
-     *
-     * @return PaginationLinksInterface
-     */
-    public function createPaginationLinks(
-        LinkInterface $firstUrl = null,
-        LinkInterface $lastUrl = null,
-        LinkInterface $prevUrl = null,
-        LinkInterface $nextUrl = null
     );
 
     /**

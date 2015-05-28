@@ -16,11 +16,28 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
 interface LinkInterface
 {
+    /** Reserved keyword */
+    const SELF    = DocumentInterface::KEYWORD_SELF;
+    /** Reserved keyword */
+    const RELATED = DocumentInterface::KEYWORD_RELATED;
+    /** Reserved keyword */
+    const FIRST   = DocumentInterface::KEYWORD_FIRST;
+    /** Reserved keyword */
+    const LAST    = DocumentInterface::KEYWORD_LAST;
+    /** Reserved keyword */
+    const NEXT    = DocumentInterface::KEYWORD_NEXT;
+    /** Reserved keyword */
+    const PREV    = DocumentInterface::KEYWORD_PREV;
+    /** Reserved keyword */
+    const ABOUT   = 'about';
+
     /**
      * Get 'href' (URL) value.
      *

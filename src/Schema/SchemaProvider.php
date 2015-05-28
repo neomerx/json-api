@@ -51,18 +51,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /** Link pagination information */
     const PAGINATION = 'pagination';
 
-    /** Link pagination information */
-    const PAGINATION_FIRST = 'first';
-
-    /** Link pagination information */
-    const PAGINATION_LAST = 'last';
-
-    /** Link pagination information */
-    const PAGINATION_PREV = 'prev';
-
-    /** Link pagination information */
-    const PAGINATION_NEXT = 'next';
-
     /** Default 'self' sub-URL could be changed with this key */
     const SELF_SUB_URL = 'selfSubUrl';
 
@@ -375,15 +363,12 @@ abstract class SchemaProvider implements SchemaProviderInterface
     {
         $pagination       = null;
         $isShowPagination = $this->getValue($description, self::SHOW_PAGINATION, false);
-        if (isset($description[self::PAGINATION]) === true) {
-            $paginationData = $description[self::PAGINATION];
-            $first = $this->getValue($paginationData, self::PAGINATION_FIRST);
-            $last  = $this->getValue($paginationData, self::PAGINATION_LAST);
-            $prev  = $this->getValue($paginationData, self::PAGINATION_PREV);
-            $next  = $this->getValue($paginationData, self::PAGINATION_NEXT);
-            if ($first !== null || $last !== null || $prev !== null || $next !== null) {
-                $pagination = $this->factory->createPaginationLinks($first, $last, $prev, $next);
-            }
+
+        if ($isShowPagination === true &&
+            isset($description[self::PAGINATION]) === true &&
+            empty($description[self::PAGINATION]) === false
+        ) {
+            $pagination = $description[self::PAGINATION];
         }
 
         $isShowPagination = ($isShowPagination === true && $pagination !== null);
