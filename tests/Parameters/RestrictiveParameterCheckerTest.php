@@ -204,12 +204,60 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
             ),
             false,
             null,
-            ['type1', 'anotherType']
+            ['type1' => ['fields1', 'fields2', 'fields3'],]
         );
 
         $parameters = $this->parser->parse(
             $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
             $this->prepareExceptions()
+        );
+
+        $checker->check($parameters);
+    }
+
+    /**
+     * Test checker with allowed field sets.
+     */
+    public function testAllowedAllFieldSets()
+    {
+        $checker = new RestrictiveParameterChecker(
+            $this->prepareExceptions(),
+            $this->prepareCodecMatcher(
+                [[self::TYPE, self::SUB_TYPE, null]],
+                [[self::TYPE, self::SUB_TYPE, null]]
+            ),
+            false,
+            null,
+            ['type1' => null] // all fields are allowed for type1
+        );
+
+        $parameters = $this->parser->parse(
+            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
+            $this->prepareExceptions()
+        );
+
+        $checker->check($parameters);
+    }
+
+    /**
+     * Test checker with not allowed type in field sets.
+     */
+    public function testNonEsistingFieldSets()
+    {
+        $checker = new RestrictiveParameterChecker(
+            $this->prepareExceptions(),
+            $this->prepareCodecMatcher(
+                [[self::TYPE, self::SUB_TYPE, null]],
+                [[self::TYPE, self::SUB_TYPE, null]]
+            ),
+            false,
+            null,
+            ['nonExistingType' => null]
+        );
+
+        $parameters = $this->parser->parse(
+            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
+            $this->prepareExceptions('throwBadRequest')
         );
 
         $checker->check($parameters);
@@ -228,7 +276,7 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
             ),
             false,
             null,
-            ['anotherType']
+            ['type1' => ['fields1']] // only 1 allowed field (2 in request)
         );
 
         $parameters = $this->parser->parse(
@@ -272,7 +320,7 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         $allowedSortParams = ['created', 'name']; // in input will be 'title' which is not on the list
         $checker = new RestrictiveParameterChecker(
-            $this->prepareExceptions('throwBadRequest'),
+            $this->prepareExceptions('throwBadRequest', 2), // expect just at least one 'bad request'
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
                 [[self::TYPE, self::SUB_TYPE, null]]
@@ -433,13 +481,14 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
 
     /**
      * @param string $exceptionMethod
+     * @param int    $times
      *
      * @return ExceptionThrowerInterface
      */
-    private function prepareExceptions($exceptionMethod = null)
+    private function prepareExceptions($exceptionMethod = null, $times = 1)
     {
         if ($exceptionMethod !== null) {
-            $this->mockThrower->shouldReceive($exceptionMethod)->atLeast(1)->withNoArgs()->andReturnUndefined();
+            $this->mockThrower->shouldReceive($exceptionMethod)->times($times)->withNoArgs()->andReturnUndefined();
         }
 
         /** @var ExceptionThrowerInterface $exceptions */
