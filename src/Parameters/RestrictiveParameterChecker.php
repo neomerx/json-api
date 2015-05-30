@@ -20,7 +20,6 @@ use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParameterCheckerInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
@@ -69,11 +68,6 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     private $filteringParameters;
 
     /**
-     * @var bool
-     */
-    private $allowExtensionsSupport;
-
-    /**
      * @param ExceptionThrowerInterface $exceptionThrower
      * @param CodecMatcherInterface     $codecMatcher
      * @param bool                      $allowUnrecognized
@@ -82,7 +76,6 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
      * @param array|null                $sortParameters
      * @param array|null                $pagingParameters
      * @param array|null                $filteringParameters
-     * @param bool                      $allowExtSupport If JSON API extensions support is allowed.
      */
     public function __construct(
         ExceptionThrowerInterface $exceptionThrower,
@@ -92,18 +85,16 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
         array $fieldSetTypes = null,
         array $sortParameters = null,
         array $pagingParameters = null,
-        array $filteringParameters = null,
-        $allowExtSupport = false
+        array $filteringParameters = null
     ) {
-        $this->exceptionThrower       = $exceptionThrower;
-        $this->codecMatcher           = $codecMatcher;
-        $this->includePaths           = $includePaths;
-        $this->allowUnrecognized      = $allowUnrecognized;
-        $this->fieldSetTypes          = $fieldSetTypes;
-        $this->sortParameters         = $this->flip($sortParameters);
-        $this->pagingParameters       = $this->flip($pagingParameters);
-        $this->filteringParameters    = $this->flip($filteringParameters);
-        $this->allowExtensionsSupport = $allowExtSupport;
+        $this->exceptionThrower    = $exceptionThrower;
+        $this->codecMatcher        = $codecMatcher;
+        $this->includePaths        = $includePaths;
+        $this->allowUnrecognized   = $allowUnrecognized;
+        $this->fieldSetTypes       = $fieldSetTypes;
+        $this->sortParameters      = $this->flip($sortParameters);
+        $this->pagingParameters    = $this->flip($pagingParameters);
+        $this->filteringParameters = $this->flip($filteringParameters);
     }
 
     /**
@@ -132,16 +123,13 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     {
         $this->codecMatcher->matchEncoder($parameters->getAcceptHeader());
 
-        // From spec: Servers MUST return a 406 Not Acceptable status code if
-        // the application/vnd.api+json media type is modified by the ext parameter
-        // in the Accept header of a request.
+        // From spec: Servers MUST respond with a 406 Not Acceptable status code
+        // if a request's Accept header contains the JSON API media type and all
+        // instances of that media type are modified with media type parameters.
 
-        // We return 406 if no match found for encoder or
-        // if 'allowExtensionsSupport' set to false (and match found) we check 'ext' **parameter** to be not set.
-        // Thus it can be configured whether we support extensions or not.
-
-        $inputMediaType = $this->codecMatcher->getEncoderHeaderMatchedType();
-        if ($this->isBadMediaType($inputMediaType)) {
+        // We return 406 if no match found for encoder (media type with or wo parameters)
+        // If no encoders were configured for media types with parameters we return 406 anyway
+        if ($this->codecMatcher->getEncoderHeaderMatchedType() === null) {
             $this->exceptionThrower->throwNotAcceptable();
         }
     }
@@ -160,16 +148,13 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
 
         $this->codecMatcher->findDecoder($parameters->getContentTypeHeader());
 
-        // From spec: servers MUST return a 415 Unsupported Media Type status code if
-        // the application/vnd.api+json media type is modified by the ext parameter
-        // in the Content-Type header of a request.
+        // From spec: Servers MUST respond with a 415 Unsupported Media Type status code
+        // if a request specifies the header Content-Type: application/vnd.api+json with
+        // any media type parameters.
 
-        // We return 415 if no match found for decoder or
-        // if 'allowExtensionsSupport' set to false (and match found) we check 'ext' **parameter** to be not set.
-        // Thus it can be configured whether we support extensions or not.
-
-        $inputMediaType = $this->codecMatcher->getDecoderHeaderMatchedType();
-        if ($this->isBadMediaType($inputMediaType)) {
+        // We return 415 if no match found for decoder (media type with or wo parameters)
+        // If no decoders were configured for media types with parameters we return 415 anyway
+        if ($this->codecMatcher->getDecoderHeaderMatchedType() === null) {
             $this->exceptionThrower->throwUnsupportedMediaType();
         }
     }
@@ -264,20 +249,6 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     private function flip(array $array = null)
     {
         return $array === null ? null : array_flip($array);
-    }
-
-    /**
-     * @param MediaTypeInterface|null $mediaType
-     *
-     * @return bool
-     */
-    private function isBadMediaType(MediaTypeInterface $mediaType = null)
-    {
-        return $mediaType === null || (
-            $this->allowExtensionsSupport === false &&
-            $mediaType->getMediaType() === MediaTypeInterface::JSON_API_MEDIA_TYPE &&
-            $mediaType->getParameters() !== null &&
-            array_key_exists(MediaTypeInterface::PARAM_EXT, $mediaType->getParameters()) === true);
     }
 
     /**
