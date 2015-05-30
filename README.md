@@ -1,3 +1,4 @@
+[![Project Management](https://img.shields.io/badge/project-management-blue.svg)](https://waffle.io/neomerx/json-api)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/neomerx/json-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/neomerx/json-api/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/neomerx/json-api/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/neomerx/json-api/?branch=master)
 [![Build Status](https://travis-ci.org/neomerx/json-api.svg?branch=master)](https://travis-ci.org/neomerx/json-api)
@@ -10,7 +11,7 @@
 
 A good API is one of most effective ways to improve the experience for your clients. Standardized approaches for data formats and communication protocols increase productivity and make integration between applications smooth.
 
-This framework agnostic package implements [JSON API](http://jsonapi.org/) specification version **RC4** (which is planned **to be released** on May 28, 2015 as **v1.0**) and helps focusing on core application functionality rather than on protocol implementation. It supports document structure, errors, data fetching as described in [JSON API Format](http://jsonapi.org/format/) and covers parsing and checking HTTP request parameters and headers. For instance it helps to correctly respond with ```Unsupported Media Type``` (HTTP code 415) and ```Not Acceptable``` (HTTP code 406) to invalid requests. You don't need to manually validate all input parameters on every request. You can configure what parameters are supported by your services and this package will check incoming requests automatically. It greatly simplifies API development and fully support specification. In particular
+This framework agnostic package implements [JSON API](http://jsonapi.org/) specification version **v1.0** and helps focusing on core application functionality rather than on protocol implementation. It supports document structure, errors, data fetching as described in [JSON API Format](http://jsonapi.org/format/) and covers parsing and checking HTTP request parameters and headers. For instance it helps to correctly respond with ```Unsupported Media Type``` (HTTP code 415) and ```Not Acceptable``` (HTTP code 406) to invalid requests. You don't need to manually validate all input parameters on every request. You can configure what parameters are supported by your services and this package will check incoming requests automatically. It greatly simplifies API development and fully support specification. In particular
 
 * Resource attributes and relationships
 * Compound documents with inclusion of related resources (circular resource references supported)
@@ -95,6 +96,8 @@ Are you planning to add JSON API and need help? We'd love to talk to you [sales@
 ## Contributing
 
 If you have spotted any specification changes that are not reflected in this package please post an [issue](https://github.com/neomerx/json-api/issues). Pull requests for documentation and code improvements are welcome.
+
+Current tasks are managed with [Waffle.io](https://waffle.io/neomerx/json-api).
 
 ## License
 
