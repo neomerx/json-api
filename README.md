@@ -97,6 +97,8 @@ Are you planning to add JSON API and need help? We'd love to talk to you [sales@
 
 If you have spotted any specification changes that are not reflected in this package please post an [issue](https://github.com/neomerx/json-api/issues). Pull requests for documentation and code improvements are welcome.
 
+Current tasks are managed with [Waffle.io](https://waffle.io/neomerx/json-api).
+
 ## License
 
 Apache License (Version 2.0). Please see [License File](LICENSE) for more information.
