@@ -25,6 +25,9 @@ use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
  */
 interface EncoderInterface
 {
+    /** JSON API version implemented by the encoder */
+    const JSON_API_VERSION = '1.0';
+
     /**
      * Encode input as JSON API string.
      *

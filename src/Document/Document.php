@@ -48,9 +48,14 @@ class Document implements DocumentInterface
     private $isIncludedMarks;
 
     /**
-     * @var array
+     * @var array|null
      */
     private $included;
+
+    /**
+     * @var array|null
+     */
+    private $version;
 
     /**
      * @var array|null
@@ -263,6 +268,7 @@ class Document implements DocumentInterface
         }
 
         $document = array_filter([
+            self::KEYWORD_JSON_API => $this->version,
             self::KEYWORD_META     => $this->meta,
             self::KEYWORD_LINKS    => $this->links,
             self::KEYWORD_DATA     => true, // this field wont be filtered
@@ -279,6 +285,15 @@ class Document implements DocumentInterface
         }
 
         return $document;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addJsonApiVersion($version, $meta = null)
+    {
+        $this->version = $meta === null ?
+            [self::KEYWORD_VERSION => $version] : [self::KEYWORD_VERSION => $version, self::KEYWORD_META => $meta];
     }
 
     /**

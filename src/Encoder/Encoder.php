@@ -56,9 +56,9 @@ class Encoder implements EncoderInterface
     private $parametersFactory;
 
     /**
-     * @var JsonEncodeOptions|null
+     * @var EncoderOptions|null
      */
-    protected $encodeOptions;
+    protected $encoderOptions;
 
     /**
      * @param DocumentFactoryInterface   $documentFactory
@@ -66,7 +66,7 @@ class Encoder implements EncoderInterface
      * @param HandlerFactoryInterface    $handlerFactory
      * @param ParametersFactoryInterface $parametersFactory
      * @param ContainerInterface         $container
-     * @param JsonEncodeOptions|null     $encodeOptions
+     * @param EncoderOptions|null        $encoderOptions
      */
     public function __construct(
         DocumentFactoryInterface $documentFactory,
@@ -74,12 +74,12 @@ class Encoder implements EncoderInterface
         HandlerFactoryInterface $handlerFactory,
         ParametersFactoryInterface $parametersFactory,
         ContainerInterface $container,
-        JsonEncodeOptions $encodeOptions = null
+        EncoderOptions $encoderOptions = null
     ) {
         $this->container         = $container;
-        $this->encodeOptions     = $encodeOptions;
         $this->parserFactory     = $parserFactory;
         $this->handlerFactory    = $handlerFactory;
+        $this->encoderOptions    = $encoderOptions;
         $this->documentFactory   = $documentFactory;
         $this->parametersFactory = $parametersFactory;
     }
@@ -104,6 +104,10 @@ class Encoder implements EncoderInterface
 
         $meta  === null ?: $docWriter->setMetaToDocument($meta);
         $links === null ?: $docWriter->setDocumentLinks($links);
+
+        if ($this->encoderOptions !== null && $this->encoderOptions->isShowVersionInfo() === true) {
+            $docWriter->addJsonApiVersion(self::JSON_API_VERSION, $this->encoderOptions->getVersionMeta());
+        }
 
         return $this->encodeToJson($docWriter->getDocument());
     }
@@ -156,20 +160,20 @@ class Encoder implements EncoderInterface
      */
     protected function encodeToJson(array $document)
     {
-        return $this->encodeOptions === null ?
+        return $this->encoderOptions === null ?
             json_encode($document) :
-            json_encode($document, $this->encodeOptions->getOptions(), $this->encodeOptions->getDepth());
+            json_encode($document, $this->encoderOptions->getOptions(), $this->encoderOptions->getDepth());
     }
 
     /**
      * Create encoder instance.
      *
-     * @param array                  $schemas       Schema providers.
-     * @param JsonEncodeOptions|null $encodeOptions
+     * @param array               $schemas       Schema providers.
+     * @param EncoderOptions|null $encodeOptions
      *
      * @return Encoder
      */
-    public static function instance(array $schemas, JsonEncodeOptions $encodeOptions = null)
+    public static function instance(array $schemas, EncoderOptions $encodeOptions = null)
     {
         /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
         $schemaFactory = new \Neomerx\JsonApi\Schema\SchemaFactory();

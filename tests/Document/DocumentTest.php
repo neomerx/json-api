@@ -1175,6 +1175,25 @@ EOL;
     }
 
     /**
+     * Test add JSON API version info.
+     */
+    public function testAddVersion()
+    {
+        $this->document->addJsonApiVersion('1.0', ['some' => 'meta']);
+        $this->document->unsetData();
+
+        $expected = <<<EOL
+        {
+            "jsonapi":{
+                "version" : "1.0",
+                "meta"    : { "some" : "meta" }
+            }
+        }
+EOL;
+        $this->check($expected);
+    }
+
+    /**
      * Test URL concatenation.
      */
     public function testConcatUrls()

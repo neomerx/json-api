@@ -20,8 +20,8 @@ use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
-use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -158,7 +158,7 @@ EOL;
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
-        ], new JsonEncodeOptions(JSON_PRETTY_PRINT));
+        ], new EncoderOptions(JSON_PRETTY_PRINT));
 
         $actual = $endcoder->encode($author);
 
@@ -320,6 +320,27 @@ EOL;
                     "Dan Gebhardt"
                 ]
             }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testEncodeJsonApiVersion()
+    {
+        $endcoder = Encoder::instance([], new EncoderOptions(0, 512, true, ['some' => 'meta']));
+
+        $actual = $endcoder->encode(null);
+
+        $expected = <<<EOL
+        {
+            "jsonapi" : {
+                "version" : "1.0",
+                "meta"    : { "some" : "meta" }
+            },
+            "data" : null
         }
 EOL;
         // remove formatting from 'expected'

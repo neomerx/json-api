@@ -57,6 +57,10 @@ interface DocumentInterface
     const KEYWORD_DATA          = 'data';
     /** Reserved keyword */
     const KEYWORD_INCLUDED      = 'included';
+    /** Reserved keyword */
+    const KEYWORD_JSON_API      = 'jsonapi';
+    /** Reserved keyword */
+    const KEYWORD_VERSION       = 'version';
 
     /** Reserved keyword */
     const KEYWORD_ERRORS        = 'errors';
@@ -242,6 +246,18 @@ interface DocumentInterface
      * @return void
      */
     public function addError(ErrorInterface $error);
+
+    /**
+     * Add JSON API version information.
+     *
+     * @link http://jsonapi.org/format/#document-jsonapi-object
+     *
+     * @param string     $version
+     * @param mixed|null $meta
+     *
+     * @return void
+     */
+    public function addJsonApiVersion($version, $meta = null);
 
     /**
      * Remove 'data' top-level section.
