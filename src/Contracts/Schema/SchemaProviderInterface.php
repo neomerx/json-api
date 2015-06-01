@@ -58,6 +58,17 @@ interface SchemaProviderInterface
     public function getAttributes($resource);
 
     /**
+     * Create resource object.
+     *
+     * @param object                   $resource
+     * @param bool                     $isOriginallyArrayed
+     * @param array <string, int>|null $attributeKeysFilter
+     *
+     * @return ResourceObjectInterface
+     */
+    public function createResourceObject($resource, $isOriginallyArrayed, array $attributeKeysFilter = null);
+
+    /**
      * Get resource's relationship objects.
      *
      * @param object $resource
@@ -67,27 +78,11 @@ interface SchemaProviderInterface
     public function getRelationshipObjectIterator($resource);
 
     /**
-     * Get resource meta information.
-     *
-     * @param object $resource
-     *
-     * @return mixed
-     */
-    public function getMeta($resource);
-
-    /**
      * If 'self' endpoint URL.
      *
      * @return bool
      */
     public function isShowSelf();
-
-    /**
-     * If 'meta' should be shown for resource.
-     *
-     * @return bool
-     */
-    public function isShowMeta();
 
     /**
      * If 'self' endpoint URL should be shown for included resources.
@@ -97,6 +92,13 @@ interface SchemaProviderInterface
     public function isShowSelfInIncluded();
 
     /**
+     * If resource attributes should be shown when the resource is within 'included'.
+     *
+     * @return bool
+     */
+    public function isShowAttributesInIncluded();
+
+    /**
      * If links be shown for included resources.
      *
      * @return bool
@@ -104,34 +106,36 @@ interface SchemaProviderInterface
     public function isShowRelationshipsInIncluded();
 
     /**
-     * If 'meta' should be shown for included resources.
-     *
-     * @return bool
-     */
-    public function isShowMetaInIncluded();
-
-    /**
-     * If 'meta' should be shown in relationships.
-     *
-     * @return bool
-     */
-    public function isShowMetaInRelationships();
-
-    /**
-     * Create resource object.
-     *
-     * @param object $resource
-     * @param bool   $isOriginallyArrayed
-     * @param        array <string, int>|null $attributeKeysFilter
-     *
-     * @return ResourceObjectInterface
-     */
-    public function createResourceObject($resource, $isOriginallyArrayed, array $attributeKeysFilter = null);
-
-    /**
      * Get schema default include paths.
      *
      * @return string[]
      */
     public function getIncludePaths();
+
+    /**
+     * Get meta when resource is primary (top level 'data' section).
+     *
+     * @param object $resource
+     *
+     * @return mixed
+     */
+    public function getPrimaryMeta($resource);
+
+    /**
+     * Get meta when resource is within relationship of a primary resource.
+     *
+     * @param object $resource
+     *
+     * @return mixed
+     */
+    public function getRelationshipMeta($resource);
+
+    /**
+     * Get meta when resource is within included resources.
+     *
+     * @param object $resource
+     *
+     * @return mixed
+     */
+    public function getInclusionMeta($resource);
 }

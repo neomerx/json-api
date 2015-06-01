@@ -472,10 +472,9 @@ EOL;
                 $schema = new PostSchema($factory, $container);
                 $schema->linkAddTo(
                     Post::LINK_COMMENTS,
-                    PostSchema::PAGINATION,
-                    [Link::FIRST => new Link('/first')]
+                    PostSchema::LINKS,
+                    [Link::FIRST => new Link('comments/first')]
                 );
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_PAGINATION, true);
                 return $schema;
             },
         ])->encode($this->post);
@@ -499,7 +498,7 @@ EOL;
                             { "type" : "comments", "id" : "12" }
                         ],
                         "links" : {
-                            "first" : "/first"
+                            "first" : "http://example.com/posts/1/comments/first"
                         }
                     }
                 },

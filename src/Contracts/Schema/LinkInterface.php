@@ -51,4 +51,11 @@ interface LinkInterface
      * @return array|object|null
      */
     public function getMeta();
+
+    /**
+     * If $subHref is a full URL and must not be concatenated with other URLs.
+     *
+     * @return bool
+     */
+    public function isTreatAsHref();
 }

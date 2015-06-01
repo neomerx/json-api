@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Document\Presenters\ElementPresenter;
@@ -143,7 +144,7 @@ class Document implements DocumentInterface
         $idx  = $resource->getId();
         $type = $resource->getType();
         assert('isset($this->bufferForData[$type][$idx]) === false');
-        $this->bufferForData[$type][$idx] = $this->presenter->convertDataResourceToArray($resource);
+        $this->bufferForData[$type][$idx] = $this->presenter->convertDataResourceToArray($resource, true);
     }
 
     /**
@@ -189,7 +190,7 @@ class Document implements DocumentInterface
      */
     public function addReferenceToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
     {
-        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getRelatedLink());
+        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getLink(LinkInterface::RELATED));
         $this->presenter->setRelationshipTo($this->bufferForData, $parent, $current, $url);
     }
 
@@ -198,7 +199,7 @@ class Document implements DocumentInterface
      */
     public function addReferenceToIncluded(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
     {
-        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getRelatedLink());
+        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getLink(LinkInterface::RELATED));
         $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $current, $url);
     }
 

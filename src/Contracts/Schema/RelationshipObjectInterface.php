@@ -29,25 +29,41 @@ interface RelationshipObjectInterface
     public function getName();
 
     /**
+     * Get resource data from relationship.
+     *
+     * @return object|array|null
+     */
+    public function getData();
+
+    /**
+     * Get links.
+     *
+     * @return array<string,LinkInterface>
+     */
+    public function getLinks();
+
+    /**
+     * Get links.
+     *
+     * @param string $key
+     *
+     * @return LinkInterface|null
+     */
+    public function getLink($key);
+
+    /**
+     * Get meta.
+     *
+     * @return mixed
+     */
+    public function getMeta();
+
+    /**
      * If 'self' endpoint URL should be shown.
      *
      * @return bool
      */
     public function isShowSelf();
-
-    /**
-     * Get 'self' URL of link object.
-     *
-     * @return LinkInterface
-     */
-    public function getSelfLink();
-
-    /**
-     * If link should be shown as URL reference ('related').
-     *
-     * @return bool
-     */
-    public function isShowAsReference();
 
     /**
      * If 'related' endpoint URL should be shown.
@@ -64,13 +80,6 @@ interface RelationshipObjectInterface
     public function isShowData();
 
     /**
-     * Get 'related' URL of link object.
-     *
-     * @return LinkInterface
-     */
-    public function getRelatedLink();
-
-    /**
      * If 'meta' should be shown.
      *
      * @return bool
@@ -78,23 +87,9 @@ interface RelationshipObjectInterface
     public function isShowMeta();
 
     /**
-     * If pagination information should be shown.
+     * If link should be shown as URL reference ('related').
      *
      * @return bool
      */
-    public function isShowPagination();
-
-    /**
-     * Get resource data from relationship.
-     *
-     * @return object|array|null
-     */
-    public function getData();
-
-    /**
-     * Get pagination information.
-     *
-     * @return LinkInterface[]|null
-     */
-    public function getPagination();
+    public function isShowAsReference();
 }

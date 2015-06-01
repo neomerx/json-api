@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -36,33 +36,12 @@ class SchemaFactory implements SchemaFactoryInterface
      * @inheritdoc
      */
     public function createResourceObject(
+        SchemaProviderInterface $schema,
+        $resource,
         $isInArray,
-        $type,
-        $idx,
-        array $attributes,
-        $meta,
-        $selfUrl,
-        $isShowSelf,
-        $isShowMeta,
-        $isShowSelfInIncluded,
-        $isShowRelShipsInIncluded,
-        $isShowMetaInIncluded,
-        $isShowMetaInRlShips
+        array $attributeKeysFilter = null
     ) {
-        return new ResourceObject(
-            $isInArray,
-            $type,
-            $idx,
-            $attributes,
-            $meta,
-            $selfUrl,
-            $isShowSelf,
-            $isShowMeta,
-            $isShowSelfInIncluded,
-            $isShowRelShipsInIncluded,
-            $isShowMetaInIncluded,
-            $isShowMetaInRlShips
-        );
+        return new ResourceObject($schema, $resource, $isInArray, $attributeKeysFilter);
     }
 
     /**
@@ -71,28 +50,24 @@ class SchemaFactory implements SchemaFactoryInterface
     public function createRelationshipObject(
         $name,
         $data,
-        LinkInterface $selfLink,
-        LinkInterface $relatedLink,
-        $isShowAsRef,
+        $links,
+        $meta,
         $isShowSelf,
         $isShowRelated,
-        $isShowData,
         $isShowMeta,
-        $isShowPagination,
-        $pagination
+        $isShowData,
+        $isShowAsRef
     ) {
         return new RelationshipObject(
             $name,
             $data,
-            $selfLink,
-            $relatedLink,
-            $isShowAsRef,
+            $links,
+            $meta,
             $isShowSelf,
             $isShowRelated,
-            $isShowData,
             $isShowMeta,
-            $isShowPagination,
-            $pagination
+            $isShowData,
+            $isShowAsRef
         );
     }
 

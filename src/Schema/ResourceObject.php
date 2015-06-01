@@ -17,17 +17,13 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
 class ResourceObject implements ResourceObjectInterface
 {
-    /**
-     * @var string
-     */
-    private $type;
-
     /**
      * @var string
      */
@@ -41,12 +37,12 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @var mixed
      */
-    private $meta;
+    private $primaryMeta;
 
     /**
      * @var bool
      */
-    private $isShowSelf;
+    private $isPrimaryMetaSet = false;
 
     /**
      * @var string
@@ -56,79 +52,69 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @var bool
      */
-    private $isShowMeta;
-
-    /**
-     * @var bool
-     */
-    private $isShowSelfInIncluded;
-
-    /**
-     * @var bool
-     */
-    private $isShowRelationshipsInIncluded;
-
-    /**
-     * @var bool
-     */
-    private $isShowMetaInIncluded;
-
-    /**
-     * @var bool
-     */
-    private $isShowMetaInRlShips;
-
-    /**
-     * @var bool
-     */
     private $isInArray;
 
     /**
-     * @param bool   $isInArray
-     * @param string $type
-     * @param string $idx
-     * @param array  $attributes
-     * @param mixed  $meta
-     * @param string $selfUrl
-     * @param bool   $isShowSelf
-     * @param bool   $isShowMeta
-     * @param bool   $isShowSelfInIncluded
-     * @param bool   $isShowRelShipsInIncluded
-     * @param bool   $isShowMetaInIncluded
-     * @param bool   $isShowMetaInRlShips
+     * @var SchemaProviderInterface
+     */
+    private $schema;
+
+    /**
+     * @var object
+     */
+    private $resource;
+
+    /**
+     * @var array
+     */
+    private $attributeKeysFilter;
+
+    /**
+     * @var bool
+     */
+    private $isSelfUrlSet = false;
+
+    /**
+     * @var bool
+     */
+    private $isRelationshipMetaSet = false;
+
+    /**
+     * @var mixed
+     */
+    private $relationshipMeta;
+
+    /**
+     * @var bool
+     */
+    private $isInclusionMetaSet = false;
+
+    /**
+     * @var mixed
+     */
+    private $inclusionMeta;
+
+    /**
+     * @param SchemaProviderInterface $schema
+     * @param object                  $resource
+     * @param bool                    $isInArray
+     * @param array<string, int>|null $attributeKeysFilter
      */
     public function __construct(
+        SchemaProviderInterface $schema,
+        $resource,
         $isInArray,
-        $type,
-        $idx,
-        array $attributes,
-        $meta,
-        $selfUrl,
-        $isShowSelf,
-        $isShowMeta,
-        $isShowSelfInIncluded,
-        $isShowRelShipsInIncluded,
-        $isShowMetaInIncluded,
-        $isShowMetaInRlShips
+        array $attributeKeysFilter = null
     ) {
         assert(
-            'is_bool($isInArray) && is_string($type) && is_string($idx) && is_array($attributes) &&'.
-            'is_string($selfUrl) && is_bool($isShowSelf) && is_bool($isShowMeta) && is_bool($isShowMetaInRlShips) &&'.
-            'is_bool($isShowSelfInIncluded) && is_bool($isShowRelShipsInIncluded) && is_bool($isShowMetaInIncluded)'
+            'is_bool($isInArray) && is_object($resource) && '.
+            '($attributeKeysFilter === null || is_array($attributeKeysFilter))'
         );
 
-        $this->isInArray                     = $isInArray;
-        $this->type                          = $type;
-        $this->idx                           = $idx;
-        $this->attributes                    = $attributes;
-        $this->meta                          = $meta;
-        $this->isShowSelf                    = $isShowSelf;
-        $this->selfUrl                       = $selfUrl;
-        $this->isShowMeta                    = $isShowMeta;
-        $this->isShowSelfInIncluded          = $isShowSelfInIncluded;
-        $this->isShowRelationshipsInIncluded = $isShowRelShipsInIncluded;
-        $this->isShowMetaInIncluded          = $isShowMetaInIncluded;
-        $this->isShowMetaInRlShips           = $isShowMetaInRlShips;
+        $this->schema              = $schema;
+        $this->resource            = $resource;
+        $this->isInArray           = $isInArray;
+        $this->attributeKeysFilter = $attributeKeysFilter;
     }
 
     /**
@@ -136,7 +122,7 @@ class ResourceObject implements ResourceObjectInterface
      */
     public function getType()
     {
-        return $this->type;
+        return $this->schema->getResourceType();
     }
 
     /**
@@ -144,7 +130,7 @@ class ResourceObject implements ResourceObjectInterface
      */
     public function getId()
     {
-        return $this->idx;
+        return $this->idx === null ? $this->idx = (string)$this->schema->getId($this->resource) : $this->idx;
     }
 
     /**
@@ -152,15 +138,15 @@ class ResourceObject implements ResourceObjectInterface
      */
     public function getAttributes()
     {
-        return $this->attributes;
-    }
+        if ($this->attributes === null) {
+            $attributes = $this->schema->getAttributes($this->resource);
+            if ($this->attributeKeysFilter !== null) {
+                $attributes = array_intersect_key($attributes, $this->attributeKeysFilter);
+            }
+            $this->attributes = $attributes;
+        }
 
-    /**
-     * @inheritdoc
-     */
-    public function getMeta()
-    {
-        return $this->meta;
+        return $this->attributes;
     }
 
     /**
@@ -168,6 +154,10 @@ class ResourceObject implements ResourceObjectInterface
      */
     public function getSelfUrl()
     {
+        if ($this->isSelfUrlSet === false) {
+            $this->selfUrl = $this->schema->getSelfUrl($this->resource);
+            $this->isSelfUrlSet = true;
+        }
         return $this->selfUrl;
     }
 
@@ -176,15 +166,7 @@ class ResourceObject implements ResourceObjectInterface
      */
     public function isShowSelf()
     {
-        return $this->isShowSelf;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowMeta()
-    {
-        return $this->isShowMeta;
+        return $this->schema->isShowSelf();
     }
 
     /**
@@ -192,23 +174,15 @@ class ResourceObject implements ResourceObjectInterface
      */
     public function isShowSelfInIncluded()
     {
-        return $this->isShowSelfInIncluded;
+        return $this->schema->isShowSelfInIncluded();
     }
 
     /**
      * @inheritdoc
      */
-    public function isShowMetaInIncluded()
+    public function isShowAttributesInIncluded()
     {
-        return $this->isShowMetaInIncluded;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowMetaInRelationships()
-    {
-        return $this->isShowMetaInRlShips;
+        return $this->schema->isShowAttributesInIncluded();
     }
 
     /**
@@ -216,7 +190,7 @@ class ResourceObject implements ResourceObjectInterface
      */
     public function isShowRelationshipsInIncluded()
     {
-        return $this->isShowRelationshipsInIncluded;
+        return $this->schema->isShowRelationshipsInIncluded();
     }
 
     /**
@@ -225,5 +199,44 @@ class ResourceObject implements ResourceObjectInterface
     public function isInArray()
     {
         return $this->isInArray;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPrimaryMeta()
+    {
+        if ($this->isPrimaryMetaSet === false) {
+            $this->primaryMeta = $this->schema->getPrimaryMeta($this->resource);
+            $this->isPrimaryMetaSet = true;
+        }
+
+        return $this->primaryMeta;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipMeta()
+    {
+        if ($this->isRelationshipMetaSet === false) {
+            $this->relationshipMeta = $this->schema->getRelationshipMeta($this->resource);
+            $this->isRelationshipMetaSet = true;
+        }
+
+        return $this->relationshipMeta;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getInclusionMeta()
+    {
+        if ($this->isInclusionMetaSet === false) {
+            $this->inclusionMeta = $this->schema->getInclusionMeta($this->resource);
+            $this->isInclusionMetaSet = true;
+        }
+
+        return $this->inclusionMeta;
     }
 }

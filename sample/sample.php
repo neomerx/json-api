@@ -18,7 +18,7 @@
 
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Parameters\EncodingParameters;
 
 require './vendor/autoload.php';
@@ -39,7 +39,7 @@ class Application
 
         $encoder = Encoder::instance([
             Author::class  => AuthorSchema::class,
-        ], new JsonEncodeOptions(JSON_PRETTY_PRINT));
+        ], new EncoderOptions(JSON_PRETTY_PRINT));
 
         echo $encoder->encode($author) . PHP_EOL;
     }
@@ -64,7 +64,7 @@ class Application
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class
-        ], new JsonEncodeOptions(JSON_PRETTY_PRINT));
+        ], new EncoderOptions(JSON_PRETTY_PRINT));
 
         echo $encoder->encode($site) . PHP_EOL;
     }
@@ -97,7 +97,7 @@ class Application
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class
-        ], new JsonEncodeOptions(JSON_PRETTY_PRINT));
+        ], new EncoderOptions(JSON_PRETTY_PRINT));
 
         echo $encoder->encode($site, null, null, $options) . PHP_EOL;
     }
@@ -130,7 +130,7 @@ class Application
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class
-        ], new JsonEncodeOptions(JSON_PRETTY_PRINT));
+        ], new EncoderOptions(JSON_PRETTY_PRINT));
 
         echo $encoder->encode($author, $links, $meta) . PHP_EOL;
     }

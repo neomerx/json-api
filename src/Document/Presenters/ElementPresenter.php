@@ -120,12 +120,18 @@ class ElementPresenter
      * Convert resource object for 'data' section to array.
      *
      * @param ResourceObjectInterface $resource
+     * @param bool                    $isShowAttributes
      *
      * @return array
      */
-    public function convertDataResourceToArray(ResourceObjectInterface $resource)
+    public function convertDataResourceToArray(ResourceObjectInterface $resource, $isShowAttributes)
     {
-        return $this->convertResourceToArray($resource, $resource->isShowSelf(), $resource->isShowMeta());
+        return $this->convertResourceToArray(
+            $resource,
+            $resource->isShowSelf(),
+            $resource->getPrimaryMeta(),
+            $isShowAttributes
+        );
     }
 
     /**
@@ -137,8 +143,12 @@ class ElementPresenter
      */
     public function convertIncludedResourceToArray(ResourceObjectInterface $resource)
     {
-        return $this
-            ->convertResourceToArray($resource, $resource->isShowSelfInIncluded(), $resource->isShowMetaInIncluded());
+        return $this->convertResourceToArray(
+            $resource,
+            $resource->isShowSelfInIncluded(),
+            $resource->getInclusionMeta(),
+            $resource->isShowAttributesInIncluded()
+        );
     }
 
     /**
@@ -149,16 +159,19 @@ class ElementPresenter
      */
     public function concatUrls($url, LinkInterface $subLink)
     {
-        $subUrl = $subLink->getSubHref();
-
-        $urlEndsWithSlash   = (substr($url, -1) === '/');
-        $subStartsWithSlash = (substr($subUrl, 0, 1) === '/');
-        if ($urlEndsWithSlash === false && $subStartsWithSlash === false) {
-            $resultUrl = $url . '/' . $subUrl;
-        } elseif (($urlEndsWithSlash xor $subStartsWithSlash) === true) {
-            $resultUrl = $url . $subUrl;
+        if ($subLink->isTreatAsHref() === true) {
+            $resultUrl = $subLink->getSubHref();
         } else {
-            $resultUrl = rtrim($url, '/') . $subUrl;
+            $subUrl             = $subLink->getSubHref();
+            $urlEndsWithSlash   = (substr($url, -1) === '/');
+            $subStartsWithSlash = (substr($subUrl, 0, 1) === '/');
+            if ($urlEndsWithSlash === false && $subStartsWithSlash === false) {
+                $resultUrl = $url . '/' . $subUrl;
+            } elseif (($urlEndsWithSlash xor $subStartsWithSlash) === true) {
+                $resultUrl = $url . $subUrl;
+            } else {
+                $resultUrl = rtrim($url, '/') . $subUrl;
+            }
         }
 
         return $this->getUrlRepresentation($resultUrl, $subLink->getMeta());
@@ -211,8 +224,8 @@ class ElementPresenter
             Document::KEYWORD_TYPE => $resource->getType(),
             Document::KEYWORD_ID   => $resource->getId(),
         ];
-        if ($resource->isShowMetaInRelationships() === true) {
-            $representation[Document::KEYWORD_META] = $resource->getMeta();
+        if (($meta = $resource->getRelationshipMeta()) !== null) {
+            $representation[Document::KEYWORD_META] = $meta;
         }
         return $representation;
     }
@@ -247,32 +260,23 @@ class ElementPresenter
         $selfUrl = $parent->getSelfUrl();
 
         $representation = [];
-        if ($relation->isShowSelf() === true) {
-            $representation[Document::KEYWORD_LINKS][Document::KEYWORD_SELF] =
-                $this->concatUrls($selfUrl, $relation->getSelfLink());
-        }
-
-        if ($relation->isShowRelated() === true) {
-            $representation[Document::KEYWORD_LINKS][Document::KEYWORD_RELATED] =
-                $this->concatUrls($selfUrl, $relation->getRelatedLink());
-        }
 
         if ($relation->isShowData() === true) {
             $representation[Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
         }
 
         if ($relation->isShowMeta() === true) {
-            $representation[Document::KEYWORD_META] = $resource->getMeta();
+            $representation[Document::KEYWORD_META] = $relation->getMeta();
         }
 
-        if ($relation->isShowPagination() === true && $relation->getPagination() !== null) {
-            if (empty($representation[Document::KEYWORD_LINKS]) === true) {
-                $representation[Document::KEYWORD_LINKS] =
-                    $this->getLinksRepresentation($relation->getPagination());
-            } else {
-                $representation[Document::KEYWORD_LINKS] +=
-                    $this->getLinksRepresentation($relation->getPagination());
+        foreach ($relation->getLinks() as $name => $link) {
+            if ($name === LinkInterface::SELF && $relation->isShowSelf() === false) {
+                continue;
             }
+            if ($name === LinkInterface::RELATED && $relation->isShowRelated() === false) {
+                continue;
+            }
+            $representation[Document::KEYWORD_LINKS][$name] = $this->concatUrls($selfUrl, $link);
         }
 
         assert(
@@ -288,14 +292,13 @@ class ElementPresenter
      *
      * @param ResourceObjectInterface $resource
      * @param bool                    $isShowSelf
-     * @param bool                    $isShowMeta
+     * @param mixed                   $meta
+     * @param bool                    $isShowAttributes
      *
      * @return array
      */
-    private function convertResourceToArray(ResourceObjectInterface $resource, $isShowSelf, $isShowMeta)
+    private function convertResourceToArray(ResourceObjectInterface $resource, $isShowSelf, $meta, $isShowAttributes)
     {
-        assert('is_bool($isShowSelf) && is_bool($isShowMeta)');
-
         $representation = [
             Document::KEYWORD_TYPE => $resource->getType(),
             Document::KEYWORD_ID   => $resource->getId(),
@@ -307,7 +310,7 @@ class ElementPresenter
             'isset($attributes[\''.Document::KEYWORD_ID.'\']) === false',
             '"type" and "id" are reserved keywords and cannot be used as resource object attributes'
         );
-        if (empty($attributes) === false) {
+        if ($isShowAttributes === true && empty($attributes) === false) {
             $representation[Document::KEYWORD_ATTRIBUTES] = $attributes;
         }
 
@@ -319,8 +322,8 @@ class ElementPresenter
             $representation[Document::KEYWORD_LINKS][Document::KEYWORD_SELF] = $resource->getSelfUrl();
         }
 
-        if ($isShowMeta === true) {
-            $representation[Document::KEYWORD_META] = $resource->getMeta();
+        if ($meta !== null) {
+            $representation[Document::KEYWORD_META] = $meta;
         }
 
         return $representation;

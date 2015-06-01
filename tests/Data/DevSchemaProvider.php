@@ -139,17 +139,4 @@ abstract class DevSchemaProvider extends SchemaProvider
             unset($links[$key]);
         }
     }
-
-    /**
-     * @param string $relationshipName
-     * @param array  $description
-     * @param mixed  $relationshipData
-     * @param null   $meta
-     *
-     * @return \Neomerx\JsonApi\Contracts\Schema\LinkInterface
-     */
-    protected function getSelfLink($relationshipName, array $description, $relationshipData, $meta = null)
-    {
-        return parent::getSelfLink($relationshipName, $description, $relationshipData, $this->relationshipMeta);
-    }
 }

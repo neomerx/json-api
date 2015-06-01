@@ -33,34 +33,18 @@ interface SchemaFactoryInterface
     /**
      * Create resource object.
      *
-     * @param bool   $isInArray
-     * @param string $type
-     * @param string $idx
-     * @param array  $attributes
-     * @param mixed  $meta
-     * @param string $selfUrl
-     * @param bool   $isShowSelf
-     * @param bool   $isShowMeta
-     * @param bool   $isShowSelfInIncluded
-     * @param bool   $isShowRelShipsInIncluded
-     * @param bool   $isShowMetaInIncluded
-     * @param bool   $isShowMetaInRlShips
+     * @param SchemaProviderInterface $schema
+     * @param object                  $resource
+     * @param bool                    $isInArray
+     * @param array<string, int>|null $attributeKeysFilter
      *
      * @return ResourceObjectInterface
      */
     public function createResourceObject(
+        SchemaProviderInterface $schema,
+        $resource,
         $isInArray,
-        $type,
-        $idx,
-        array $attributes,
-        $meta,
-        $selfUrl,
-        $isShowSelf,
-        $isShowMeta,
-        $isShowSelfInIncluded,
-        $isShowRelShipsInIncluded,
-        $isShowMetaInIncluded,
-        $isShowMetaInRlShips
+        array $attributeKeysFilter = null
     );
 
     /**
@@ -68,30 +52,26 @@ interface SchemaFactoryInterface
      *
      * @param string               $name
      * @param object|array|null    $data
-     * @param LinkInterface        $selfLink
-     * @param LinkInterface        $relatedLink
-     * @param bool                 $isShowAsRef
+     * @param array<string,LinkInterface> $links
+     * @param mixed                $meta
      * @param bool                 $isShowSelf
      * @param bool                 $isShowRelated
-     * @param bool                 $isShowData
      * @param bool                 $isShowMeta
-     * @param bool                 $isShowPagination
-     * @param LinkInterface[]|null $pagination
+     * @param bool                 $isShowData
+     * @param bool                 $isShowAsRef
      *
      * @return RelationshipObjectInterface
      */
     public function createRelationshipObject(
         $name,
         $data,
-        LinkInterface $selfLink,
-        LinkInterface $relatedLink,
-        $isShowAsRef,
+        $links,
+        $meta,
         $isShowSelf,
         $isShowRelated,
-        $isShowData,
         $isShowMeta,
-        $isShowPagination,
-        $pagination
+        $isShowData,
+        $isShowAsRef
     );
 
     /**

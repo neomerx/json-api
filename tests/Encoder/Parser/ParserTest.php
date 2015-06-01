@@ -248,7 +248,7 @@ class ParserTest extends BaseTestCase
             $resource === null ? null : $resource->getType(),
             $resource === null ? null : $resource->getId(),
             $resource === null ? null : $resource->getAttributes(),
-            $resource === null ? null : $resource->getMeta(),
+            $resource === null ? null : $resource->getPrimaryMeta(),
         ];
     }
 }

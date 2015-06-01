@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Post;
 use \Neomerx\Tests\JsonApi\Data\Author;
@@ -25,6 +26,7 @@ use \Neomerx\Tests\JsonApi\Data\PostSchema;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
 use \Neomerx\JsonApi\Parameters\EncodingParameters;
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -355,21 +357,21 @@ EOL;
                 },
                 "relationships" : {
                     "author" : {
+                        "data" : { "type" : "people", "id" : "9" },
                         "links" : {
                             "self"    : "http://example.com/posts/1/relationships/author",
                             "related" : "http://example.com/posts/1/author"
-                        },
-                        "data" : { "type" : "people", "id" : "9" }
+                        }
                     },
                     "comments" : {
-                        "links" : {
-                            "self"    : "http://example.com/posts/1/relationships/comments",
-                            "related" : "http://example.com/posts/1/comments"
-                        },
                         "data":[
                             { "type" : "comments", "id" : "5" },
                             { "type" : "comments", "id" : "12" }
-                        ]
+                        ],
+                        "links" : {
+                            "self"    : "http://example.com/posts/1/relationships/comments",
+                            "related" : "http://example.com/posts/1/comments"
+                        }
                     }
                 },
                 "links" : {
@@ -397,8 +399,12 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => function ($factory, $container) {
                 $schema = new AuthorSchema($factory, $container);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_SELF, true);
-                $schema->setRelationshipMeta(['some' => 'meta']);
+                $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::SHOW_SELF, true);
+                $schema->linkAddTo(
+                    Author::LINK_COMMENTS,
+                    AuthorSchema::LINKS,
+                    [LinkInterface::SELF => new Link('relationships/comments', ['some' => 'meta'])]
+                );
                 return $schema;
             },
             Comment::class => CommentSchema::class,
@@ -415,16 +421,16 @@ EOL;
                 },
                 "relationships" : {
                     "comments"  : {
+                        "data":[
+                            { "type" : "comments", "id" : "5" },
+                            { "type" : "comments", "id" : "12" }
+                        ],
                         "links" : {
                             "self" : {
                                 "href" : "http://example.com/people/9/relationships/comments",
-                                "meta" : { "some":"meta" }
+                                "meta" : { "some" : "meta" }
                             }
-                        },
-                        "data":[
-                            { "type":"comments", "id":"5" },
-                            { "type":"comments", "id":"12" }
-                        ]
+                        }
                     }
                 },
                 "links":{
