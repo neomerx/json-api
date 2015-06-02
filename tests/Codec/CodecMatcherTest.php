@@ -266,6 +266,36 @@ class CodecMatcherTest extends BaseTestCase
     }
 
     /**
+     * Test encoder.
+     */
+    public function testSetEncoder()
+    {
+        $matcher = $this->getTestCodecMatcher();
+
+        $foo = 'foo';
+        $matcher->setEncoder(function () use ($foo) {
+            return $foo;
+        });
+
+        $this->assertEquals($foo, $matcher->getEncoder());
+    }
+
+    /**
+     * Test decoder.
+     */
+    public function testSetDecoder()
+    {
+        $matcher = $this->getTestCodecMatcher();
+
+        $foo = 'foo';
+        $matcher->setDecoder(function () use ($foo) {
+            return $foo;
+        });
+
+        $this->assertEquals($foo, $matcher->getDecoder());
+    }
+
+    /**
      * @return CodecMatcherInterface
      */
     private function getTestCodecMatcher()
