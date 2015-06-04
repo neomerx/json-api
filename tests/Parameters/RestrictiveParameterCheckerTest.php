@@ -52,11 +52,11 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
      * @var array
      */
     private $requestParams = [
-        'fields'  => ['type1' => 'fields1,fields2'],
-        'include' => 'author,comments,comments.author',
-        'sort'    => '-created,+title,name.with.dots',
-        'filter'  => ['some' => 'filter'],
-        'page'    => ['size' => 10, 'offset' => 4],
+        ParametersParserInterface::PARAM_FIELDS  => ['type1' => 'fields1,fields2'],
+        ParametersParserInterface::PARAM_INCLUDE => 'author,comments,comments.author',
+        ParametersParserInterface::PARAM_SORT    => '-created,+title,name.with.dots',
+        ParametersParserInterface::PARAM_FILTER  => ['some' => 'filter'],
+        ParametersParserInterface::PARAM_PAGE    => ['size' => 10, 'offset' => 4],
     ];
 
     /**

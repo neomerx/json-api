@@ -24,6 +24,21 @@ use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
  */
 interface ParametersParserInterface
 {
+    /** Parameter name */
+    const PARAM_INCLUDE = 'include';
+
+    /** Parameter name */
+    const PARAM_FIELDS = 'fields';
+
+    /** Parameter name */
+    const PARAM_PAGE = 'page';
+
+    /** Parameter name */
+    const PARAM_FILTER = 'filter';
+
+    /** Parameter name */
+    const PARAM_SORT = 'sort';
+
     /**
      * Parse input parameters from request.
      *
