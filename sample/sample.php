@@ -39,7 +39,7 @@ class Application
 
         $encoder = Encoder::instance([
             Author::class  => AuthorSchema::class,
-        ], new EncoderOptions(JSON_PRETTY_PRINT));
+        ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com/api/v1'));
 
         echo $encoder->encode($author) . PHP_EOL;
     }
