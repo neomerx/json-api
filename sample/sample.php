@@ -64,7 +64,7 @@ class Application
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class
-        ], new EncoderOptions(JSON_PRETTY_PRINT));
+        ], new EncoderOptions(JSON_PRETTY_PRINT, 512, 'http://example.com'));
 
         echo $encoder->encode($site) . PHP_EOL;
     }
@@ -119,10 +119,10 @@ class Application
             ]
         ];
         $links  = [
-            Link::FIRST => new Link('http://example.com/people?first'),
-            Link::LAST  => new Link('http://example.com/people?last'),
-            Link::PREV  => new Link('http://example.com/people?prev'),
-            Link::NEXT  => new Link('http://example.com/people?next'),
+            Link::FIRST => new Link('http://example.com/people?first', null, true),
+            Link::LAST  => new Link('http://example.com/people?last', null, true),
+            Link::PREV  => new Link('http://example.com/people?prev', null, true),
+            Link::NEXT  => new Link('http://example.com/people?next', null, true),
         ];
 
         $encoder  = Encoder::instance([
@@ -130,7 +130,7 @@ class Application
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class
-        ], new EncoderOptions(JSON_PRETTY_PRINT));
+        ], new EncoderOptions(JSON_PRETTY_PRINT, 512, 'http://example.com'));
 
         echo $encoder->encode($author, $links, $meta) . PHP_EOL;
     }
@@ -166,7 +166,7 @@ class Application
 
             $encoder->encode(
                 $site,
-                [Link::SELF => new Link('http://example.com/sites/1?' . $rand)],
+                [Link::SELF => new Link('http://example.com/sites/1?' . $rand, null, true)],
                 ['some' => ['meta' => 'information' . $rand]],
                 $options
             );
