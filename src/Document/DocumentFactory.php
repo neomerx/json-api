@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
 
 /**
@@ -36,7 +37,7 @@ class DocumentFactory implements DocumentFactoryInterface
      */
     public function createError(
         $idx = null,
-        $href = null,
+        LinkInterface $aboutLink = null,
         $status = null,
         $code = null,
         $title = null,
@@ -44,6 +45,6 @@ class DocumentFactory implements DocumentFactoryInterface
         $source = null,
         array $meta = null
     ) {
-        return new Error($idx, $href, $status, $code, $title, $detail, $source, $meta);
+        return new Error($idx, $aboutLink, $status, $code, $title, $detail, $source, $meta);
     }
 }

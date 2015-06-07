@@ -300,7 +300,8 @@ class Document implements DocumentInterface
 
         $representation = array_filter([
             self::KEYWORD_ERRORS_ID     => $errorId,
-            self::KEYWORD_ERRORS_HREF   => $error->getHref(),
+            self::KEYWORD_ERRORS_LINKS  => $this->presenter
+                ->getLinksRepresentation($this->urlPrefix, $error->getLinks()),
             self::KEYWORD_ERRORS_STATUS => $error->getStatus(),
             self::KEYWORD_ERRORS_CODE   => $error->getCode(),
             self::KEYWORD_ERRORS_TITLE  => $error->getTitle(),

@@ -938,7 +938,7 @@ EOL;
 
         $this->document->addError($this->documentFactory->createError(
             'some-id',
-            'some-href',
+            new Link('about-link'),
             'some-status',
             'some-code',
             'some-title',
@@ -951,7 +951,7 @@ EOL;
         {
             "errors":[{
                 "id"     : "some-id",
-                "href"   : "some-href",
+                "links"  : {"about" : "about-link"},
                 "status" : "some-status",
                 "code"   : "some-code",
                 "title"  : "some-title",

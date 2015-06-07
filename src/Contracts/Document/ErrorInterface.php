@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
@@ -29,11 +31,11 @@ interface ErrorInterface
     public function getId();
 
     /**
-     * Get a URI that may yield further details about this particular occurrence of the problem.
+     * Get links that may lead to further details about this particular occurrence of the problem.
      *
-     * @return string|null
+     * @return LinkInterface[]
      */
-    public function getHref();
+    public function getLinks();
 
     /**
      * Get the HTTP status code applicable to this problem, expressed as a string value.

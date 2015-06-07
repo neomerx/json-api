@@ -67,7 +67,7 @@ interface DocumentInterface
     /** Reserved keyword */
     const KEYWORD_ERRORS_ID     = 'id';
     /** Reserved keyword */
-    const KEYWORD_ERRORS_HREF   = 'href';
+    const KEYWORD_ERRORS_LINKS  = self::KEYWORD_LINKS;
     /** Reserved keyword */
     const KEYWORD_ERRORS_STATUS = 'status';
     /** Reserved keyword */
@@ -80,6 +80,8 @@ interface DocumentInterface
     const KEYWORD_ERRORS_META   = 'meta';
     /** Reserved keyword */
     const KEYWORD_ERRORS_SOURCE = 'source';
+    /** Reserved keyword */
+    const KEYWORD_ERRORS_ABOUT  = 'about';
 
     /**
      * Set URLs to top-level 'links' section.

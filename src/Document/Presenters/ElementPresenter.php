@@ -173,7 +173,7 @@ class ElementPresenter
     public function getLinksRepresentation($prefix = null, $links = null)
     {
         $result = null;
-        if ($links !== null) {
+        if (empty($links) === false) {
             foreach ($links as $name => $link) {
                 /** @var LinkInterface $link */
                 $result[$name] = $this->getLinkRepresentation($prefix, $link);
