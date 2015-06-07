@@ -141,8 +141,8 @@ class Parser implements ParserInterface
             // duplicated are allowed in data however they shouldn't be in includes
             $isDupAllowed = $curFrame->getLevel() < 2;
 
+            $fieldSet = $this->getFieldSet($schema->getResourceType());
             foreach ($data as $resource) {
-                $fieldSet       = $this->getFieldSet($schema->getResourceType());
                 $resourceObject = $schema->createResourceObject($resource, $isOriginallyArrayed, $fieldSet);
                 $isCircular     = $this->checkCircular($resourceObject);
 

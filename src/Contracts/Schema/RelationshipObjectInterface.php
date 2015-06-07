@@ -50,20 +50,6 @@ interface RelationshipObjectInterface
     public function getMeta();
 
     /**
-     * If 'self' endpoint URL should be shown.
-     *
-     * @return bool
-     */
-    public function isShowSelf();
-
-    /**
-     * If 'related' endpoint URL should be shown.
-     *
-     * @return bool
-     */
-    public function isShowRelated();
-
-    /**
      * If 'data' should be shown.
      *
      * @return bool

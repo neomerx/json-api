@@ -47,26 +47,9 @@ class SchemaFactory implements SchemaFactoryInterface
     /**
      * @inheritdoc
      */
-    public function createRelationshipObject(
-        $name,
-        $data,
-        $links,
-        $meta,
-        $isShowSelf,
-        $isShowRelated,
-        $isShowMeta,
-        $isShowData
-    ) {
-        return new RelationshipObject(
-            $name,
-            $data,
-            $links,
-            $meta,
-            $isShowSelf,
-            $isShowRelated,
-            $isShowMeta,
-            $isShowData
-        );
+    public function createRelationshipObject($name, $data, $links, $meta, $isShowMeta, $isShowData)
+    {
+        return new RelationshipObject($name, $data, $links, $meta, $isShowMeta, $isShowData);
     }
 
     /**

@@ -266,19 +266,8 @@ class ElementPresenter
         }
 
         foreach ($relation->getLinks() as $name => $link) {
-            if ($name === LinkInterface::SELF && $relation->isShowSelf() === false) {
-                continue;
-            }
-            if ($name === LinkInterface::RELATED && $relation->isShowRelated() === false) {
-                continue;
-            }
             $representation[Document::KEYWORD_LINKS][$name] = $this->getLinkRepresentation($baseUrl, $link);
         }
-
-        assert(
-            '$relation->isShowSelf()||$relation->isShowRelated()||$relation->isShowData()||$relation->isShowMeta()',
-            'Specification requires at least one of them to be shown'
-        );
 
         return $representation;
     }

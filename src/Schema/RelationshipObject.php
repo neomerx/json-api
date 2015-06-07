@@ -46,16 +46,6 @@ class RelationshipObject implements RelationshipObjectInterface
     /**
      * @var bool
      */
-    private $isShowSelf;
-
-    /**
-     * @var bool
-     */
-    private $isShowRelated;
-
-    /**
-     * @var bool
-     */
     private $isShowMeta;
 
     /**
@@ -68,8 +58,6 @@ class RelationshipObject implements RelationshipObjectInterface
      * @param object|array|null           $data
      * @param array<string,LinkInterface> $links
      * @param mixed                       $meta
-     * @param bool                        $isShowSelf
-     * @param bool                        $isShowRelated
      * @param bool                        $isShowMeta
      * @param bool                        $isShowData
      */
@@ -78,29 +66,20 @@ class RelationshipObject implements RelationshipObjectInterface
         $data,
         $links,
         $meta,
-        $isShowSelf,
-        $isShowRelated,
         $isShowMeta,
         $isShowData
     ) {
         assert(
-            'is_string($name) &&'.
-            '(is_object($data) || is_array($data) || is_null($data)) &&'.
-            'is_bool($isShowSelf) && is_bool($isShowRelated) && is_bool($isShowMeta) && is_array($links)'
-        );
-        assert(
-            '$isShowSelf || $isShowRelated || $isShowData || $isShowMeta',
-            'Specification requires at least one of them to be shown'
+            'is_string($name) && (is_object($data) || is_array($data) || is_null($data)) &&'.
+            'is_bool($isShowMeta) && is_array($links)'
         );
 
-        $this->name              = $name;
-        $this->data              = $data;
-        $this->links             = $links;
-        $this->meta              = $meta;
-        $this->isShowSelf        = $isShowSelf;
-        $this->isShowRelated     = $isShowRelated;
-        $this->isShowMeta        = $isShowMeta;
-        $this->isShowData        = $isShowData;
+        $this->name       = $name;
+        $this->data       = $data;
+        $this->links      = $links;
+        $this->meta       = $meta;
+        $this->isShowMeta = $isShowMeta;
+        $this->isShowData = $isShowData;
     }
 
     /**
@@ -133,22 +112,6 @@ class RelationshipObject implements RelationshipObjectInterface
     public function getMeta()
     {
         return $this->meta;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowSelf()
-    {
-        return $this->isShowSelf;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowRelated()
-    {
-        return $this->isShowRelated;
     }
 
     /**

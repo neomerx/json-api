@@ -253,8 +253,6 @@ EOL;
             ],
             ['some' => 'relationship meta'],
             true,
-            true,
-            true,
             true
         );
         $this->document->addRelationshipToData($parent, $link, $resource);
@@ -318,8 +316,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             null, //  relationship meta
-            false, // show self
-            false, // show related
             false, // show relationship meta
             true  //  show data
         );
@@ -378,8 +374,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             null, //  relationship meta
-            false, // show self
-            false, // show related
             false, // show relationship meta
             true   // show data
         );
@@ -442,8 +436,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             ['some' => 'relationship meta'], //  relationship meta
-            false, // show self
-            false, // show related
             true, //  show relationship meta
             false //  show data
         );
@@ -490,8 +482,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             ['this meta' => 'wont be shown'], //  relationship meta
-            false, // show self
-            false, // show related
             false, // show relationship meta
             true   // show data
         );
@@ -536,8 +526,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             ['this meta' => 'wont be shown'], //  relationship meta
-            false, // show self
-            false, // show related
             false, // show relationship meta
             true   // show data
         );
@@ -678,8 +666,6 @@ EOL;
                 LinkInterface::RELATED => new Link('relatedSubUrl'),
             ],
             ['some' => 'relationship meta'], //  relationship meta
-            true, //  show self
-            true, //  show related
             true, //  show relationship meta
             true  //  show data
         );
@@ -754,8 +740,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], // links
             null, //  relationship meta
-            true, //  show self
-            true, //  show related
             false, // show relationship meta
             true  //  show data
         );
@@ -812,8 +796,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             null, //  relationship meta
-            true, //  show self
-            true, //  show related
             false, // show relationship meta
             true   // show data
         );
@@ -868,8 +850,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], // links
             null, //  relationship meta
-            true, //  show self
-            true, //  show related
             false, // show relationship meta
             true  //  show data
         );
