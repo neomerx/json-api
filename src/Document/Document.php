@@ -38,7 +38,7 @@ class Document implements DocumentInterface
     private $meta;
 
     /**
-     * @var array
+     * @var array|null|string
      */
     private $links;
 

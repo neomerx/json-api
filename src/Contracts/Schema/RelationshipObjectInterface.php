@@ -38,7 +38,7 @@ interface RelationshipObjectInterface
     /**
      * Get links.
      *
-     * @return array<string,LinkInterface>
+     * @return array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface>
      */
     public function getLinks();
 

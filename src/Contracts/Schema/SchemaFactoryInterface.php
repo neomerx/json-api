@@ -36,7 +36,7 @@ interface SchemaFactoryInterface
      * @param SchemaProviderInterface $schema
      * @param object                  $resource
      * @param bool                    $isInArray
-     * @param array<string, int>|null $attributeKeysFilter
+     * @param array<string,int>|null  $attributeKeysFilter
      *
      * @return ResourceObjectInterface
      */
@@ -44,18 +44,18 @@ interface SchemaFactoryInterface
         SchemaProviderInterface $schema,
         $resource,
         $isInArray,
-        array $attributeKeysFilter = null
+        $attributeKeysFilter = null
     );
 
     /**
      * Create relationship object.
      *
-     * @param string               $name
-     * @param object|array|null    $data
-     * @param array<string,LinkInterface> $links
-     * @param mixed                $meta
-     * @param bool                 $isShowMeta
-     * @param bool                 $isShowData
+     * @param string                                                        $name
+     * @param object|array|null                                             $data
+     * @param array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface> $links
+     * @param mixed                                                         $meta
+     * @param bool                                                          $isShowMeta
+     * @param bool                                                          $isShowData
      *
      * @return RelationshipObjectInterface
      */

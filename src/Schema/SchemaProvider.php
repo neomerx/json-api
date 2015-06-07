@@ -191,7 +191,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function createResourceObject($resource, $isOriginallyArrayed, array $attributeKeysFilter = null)
+    public function createResourceObject($resource, $isOriginallyArrayed, $attributeKeysFilter = null)
     {
         return $this->factory->createResourceObject($this, $resource, $isOriginallyArrayed, $attributeKeysFilter);
     }

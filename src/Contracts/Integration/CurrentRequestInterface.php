@@ -40,7 +40,7 @@ interface CurrentRequestInterface
      *
      * @param string $name
      *
-     * @return string|array|null
+     * @return string
      */
     public function getHeader($name);
 }

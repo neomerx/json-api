@@ -165,8 +165,8 @@ class ElementPresenter
     }
 
     /**
-     * @param string|null          $prefix
-     * @param LinkInterface[]|null $links
+     * @param string|null                                                        $prefix
+     * @param array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface>|null $links
      *
      * @return array|null|string
      */

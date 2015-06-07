@@ -66,7 +66,7 @@ interface SchemaProviderInterface
      *
      * @return ResourceObjectInterface
      */
-    public function createResourceObject($resource, $isOriginallyArrayed, array $attributeKeysFilter = null);
+    public function createResourceObject($resource, $isOriginallyArrayed, $attributeKeysFilter = null);
 
     /**
      * Get resource's relationship objects.

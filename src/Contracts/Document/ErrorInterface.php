@@ -16,15 +16,13 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
-
 /**
  * @package Neomerx\JsonApi
  */
 interface ErrorInterface
 {
     /**
-     * Get a  unique identifier for this particular occurrence of the problem.
+     * Get a unique identifier for this particular occurrence of the problem.
      *
      * @return int|string|null
      */
@@ -33,7 +31,7 @@ interface ErrorInterface
     /**
      * Get links that may lead to further details about this particular occurrence of the problem.
      *
-     * @return LinkInterface[]
+     * @return null|array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface>
      */
     public function getLinks();
 

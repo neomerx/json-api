@@ -31,7 +31,7 @@ class Error implements ErrorInterface
     private $idx;
 
     /**
-     * @var LinkInterface[]
+     * @var null|array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface>
      */
     private $links;
 
@@ -66,14 +66,14 @@ class Error implements ErrorInterface
     private $meta;
 
     /**
-     * @param int|string|null $idx
-     * @param LinkInterface   $aboutLink
-     * @param string|null     $status
-     * @param string|null     $code
-     * @param string|null     $title
-     * @param string|null     $detail
-     * @param array|null      $source
-     * @param array|null      $meta
+     * @param int|string|null    $idx
+     * @param LinkInterface|null $aboutLink
+     * @param string|null        $status
+     * @param string|null        $code
+     * @param string|null        $title
+     * @param string|null        $detail
+     * @param array|null         $source
+     * @param array|null         $meta
      */
     public function __construct(
         $idx = null,
@@ -93,7 +93,7 @@ class Error implements ErrorInterface
         );
 
         $this->idx     = $idx;
-        $this->links   = [DocumentInterface::KEYWORD_ERRORS_ABOUT => $aboutLink];
+        $this->links   = ($aboutLink === null ? null : [DocumentInterface::KEYWORD_ERRORS_ABOUT => $aboutLink]);
         $this->status  = $status;
         $this->code    = $code;
         $this->title   = $title;

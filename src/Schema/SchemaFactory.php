@@ -39,7 +39,7 @@ class SchemaFactory implements SchemaFactoryInterface
         SchemaProviderInterface $schema,
         $resource,
         $isInArray,
-        array $attributeKeysFilter = null
+        $attributeKeysFilter = null
     ) {
         return new ResourceObject($schema, $resource, $isInArray, $attributeKeysFilter);
     }

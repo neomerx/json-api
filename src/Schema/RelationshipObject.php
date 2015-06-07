@@ -54,12 +54,12 @@ class RelationshipObject implements RelationshipObjectInterface
     private $isShowData;
 
     /**
-     * @param string                      $name
-     * @param object|array|null           $data
-     * @param array<string,LinkInterface> $links
-     * @param mixed                       $meta
-     * @param bool                        $isShowMeta
-     * @param bool                        $isShowData
+     * @param string                                                        $name
+     * @param object|array|null                                             $data
+     * @param array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface> $links
+     * @param mixed                                                         $meta
+     * @param bool                                                          $isShowMeta
+     * @param bool                                                          $isShowData
      */
     public function __construct(
         $name,

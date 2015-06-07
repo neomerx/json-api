@@ -52,12 +52,12 @@ class CodecMatcher implements CodecMatcherInterface
     private $inputMediaTypes;
 
     /**
-     * @var EncoderInterface|null
+     * @var EncoderInterface|Closure|null
      */
     private $foundEncoder;
 
     /**
-     * @var DecoderInterface|null
+     * @var DecoderInterface|Closure|null
      */
     private $foundDecoder;
 

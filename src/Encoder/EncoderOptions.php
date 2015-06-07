@@ -47,11 +47,11 @@ class EncoderOptions
     private $urlPrefix;
 
     /**
-     * @param int    $options
-     * @param string $urlPrefix
-     * @param bool   $isShowVersionInfo
-     * @param mixed  $versionMeta
-     * @param int    $depth
+     * @param int         $options
+     * @param string|null $urlPrefix
+     * @param bool        $isShowVersionInfo
+     * @param mixed       $versionMeta
+     * @param int         $depth
      */
     public function __construct(
         $options = 0,

@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
@@ -45,7 +46,7 @@ class ResourceObject implements ResourceObjectInterface
     private $isPrimaryMetaSet = false;
 
     /**
-     * @var string
+     * @var LinkInterface
      */
     private $selfSubLink;
 
@@ -65,7 +66,7 @@ class ResourceObject implements ResourceObjectInterface
     private $resource;
 
     /**
-     * @var array
+     * @var array<string,int>|null
      */
     private $attributeKeysFilter;
 
@@ -98,7 +99,7 @@ class ResourceObject implements ResourceObjectInterface
      * @param SchemaProviderInterface $schema
      * @param object                  $resource
      * @param bool                    $isInArray
-     * @param array<string, int>|null $attributeKeysFilter
+     * @param array<string,int>|null  $attributeKeysFilter
      */
     public function __construct(
         SchemaProviderInterface $schema,
@@ -155,7 +156,7 @@ class ResourceObject implements ResourceObjectInterface
     public function getSelfSubLink()
     {
         if ($this->isSelfSubLinkSet === false) {
-            $this->selfSubLink = $this->schema->getSelfSubLink($this->resource);
+            $this->selfSubLink      = $this->schema->getSelfSubLink($this->resource);
             $this->isSelfSubLinkSet = true;
         }
 

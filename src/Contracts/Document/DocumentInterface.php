@@ -86,7 +86,7 @@ interface DocumentInterface
     /**
      * Set URLs to top-level 'links' section.
      *
-     * @param LinkInterface[]|null $links
+     * @param array<string,LinkInterface>|null $links
      *
      * @return void
      */
