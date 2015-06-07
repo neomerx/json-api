@@ -64,7 +64,7 @@ The ```AuthorSchema``` provides information about resource's attributes and migh
 class AuthorSchema extends SchemaProvider
 {
     protected $resourceType = 'people';
-    protected $baseSelfUrl  = 'http://example.com/people/';
+    protected $selfSubUrl   = '/people/';
 
     public function getId($author)
     {
