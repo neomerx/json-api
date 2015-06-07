@@ -24,7 +24,6 @@ use \Neomerx\JsonApi\Schema\SchemaFactory;
 use \Neomerx\JsonApi\Document\DocumentFactory;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Document\Presenters\ElementPresenter;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
@@ -127,7 +126,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'selfUrl',
+            new Link('selfUrl'),
             true,
             ['some' => 'meta']
         ), new stdClass(), true));
@@ -226,7 +225,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'peopleSelfUrl/', // self url
+            new Link('peopleSelfUrl'), // self url
             false, // show self
             null // meta
         ), new stdClass(), false));
@@ -235,7 +234,7 @@ EOL;
             'comments',
             '321',
             null, // attributes
-            'commentsSelfUrl/',
+            new Link('commentsSelfUrl/'),
             true, // show self
             ['this meta' => 'wont be included'],
             false,
@@ -256,8 +255,7 @@ EOL;
             true,
             true,
             true,
-            true,
-            false
+            true
         );
         $this->document->addRelationshipToData($parent, $link, $resource);
         $this->document->setResourceCompleted($parent);
@@ -297,7 +295,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'selfUrl/', // self url
+            new Link('selfUrl/'), // self url
             false, // show self
             null //   meta
         ), new stdClass(), false));
@@ -306,7 +304,7 @@ EOL;
             'comments',
             '321',
             null, // attributes
-            'commentsSelfUrl/',
+            new Link('commentsSelfUrl/'),
             true, // show self
             ['this meta' => 'wont be shown'], // meta when resource is primary
             false,
@@ -323,8 +321,7 @@ EOL;
             false, // show self
             false, // show related
             false, // show relationship meta
-            true, //  show data
-            false //  show as ref
+            true  //  show data
         );
         $this->document->addRelationshipToData($parent, $link, $resource);
         $this->document->setResourceCompleted($parent);
@@ -358,7 +355,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'selfUrl/', // self url
+            new Link('selfUrl/'), // self url
             false, // show self
             null //   meta
         ), new stdClass(), false));
@@ -367,7 +364,7 @@ EOL;
             'comments',
             '321',
             null, // attributes
-            'selfUrlWillBeHidden/',
+            new Link('selfUrlWillBeHidden/'),
             true, // show self
             ['this meta' => 'wont be shown'], // meta when resource is primary
             false, // show 'self' in 'included'
@@ -384,8 +381,7 @@ EOL;
             false, // show self
             false, // show related
             false, // show relationship meta
-            true, //  show data
-            false //  show as ref
+            true   // show data
         );
         $this->document->addRelationshipToData($parent, $link, $resource);
         $this->document->addRelationshipToData($parent, $link, $resource);
@@ -423,7 +419,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'selfUrl/', // self url
+            new Link('selfUrl/'), // self url
             false, // show self
             null //   meta
         ), new stdClass(), false));
@@ -432,7 +428,7 @@ EOL;
             'comments',
             '321',
             null, // attributes
-            'selfUrlWillBeHidden/',
+            new Link('selfUrlWillBeHidden/'),
             true, // show self
             ['this meta' => 'wont be shown'], // meta when resource is primary
             false, // show 'self' in 'included'
@@ -449,8 +445,7 @@ EOL;
             false, // show self
             false, // show related
             true, //  show relationship meta
-            false, // show data
-            false //  show as ref
+            false //  show data
         );
 
         $this->document->addRelationshipToData($parent, $link, $resource);
@@ -477,66 +472,6 @@ EOL;
     }
 
     /**
-     * Test add link as reference to 'data' section.
-     */
-    public function testAddReferenceToData()
-    {
-        $this->document->addToData($parent = $this->schemaFactory->createResourceObject($this->getSchema(
-            'people',
-            '123',
-            ['firstName' => 'John', 'lastName' => 'Dow'],
-            'peopleSelfUrl/', // self url
-            false, // show self
-            null //   meta
-        ), new stdClass(), false));
-
-        $resource = $this->schemaFactory->createResourceObject($this->getSchema(
-            'comments',
-            '321',
-            null, // attributes
-            'selfUrlWillBeHidden/',
-            true, // show self
-            ['this meta' => 'wont be shown'], // meta when resource is primary
-            false, // show 'self' in 'included'
-            false, // show relationships in 'included'
-            ['this meta' => 'wont be shown'], // meta when resource within 'included'
-            ['some' => 'comment meta'] // meta when resource is in relationship
-        ), new stdClass(), false);
-
-        $link = $this->schemaFactory->createRelationshipObject(
-            'comments-relationship',
-            new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
-            [LinkInterface::RELATED => new Link('relatedSubUrl')], //    links
-            ['this meta' => 'wont be shown'], //  relationship meta
-            false, // show self
-            false, // show related
-            false, // show relationship meta
-            false, // show data
-            true //   show as ref
-        );
-
-        $this->document->addReferenceToData($parent, $link, $resource);
-        $this->document->setResourceCompleted($parent);
-
-        $expected = <<<EOL
-        {
-            "data" : {
-                "type"       : "people",
-                "id"         : "123",
-                "attributes" : {
-                    "firstName" : "John",
-                    "lastName"  : "Dow"
-                },
-                "relationships" : {
-                    "comments-relationship" : "peopleSelfUrl/relatedSubUrl"
-                }
-            }
-        }
-EOL;
-        $this->check($expected);
-    }
-
-    /**
      * Test add empty (empty array) link to 'data' section.
      */
     public function testAddEmptyLinkToData()
@@ -545,9 +480,9 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'peopleSelfUrl/', // self url
+            new Link('peopleSelfUrl/'), // self url
             false, // show self
-            null //   meta
+            null   // meta
         ), new stdClass(), false));
 
         $link = $this->schemaFactory->createRelationshipObject(
@@ -558,8 +493,7 @@ EOL;
             false, // show self
             false, // show related
             false, // show relationship meta
-            false, // show data
-            true //   show as ref
+            true   // show data
         );
 
         $this->document->addEmptyRelationshipToData($parent, $link);
@@ -592,7 +526,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'peopleSelfUrl/', // self url
+            new Link('peopleSelfUrl/'), // self url
             false, // show self
             null //   meta
         ), new stdClass(), false));
@@ -605,8 +539,7 @@ EOL;
             false, // show self
             false, // show related
             false, // show relationship meta
-            false, // show data
-            true //   show as ref
+            true   // show data
         );
 
         $this->document->addNullRelationshipToData($parent, $link);
@@ -639,7 +572,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'peopleSelfUrl/', // self url
+            new Link('peopleSelfUrl/'), // self url
             false, // show self
             null, //  meta
             true, //  show 'self' in 'included'
@@ -682,7 +615,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'peopleSelfUrl/', // self url
+            new Link('peopleSelfUrl/'), // self url
             false, // show self
             null //   meta
         ), new stdClass(), false));
@@ -716,7 +649,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'peopleSelfUrl/', // self url
+            new Link('peopleSelfUrl'), // self url
             false, // show self
             ['this meta' => 'wont be shown'], // meta when primary resource
             true, //  show 'self' in 'included'
@@ -728,7 +661,7 @@ EOL;
             'comments',
             '321',
             null, // attributes
-            'selfUrlWillBeHidden/',
+            new Link('selfUrlWillBeHidden/'),
             true, // show self
             ['this meta' => 'wont be shown'], // meta when resource is primary
             false, // show 'self' in 'included'
@@ -748,8 +681,7 @@ EOL;
             true, //  show self
             true, //  show related
             true, //  show relationship meta
-            true, //  show data
-            false  // show as ref
+            true  //  show data
         );
 
         $this->document->addRelationshipToIncluded($parent, $link, $resource);
@@ -776,7 +708,7 @@ EOL;
                     }
                 },
                 "links" : {
-                    "self" : "peopleSelfUrl/"
+                    "self" : "peopleSelfUrl"
                 },
                 "meta" : {
                     "some" : "author meta"
@@ -796,7 +728,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'peopleSelfUrl/', // self url
+            new Link('peopleSelfUrl/'), // self url
             false, // show self
             ['this meta' => 'wont be shown'], // meta when primary resource
             true, //  show 'self' in 'included'
@@ -808,7 +740,7 @@ EOL;
             'comments',
             '321',
             null, // attributes
-            'selfUrlWillBeHidden/',
+            new Link('selfUrlWillBeHidden/'),
             true, // show self
             ['this meta' => 'wont be shown'], // meta when resource is primary
             false, // show 'self' in 'included'
@@ -825,8 +757,7 @@ EOL;
             true, //  show self
             true, //  show related
             false, // show relationship meta
-            true, //  show data
-            false  // show as ref
+            true  //  show data
         );
 
         $this->document->addRelationshipToIncluded($parent, $link, $resource);
@@ -868,7 +799,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'peopleSelfUrl/', // self url
+            new Link('peopleSelfUrl/'), // self url
             false, // show self
             ['this meta' => 'wont be shown'], // meta when primary resource
             true, //  show 'self' in 'included'
@@ -879,13 +810,12 @@ EOL;
         $link = $this->schemaFactory->createRelationshipObject(
             'comments-relationship',
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
-            [], // links
+            [], //    links
             null, //  relationship meta
             true, //  show self
             true, //  show related
             false, // show relationship meta
-            true, //  show data
-            false  // show as ref
+            true   // show data
         );
 
         $this->document->addEmptyRelationshipToIncluded($parent, $link);
@@ -925,7 +855,7 @@ EOL;
             'people',
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
-            'peopleSelfUrl/', // self url
+            new Link('peopleSelfUrl/'), // self url
             false, // show self
             ['this meta' => 'wont be shown'], // meta when primary resource
             true, //  show 'self' in 'included'
@@ -941,8 +871,7 @@ EOL;
             true, //  show self
             true, //  show related
             false, // show relationship meta
-            true, //  show data
-            false  // show as ref
+            true  //  show data
         );
 
         $this->document->addNullRelationshipToIncluded($parent, $link);
@@ -974,66 +903,6 @@ EOL;
     }
 
     /**
-     * Test add reference link to 'included' section.
-     */
-    public function testAddReferenceLinkToIncluded()
-    {
-        $this->document->addToIncluded($parent = $this->schemaFactory->createResourceObject($this->getSchema(
-            'people',
-            '123',
-            ['firstName' => 'John', 'lastName' => 'Dow'],
-            'peopleSelfUrl/', // self url
-            false, // show self
-            ['this meta' => 'wont be shown'], // meta when primary resource
-            true, //  show 'self' in 'included'
-            false, // show 'relationships' in 'included'
-            ['some' => 'author meta'] // meta when resource within 'included'
-        ), new stdClass(), false));
-
-        $link = $this->schemaFactory->createRelationshipObject(
-            'comments-relationship',
-            new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
-            [
-                LinkInterface::SELF    => $this->createLink('selfSubUrl'),
-                LinkInterface::RELATED => $this->createLink('relatedSubUrl'),
-            ],
-            null, //  relationship meta
-            true, //  show self
-            true, //  show related
-            false, // show relationship meta
-            true, //  show data
-            false  // show as ref
-        );
-
-        $this->document->addReferenceToIncluded($parent, $link);
-        $this->document->setResourceCompleted($parent);
-
-        $expected = <<<EOL
-        {
-            "data"     : null,
-            "included" : [{
-                "type"       : "people",
-                "id"         : "123",
-                "attributes" : {
-                    "firstName" : "John",
-                    "lastName"  : "Dow"
-                },
-                "relationships" : {
-                    "comments-relationship" : "peopleSelfUrl/relatedSubUrl"
-                },
-                "links" : {
-                    "self" : "peopleSelfUrl/"
-                },
-                "meta" : {
-                    "some" : "author meta"
-                }
-            }]
-        }
-EOL;
-        $this->check($expected);
-    }
-
-    /**
      * Test add type and id only. This functionality is required for replies on 'request links'.
      */
     public function testAddTypeAndIdOnly()
@@ -1042,7 +911,7 @@ EOL;
             'people',
             '123',
             null, // attributes
-            'peopleSelfUrl/', // self url
+            new Link('peopleSelfUrl/'), // self url
             false, // show self
             null // meta when primary resource
         ), new stdClass(), false));
@@ -1115,19 +984,6 @@ EOL;
     }
 
     /**
-     * Test URL concatenation.
-     */
-    public function testConcatUrls()
-    {
-        $presenter = new ElementPresenter();
-
-        $this->assertEquals('url/subUrl', $presenter->concatUrls('url', $this->createLink('subUrl')));
-        $this->assertEquals('url/subUrl', $presenter->concatUrls('url/', $this->createLink('subUrl')));
-        $this->assertEquals('url/subUrl', $presenter->concatUrls('url', $this->createLink('/subUrl')));
-        $this->assertEquals('url/subUrl', $presenter->concatUrls('url/', $this->createLink('/subUrl')));
-    }
-
-    /**
      * Test unset data.
      */
     public function testUnsetData()
@@ -1140,7 +996,7 @@ EOL;
             'people',
             '123',
             null, // attributes
-            'peopleSelfUrl/', // self url
+            new Link('peopleSelfUrl/'), // self url
             false, // show self
             null // meta when primary resource
         ), new stdClass(), false));
@@ -1181,7 +1037,7 @@ EOL;
      * @param string        $type
      * @param string        $idx
      * @param array|null    $attributes
-     * @param LinkInterface $selfUrl
+     * @param LinkInterface|null $selfLink
      * @param bool          $showSelfUrl
      * @param mixed         $primaryMeta
      * @param bool          $showSelfInIncluded
@@ -1197,7 +1053,7 @@ EOL;
         $type,
         $idx,
         $attributes,
-        $selfUrl,
+        $selfLink,
         $showSelfUrl,
         $primaryMeta,
         $showSelfInIncluded = false,
@@ -1211,7 +1067,7 @@ EOL;
 
         $schema->shouldReceive('getResourceType')->zeroOrMoreTimes()->andReturn($type);
         $schema->shouldReceive('getId')->zeroOrMoreTimes()->andReturn($idx);
-        $schema->shouldReceive('getSelfUrl')->zeroOrMoreTimes()->andReturn($selfUrl);
+        $schema->shouldReceive('getSelfSubLink')->zeroOrMoreTimes()->andReturn($selfLink);
         $schema->shouldReceive('getAttributes')->zeroOrMoreTimes()->andReturn($attributes);
         $schema->shouldReceive('isShowSelf')->zeroOrMoreTimes()->andReturn($showSelfUrl);
         $schema->shouldReceive('isShowSelfInIncluded')->zeroOrMoreTimes()->andReturn($showSelfInIncluded);

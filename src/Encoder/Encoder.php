@@ -98,6 +98,10 @@ class Encoder implements EncoderInterface
         $parserManager = $this->parserFactory->createManager($parameters);
         $parser        = $this->parserFactory->createParser($this->container, $parserManager);
         $interpreter   = $this->handlerFactory->createReplyInterpreter($docWriter, $parameters);
+
+        $this->encoderOptions !== null && $this->encoderOptions->getUrlPrefix() !== null ?
+            $docWriter->setUrlPrefix($this->encoderOptions->getUrlPrefix()) : null;
+
         foreach ($parser->parse($data) as $reply) {
             $interpreter->handle($reply);
         }

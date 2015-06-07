@@ -33,8 +33,7 @@ class ParserEmptyReply extends BaseReply
     ) {
         assert(
             '$replyType === ' . self::REPLY_TYPE_NULL_RESOURCE_STARTED . ' || '.
-            '$replyType === ' . self::REPLY_TYPE_EMPTY_RESOURCE_STARTED . ' || '.
-            '$replyType === ' . self::REPLY_TYPE_REFERENCE_STARTED
+            '$replyType === ' . self::REPLY_TYPE_EMPTY_RESOURCE_STARTED
         );
 
         parent::__construct($replyType, $stack);

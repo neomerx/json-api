@@ -23,6 +23,7 @@ use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\Tests\JsonApi\Data\PostSchema;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
 use \Neomerx\JsonApi\Parameters\EncodingParameters;
@@ -33,6 +34,21 @@ use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
  */
 class EncoderTest extends BaseTestCase
 {
+    /**
+     * @var EncoderOptions
+     */
+    private $encoderOptions;
+
+    /**
+     * Set up.
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->encoderOptions = new EncoderOptions(0, 512, 'http://example.com');
+    }
+
     /**
      * Test encode array of simple objects with attributes only.
      */
@@ -45,7 +61,7 @@ class EncoderTest extends BaseTestCase
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
-        ]);
+        ], $this->encoderOptions);
 
         $actual = $endcoder->encode([$author, $author]);
 
@@ -100,7 +116,7 @@ EOL;
                 $schema->setIncludePaths([]);
                 return $schema;
             },
-        ]);
+        ], $this->encoderOptions);
 
         $actual = $endcoder->encode([$author, $author]);
 
@@ -160,7 +176,7 @@ EOL;
         $endcoder = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-        ]);
+        ], $this->encoderOptions);
 
         $author->{Author::LINK_COMMENTS} = $comments;
 
@@ -212,7 +228,7 @@ EOL;
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
-        ])->encode($this->getStandardPost());
+        ], $this->encoderOptions)->encode($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -249,47 +265,6 @@ EOL;
     /**
      * Test encode resource object links as references.
      */
-    public function testEncodeLinkAsReference()
-    {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_AS_REF, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_AS_REF, true);
-                return $schema;
-            },
-        ])->encode($this->getStandardPost());
-
-        $expected = <<<EOL
-        {
-            "data" : {
-                "type" : "posts",
-                "id"   : "1",
-                "attributes" : {
-                    "title" : "JSON API paints my bikeshed!",
-                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
-                },
-                "relationships" : {
-                    "author"   : "http://example.com/posts/1/author",
-                    "comments" : "http://example.com/posts/1/comments"
-                },
-                "links" : {
-                    "self"     : "http://example.com/posts/1"
-                }
-            }
-        }
-EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
-    }
-
-    /**
-     * Test encode resource object links as references.
-     */
     public function testEncodeEmptyLinks()
     {
         $actual = Encoder::instance([
@@ -301,7 +276,7 @@ EOL;
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, []);
                 return $schema;
             },
-        ])->encode($this->getStandardPost());
+        ], $this->encoderOptions)->encode($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -344,7 +319,7 @@ EOL;
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_RELATED, true);
                 return $schema;
             },
-        ])->encode($this->getStandardPost());
+        ], $this->encoderOptions)->encode($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -408,7 +383,7 @@ EOL;
                 return $schema;
             },
             Comment::class => CommentSchema::class,
-        ])->encode($author);
+        ], $this->encoderOptions)->encode($author);
 
         $expected = <<<EOL
         {

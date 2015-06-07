@@ -44,9 +44,9 @@ interface SchemaProviderInterface
      *
      * @param object $resource
      *
-     * @return string
+     * @return LinkInterface
      */
-    public function getSelfUrl($resource);
+    public function getSelfSubLink($resource);
 
     /**
      * Get resource attributes.

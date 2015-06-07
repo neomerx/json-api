@@ -83,12 +83,7 @@ class ParserTest extends BaseTestCase
         $schemas = [
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_AS_REF, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_AS_REF, true);
-                return $schema;
-            },
+            Post::class    => PostSchema::class,
         ];
         $container    = (new SchemaFactory())->createContainer($schemas);
         $this->parser = (new EncoderFactory())->createParser($container);
@@ -198,33 +193,6 @@ class ParserTest extends BaseTestCase
 
         $allReplies = [];
         foreach ($this->parser->parse($this->author) as $reply) {
-            /** @var ParserReplyInterface $reply */
-            $allReplies[] = $this->replyToArray($reply);
-        }
-        $this->assertEquals($expected, $allReplies);
-    }
-
-    /**
-     * Test parse link as reference.
-     */
-    public function testParseLinkReferences()
-    {
-        $this->post->{Post::LINK_AUTHOR} = null;
-
-        $start      = ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED;
-        $startRef   = ParserReplyInterface::REPLY_TYPE_REFERENCE_STARTED;
-        $startNull  = ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED;
-        $complete   = ParserReplyInterface::REPLY_TYPE_RESOURCE_COMPLETED;
-        $expected   = [
-            //             level link name   type        id    attributes         meta
-            [$start,       1,    '',         'posts',    1,    $this->postAttr, null],
-            [$startNull,   2,    'author',   '',         null, null,            null],
-            [$startRef,    2,    'comments', '',         null, null,            null],
-            [$complete,    1,    '',         'posts',    1,    $this->postAttr, null],
-        ];
-
-        $allReplies = [];
-        foreach ($this->parser->parse($this->post) as $reply) {
             /** @var ParserReplyInterface $reply */
             $allReplies[] = $this->replyToArray($reply);
         }

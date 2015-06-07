@@ -42,17 +42,32 @@ class EncoderOptions
     private $versionMeta;
 
     /**
-     * @param int   $options
-     * @param int   $depth
-     * @param bool  $isShowVersionInfo
-     * @param mixed $versionMeta
+     * @var null|string
      */
-    public function __construct($options = 0, $depth = 512, $isShowVersionInfo = false, $versionMeta = null)
-    {
-        assert('is_int($options) && is_int($depth) && is_bool($isShowVersionInfo)');
+    private $urlPrefix;
+
+    /**
+     * @param int    $options
+     * @param int    $depth
+     * @param string $urlPrefix
+     * @param bool   $isShowVersionInfo
+     * @param mixed  $versionMeta
+     */
+    public function __construct(
+        $options = 0,
+        $depth = 512,
+        $urlPrefix = null,
+        $isShowVersionInfo = false,
+        $versionMeta = null
+    ) {
+        assert(
+            'is_int($options) && is_int($depth) && ($urlPrefix === null || is_string($urlPrefix)) &&'.
+            ' is_bool($isShowVersionInfo)'
+        );
 
         $this->options           = $options;
         $this->depth             = $depth;
+        $this->urlPrefix         = $urlPrefix;
         $this->isShowVersionInfo = $isShowVersionInfo;
         $this->versionMeta       = $versionMeta;
     }
@@ -97,5 +112,13 @@ class EncoderOptions
     public function getVersionMeta()
     {
         return $this->versionMeta;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getUrlPrefix()
+    {
+        return $this->urlPrefix;
     }
 }

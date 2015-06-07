@@ -29,6 +29,19 @@ use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 class ElementPresenter
 {
     /**
+     * @var Document
+     */
+    private $document;
+
+    /**
+     * @param Document $document
+     */
+    public function __construct(Document $document)
+    {
+        $this->document = $document;
+    }
+
+    /**
      * @param array                       $target
      * @param ResourceObjectInterface     $parent
      * @param RelationshipObjectInterface $current
@@ -152,43 +165,18 @@ class ElementPresenter
     }
 
     /**
-     * @param string        $url
-     * @param LinkInterface $subLink
-     *
-     * @return string|array
-     */
-    public function concatUrls($url, LinkInterface $subLink)
-    {
-        if ($subLink->isTreatAsHref() === true) {
-            $resultUrl = $subLink->getSubHref();
-        } else {
-            $subUrl             = $subLink->getSubHref();
-            $urlEndsWithSlash   = (substr($url, -1) === '/');
-            $subStartsWithSlash = (substr($subUrl, 0, 1) === '/');
-            if ($urlEndsWithSlash === false && $subStartsWithSlash === false) {
-                $resultUrl = $url . '/' . $subUrl;
-            } elseif (($urlEndsWithSlash xor $subStartsWithSlash) === true) {
-                $resultUrl = $url . $subUrl;
-            } else {
-                $resultUrl = rtrim($url, '/') . $subUrl;
-            }
-        }
-
-        return $this->getUrlRepresentation($resultUrl, $subLink->getMeta());
-    }
-
-    /**
+     * @param string|null          $prefix
      * @param LinkInterface[]|null $links
      *
-     * @return string|null|array
+     * @return array|null|string
      */
-    public function getLinksRepresentation($links = null)
+    public function getLinksRepresentation($prefix = null, $links = null)
     {
         $result = null;
         if ($links !== null) {
             foreach ($links as $name => $link) {
                 /** @var LinkInterface $link */
-                $result[$name] = $this->getLinkRepresentation($link);
+                $result[$name] = $this->getLinkRepresentation($prefix, $link);
             }
         }
 
@@ -231,13 +219,17 @@ class ElementPresenter
     }
 
     /**
+     * @param string|null        $prefix
      * @param LinkInterface|null $link
      *
-     * @return string|null|array
+     * @return array|null|string
      */
-    private function getLinkRepresentation(LinkInterface $link = null)
+    private function getLinkRepresentation($prefix = null, LinkInterface $link = null)
     {
-        return $link === null ? null : $this->getUrlRepresentation($link->getSubHref(), $link->getMeta());
+        return $link === null ? null : $this->getUrlRepresentation(
+            $link->isTreatAsHref() === true ? $link->getSubHref() : $prefix . $link->getSubHref(),
+            $link->getMeta()
+        );
     }
 
     /**
@@ -257,8 +249,6 @@ class ElementPresenter
             '"self" is a reserved keyword and cannot be used as a related resource link name'
         );
 
-        $selfUrl = $parent->getSelfUrl();
-
         $representation = [];
 
         if ($relation->isShowData() === true) {
@@ -269,6 +259,12 @@ class ElementPresenter
             $representation[Document::KEYWORD_META] = $relation->getMeta();
         }
 
+        $baseUrl = null;
+        if (($selfSubLink = $parent->getSelfSubLink()) !== null) {
+            $baseUrl = $selfSubLink->isTreatAsHref() === true ? $selfSubLink->getSubHref() . '/' :
+                $this->document->getUrlPrefix() . $selfSubLink->getSubHref() . '/';
+        }
+
         foreach ($relation->getLinks() as $name => $link) {
             if ($name === LinkInterface::SELF && $relation->isShowSelf() === false) {
                 continue;
@@ -276,7 +272,7 @@ class ElementPresenter
             if ($name === LinkInterface::RELATED && $relation->isShowRelated() === false) {
                 continue;
             }
-            $representation[Document::KEYWORD_LINKS][$name] = $this->concatUrls($selfUrl, $link);
+            $representation[Document::KEYWORD_LINKS][$name] = $this->getLinkRepresentation($baseUrl, $link);
         }
 
         assert(
@@ -319,7 +315,8 @@ class ElementPresenter
         $representation[Document::KEYWORD_RELATIONSHIPS] = null;
 
         if ($isShowSelf === true) {
-            $representation[Document::KEYWORD_LINKS][Document::KEYWORD_SELF] = $resource->getSelfUrl();
+            $representation[Document::KEYWORD_LINKS][Document::KEYWORD_SELF] =
+                $this->getLinkRepresentation($this->document->getUrlPrefix(), $resource->getSelfSubLink());
         }
 
         if ($meta !== null) {

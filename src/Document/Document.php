@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Document\Presenters\ElementPresenter;
@@ -91,11 +90,16 @@ class Document implements DocumentInterface
     private $showData = true;
 
     /**
+     * @var string|null
+     */
+    private $urlPrefix;
+
+    /**
      * Constructor.
      */
     public function __construct()
     {
-        $this->presenter = new ElementPresenter();
+        $this->presenter = new ElementPresenter($this);
     }
 
     /**
@@ -103,7 +107,7 @@ class Document implements DocumentInterface
      */
     public function setDocumentLinks($links)
     {
-        $this->links = $this->presenter->getLinksRepresentation($links);
+        $this->links = $this->presenter->getLinksRepresentation($this->urlPrefix, $links);
     }
 
     /**
@@ -183,24 +187,6 @@ class Document implements DocumentInterface
         ResourceObjectInterface $resource
     ) {
         $this->presenter->addRelationshipTo($this->bufferForIncluded, $parent, $relationship, $resource);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function addReferenceToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
-    {
-        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getLink(LinkInterface::RELATED));
-        $this->presenter->setRelationshipTo($this->bufferForData, $parent, $current, $url);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function addReferenceToIncluded(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
-    {
-        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getLink(LinkInterface::RELATED));
-        $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $current, $url);
     }
 
     /**
@@ -326,5 +312,23 @@ class Document implements DocumentInterface
         });
 
         $this->errors[] = $representation;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setUrlPrefix($prefix)
+    {
+        $this->urlPrefix = (string)$prefix;
+    }
+
+    /**
+     * Get URL prefix.
+     *
+     * @return null|string
+     */
+    public function getUrlPrefix()
+    {
+        return $this->urlPrefix;
     }
 }

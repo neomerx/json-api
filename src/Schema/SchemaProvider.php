@@ -36,9 +36,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /** Relationship meta */
     const META = 'meta';
 
-    /** If link should be shown as reference. */
-    const SHOW_AS_REF = 'asRef';
-
     /** If meta information of a resource in relationship should be shown. */
     const SHOW_META = 'showMeta';
 
@@ -59,7 +56,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @var string
      */
-    protected $baseSelfUrl;
+    protected $selfSubUrl;
 
     /**
      * @var bool
@@ -97,9 +94,10 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
     {
-        assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set.');
+        assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set');
         assert('is_bool($this->isShowSelfInIncluded) && is_bool($this->isShowRelShipsInIncluded)');
-        assert('is_string($this->baseSelfUrl) && empty($this->baseSelfUrl) === false', 'Base \'self\' not set.');
+        assert('is_string($this->selfSubUrl) && empty($this->selfSubUrl) === false', 'Base \'self\' not set');
+        assert('substr($this->selfSubUrl, -1) === \'/\'', 'Url should end with \'/\' separator');
 
         $this->factory   = $factory;
         $this->container = $container;
@@ -116,9 +114,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getSelfUrl($resource)
+    public function getSelfSubLink($resource)
     {
-        return $this->getBaseSelfUrl($resource).$this->getId($resource);
+        return new Link($this->selfSubUrl . $this->getId($resource));
     }
 
     /**
@@ -209,7 +207,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
             $meta          = $this->getValue($desc, self::META, null);
             $isShowMeta    = ($this->getValue($desc, self::SHOW_META, false) === true);
             $isShowSelf    = ($this->getValue($desc, self::SHOW_SELF, false) === true);
-            $isShowAsRef   = ($this->getValue($desc, self::SHOW_AS_REF, false) === true);
             $isShowRelated = ($this->getValue($desc, self::SHOW_RELATED, false) === true);
             $isShowData    = ($this->getValue($desc, self::SHOW_DATA, true) === true);
 
@@ -221,8 +218,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
                 $isShowSelf,
                 $isShowRelated,
                 $isShowMeta,
-                $isShowData,
-                $isShowAsRef
+                $isShowData
             );
         }
     }
@@ -233,22 +229,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function getIncludePaths()
     {
         return [];
-    }
-
-    /**
-     * Get the base self URL
-     *
-     * @param object $resource
-     *
-     * @return string
-     */
-    protected function getBaseSelfUrl($resource)
-    {
-        $resource ?: null;
-
-        substr($this->baseSelfUrl, -1) === '/' ?: $this->baseSelfUrl .= '/';
-
-        return $this->baseSelfUrl;
     }
 
     /**
@@ -287,10 +267,10 @@ abstract class SchemaProvider implements SchemaProviderInterface
     {
         $links = $this->getValue($description, self::LINKS, []);
         if (isset($links[LinkInterface::SELF]) === false) {
-            $links[LinkInterface::SELF] = $this->factory->createLink('/relationships/'.$relationshipName);
+            $links[LinkInterface::SELF] = $this->factory->createLink('relationships/'.$relationshipName);
         }
         if (isset($links[LinkInterface::RELATED]) === false) {
-            $links[LinkInterface::RELATED] = $this->factory->createLink('/'.$relationshipName);
+            $links[LinkInterface::RELATED] = $this->factory->createLink($relationshipName);
         }
 
         return $links;

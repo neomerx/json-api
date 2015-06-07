@@ -128,8 +128,6 @@ class Parser implements ParserInterface
 
         if (empty($data) === true) {
             yield $this->createReplyForEmptyData($data);
-        } elseif ($this->isRefFrame()) {
-            yield $this->createReplyForRef();
         } else {
             if (is_array($data) === true) {
                 $isOriginallyArrayed = true;
@@ -193,16 +191,6 @@ class Parser implements ParserInterface
     /**
      * @return ParserReplyInterface
      */
-    private function createReplyForRef()
-    {
-        $replyType = ParserReplyInterface::REPLY_TYPE_REFERENCE_STARTED;
-
-        return $this->parserFactory->createEmptyReply($replyType, $this->stack);
-    }
-
-    /**
-     * @return ParserReplyInterface
-     */
     private function createReplyResourceStarted()
     {
         return $this->parserFactory->createReply(ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED, $this->stack);
@@ -244,18 +232,6 @@ class Parser implements ParserInterface
             }
         }
         return false;
-    }
-
-    /**
-     * If current stack frame should be shown as a reference.
-     *
-     * @return bool
-     */
-    private function isRefFrame()
-    {
-        /** @var RelationshipObjectInterface $curRelObject */
-        $curRelObject = $this->stack->end()->getRelationship();
-        return ($curRelObject !== null && $curRelObject->isShowAsReference() === true);
     }
 
     /**

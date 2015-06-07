@@ -47,7 +47,7 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @var string
      */
-    private $selfUrl;
+    private $selfSubLink;
 
     /**
      * @var bool
@@ -72,7 +72,7 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @var bool
      */
-    private $isSelfUrlSet = false;
+    private $isSelfSubLinkSet = false;
 
     /**
      * @var bool
@@ -152,13 +152,14 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function getSelfUrl()
+    public function getSelfSubLink()
     {
-        if ($this->isSelfUrlSet === false) {
-            $this->selfUrl = $this->schema->getSelfUrl($this->resource);
-            $this->isSelfUrlSet = true;
+        if ($this->isSelfSubLinkSet === false) {
+            $this->selfSubLink = $this->schema->getSelfSubLink($this->resource);
+            $this->isSelfSubLinkSet = true;
         }
-        return $this->selfUrl;
+
+        return $this->selfSubLink;
     }
 
     /**

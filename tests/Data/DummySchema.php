@@ -29,7 +29,7 @@ class DummySchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    protected $baseSelfUrl = 'dummyUrl';
+    protected $selfSubUrl = '/dummyUrl/';
 
     /**
      * @inheritdoc

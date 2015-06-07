@@ -85,8 +85,7 @@ class FactoryTest extends BaseTestCase
             $isShowSelf = true,
             $isShowRelated = true,
             $isShowMeta = true,
-            $isShowData = true,
-            $isShowAsRef = false
+            $isShowData = true
         ));
 
         $this->assertEquals($name, $link->getName());
@@ -97,6 +96,5 @@ class FactoryTest extends BaseTestCase
         $this->assertEquals($isShowRelated, $link->isShowRelated());
         $this->assertEquals($isShowMeta, $link->isShowMeta());
         $this->assertEquals($isShowData, $link->isShowData());
-        $this->assertEquals($isShowAsRef, $link->isShowAsReference());
     }
 }

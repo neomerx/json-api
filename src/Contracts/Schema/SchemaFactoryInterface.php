@@ -58,7 +58,6 @@ interface SchemaFactoryInterface
      * @param bool                 $isShowRelated
      * @param bool                 $isShowMeta
      * @param bool                 $isShowData
-     * @param bool                 $isShowAsRef
      *
      * @return RelationshipObjectInterface
      */
@@ -70,8 +69,7 @@ interface SchemaFactoryInterface
         $isShowSelf,
         $isShowRelated,
         $isShowMeta,
-        $isShowData,
-        $isShowAsRef
+        $isShowData
     );
 
     /**

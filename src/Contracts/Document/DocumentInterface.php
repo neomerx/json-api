@@ -138,16 +138,6 @@ interface DocumentInterface
     );
 
     /**
-     * Add a reference to resource in 'data' section.
-     *
-     * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $current
-     *
-     * @return void
-     */
-    public function addReferenceToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current);
-
-    /**
      * Add an empty relationship to resource in 'data' section.
      *
      * @param ResourceObjectInterface     $parent
@@ -190,16 +180,6 @@ interface DocumentInterface
         RelationshipObjectInterface $relationship,
         ResourceObjectInterface $resource
     );
-
-    /**
-     * Add a reference to resource in 'included' section.
-     *
-     * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $current
-     *
-     * @return void
-     */
-    public function addReferenceToIncluded(ResourceObjectInterface $parent, RelationshipObjectInterface $current);
 
     /**
      * Add an empty relationship to resource in 'included' section.
@@ -258,6 +238,17 @@ interface DocumentInterface
      * @return void
      */
     public function addJsonApiVersion($version, $meta = null);
+
+    /**
+     * Set a prefix that will be applied to all URLs in the document except marked as href.
+     *
+     * @see LinkInterface
+     *
+     * @param string $prefix
+     *
+     * @return void
+     */
+    public function setUrlPrefix($prefix);
 
     /**
      * Remove 'data' top-level section.

@@ -29,6 +29,18 @@ use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 class EncodeSimpleObjectsTest extends BaseTestCase
 {
     /**
+     * @var EncoderOptions
+     */
+    private $encoderOptions;
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->encoderOptions = new EncoderOptions(0, 512, 'http://example.com');
+    }
+
+    /**
      * Test encode null.
      */
     public function testEncodeNull()
@@ -84,7 +96,7 @@ EOL;
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
-        ]);
+        ], $this->encoderOptions);
 
         $actual = $endcoder->encode($author);
 
@@ -121,7 +133,7 @@ EOL;
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
-        ]);
+        ], $this->encoderOptions);
 
         $actual = $endcoder->encode([$author]);
 
@@ -158,7 +170,7 @@ EOL;
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
-        ], new EncoderOptions(JSON_PRETTY_PRINT));
+        ], new EncoderOptions(JSON_PRETTY_PRINT, 512, 'http://example.com'));
 
         $actual = $endcoder->encode($author);
 
@@ -194,7 +206,7 @@ EOL;
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
-        ]);
+        ], $this->encoderOptions);
 
         $actual = $endcoder->encode([$author1, $author2]);
 
@@ -238,7 +250,7 @@ EOL;
     public function testEncodeMetaAndtopLinksForSimpleObject()
     {
         $author = Author::instance(9, 'Dan', 'Gebhardt');
-        $links  = [Link::SELF => new Link('http://example.com/people/9')];
+        $links  = [Link::SELF => new Link('/people/9')];
         $meta   = [
             "copyright" => "Copyright 2015 Example Corp.",
             "authors"   => [
@@ -254,7 +266,7 @@ EOL;
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
-        ])->encode($author, $links, $meta);
+        ], $this->encoderOptions)->encode($author, $links, $meta);
 
         $expected = <<<EOL
         {
@@ -330,7 +342,7 @@ EOL;
 
     public function testEncodeJsonApiVersion()
     {
-        $endcoder = Encoder::instance([], new EncoderOptions(0, 512, true, ['some' => 'meta']));
+        $endcoder = Encoder::instance([], new EncoderOptions(0, 512, null, true, ['some' => 'meta']));
 
         $actual = $endcoder->encode(null);
 

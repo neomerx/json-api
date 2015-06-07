@@ -64,11 +64,6 @@ class RelationshipObject implements RelationshipObjectInterface
     private $isShowData;
 
     /**
-     * @var bool
-     */
-    private $isShowAsReference;
-
-    /**
      * @param string                      $name
      * @param object|array|null           $data
      * @param array<string,LinkInterface> $links
@@ -77,7 +72,6 @@ class RelationshipObject implements RelationshipObjectInterface
      * @param bool                        $isShowRelated
      * @param bool                        $isShowMeta
      * @param bool                        $isShowData
-     * @param bool                        $isShowAsRef
      */
     public function __construct(
         $name,
@@ -87,17 +81,15 @@ class RelationshipObject implements RelationshipObjectInterface
         $isShowSelf,
         $isShowRelated,
         $isShowMeta,
-        $isShowData,
-        $isShowAsRef
+        $isShowData
     ) {
         assert(
             'is_string($name) &&'.
             '(is_object($data) || is_array($data) || is_null($data)) &&'.
-            'is_bool($isShowAsRef) && is_bool($isShowSelf) && is_bool($isShowRelated) && is_bool($isShowMeta) &&'.
-            'is_array($links)'
+            'is_bool($isShowSelf) && is_bool($isShowRelated) && is_bool($isShowMeta) && is_array($links)'
         );
         assert(
-            '$isShowSelf || $isShowRelated || $isShowData || $isShowMeta || $isShowAsRef',
+            '$isShowSelf || $isShowRelated || $isShowData || $isShowMeta',
             'Specification requires at least one of them to be shown'
         );
 
@@ -109,7 +101,6 @@ class RelationshipObject implements RelationshipObjectInterface
         $this->isShowRelated     = $isShowRelated;
         $this->isShowMeta        = $isShowMeta;
         $this->isShowData        = $isShowData;
-        $this->isShowAsReference = $isShowAsRef;
     }
 
     /**
@@ -134,14 +125,6 @@ class RelationshipObject implements RelationshipObjectInterface
     public function getLinks()
     {
         return $this->links;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getLink($key)
-    {
-        return isset($this->links[$key]) === true ? $this->links[$key] : null;
     }
 
     /**
@@ -182,13 +165,5 @@ class RelationshipObject implements RelationshipObjectInterface
     public function isShowMeta()
     {
         return $this->isShowMeta;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowAsReference()
-    {
-        return $this->isShowAsReference;
     }
 }

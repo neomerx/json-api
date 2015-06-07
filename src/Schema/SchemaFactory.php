@@ -55,8 +55,7 @@ class SchemaFactory implements SchemaFactoryInterface
         $isShowSelf,
         $isShowRelated,
         $isShowMeta,
-        $isShowData,
-        $isShowAsRef
+        $isShowData
     ) {
         return new RelationshipObject(
             $name,
@@ -66,8 +65,7 @@ class SchemaFactory implements SchemaFactoryInterface
             $isShowSelf,
             $isShowRelated,
             $isShowMeta,
-            $isShowData,
-            $isShowAsRef
+            $isShowData
         );
     }
 

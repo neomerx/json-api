@@ -25,6 +25,7 @@ use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\Tests\JsonApi\Data\PostSchema;
 use \Neomerx\Tests\JsonApi\Data\SiteSchema;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
 use \Neomerx\JsonApi\Parameters\EncodingParameters;
@@ -55,6 +56,11 @@ class EncodeIncludedObjectsTest extends BaseTestCase
     private $site;
 
     /**
+     * @var EncoderOptions
+     */
+    private $encoderOptions;
+
+    /**
      * Set up.
      */
     protected function setUp()
@@ -74,6 +80,7 @@ class EncodeIncludedObjectsTest extends BaseTestCase
             $this->comments
         );
         $this->site = Site::instance(2, 'site name', [$this->post]);
+        $this->encoderOptions = new EncoderOptions(0, 512, 'http://example.com');
     }
 
     /**
@@ -93,7 +100,7 @@ class EncodeIncludedObjectsTest extends BaseTestCase
                 $schema->setIncludePaths([Post::LINK_COMMENTS]);
                 return $schema;
             },
-        ])->encode($this->post);
+        ], $this->encoderOptions)->encode($this->post);
 
         $expected = <<<EOL
         {
@@ -158,7 +165,7 @@ EOL;
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
-        ])->encode($this->site, null, null, new EncodingParameters(
+        ], $this->encoderOptions)->encode($this->site, null, null, new EncodingParameters(
             // include only this relation (according to the spec intermediate will be included as well)
             [Site::LINK_POSTS . '.' . Post::LINK_COMMENTS],
             // include only these attributes and links
@@ -238,7 +245,7 @@ EOL;
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
-        ])->encode($this->site);
+        ], $this->encoderOptions)->encode($this->site);
 
         $expected = <<<EOL
         {
@@ -295,7 +302,7 @@ EOL;
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
-        ])->encode($this->site);
+        ], $this->encoderOptions)->encode($this->site);
 
         $expected = <<<EOL
         {
@@ -340,63 +347,6 @@ EOL;
     }
 
     /**
-     * Test encode included objects with reference links.
-     */
-    public function testEncodeLinksAsRefs()
-    {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_AS_REF, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_AS_REF, true);
-                return $schema;
-            },
-            Site::class => SiteSchema::class,
-        ])->encode($this->site);
-
-        $expected = <<<EOL
-        {
-            "data" : {
-                "type"  : "sites",
-                "id"    : "2",
-                "attributes" : {
-                    "name"  : "site name"
-                },
-                "relationships" : {
-                    "posts" : {
-                        "data" : {
-                            "type" : "posts",
-                            "id" : "1"
-                        }
-                    }
-                },
-                "links" : {
-                    "self" : "http://example.com/sites/2"
-                }
-            },
-            "included" : [{
-                "type"  : "posts",
-                "id"    : "1",
-                "attributes" : {
-                    "title" : "JSON API paints my bikeshed!",
-                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
-                },
-                "relationships" : {
-                    "author"   : "http://example.com/posts/1/author",
-                    "comments" : "http://example.com/posts/1/comments"
-                }
-            }]
-        }
-EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
-    }
-
-    /**
      * Test link objects that should not be included but these objects link to others that should.
      * Parser should stop parsing even if deeper objects exist.
      */
@@ -411,7 +361,7 @@ EOL;
                 $schema->setIncludePaths([Site::LINK_POSTS]);
                 return $schema;
             },
-        ])->encode($this->site);
+        ], $this->encoderOptions)->encode($this->site);
 
         $expected = <<<EOL
         {
@@ -477,7 +427,7 @@ EOL;
                 );
                 return $schema;
             },
-        ])->encode($this->post);
+        ], $this->encoderOptions)->encode($this->post);
 
         $expected = <<<EOL
         {

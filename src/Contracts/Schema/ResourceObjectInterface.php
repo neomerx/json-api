@@ -66,9 +66,9 @@ interface ResourceObjectInterface
     /**
      * Get resource 'self' endpoint URL.
      *
-     * @return string
+     * @return LinkInterface
      */
-    public function getSelfUrl();
+    public function getSelfSubLink();
 
     /**
      * If 'self' endpoint URL should be shown for resource in 'data' section.

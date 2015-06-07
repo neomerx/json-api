@@ -34,7 +34,7 @@ class CommentSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    protected $baseSelfUrl = 'http://example.com/comments/';
+    protected $selfSubUrl = '/comments/';
 
     /**
      * @inheritdoc

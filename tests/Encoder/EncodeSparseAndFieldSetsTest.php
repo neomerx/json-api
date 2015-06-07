@@ -24,6 +24,7 @@ use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\Tests\JsonApi\Data\PostSchema;
 use \Neomerx\Tests\JsonApi\Data\SiteSchema;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
 use \Neomerx\JsonApi\Parameters\EncodingParameters;
@@ -54,6 +55,11 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
     private $site;
 
     /**
+     * @var EncoderOptions
+     */
+    private $encoderOptions;
+
+    /**
      * Set up.
      */
     protected function setUp()
@@ -73,6 +79,7 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
             $this->comments
         );
         $this->site = Site::instance(2, 'site name', [$this->post]);
+        $this->encoderOptions = new EncoderOptions(0, 512, 'http://example.com');
     }
 
     /**
@@ -87,7 +94,7 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
-        ])->encode($this->site, null, null, new EncodingParameters(
+        ], $this->encoderOptions)->encode($this->site, null, null, new EncodingParameters(
             [
                 // include only this relations
                 Site::LINK_POSTS,
@@ -183,7 +190,7 @@ EOL;
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
-        ])->encode($this->site, null, null, new EncodingParameters(
+        ], $this->encoderOptions)->encode($this->site, null, null, new EncodingParameters(
             null,
             // include only these attributes and links
             [

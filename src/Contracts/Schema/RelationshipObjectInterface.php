@@ -43,15 +43,6 @@ interface RelationshipObjectInterface
     public function getLinks();
 
     /**
-     * Get links.
-     *
-     * @param string $key
-     *
-     * @return LinkInterface|null
-     */
-    public function getLink($key);
-
-    /**
      * Get meta.
      *
      * @return mixed
@@ -85,11 +76,4 @@ interface RelationshipObjectInterface
      * @return bool
      */
     public function isShowMeta();
-
-    /**
-     * If link should be shown as URL reference ('related').
-     *
-     * @return bool
-     */
-    public function isShowAsReference();
 }
