@@ -37,7 +37,7 @@ class EncodeSimpleObjectsTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->encoderOptions = new EncoderOptions(0, 512, 'http://example.com');
+        $this->encoderOptions = new EncoderOptions(0, 'http://example.com');
     }
 
     /**
@@ -170,7 +170,7 @@ EOL;
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
-        ], new EncoderOptions(JSON_PRETTY_PRINT, 512, 'http://example.com'));
+        ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
 
         $actual = $endcoder->encode($author);
 
@@ -342,7 +342,7 @@ EOL;
 
     public function testEncodeJsonApiVersion()
     {
-        $endcoder = Encoder::instance([], new EncoderOptions(0, 512, null, true, ['some' => 'meta']));
+        $endcoder = Encoder::instance([], new EncoderOptions(0, null, true, ['some' => 'meta']));
 
         $actual = $endcoder->encode(null);
 

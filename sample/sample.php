@@ -64,7 +64,7 @@ class Application
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class
-        ], new EncoderOptions(JSON_PRETTY_PRINT, 512, 'http://example.com'));
+        ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
 
         echo $encoder->encode($site) . PHP_EOL;
     }
@@ -130,7 +130,7 @@ class Application
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class
-        ], new EncoderOptions(JSON_PRETTY_PRINT, 512, 'http://example.com'));
+        ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
 
         echo $encoder->encode($author, $links, $meta) . PHP_EOL;
     }

@@ -79,7 +79,7 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
             $this->comments
         );
         $this->site = Site::instance(2, 'site name', [$this->post]);
-        $this->encoderOptions = new EncoderOptions(0, 512, 'http://example.com');
+        $this->encoderOptions = new EncoderOptions(0, 'http://example.com');
     }
 
     /**

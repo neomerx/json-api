@@ -46,7 +46,7 @@ class EncoderTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->encoderOptions = new EncoderOptions(0, 512, 'http://example.com');
+        $this->encoderOptions = new EncoderOptions(0, 'http://example.com');
     }
 
     /**

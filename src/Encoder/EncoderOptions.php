@@ -48,17 +48,17 @@ class EncoderOptions
 
     /**
      * @param int    $options
-     * @param int    $depth
      * @param string $urlPrefix
      * @param bool   $isShowVersionInfo
      * @param mixed  $versionMeta
+     * @param int    $depth
      */
     public function __construct(
         $options = 0,
-        $depth = 512,
         $urlPrefix = null,
         $isShowVersionInfo = false,
-        $versionMeta = null
+        $versionMeta = null,
+        $depth = 512
     ) {
         assert(
             'is_int($options) && is_int($depth) && ($urlPrefix === null || is_string($urlPrefix)) &&'.
