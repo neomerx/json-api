@@ -421,6 +421,15 @@ EOL;
     }
 
     /**
+     * Test get encoder options.
+     */
+    public function testGetEncoderOptions()
+    {
+        $endoder = Encoder::instance([], $this->encoderOptions);
+        $this->assertSame($this->encoderOptions, $endoder->getEncoderOptions());
+    }
+
+    /**
      * @return Post
      */
     private function getStandardPost()

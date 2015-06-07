@@ -156,6 +156,14 @@ class Encoder implements EncoderInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getEncoderOptions()
+    {
+        return $this->encoderOptions;
+    }
+
+    /**
      * Encode array to JSON.
      *
      * @param array $document
