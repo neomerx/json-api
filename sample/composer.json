@@ -16,6 +16,6 @@
     },
     "minimum-stability": "dev",
     "require": {
-        "neomerx/json-api": "0.4.2"
+        "neomerx/json-api": "dev-develop"
     }
 }
