@@ -24,13 +24,11 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 class ParserEmptyReply extends BaseReply
 {
     /**
-     * @param int                     $replyType
-     * @param StackReadOnlyInterface  $stack
+     * @param int                    $replyType
+     * @param StackReadOnlyInterface $stack
      */
-    public function __construct(
-        $replyType,
-        StackReadOnlyInterface $stack
-    ) {
+    public function __construct($replyType, StackReadOnlyInterface $stack)
+    {
         assert(
             '$replyType === ' . self::REPLY_TYPE_NULL_RESOURCE_STARTED . ' || '.
             '$replyType === ' . self::REPLY_TYPE_EMPTY_RESOURCE_STARTED
