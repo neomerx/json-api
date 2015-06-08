@@ -50,11 +50,18 @@ interface ResourceObjectInterface
     public function getPrimaryMeta();
 
     /**
+     * Get meta-information about resource relationships when resource is primary.
+     *
+     * @return array|object|null
+     */
+    public function getRelationshipsPrimaryMeta();
+
+    /**
      * Get meta-information about resource object.
      *
      * @return array|object|null
      */
-    public function getRelationshipMeta();
+    public function getLinkageMeta();
 
     /**
      * Get meta-information about resource object.
@@ -62,6 +69,13 @@ interface ResourceObjectInterface
      * @return array|object|null
      */
     public function getInclusionMeta();
+
+    /**
+     * Get meta-information about resource relationships when resource is included.
+     *
+     * @return array|object|null
+     */
+    public function getRelationshipsInclusionMeta();
 
     /**
      * Get resource 'self' endpoint URL.

@@ -96,6 +96,26 @@ class ResourceObject implements ResourceObjectInterface
     private $inclusionMeta;
 
     /**
+     * @var bool
+     */
+    private $isRelPrimaryMetaSet = false;
+
+    /**
+     * @var mixed
+     */
+    private $relPrimaryMeta;
+
+    /**
+     * @var bool
+     */
+    private $isRelIncMetaSet = false;
+
+    /**
+     * @var mixed
+     */
+    private $relInclusionMeta;
+
+    /**
      * @param SchemaProviderInterface $schema
      * @param object                  $resource
      * @param bool                    $isInArray
@@ -219,19 +239,6 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function getRelationshipMeta()
-    {
-        if ($this->isRelationshipMetaSet === false) {
-            $this->relationshipMeta = $this->schema->getRelationshipMeta($this->resource);
-            $this->isRelationshipMetaSet = true;
-        }
-
-        return $this->relationshipMeta;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getInclusionMeta()
     {
         if ($this->isInclusionMetaSet === false) {
@@ -240,5 +247,44 @@ class ResourceObject implements ResourceObjectInterface
         }
 
         return $this->inclusionMeta;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipsPrimaryMeta()
+    {
+        if ($this->isRelPrimaryMetaSet === false) {
+            $this->relPrimaryMeta = $this->schema->getRelationshipsPrimaryMeta($this->resource);
+            $this->isRelPrimaryMetaSet = true;
+        }
+
+        return $this->relPrimaryMeta;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipsInclusionMeta()
+    {
+        if ($this->isRelIncMetaSet === false) {
+            $this->relInclusionMeta = $this->schema->getRelationshipsInclusionMeta($this->resource);
+            $this->isRelIncMetaSet = true;
+        }
+
+        return $this->relInclusionMeta;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLinkageMeta()
+    {
+        if ($this->isRelationshipMetaSet === false) {
+            $this->relationshipMeta = $this->schema->getLinkageMeta($this->resource);
+            $this->isRelationshipMetaSet = true;
+        }
+
+        return $this->relationshipMeta;
     }
 }

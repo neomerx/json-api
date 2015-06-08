@@ -54,12 +54,11 @@ interface SchemaFactoryInterface
      * @param object|array|null                                             $data
      * @param array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface> $links
      * @param mixed                                                         $meta
-     * @param bool                                                          $isShowMeta
      * @param bool                                                          $isShowData
      *
      * @return RelationshipObjectInterface
      */
-    public function createRelationshipObject($name, $data, $links, $meta, $isShowMeta, $isShowData);
+    public function createRelationshipObject($name, $data, $links, $meta, $isShowData);
 
     /**
      * Create link.

@@ -46,11 +46,6 @@ class RelationshipObject implements RelationshipObjectInterface
     /**
      * @var bool
      */
-    private $isShowMeta;
-
-    /**
-     * @var bool
-     */
     private $isShowData;
 
     /**
@@ -58,7 +53,6 @@ class RelationshipObject implements RelationshipObjectInterface
      * @param object|array|null                                             $data
      * @param array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface> $links
      * @param mixed                                                         $meta
-     * @param bool                                                          $isShowMeta
      * @param bool                                                          $isShowData
      */
     public function __construct(
@@ -66,19 +60,16 @@ class RelationshipObject implements RelationshipObjectInterface
         $data,
         $links,
         $meta,
-        $isShowMeta,
         $isShowData
     ) {
         assert(
-            'is_string($name) && (is_object($data) || is_array($data) || is_null($data)) &&'.
-            'is_bool($isShowMeta) && is_array($links)'
+            'is_string($name) && (is_object($data) || is_array($data) || is_null($data)) && is_array($links)'
         );
 
         $this->name       = $name;
         $this->data       = $data;
         $this->links      = $links;
         $this->meta       = $meta;
-        $this->isShowMeta = $isShowMeta;
         $this->isShowData = $isShowData;
     }
 
@@ -120,13 +111,5 @@ class RelationshipObject implements RelationshipObjectInterface
     public function isShowData()
     {
         return $this->isShowData;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowMeta()
-    {
-        return $this->isShowMeta;
     }
 }

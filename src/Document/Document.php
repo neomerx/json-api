@@ -235,12 +235,22 @@ class Document implements DocumentInterface
         $foundInIncluded = isset($this->bufferForIncluded[$type][$idx]);
 
         if ($foundInData === true) {
-            $this->data[] = $this->presenter->correctRelationships($this->bufferForData[$type][$idx]);
+            $representation = $this->presenter->correctRelationships($this->bufferForData[$type][$idx]);
+            $relShipsMeta   = $resource->getRelationshipsPrimaryMeta();
+            if (empty($relShipsMeta) === false && isset($representation[self::KEYWORD_RELATIONSHIPS]) === true) {
+                $representation[self::KEYWORD_RELATIONSHIPS][self::KEYWORD_META] = $relShipsMeta;
+            }
+            $this->data[]   = $representation;
             unset($this->bufferForData[$type][$idx]);
         }
 
         if ($foundInIncluded === true) {
-            $this->included[] = $this->presenter->correctRelationships($this->bufferForIncluded[$type][$idx]);
+            $representation   = $this->presenter->correctRelationships($this->bufferForIncluded[$type][$idx]);
+            $relShipsMeta   = $resource->getRelationshipsInclusionMeta();
+            if (empty($relShipsMeta) === false && isset($representation[self::KEYWORD_RELATIONSHIPS]) === true) {
+                $representation[self::KEYWORD_RELATIONSHIPS][self::KEYWORD_META] = $relShipsMeta;
+            }
+            $this->included[] = $representation;
             unset($this->bufferForIncluded[$type][$idx]);
         }
     }

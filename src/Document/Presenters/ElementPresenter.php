@@ -212,7 +212,7 @@ class ElementPresenter
             Document::KEYWORD_TYPE => $resource->getType(),
             Document::KEYWORD_ID   => $resource->getId(),
         ];
-        if (($meta = $resource->getRelationshipMeta()) !== null) {
+        if (($meta = $resource->getLinkageMeta()) !== null) {
             $representation[Document::KEYWORD_META] = $meta;
         }
         return $representation;
@@ -255,8 +255,8 @@ class ElementPresenter
             $representation[Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
         }
 
-        if ($relation->isShowMeta() === true) {
-            $representation[Document::KEYWORD_META] = $relation->getMeta();
+        if (($meta = $relation->getMeta()) !== null) {
+            $representation[Document::KEYWORD_META] = $meta;
         }
 
         $baseUrl = null;

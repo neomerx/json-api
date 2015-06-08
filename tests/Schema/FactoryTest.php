@@ -73,24 +73,22 @@ class FactoryTest extends BaseTestCase
     }
 
     /**
-     * Test create link object.
+     * Test create relationship object.
      */
-    public function testCreateLinkObject()
+    public function testCreateRelationshipObject()
     {
-        $this->assertNotNull($link = $this->factory->createRelationshipObject(
+        $this->assertNotNull($relationship = $this->factory->createRelationshipObject(
             $name  = 'link-name',
             $data  = new stdClass(),
             $links = [LinkInterface::SELF => $this->factory->createLink('selfSubUrl')],
             $meta  = ['some' => 'meta'],
-            $isShowMeta = true,
             $isShowData = true
         ));
 
-        $this->assertEquals($name, $link->getName());
-        $this->assertEquals($data, $link->getData());
-        $this->assertEquals($links, $link->getLinks());
-        $this->assertEquals($meta, $link->getMeta());
-        $this->assertEquals($isShowMeta, $link->isShowMeta());
-        $this->assertEquals($isShowData, $link->isShowData());
+        $this->assertEquals($name, $relationship->getName());
+        $this->assertEquals($data, $relationship->getData());
+        $this->assertEquals($links, $relationship->getLinks());
+        $this->assertEquals($meta, $relationship->getMeta());
+        $this->assertEquals($isShowData, $relationship->isShowData());
     }
 }

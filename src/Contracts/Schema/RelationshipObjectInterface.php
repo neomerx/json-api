@@ -55,11 +55,4 @@ interface RelationshipObjectInterface
      * @return bool
      */
     public function isShowData();
-
-    /**
-     * If 'meta' should be shown.
-     *
-     * @return bool
-     */
-    public function isShowMeta();
 }

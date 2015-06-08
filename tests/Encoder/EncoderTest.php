@@ -421,6 +421,56 @@ EOL;
     }
 
     /**
+     * Test relationships meta.
+     */
+    public function testRelationshipsMeta()
+    {
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->setRelationshipsMeta(['some' => 'meta']);
+                return $schema;
+            },
+        ], $this->encoderOptions)->encode($this->getStandardPost());
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"  : "posts",
+                "id"    : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
+                "relationships" : {
+                    "author" : {
+                        "data" : { "type" : "people", "id" : "9" }
+                    },
+                    "comments" : {
+                        "data" : [
+                            { "type":"comments", "id":"5" },
+                            { "type":"comments", "id":"12" }
+                        ]
+                    },
+                    "meta" : {
+                        "some" : "meta"
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/posts/1"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * Test get encoder options.
      */
     public function testGetEncoderOptions()

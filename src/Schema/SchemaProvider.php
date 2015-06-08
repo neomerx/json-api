@@ -36,9 +36,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /** Relationship meta */
     const META = 'meta';
 
-    /** If meta information of a resource in relationship should be shown. */
-    const SHOW_META = 'showMeta';
-
     /** If 'self' URL should be shown. */
     const SHOW_SELF = 'showSelf';
 
@@ -130,7 +127,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getRelationshipMeta($resource)
+    public function getLinkageMeta($resource)
     {
         return null;
     }
@@ -139,6 +136,22 @@ abstract class SchemaProvider implements SchemaProviderInterface
      * @inheritdoc
      */
     public function getInclusionMeta($resource)
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipsPrimaryMeta($resource)
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipsInclusionMeta($resource)
     {
         return null;
     }
@@ -204,13 +217,12 @@ abstract class SchemaProvider implements SchemaProviderInterface
         foreach ($this->getRelationships($resource) as $name => $desc) {
             $data          = $this->readData($desc);
             $meta          = $this->getValue($desc, self::META, null);
-            $isShowMeta    = ($this->getValue($desc, self::SHOW_META, false) === true);
             $isShowSelf    = ($this->getValue($desc, self::SHOW_SELF, false) === true);
             $isShowRelated = ($this->getValue($desc, self::SHOW_RELATED, false) === true);
             $isShowData    = ($this->getValue($desc, self::SHOW_DATA, true) === true);
             $links         = $this->readLinks($name, $desc, $isShowSelf, $isShowRelated);
 
-            yield $this->factory->createRelationshipObject($name, $data, $links, $meta, $isShowMeta, $isShowData);
+            yield $this->factory->createRelationshipObject($name, $data, $links, $meta, $isShowData);
         }
     }
 

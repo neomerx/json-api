@@ -122,15 +122,6 @@ interface SchemaProviderInterface
     public function getPrimaryMeta($resource);
 
     /**
-     * Get meta when resource is within relationship of a primary resource.
-     *
-     * @param object $resource
-     *
-     * @return mixed
-     */
-    public function getRelationshipMeta($resource);
-
-    /**
      * Get meta when resource is within included resources.
      *
      * @param object $resource
@@ -138,4 +129,31 @@ interface SchemaProviderInterface
      * @return mixed
      */
     public function getInclusionMeta($resource);
+
+    /**
+     * Get get relationships meta when the resource is primary.
+     *
+     * @param object $resource
+     *
+     * @return mixed
+     */
+    public function getRelationshipsPrimaryMeta($resource);
+
+    /**
+     * Get get relationships meta when the resource is within included.
+     *
+     * @param object $resource
+     *
+     * @return mixed
+     */
+    public function getRelationshipsInclusionMeta($resource);
+
+    /**
+     * Get meta when resource is within relationship of a primary resource.
+     *
+     * @param object $resource
+     *
+     * @return mixed
+     */
+    public function getLinkageMeta($resource);
 }

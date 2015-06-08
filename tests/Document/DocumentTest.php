@@ -252,7 +252,6 @@ EOL;
                 LinkInterface::FIRST   => new Link('/first', null, true),
             ],
             ['some' => 'relationship meta'],
-            true,
             true
         );
         $this->document->addRelationshipToData($parent, $link, $resource);
@@ -316,7 +315,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             null, //  relationship meta
-            false, // show relationship meta
             true  //  show data
         );
         $this->document->addRelationshipToData($parent, $link, $resource);
@@ -374,7 +372,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             null, //  relationship meta
-            false, // show relationship meta
             true   // show data
         );
         $this->document->addRelationshipToData($parent, $link, $resource);
@@ -436,7 +433,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             ['some' => 'relationship meta'], //  relationship meta
-            true, //  show relationship meta
             false //  show data
         );
 
@@ -482,7 +478,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             ['this meta' => 'wont be shown'], //  relationship meta
-            false, // show relationship meta
             true   // show data
         );
 
@@ -525,8 +520,7 @@ EOL;
             'relationship-name',
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
-            ['this meta' => 'wont be shown'], //  relationship meta
-            false, // show relationship meta
+            null, //  relationship meta
             true   // show data
         );
 
@@ -666,7 +660,6 @@ EOL;
                 LinkInterface::RELATED => new Link('relatedSubUrl'),
             ],
             ['some' => 'relationship meta'], //  relationship meta
-            true, //  show relationship meta
             true  //  show data
         );
 
@@ -740,7 +733,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], // links
             null, //  relationship meta
-            false, // show relationship meta
             true  //  show data
         );
 
@@ -796,7 +788,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             null, //  relationship meta
-            false, // show relationship meta
             true   // show data
         );
 
@@ -850,7 +841,6 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], // links
             null, //  relationship meta
-            false, // show relationship meta
             true  //  show data
         );
 
@@ -993,6 +983,110 @@ EOL;
     }
 
     /**
+     * Test add meta information to relationships.
+     */
+    public function testRelationshipsPrimaryMeta()
+    {
+        $this->document->addToData($parent = $this->schemaFactory->createResourceObject($this->getSchema(
+            'people',
+            '123',
+            ['firstName' => 'John', 'lastName' => 'Dow'],
+            new Link('peopleSelfUrl/'), // self url
+            false, // show self
+            null, //   meta
+            false, // show self in included
+            false, // show relationships in included
+            null, //  inclusion meta
+            null, //  relationship meta
+            [], //    include paths
+            true, //  show attributes in included
+            ['some' => 'relationships meta'] // relationships primary meta
+        ), new stdClass(), false));
+
+        $link = $this->schemaFactory->createRelationshipObject(
+            'relationship-name',
+            new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
+            [], //    links
+            null, //  relationship meta
+            true   // show data
+        );
+
+        $this->document->addNullRelationshipToData($parent, $link);
+        $this->document->setResourceCompleted($parent);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
+                "relationships" : {
+                    "relationship-name" : null,
+                    "meta" : { "some" : "relationships meta" }
+                }
+            }
+        }
+EOL;
+        $this->check($expected);
+    }
+
+    /**
+     * Test add meta information to relationships.
+     */
+    public function testRelationshipsInclusionMeta()
+    {
+        $this->document->addToIncluded($parent = $this->schemaFactory->createResourceObject($this->getSchema(
+            'people',
+            '123',
+            ['firstName' => 'John', 'lastName' => 'Dow'],
+            new Link('peopleSelfUrl/'), // self url
+            false, // show self
+            null, //   meta
+            false, // show self in included
+            false, // show relationships in included
+            null, //  inclusion meta
+            null, //  relationship meta
+            [], //    include paths
+            true, //  show attributes in included
+            null, //  relationships primary meta
+            ['some' => 'relationships meta'] // relationships inclusion meta
+        ), new stdClass(), false));
+
+        $link = $this->schemaFactory->createRelationshipObject(
+            'relationship-name',
+            new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
+            [], //    links
+            null, //  relationship meta
+            true   // show data
+        );
+
+        $this->document->addNullRelationshipToIncluded($parent, $link);
+        $this->document->setResourceCompleted($parent);
+
+        $expected = <<<EOL
+        {
+            "data"     : null,
+            "included" : [{
+                "type"       : "people",
+                "id"         : "123",
+                "attributes" : {
+                    "firstName" : "John",
+                    "lastName"  : "Dow"
+                },
+                "relationships" : {
+                    "relationship-name" : null,
+                    "meta" : { "some" : "relationships meta" }
+                }
+            }]
+        }
+EOL;
+        $this->check($expected);
+    }
+
+    /**
      * @param string $subHref
      *
      * @return LinkInterface
@@ -1022,10 +1116,12 @@ EOL;
      * @param mixed         $primaryMeta
      * @param bool          $showSelfInIncluded
      * @param bool          $relShipsInIncluded
-     * @param null          $inclusionMeta
-     * @param null          $relationshipMeta
+     * @param mixed         $inclusionMeta
+     * @param mixed         $relationshipMeta
      * @param array         $includePaths
      * @param bool          $showAttributesInIncluded
+     * @param mixed         $relPrimaryMeta
+     * @param mixed         $relIncMeta
      *
      * @return SchemaProviderInterface
      */
@@ -1041,7 +1137,9 @@ EOL;
         $inclusionMeta = null,
         $relationshipMeta = null,
         $includePaths = [],
-        $showAttributesInIncluded = true
+        $showAttributesInIncluded = true,
+        $relPrimaryMeta = null,
+        $relIncMeta = null
     ) {
         $schema = Mockery::mock(SchemaProviderinterface::class);
 
@@ -1055,8 +1153,10 @@ EOL;
         $schema->shouldReceive('isShowRelationshipsInIncluded')->zeroOrMoreTimes()->andReturn($relShipsInIncluded);
         $schema->shouldReceive('getIncludePaths')->zeroOrMoreTimes()->andReturn($includePaths);
         $schema->shouldReceive('getPrimaryMeta')->zeroOrMoreTimes()->andReturn($primaryMeta);
-        $schema->shouldReceive('getRelationshipMeta')->zeroOrMoreTimes()->andReturn($relationshipMeta);
+        $schema->shouldReceive('getLinkageMeta')->zeroOrMoreTimes()->andReturn($relationshipMeta);
         $schema->shouldReceive('getInclusionMeta')->zeroOrMoreTimes()->andReturn($inclusionMeta);
+        $schema->shouldReceive('getRelationshipsPrimaryMeta')->zeroOrMoreTimes()->andReturn($relPrimaryMeta);
+        $schema->shouldReceive('getRelationshipsInclusionMeta')->zeroOrMoreTimes()->andReturn($relIncMeta);
 
         return $schema;
     }

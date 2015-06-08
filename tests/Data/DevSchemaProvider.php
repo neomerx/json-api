@@ -46,9 +46,33 @@ abstract class DevSchemaProvider extends SchemaProvider
     private $includePaths = [];
 
     /**
-     * @var array
+     * @var mixed
      */
-    private $relationshipMeta;
+    private $relationshipsMeta;
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipsPrimaryMeta($resource)
+    {
+        return $this->relationshipsMeta ?: parent::getRelationshipsPrimaryMeta($resource);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipsInclusionMeta($resource)
+    {
+        return $this->relationshipsMeta ?: parent::getRelationshipsInclusionMeta($resource);
+    }
+
+    /**
+     * @param array $relationshipMeta
+     */
+    public function setRelationshipsMeta($relationshipMeta)
+    {
+        $this->relationshipsMeta = $relationshipMeta;
+    }
 
     /**
      * Add to 'add to link' list.
@@ -110,14 +134,6 @@ abstract class DevSchemaProvider extends SchemaProvider
     public function setIncludePaths($includePaths)
     {
         $this->includePaths = $includePaths;
-    }
-
-    /**
-     * @param array $relationshipMeta
-     */
-    public function setRelationshipMeta($relationshipMeta)
-    {
-        $this->relationshipMeta = $relationshipMeta;
     }
 
     /**
