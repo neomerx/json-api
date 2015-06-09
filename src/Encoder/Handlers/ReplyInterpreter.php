@@ -244,6 +244,6 @@ class ReplyInterpreter implements ReplyInterpreterInterface
             return true;
         }
 
-        return (in_array($current->getRelationship()->getName(), $fieldSet) === true);
+        return (in_array($current->getRelationship()->getName(), $fieldSet, true) === true);
     }
 }
