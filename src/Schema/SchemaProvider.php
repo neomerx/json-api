@@ -19,6 +19,7 @@
 use \Closure;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
@@ -28,13 +29,13 @@ use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 abstract class SchemaProvider implements SchemaProviderInterface
 {
     /** Links information */
-    const LINKS = 'links';
+    const LINKS = DocumentInterface::KEYWORD_LINKS;
 
     /** Linked data key. */
-    const DATA = 'data';
+    const DATA = DocumentInterface::KEYWORD_DATA;
 
     /** Relationship meta */
-    const META = 'meta';
+    const META = DocumentInterface::KEYWORD_META;
 
     /** If 'self' URL should be shown. */
     const SHOW_SELF = 'showSelf';
@@ -44,6 +45,15 @@ abstract class SchemaProvider implements SchemaProviderInterface
 
     /** If data should be shown in relationships. */
     const SHOW_DATA = 'showData';
+
+    /** Property name */
+    const ATTRIBUTES = DocumentInterface::KEYWORD_ATTRIBUTES;
+
+    /** Property name */
+    const RELATIONSHIPS = DocumentInterface::KEYWORD_RELATIONSHIPS;
+
+    /** Property name */
+    const INCLUDED = DocumentInterface::KEYWORD_INCLUDED;
 
     /**
      * @var string
