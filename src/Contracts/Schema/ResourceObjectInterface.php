@@ -47,14 +47,42 @@ interface ResourceObjectInterface
      *
      * @return array|object|null
      */
-    public function getMeta();
+    public function getPrimaryMeta();
+
+    /**
+     * Get meta-information about resource relationships when resource is primary.
+     *
+     * @return array|object|null
+     */
+    public function getRelationshipsPrimaryMeta();
+
+    /**
+     * Get meta-information about resource object.
+     *
+     * @return array|object|null
+     */
+    public function getLinkageMeta();
+
+    /**
+     * Get meta-information about resource object.
+     *
+     * @return array|object|null
+     */
+    public function getInclusionMeta();
+
+    /**
+     * Get meta-information about resource relationships when resource is included.
+     *
+     * @return array|object|null
+     */
+    public function getRelationshipsInclusionMeta();
 
     /**
      * Get resource 'self' endpoint URL.
      *
-     * @return string
+     * @return LinkInterface
      */
-    public function getSelfUrl();
+    public function getSelfSubLink();
 
     /**
      * If 'self' endpoint URL should be shown for resource in 'data' section.
@@ -64,13 +92,6 @@ interface ResourceObjectInterface
     public function isShowSelf();
 
     /**
-     * If 'meta' should be shown for resource in 'data' section.
-     *
-     * @return bool
-     */
-    public function isShowMeta();
-
-    /**
      * If 'self' endpoint URL should be shown for included resources.
      *
      * @return bool
@@ -78,18 +99,11 @@ interface ResourceObjectInterface
     public function isShowSelfInIncluded();
 
     /**
-     * If 'meta' should be shown for included resources.
+     * If resource attributes should be shown when the resource is within 'included'.
      *
      * @return bool
      */
-    public function isShowMetaInIncluded();
-
-    /**
-     * If 'meta' should be shown in relationships.
-     *
-     * @return bool
-     */
-    public function isShowMetaInRelationships();
+    public function isShowAttributesInIncluded();
 
     /**
      * If resource relationships should be shown for included resources.

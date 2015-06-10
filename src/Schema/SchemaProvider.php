@@ -19,6 +19,7 @@
 use \Closure;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
@@ -27,35 +28,32 @@ use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
  */
 abstract class SchemaProvider implements SchemaProviderInterface
 {
+    /** Links information */
+    const LINKS = DocumentInterface::KEYWORD_LINKS;
+
     /** Linked data key. */
-    const DATA = 'data';
+    const DATA = DocumentInterface::KEYWORD_DATA;
 
-    /** If link should be shown as reference. */
-    const SHOW_AS_REF = 'asRef';
+    /** Relationship meta */
+    const META = DocumentInterface::KEYWORD_META;
 
-    /** If meta information should be shown. */
-    const SHOW_META = 'showMeta';
-
-    /** If 'self' URL should be shown. Requires 'self' controller to be set. */
+    /** If 'self' URL should be shown. */
     const SHOW_SELF = 'showSelf';
 
-    /** If 'related' URL should be shown. Requires 'related' controller to be set. */
+    /** If 'related' URL should be shown. */
     const SHOW_RELATED = 'related';
 
     /** If data should be shown in relationships. */
-    const SHOW_DATA_IN_RELATIONSHIPS = 'showDataInRelationships';
+    const SHOW_DATA = 'showData';
 
-    /** If link pagination information should be shown. */
-    const SHOW_PAGINATION = 'showPagination';
+    /** Property name */
+    const ATTRIBUTES = DocumentInterface::KEYWORD_ATTRIBUTES;
 
-    /** Link pagination information */
-    const PAGINATION = 'pagination';
+    /** Property name */
+    const RELATIONSHIPS = DocumentInterface::KEYWORD_RELATIONSHIPS;
 
-    /** Default 'self' sub-URL could be changed with this key */
-    const SELF_SUB_URL = 'selfSubUrl';
-
-    /** Default 'related' sub-URL could be changed with this key */
-    const RELATED_SUB_URL = 'relatedSubUrl';
+    /** Property name */
+    const INCLUDED = DocumentInterface::KEYWORD_INCLUDED;
 
     /**
      * @var string
@@ -65,7 +63,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @var string
      */
-    protected $baseSelfUrl;
+    protected $selfSubUrl;
 
     /**
      * @var bool
@@ -75,27 +73,17 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @var bool
      */
-    protected $isShowMeta = false;
-
-    /**
-     * @var bool
-     */
-    protected $isShowMetaInRelationships = false;
-
-    /**
-     * @var bool
-     */
     protected $isShowSelfInIncluded = false;
 
     /**
      * @var bool
      */
-    protected $isShowRelShipsInIncluded = false;
+    protected $isShowAttributesInIncluded = true;
 
     /**
      * @var bool
      */
-    protected $isShowMetaInIncluded = false;
+    protected $isShowRelShipsInIncluded = false;
 
     /**
      * @var SchemaFactoryInterface
@@ -113,14 +101,10 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
     {
-        assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set.');
-        assert(
-            'is_bool($this->isShowSelfInIncluded) &&'.
-            'is_bool($this->isShowRelShipsInIncluded) &&'.
-            'is_bool($this->isShowMetaInIncluded)'
-        );
-
-        assert('is_string($this->baseSelfUrl) && empty($this->baseSelfUrl) === false', 'Base \'self\' not set.');
+        assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set');
+        assert('is_bool($this->isShowSelfInIncluded) && is_bool($this->isShowRelShipsInIncluded)');
+        assert('is_string($this->selfSubUrl) && empty($this->selfSubUrl) === false', '\'self\' sub-URL not set');
+        assert('substr($this->selfSubUrl, -1) === \'/\'', 'Sub-url should end with \'/\' separator');
 
         $this->factory   = $factory;
         $this->container = $container;
@@ -137,15 +121,47 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getSelfUrl($resource)
+    public function getSelfSubLink($resource)
     {
-        return $this->getBaseSelfUrl($resource).$this->getId($resource);
+        return new Link($this->selfSubUrl . $this->getId($resource));
     }
 
     /**
      * @inheritdoc
      */
-    public function getMeta($resource)
+    public function getPrimaryMeta($resource)
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLinkageMeta($resource)
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getInclusionMeta($resource)
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipsPrimaryMeta($resource)
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipsInclusionMeta($resource)
     {
         return null;
     }
@@ -161,14 +177,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function isShowMeta()
-    {
-        return $this->isShowMeta;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function isShowSelfInIncluded()
     {
         return $this->isShowSelfInIncluded;
@@ -177,25 +185,17 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
+    public function isShowAttributesInIncluded()
+    {
+        return $this->isShowAttributesInIncluded;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function isShowRelationshipsInIncluded()
     {
         return $this->isShowRelShipsInIncluded;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowMetaInIncluded()
-    {
-        return $this->isShowMetaInIncluded;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowMetaInRelationships()
-    {
-        return $this->isShowMetaInRelationships;
     }
 
     /**
@@ -214,60 +214,26 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getRelationshipObjectIterator($resource)
+    public function createResourceObject($resource, $isOriginallyArrayed, $attributeKeysFilter = null)
     {
-        foreach ($this->getRelationships($resource) as $name => $desc) {
-            $data          = $this->readData($desc);
-            $isShowMeta    = ($this->getValue($desc, self::SHOW_META, false) === true);
-            $isShowSelf    = ($this->getValue($desc, self::SHOW_SELF, false) === true);
-            $isShowAsRef   = ($this->getValue($desc, self::SHOW_AS_REF, false) === true);
-            $isShowRelated = ($this->getValue($desc, self::SHOW_RELATED, false) === true);
-            $isShowLinkage = ($this->getValue($desc, self::SHOW_DATA_IN_RELATIONSHIPS, true) === true);
-
-            list($isShowPagination, $pagination) = $this->readPagination($desc);
-
-            $selfLink    = $this->getSelfLink($name, $desc, $data);
-            $relatedLink = $this->getRelatedLink($name, $desc, $data);
-
-            yield $this->factory->createRelationshipObject(
-                $name,
-                $data,
-                $selfLink,
-                $relatedLink,
-                $isShowAsRef,
-                $isShowSelf,
-                $isShowRelated,
-                $isShowLinkage,
-                $isShowMeta,
-                $isShowPagination,
-                $pagination
-            );
-        }
+        return $this->factory->createResourceObject($this, $resource, $isOriginallyArrayed, $attributeKeysFilter);
     }
 
     /**
      * @inheritdoc
      */
-    public function createResourceObject($resource, $isOriginallyArrayed, array $attributeKeysFilter = null)
+    public function getRelationshipObjectIterator($resource)
     {
-        $attributes = $this->getAttributes($resource);
-        if ($attributeKeysFilter !== null) {
-            $attributes = array_intersect_key($attributes, $attributeKeysFilter);
+        foreach ($this->getRelationships($resource) as $name => $desc) {
+            $data          = $this->readData($desc);
+            $meta          = $this->getValue($desc, self::META, null);
+            $isShowSelf    = ($this->getValue($desc, self::SHOW_SELF, false) === true);
+            $isShowRelated = ($this->getValue($desc, self::SHOW_RELATED, false) === true);
+            $isShowData    = ($this->getValue($desc, self::SHOW_DATA, true) === true);
+            $links         = $this->readLinks($name, $desc, $isShowSelf, $isShowRelated);
+
+            yield $this->factory->createRelationshipObject($name, $data, $links, $meta, $isShowData);
         }
-        return $this->factory->createResourceObject(
-            $isOriginallyArrayed,
-            $this->getResourceType(),
-            (string)$this->getId($resource),
-            $attributes,
-            $this->getMeta($resource),
-            $this->getSelfUrl($resource),
-            $this->isShowSelf(),
-            $this->isShowMeta(),
-            $this->isShowSelfInIncluded(),
-            $this->isShowRelationshipsInIncluded(),
-            $this->isShowMetaInIncluded(),
-            $this->isShowMetaInRelationships()
-        );
     }
 
     /**
@@ -279,53 +245,24 @@ abstract class SchemaProvider implements SchemaProviderInterface
     }
 
     /**
-     * Get the base self URL
+     * @param string $relationshipName
+     * @param array  $description
+     * @param bool   $isShowSelf
+     * @param bool   $isShowRelated
      *
-     * @param object $resource
-     *
-     * @return string
+     * @return array <string,LinkInterface>
      */
-    protected function getBaseSelfUrl($resource)
+    protected function readLinks($relationshipName, array $description, $isShowSelf, $isShowRelated)
     {
-        $resource ?: null;
+        $links = $this->getValue($description, self::LINKS, []);
+        if ($isShowSelf === true && isset($links[LinkInterface::SELF]) === false) {
+            $links[LinkInterface::SELF] = $this->factory->createLink('relationships/'.$relationshipName);
+        }
+        if ($isShowRelated === true && isset($links[LinkInterface::RELATED]) === false) {
+            $links[LinkInterface::RELATED] = $this->factory->createLink($relationshipName);
+        }
 
-        substr($this->baseSelfUrl, -1) === '/' ?: $this->baseSelfUrl .= '/';
-
-        return $this->baseSelfUrl;
-    }
-
-    /**
-     * Get link for 'self' relationship url.
-     *
-     * @param string            $relationshipName
-     * @param array             $description
-     * @param mixed             $relationshipData
-     * @param null|array|object $meta
-     *
-     * @return LinkInterface
-     */
-    protected function getSelfLink($relationshipName, array $description, $relationshipData, $meta = null)
-    {
-        $relationshipData ?: null;
-        $subHref = $this->getValue($description, self::SELF_SUB_URL, '/relationships/'.$relationshipName);
-        return $this->factory->createLink($subHref, $meta);
-    }
-
-    /**
-     * Get link for 'self' relationship url.
-     *
-     * @param string            $relationshipName
-     * @param array             $description
-     * @param mixed             $relationshipData
-     * @param null|array|object $meta
-     *
-     * @return LinkInterface
-     */
-    protected function getRelatedLink($relationshipName, array $description, $relationshipData, $meta = null)
-    {
-        $relationshipData ?: null;
-        $href = $this->getValue($description, self::RELATED_SUB_URL, '/'.$relationshipName);
-        return $this->factory->createLink($href, $meta);
+        return $links;
     }
 
     /**
@@ -352,27 +289,5 @@ abstract class SchemaProvider implements SchemaProviderInterface
             $data = $data();
         }
         return $data;
-    }
-
-    /**
-     * @param array $description
-     *
-     * @return array
-     */
-    private function readPagination(array $description)
-    {
-        $pagination       = null;
-        $isShowPagination = $this->getValue($description, self::SHOW_PAGINATION, false);
-
-        if ($isShowPagination === true &&
-            isset($description[self::PAGINATION]) === true &&
-            empty($description[self::PAGINATION]) === false
-        ) {
-            $pagination = $description[self::PAGINATION];
-        }
-
-        $isShowPagination = ($isShowPagination === true && $pagination !== null);
-
-        return [$isShowPagination, $pagination];
     }
 }

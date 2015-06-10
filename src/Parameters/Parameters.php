@@ -133,4 +133,17 @@ class Parameters extends EncodingParameters implements ParametersInterface
     {
         return $this->unrecognizedParams;
     }
+
+    /**
+     * Returns true if inclusion, field set, sorting, paging, filtering and unrecognized parameters are empty.
+     *
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return
+            empty($this->getFieldSets()) === true && empty($this->getIncludePaths()) === true &&
+            empty($this->getSortParameters()) === true && empty($this->getPaginationParameters()) === true &&
+            empty($this->getFilteringParameters()) === true && empty($this->getUnrecognizedParameters()) === true;
+    }
 }

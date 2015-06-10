@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -29,9 +31,9 @@ class Error implements ErrorInterface
     private $idx;
 
     /**
-     * @var string|null
+     * @var null|array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface>
      */
-    private $href;
+    private $links;
 
     /**
      * @var string|null
@@ -64,18 +66,18 @@ class Error implements ErrorInterface
     private $meta;
 
     /**
-     * @param int|string|null $idx
-     * @param string|null     $href
-     * @param string|null     $status
-     * @param string|null     $code
-     * @param string|null     $title
-     * @param string|null     $detail
-     * @param array|null      $source
-     * @param array|null      $meta
+     * @param int|string|null    $idx
+     * @param LinkInterface|null $aboutLink
+     * @param string|null        $status
+     * @param string|null        $code
+     * @param string|null        $title
+     * @param string|null        $detail
+     * @param array|null         $source
+     * @param array|null         $meta
      */
     public function __construct(
         $idx = null,
-        $href = null,
+        LinkInterface $aboutLink = null,
         $status = null,
         $code = null,
         $title = null,
@@ -83,17 +85,15 @@ class Error implements ErrorInterface
         array $source = null,
         array $meta = null
     ) {
-        assert('$idx === null     || is_int($idx) || is_string($idx)');
-        assert('$href === null    || is_string($href)');
-        assert('$status === null  || is_string($status)');
-        assert('$code === null    || is_string($code)');
-        assert('$title === null   || is_string($title)');
-        assert('$title === null   || is_string($title)');
-        assert('$detail === null  || is_string($detail)');
-        assert('$meta === null    || is_array($meta)');
+        assert(
+            '($idx === null || is_int($idx) || is_string($idx)) &&'.
+            '($status === null || is_string($status)) && ($code === null || is_string($code)) &&'.
+            '($title === null  || is_string($title)) && ($title === null || is_string($title)) &&'.
+            '($detail === null || is_string($detail)) && ($meta === null || is_array($meta))'
+        );
 
         $this->idx     = $idx;
-        $this->href    = $href;
+        $this->links   = ($aboutLink === null ? null : [DocumentInterface::KEYWORD_ERRORS_ABOUT => $aboutLink]);
         $this->status  = $status;
         $this->code    = $code;
         $this->title   = $title;
@@ -113,9 +113,9 @@ class Error implements ErrorInterface
     /**
      * @inheritdoc
      */
-    public function getHref()
+    public function getLinks()
     {
-        return $this->href;
+        return $this->links;
     }
 
     /**

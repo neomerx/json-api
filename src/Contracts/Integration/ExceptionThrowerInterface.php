@@ -29,11 +29,24 @@ interface ExceptionThrowerInterface
     public function throwBadRequest();
 
     /**
+     * Throw 'Forbidden' exception (HTTP code 403).
+     *
+     * @return void
+     */
+    public function throwForbidden();
+    /**
      * Throw 'Not Acceptable' exception (HTTP code 406).
      *
      * @return void
      */
     public function throwNotAcceptable();
+
+    /**
+     * Throw 'Conflict' exception (HTTP code 409).
+     *
+     * @return void
+     */
+    public function throwConflict();
 
     /**
      * Throw 'Unsupported Media Type' exception (HTTP code 415).

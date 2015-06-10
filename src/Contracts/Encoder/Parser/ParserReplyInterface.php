@@ -25,14 +25,12 @@ interface ParserReplyInterface
 {
     /** Indicates resource description started */
     const REPLY_TYPE_RESOURCE_STARTED       = 0;
-    /** Indicates resource description completed */
+    /** Indicates resource description started */
     const REPLY_TYPE_NULL_RESOURCE_STARTED  = 1;
-    /** Indicates resource description completed */
+    /** Indicates resource description started */
     const REPLY_TYPE_EMPTY_RESOURCE_STARTED = 2;
     /** Indicates resource description completed */
-    const REPLY_TYPE_REFERENCE_STARTED      = 3;
-    /** Indicates resource description completed */
-    const REPLY_TYPE_RESOURCE_COMPLETED     = 4;
+    const REPLY_TYPE_RESOURCE_COMPLETED     = 3;
 
     /**
      * Get reply type.

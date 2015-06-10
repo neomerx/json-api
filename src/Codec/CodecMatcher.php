@@ -52,12 +52,12 @@ class CodecMatcher implements CodecMatcherInterface
     private $inputMediaTypes;
 
     /**
-     * @var EncoderInterface|null
+     * @var EncoderInterface|Closure|null
      */
     private $foundEncoder;
 
     /**
-     * @var DecoderInterface|null
+     * @var DecoderInterface|Closure|null
      */
     private $foundDecoder;
 
@@ -102,7 +102,20 @@ class CodecMatcher implements CodecMatcherInterface
      */
     public function getEncoder()
     {
+        if ($this->foundEncoder instanceof Closure) {
+            $closure = $this->foundEncoder;
+            $this->foundEncoder = $closure();
+        }
+
         return $this->foundEncoder;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setEncoder($encoder)
+    {
+        $this->foundEncoder = $encoder;
     }
 
     /**
@@ -110,7 +123,20 @@ class CodecMatcher implements CodecMatcherInterface
      */
     public function getDecoder()
     {
+        if ($this->foundDecoder instanceof Closure) {
+            $closure = $this->foundDecoder;
+            $this->foundDecoder = $closure();
+        }
+
         return $this->foundDecoder;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setDecoder($decoder)
+    {
+        $this->foundDecoder = $decoder;
     }
 
     /**
@@ -126,7 +152,7 @@ class CodecMatcher implements CodecMatcherInterface
                     if ($registeredType->matchesTo($headerMediaType) === true) {
                         $this->encoderHeaderMatchedType     = $headerMediaType;
                         $this->encoderRegisteredMatchedType = $registeredType;
-                        $this->foundEncoder                 = $closure();
+                        $this->foundEncoder                 = $closure;
 
                         return;
                     }
@@ -154,7 +180,7 @@ class CodecMatcher implements CodecMatcherInterface
                 if ($registeredType->equalsTo($headerMediaType) === true) {
                     $this->decoderHeaderMatchedType     = $headerMediaType;
                     $this->decoderRegisteredMatchedType = $registeredType;
-                    $this->foundDecoder                 = $closure();
+                    $this->foundDecoder                 = $closure;
 
                     return;
                 }

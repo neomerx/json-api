@@ -32,7 +32,7 @@ class SiteSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    protected $baseSelfUrl = 'http://example.com/sites';
+    protected $selfSubUrl = '/sites/';
 
     /**
      * @param SchemaFactoryInterface $factory

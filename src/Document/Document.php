@@ -38,7 +38,7 @@ class Document implements DocumentInterface
     private $meta;
 
     /**
-     * @var array
+     * @var array|null|string
      */
     private $links;
 
@@ -48,9 +48,14 @@ class Document implements DocumentInterface
     private $isIncludedMarks;
 
     /**
-     * @var array
+     * @var array|null
      */
     private $included;
+
+    /**
+     * @var array|null
+     */
+    private $version;
 
     /**
      * @var array|null
@@ -85,11 +90,16 @@ class Document implements DocumentInterface
     private $showData = true;
 
     /**
+     * @var string|null
+     */
+    private $urlPrefix;
+
+    /**
      * Constructor.
      */
     public function __construct()
     {
-        $this->presenter = new ElementPresenter();
+        $this->presenter = new ElementPresenter($this);
     }
 
     /**
@@ -97,7 +107,7 @@ class Document implements DocumentInterface
      */
     public function setDocumentLinks($links)
     {
-        $links === null ?: $this->links = $this->presenter->getLinksRepresentation($links);
+        $this->links = $this->presenter->getLinksRepresentation($this->urlPrefix, $links);
     }
 
     /**
@@ -138,7 +148,7 @@ class Document implements DocumentInterface
         $idx  = $resource->getId();
         $type = $resource->getType();
         assert('isset($this->bufferForData[$type][$idx]) === false');
-        $this->bufferForData[$type][$idx] = $this->presenter->convertDataResourceToArray($resource);
+        $this->bufferForData[$type][$idx] = $this->presenter->convertDataResourceToArray($resource, true);
     }
 
     /**
@@ -177,24 +187,6 @@ class Document implements DocumentInterface
         ResourceObjectInterface $resource
     ) {
         $this->presenter->addRelationshipTo($this->bufferForIncluded, $parent, $relationship, $resource);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function addReferenceToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
-    {
-        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getRelatedLink());
-        $this->presenter->setRelationshipTo($this->bufferForData, $parent, $current, $url);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function addReferenceToIncluded(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
-    {
-        $url = $this->presenter->concatUrls($parent->getSelfUrl(), $current->getRelatedLink());
-        $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $current, $url);
     }
 
     /**
@@ -243,12 +235,22 @@ class Document implements DocumentInterface
         $foundInIncluded = isset($this->bufferForIncluded[$type][$idx]);
 
         if ($foundInData === true) {
-            $this->data[] = $this->presenter->correctRelationships($this->bufferForData[$type][$idx]);
+            $representation = $this->presenter->correctRelationships($this->bufferForData[$type][$idx]);
+            $relShipsMeta   = $resource->getRelationshipsPrimaryMeta();
+            if (empty($relShipsMeta) === false && isset($representation[self::KEYWORD_RELATIONSHIPS]) === true) {
+                $representation[self::KEYWORD_RELATIONSHIPS][self::KEYWORD_META] = $relShipsMeta;
+            }
+            $this->data[]   = $representation;
             unset($this->bufferForData[$type][$idx]);
         }
 
         if ($foundInIncluded === true) {
-            $this->included[] = $this->presenter->correctRelationships($this->bufferForIncluded[$type][$idx]);
+            $representation   = $this->presenter->correctRelationships($this->bufferForIncluded[$type][$idx]);
+            $relShipsMeta   = $resource->getRelationshipsInclusionMeta();
+            if (empty($relShipsMeta) === false && isset($representation[self::KEYWORD_RELATIONSHIPS]) === true) {
+                $representation[self::KEYWORD_RELATIONSHIPS][self::KEYWORD_META] = $relShipsMeta;
+            }
+            $this->included[] = $representation;
             unset($this->bufferForIncluded[$type][$idx]);
         }
     }
@@ -263,6 +265,7 @@ class Document implements DocumentInterface
         }
 
         $document = array_filter([
+            self::KEYWORD_JSON_API => $this->version,
             self::KEYWORD_META     => $this->meta,
             self::KEYWORD_LINKS    => $this->links,
             self::KEYWORD_DATA     => true, // this field wont be filtered
@@ -284,6 +287,15 @@ class Document implements DocumentInterface
     /**
      * @inheritdoc
      */
+    public function addJsonApiVersion($version, $meta = null)
+    {
+        $this->version = $meta === null ?
+            [self::KEYWORD_VERSION => $version] : [self::KEYWORD_VERSION => $version, self::KEYWORD_META => $meta];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function unsetData()
     {
         $this->showData = false;
@@ -298,7 +310,8 @@ class Document implements DocumentInterface
 
         $representation = array_filter([
             self::KEYWORD_ERRORS_ID     => $errorId,
-            self::KEYWORD_ERRORS_HREF   => $error->getHref(),
+            self::KEYWORD_ERRORS_LINKS  => $this->presenter
+                ->getLinksRepresentation($this->urlPrefix, $error->getLinks()),
             self::KEYWORD_ERRORS_STATUS => $error->getStatus(),
             self::KEYWORD_ERRORS_CODE   => $error->getCode(),
             self::KEYWORD_ERRORS_TITLE  => $error->getTitle(),
@@ -310,5 +323,23 @@ class Document implements DocumentInterface
         });
 
         $this->errors[] = $representation;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setUrlPrefix($prefix)
+    {
+        $this->urlPrefix = (string)$prefix;
+    }
+
+    /**
+     * Get URL prefix.
+     *
+     * @return null|string
+     */
+    public function getUrlPrefix()
+    {
+        return $this->urlPrefix;
     }
 }

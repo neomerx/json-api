@@ -22,6 +22,7 @@ use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Schema\SchemaFactory;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -55,64 +56,39 @@ class FactoryTest extends BaseTestCase
      */
     public function testCreateResourceObject()
     {
+        $schema = Mockery::mock(SchemaProviderInterface::class);
+        $schema->shouldReceive('getResourceType')->once()->andReturn('some-type');
+
+        /** @var SchemaProviderInterface $schema */
+
         $this->assertNotNull($resource = $this->factory->createResourceObject(
+            $schema,
+            $resource = new stdClass(),
             $isInArray = false,
-            $type = 'people',
-            $idx = '123',
-            $attributes = ['firstName' => 'John', 'lastName' => 'Dow'],
-            $meta = ['some' => 'author meta'],
-            $selfUrl = 'peopleSelfUrl/',
-            $isShowSelf = false,
-            $isShowMeta = false,
-            $isShowSelfInIncluded = true,
-            $isShowLinksInIncluded = true,
-            $isShowMetaInIncluded = true,
-            $isShowMetaInRelShips = true
+            $attributeKeysFilter = ['field1', 'field2']
         ));
 
         $this->assertEquals($isInArray, $resource->isInArray());
-        $this->assertEquals($type, $resource->getType());
-        $this->assertEquals($idx, $resource->getId());
-        $this->assertEquals($attributes, $resource->getAttributes());
-        $this->assertEquals($meta, $resource->getMeta());
-        $this->assertEquals($selfUrl, $resource->getSelfUrl());
-        $this->assertEquals($isShowSelf, $resource->isShowSelf());
-        $this->assertEquals($isShowMeta, $resource->isShowMeta());
-        $this->assertEquals($isShowSelfInIncluded, $resource->isShowSelfInIncluded());
-        $this->assertEquals($isShowLinksInIncluded, $resource->isShowRelationshipsInIncluded());
-        $this->assertEquals($isShowMetaInIncluded, $resource->isShowMetaInIncluded());
-        $this->assertEquals($isShowMetaInRelShips, $resource->isShowMetaInRelationships());
+        $this->assertSame('some-type', $resource->getType());
     }
 
     /**
-     * Test create link object.
+     * Test create relationship object.
      */
-    public function testCreateLinkObject()
+    public function testCreateRelationshipObject()
     {
-        $this->assertNotNull($link = $this->factory->createRelationshipObject(
-            $name = 'link-name',
-            $data = new stdClass(),
-            $selfSubUrl = $this->factory->createLink('selfSubUrl'),
-            $relatedSubUrl = $this->factory->createLink('relatedSubUrl'),
-            $isShowAsRef = false,
-            $isShowSelf = true,
-            $isShowRelated = true,
-            $isShowData = true,
-            $isShowMeta = true,
-            $isShowPagination = true,
-            $pagination = [Mockery::mock(LinkInterface::class)]
+        $this->assertNotNull($relationship = $this->factory->createRelationshipObject(
+            $name  = 'link-name',
+            $data  = new stdClass(),
+            $links = [LinkInterface::SELF => $this->factory->createLink('selfSubUrl')],
+            $meta  = ['some' => 'meta'],
+            $isShowData = true
         ));
 
-        $this->assertEquals($name, $link->getName());
-        $this->assertEquals($data, $link->getData());
-        $this->assertEquals($selfSubUrl, $link->getSelfLink());
-        $this->assertEquals($relatedSubUrl, $link->getRelatedLink());
-        $this->assertEquals($isShowAsRef, $link->isShowAsReference());
-        $this->assertEquals($isShowSelf, $link->isShowSelf());
-        $this->assertEquals($isShowRelated, $link->isShowRelated());
-        $this->assertEquals($isShowData, $link->isShowData());
-        $this->assertEquals($isShowMeta, $link->isShowMeta());
-        $this->assertEquals($isShowPagination, $link->isShowPagination());
-        $this->assertSame($pagination, $link->getPagination());
+        $this->assertEquals($name, $relationship->getName());
+        $this->assertEquals($data, $relationship->getData());
+        $this->assertEquals($links, $relationship->getLinks());
+        $this->assertEquals($meta, $relationship->getMeta());
+        $this->assertEquals($isShowData, $relationship->isShowData());
     }
 }

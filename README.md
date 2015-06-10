@@ -35,7 +35,7 @@ Assuming you've got an ```$author``` of type ```\Author``` you can encode it to 
 ```php
 $encoder = Encoder::instance([
     '\Author' => '\AuthorSchema',
-], new JsonEncodeOptions(JSON_PRETTY_PRINT));
+], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com/api/v1'));
 
 echo $encoder->encode($author) . PHP_EOL;
 ```
@@ -52,7 +52,7 @@ will output
             "last_name": "Dow"
         },
         "links": {
-            "self": "http:\/\/example.com\/people\/123"
+            "self": "http://example.com/api/v1/people/123"
         }
     }
 }
@@ -64,7 +64,7 @@ The ```AuthorSchema``` provides information about resource's attributes and migh
 class AuthorSchema extends SchemaProvider
 {
     protected $resourceType = 'people';
-    protected $baseSelfUrl  = 'http://example.com/people/';
+    protected $selfSubUrl   = '/people/';
 
     public function getId($author)
     {
@@ -82,6 +82,10 @@ class AuthorSchema extends SchemaProvider
     }
 }
 ```
+
+The first ```EncoderOptions``` parameter ```JSON_PRETTY_PRINT``` is a PHP predefined [JSON constant](http://php.net/manual/en/json.constants.php).
+
+The second ```EncoderOptions``` parameter ```http://example.com/api/v1``` is a URL prefix that will be applied to all encoded links unless they have ```$treatAsHref``` flag set to ```true```.
 
 **For more advanced usage please check out the [Wiki](https://github.com/neomerx/json-api/wiki)**.
 

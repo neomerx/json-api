@@ -52,11 +52,11 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
      * @var array
      */
     private $requestParams = [
-        'fields'  => ['type1' => 'fields1,fields2'],
-        'include' => 'author,comments,comments.author',
-        'sort'    => '-created,+title,name.with.dots',
-        'filter'  => ['some' => 'filter'],
-        'page'    => ['size' => 10, 'offset' => 4],
+        ParametersParserInterface::PARAM_FIELDS  => ['type1' => 'fields1,fields2'],
+        ParametersParserInterface::PARAM_INCLUDE => 'author,comments,comments.author',
+        ParametersParserInterface::PARAM_SORT    => '-created,+title,name.with.dots',
+        ParametersParserInterface::PARAM_FILTER  => ['some' => 'filter'],
+        ParametersParserInterface::PARAM_PAGE    => ['size' => 10, 'offset' => 4],
     ];
 
     /**
@@ -411,56 +411,6 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     }
 
     /**
-     * Test it should throw exception if 'ext' param is set but extensions are not allowed.
-     */
-    public function testExtentionsNotAllowed1()
-    {
-        $checker = new RestrictiveParameterChecker(
-            $this->prepareExceptions(),
-            $this->prepareCodecMatcher(
-                [[self::TYPE, self::SUB_TYPE, [MediaTypeInterface::PARAM_EXT => 'foo']],],
-                [[self::TYPE, self::SUB_TYPE, null],]
-            )
-        );
-
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(
-                self::JSON_API_TYPE . ';' . MediaTypeInterface::PARAM_EXT . '=foo',
-                self::JSON_API_TYPE,
-                $this->requestParams
-            ),
-            $this->prepareExceptions('throwUnsupportedMediaType')
-        );
-
-        $checker->check($parameters);
-    }
-
-    /**
-     * Test it should throw exception if 'ext' param is set but extensions are not allowed.
-     */
-    public function testExtentionsNotAllowed2()
-    {
-        $checker = new RestrictiveParameterChecker(
-            $this->prepareExceptions(),
-            $this->prepareCodecMatcher(
-                [[self::TYPE, self::SUB_TYPE, null],],
-                [[self::TYPE, self::SUB_TYPE, [MediaTypeInterface::PARAM_EXT => 'foo']],]
-            )
-        );
-
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(
-                self::JSON_API_TYPE,
-                self::JSON_API_TYPE . ';' . MediaTypeInterface::PARAM_EXT . '=foo',
-                $this->requestParams
-            ),
-            $this->prepareExceptions('throwNotAcceptable')
-        );
-
-        $checker->check($parameters);
-    }
-
-    /**
      * @param string $contentType
      * @param string $accept
      * @param array  $input
@@ -541,14 +491,7 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
                     [self::TYPE, self::SUB_TYPE, null],
                     [self::TYPE, self::SUB_TYPE, ['ext' => 'ext1,ext3']],
                 ]
-            ),
-            false,
-            null,
-            null,
-            null,
-            null,
-            null,
-            true
+            )
         );
 
         return $checker;

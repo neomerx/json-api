@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
@@ -35,19 +34,14 @@ class RelationshipObject implements RelationshipObjectInterface
     private $data;
 
     /**
-     * @var bool
+     * @var array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface>
      */
-    private $isShowAsReference;
+    private $links;
 
     /**
-     * @var bool
+     * @var mixed
      */
-    private $isShowSelf;
-
-    /**
-     * @var bool
-     */
-    private $isShowRelated;
+    private $meta;
 
     /**
      * @var bool
@@ -55,79 +49,28 @@ class RelationshipObject implements RelationshipObjectInterface
     private $isShowData;
 
     /**
-     * @var LinkInterface
-     */
-    private $selfLink;
-
-    /**
-     * @var LinkInterface
-     */
-    private $relatedLink;
-
-    /**
-     * @var bool
-     */
-    private $isShowMeta;
-
-    /**
-     * @var bool
-     */
-    private $isShowPagination;
-
-    /**
-     * @var LinkInterface[]|null
-     */
-    private $pagination;
-
-    /**
-     * @param string               $name
-     * @param object|array|null    $data
-     * @param LinkInterface        $selfLink
-     * @param LinkInterface        $relatedLink
-     * @param bool                 $isShowAsRef
-     * @param bool                 $isShowSelf
-     * @param bool                 $isShowRelated
-     * @param bool                 $isShowData
-     * @param bool                 $isShowMeta
-     * @param bool                 $isShowPagination
-     * @param LinkInterface[]|null $pagination
+     * @param string                                                        $name
+     * @param object|array|null                                             $data
+     * @param array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface> $links
+     * @param mixed                                                         $meta
+     * @param bool                                                          $isShowData
      */
     public function __construct(
         $name,
         $data,
-        LinkInterface $selfLink,
-        LinkInterface $relatedLink,
-        $isShowAsRef,
-        $isShowSelf,
-        $isShowRelated,
-        $isShowData,
-        $isShowMeta,
-        $isShowPagination,
-        $pagination
+        $links,
+        $meta,
+        $isShowData
     ) {
         assert(
-            'is_string($name) &&'.
-            '(is_object($data) || is_array($data) || is_null($data)) &&'.
-            'is_bool($isShowAsRef) && is_bool($isShowSelf) && is_bool($isShowRelated) && is_bool($isShowMeta) &&'.
-            'is_bool($isShowPagination) &&'.
-            '(is_null($pagination) || is_array($pagination))'
-        );
-        assert(
-            '$isShowSelf || $isShowRelated || $isShowData || $isShowMeta',
-            'Specification requires at least one of them to be shown'
+            'is_string($name) && (is_object($data) || is_array($data) || is_null($data)) && is_array($links)'
         );
 
-        $this->name              = $name;
-        $this->data              = $data;
-        $this->selfLink          = $selfLink;
-        $this->relatedLink       = $relatedLink;
-        $this->isShowAsReference = $isShowAsRef;
-        $this->isShowSelf        = $isShowSelf;
-        $this->isShowRelated     = $isShowRelated;
-        $this->isShowData        = $isShowData;
-        $this->isShowMeta        = $isShowMeta;
-        $this->isShowPagination  = $isShowPagination;
-        $this->pagination        = $pagination;
+        $this->name       = $name;
+        $this->data       = $data;
+        $this->links      = $links;
+        $this->meta       = $meta;
+        $this->isShowData = $isShowData;
     }
 
     /**
@@ -141,70 +84,6 @@ class RelationshipObject implements RelationshipObjectInterface
     /**
      * @inheritdoc
      */
-    public function isShowSelf()
-    {
-        return $this->isShowSelf;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSelfLink()
-    {
-        return $this->selfLink;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowAsReference()
-    {
-        return $this->isShowAsReference;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowRelated()
-    {
-        return $this->isShowRelated;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowData()
-    {
-        return $this->isShowData;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getRelatedLink()
-    {
-        return $this->relatedLink;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowMeta()
-    {
-        return $this->isShowMeta;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowPagination()
-    {
-        return $this->isShowPagination;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getData()
     {
         return $this->data;
@@ -213,8 +92,24 @@ class RelationshipObject implements RelationshipObjectInterface
     /**
      * @inheritdoc
      */
-    public function getPagination()
+    public function getLinks()
     {
-        return $this->pagination;
+        return $this->links;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isShowData()
+    {
+        return $this->isShowData;
     }
 }

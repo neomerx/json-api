@@ -32,21 +32,6 @@ use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
  */
 class ParametersParser implements ParametersParserInterface
 {
-    /** Parameter name */
-    const PARAM_INCLUDE = 'include';
-
-    /** Parameter name */
-    const PARAM_FIELDS = 'fields';
-
-    /** Parameter name */
-    const PARAM_PAGE = 'page';
-
-    /** Parameter name */
-    const PARAM_FILTER = 'filter';
-
-    /** Parameter name */
-    const PARAM_SORT = 'sort';
-
     /**
      * @var ParametersFactoryInterface
      */
@@ -76,8 +61,9 @@ class ParametersParser implements ParametersParserInterface
         $contentTypeHeader = null;
 
         try {
+            $contentType = $request->getHeader(HeaderInterface::HEADER_CONTENT_TYPE);
             $contentTypeHeader = Header::parse(
-                $request->getHeader(HeaderInterface::HEADER_CONTENT_TYPE),
+                empty($contentType) === true ? MediaTypeInterface::JSON_API_MEDIA_TYPE : $contentType,
                 HeaderInterface::HEADER_CONTENT_TYPE
             );
         } catch (InvalidArgumentException $exception) {

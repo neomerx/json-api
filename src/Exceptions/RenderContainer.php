@@ -20,7 +20,7 @@ use \Closure;
 use \Exception;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\JsonApi\Responses\Responses;
-use \Neomerx\JsonApi\Encoder\JsonEncodeOptions;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Responses\ResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Exceptions\RenderContainerInterface;
@@ -163,12 +163,12 @@ class RenderContainer implements RenderContainerInterface
     protected function getErrorsRender($statusCode)
     {
         /**
-         * @param ErrorInterface[]  $errors
-         * @param JsonEncodeOptions $encodeOptions
+         * @param ErrorInterface[] $errors
+         * @param EncoderOptions   $encodeOptions
          *
          * @return mixed
          */
-        return function (array $errors, JsonEncodeOptions $encodeOptions = null) use ($statusCode) {
+        return function (array $errors, EncoderOptions $encodeOptions = null) use ($statusCode) {
             $extensionsClosure   = $this->extensionsClosure;
             /** @var SupportedExtensionsInterface $supportedExtensions */
             $supportedExtensions = $extensionsClosure();

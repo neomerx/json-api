@@ -46,9 +46,33 @@ abstract class DevSchemaProvider extends SchemaProvider
     private $includePaths = [];
 
     /**
-     * @var array
+     * @var mixed
      */
-    private $relationshipMeta;
+    private $relationshipsMeta;
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipsPrimaryMeta($resource)
+    {
+        return $this->relationshipsMeta ?: parent::getRelationshipsPrimaryMeta($resource);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipsInclusionMeta($resource)
+    {
+        return $this->relationshipsMeta ?: parent::getRelationshipsInclusionMeta($resource);
+    }
+
+    /**
+     * @param array $relationshipMeta
+     */
+    public function setRelationshipsMeta($relationshipMeta)
+    {
+        $this->relationshipsMeta = $relationshipMeta;
+    }
 
     /**
      * Add to 'add to link' list.
@@ -113,14 +137,6 @@ abstract class DevSchemaProvider extends SchemaProvider
     }
 
     /**
-     * @param array $relationshipMeta
-     */
-    public function setRelationshipMeta($relationshipMeta)
-    {
-        $this->relationshipMeta = $relationshipMeta;
-    }
-
-    /**
      * Add/remove values in input array.
      *
      * @param array $links
@@ -138,18 +154,5 @@ abstract class DevSchemaProvider extends SchemaProvider
         foreach ($this->linkRemove as $key) {
             unset($links[$key]);
         }
-    }
-
-    /**
-     * @param string $relationshipName
-     * @param array  $description
-     * @param mixed  $relationshipData
-     * @param null   $meta
-     *
-     * @return \Neomerx\JsonApi\Contracts\Schema\LinkInterface
-     */
-    protected function getSelfLink($relationshipName, array $description, $relationshipData, $meta = null)
-    {
-        return parent::getSelfLink($relationshipName, $description, $relationshipData, $this->relationshipMeta);
     }
 }

@@ -57,13 +57,17 @@ interface DocumentInterface
     const KEYWORD_DATA          = 'data';
     /** Reserved keyword */
     const KEYWORD_INCLUDED      = 'included';
+    /** Reserved keyword */
+    const KEYWORD_JSON_API      = 'jsonapi';
+    /** Reserved keyword */
+    const KEYWORD_VERSION       = 'version';
 
     /** Reserved keyword */
     const KEYWORD_ERRORS        = 'errors';
     /** Reserved keyword */
     const KEYWORD_ERRORS_ID     = 'id';
     /** Reserved keyword */
-    const KEYWORD_ERRORS_HREF   = 'href';
+    const KEYWORD_ERRORS_LINKS  = self::KEYWORD_LINKS;
     /** Reserved keyword */
     const KEYWORD_ERRORS_STATUS = 'status';
     /** Reserved keyword */
@@ -76,11 +80,13 @@ interface DocumentInterface
     const KEYWORD_ERRORS_META   = 'meta';
     /** Reserved keyword */
     const KEYWORD_ERRORS_SOURCE = 'source';
+    /** Reserved keyword */
+    const KEYWORD_ERRORS_ABOUT  = 'about';
 
     /**
      * Set URLs to top-level 'links' section.
      *
-     * @param LinkInterface[]|null $links
+     * @param array<string,LinkInterface>|null $links
      *
      * @return void
      */
@@ -134,16 +140,6 @@ interface DocumentInterface
     );
 
     /**
-     * Add a reference to resource in 'data' section.
-     *
-     * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $current
-     *
-     * @return void
-     */
-    public function addReferenceToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current);
-
-    /**
      * Add an empty relationship to resource in 'data' section.
      *
      * @param ResourceObjectInterface     $parent
@@ -186,16 +182,6 @@ interface DocumentInterface
         RelationshipObjectInterface $relationship,
         ResourceObjectInterface $resource
     );
-
-    /**
-     * Add a reference to resource in 'included' section.
-     *
-     * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $current
-     *
-     * @return void
-     */
-    public function addReferenceToIncluded(ResourceObjectInterface $parent, RelationshipObjectInterface $current);
 
     /**
      * Add an empty relationship to resource in 'included' section.
@@ -242,6 +228,29 @@ interface DocumentInterface
      * @return void
      */
     public function addError(ErrorInterface $error);
+
+    /**
+     * Add JSON API version information.
+     *
+     * @link http://jsonapi.org/format/#document-jsonapi-object
+     *
+     * @param string     $version
+     * @param mixed|null $meta
+     *
+     * @return void
+     */
+    public function addJsonApiVersion($version, $meta = null);
+
+    /**
+     * Set a prefix that will be applied to all URLs in the document except marked as href.
+     *
+     * @see LinkInterface
+     *
+     * @param string $prefix
+     *
+     * @return void
+     */
+    public function setUrlPrefix($prefix);
 
     /**
      * Remove 'data' top-level section.

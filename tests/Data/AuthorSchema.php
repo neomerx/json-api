@@ -29,7 +29,7 @@ class AuthorSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    protected $baseSelfUrl = 'http://example.com/people/';
+    protected $selfSubUrl = '/people/';
 
     /**
      * @inheritdoc

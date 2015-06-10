@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
@@ -31,20 +33,20 @@ interface DocumentFactoryInterface
     /**
      * Create error instance.
      *
-     * @param int|string|null $idx
-     * @param string|null     $href
-     * @param string|null     $status
-     * @param string|null     $code
-     * @param string|null     $title
-     * @param string|null     $detail
-     * @param mixed|null      $source
-     * @param array|null      $meta
+     * @param int|string|null    $idx
+     * @param LinkInterface|null $aboutLink
+     * @param string|null        $status
+     * @param string|null        $code
+     * @param string|null        $title
+     * @param string|null        $detail
+     * @param mixed|null         $source
+     * @param array|null         $meta
      *
      * @return ErrorInterface
      */
     public function createError(
         $idx = null,
-        $href = null,
+        LinkInterface $aboutLink = null,
         $status = null,
         $code = null,
         $title = null,

@@ -22,18 +22,18 @@
 interface ErrorInterface
 {
     /**
-     * Get a  unique identifier for this particular occurrence of the problem.
+     * Get a unique identifier for this particular occurrence of the problem.
      *
      * @return int|string|null
      */
     public function getId();
 
     /**
-     * Get a URI that may yield further details about this particular occurrence of the problem.
+     * Get links that may lead to further details about this particular occurrence of the problem.
      *
-     * @return string|null
+     * @return null|array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface>
      */
-    public function getHref();
+    public function getLinks();
 
     /**
      * Get the HTTP status code applicable to this problem, expressed as a string value.

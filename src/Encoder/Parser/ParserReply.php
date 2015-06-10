@@ -24,8 +24,8 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 class ParserReply extends BaseReply
 {
     /**
-     * @param int                     $replyType
-     * @param StackReadOnlyInterface  $stack
+     * @param int                    $replyType
+     * @param StackReadOnlyInterface $stack
      */
     public function __construct($replyType, StackReadOnlyInterface $stack)
     {

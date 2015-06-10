@@ -16,8 +16,10 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Document\DocumentFactory;
+use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
 
 /**
@@ -55,7 +57,7 @@ class FactoryTest extends BaseTestCase
     {
         $this->assertNotNull($error = $this->factory->createError(
             $idx = 'some-id',
-            $href = 'some-href',
+            $link = new Link('about-link'),
             $status = 'some-status',
             $code = 'some-code',
             $title = 'some-title',
@@ -65,7 +67,7 @@ class FactoryTest extends BaseTestCase
         ));
 
         $this->assertEquals($idx, $error->getId());
-        $this->assertEquals($href, $error->getHref());
+        $this->assertEquals([DocumentInterface::KEYWORD_ERRORS_ABOUT => $link], $error->getLinks());
         $this->assertEquals($status, $error->getStatus());
         $this->assertEquals($code, $error->getCode());
         $this->assertEquals($title, $error->getTitle());

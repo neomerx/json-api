@@ -84,6 +84,8 @@ class ParameterParserTest extends BaseTestCase
         $this->assertNull($parameters->getSortParameters());
         $this->assertNull($parameters->getFilteringParameters());
         $this->assertNull($parameters->getPaginationParameters());
+
+        $this->assertTrue($parameters->isEmpty());
     }
 
     /**

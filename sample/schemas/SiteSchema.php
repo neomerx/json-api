@@ -24,7 +24,7 @@ use \Neomerx\JsonApi\Schema\SchemaProvider;
 class SiteSchema extends SchemaProvider
 {
     protected $resourceType = 'sites';
-    protected $baseSelfUrl  = 'http://example.com/sites';
+    protected $selfSubUrl  = '/sites/';
 
     public function getId($site)
     {

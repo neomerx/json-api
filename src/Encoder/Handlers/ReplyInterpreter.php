@@ -168,10 +168,6 @@ class ReplyInterpreter implements ReplyInterpreterInterface
         $parent       = $previous->getResource();
 
         switch($reply->getReplyType()) {
-            case ParserReplyInterface::REPLY_TYPE_REFERENCE_STARTED:
-                assert('$relationship->isShowAsReference() === true');
-                $this->document->addReferenceToData($parent, $relationship);
-                break;
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
                 $this->document->addNullRelationshipToData($parent, $relationship);
                 break;
@@ -197,10 +193,6 @@ class ReplyInterpreter implements ReplyInterpreterInterface
         $parent       = $previous->getResource();
 
         switch($reply->getReplyType()) {
-            case ParserReplyInterface::REPLY_TYPE_REFERENCE_STARTED:
-                assert('$relationship->isShowAsReference() === true');
-                $this->document->addReferenceToIncluded($parent, $relationship);
-                break;
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
                 $this->document->addNullRelationshipToIncluded($parent, $relationship);
                 break;
@@ -252,6 +244,6 @@ class ReplyInterpreter implements ReplyInterpreterInterface
             return true;
         }
 
-        return (in_array($current->getRelationship()->getName(), $fieldSet) === true);
+        return (in_array($current->getRelationship()->getName(), $fieldSet, true) === true);
     }
 }

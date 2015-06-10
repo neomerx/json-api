@@ -29,7 +29,7 @@ class PostSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    protected $baseSelfUrl = 'http://example.com/posts';
+    protected $selfSubUrl = '/posts/';
 
     /**
      * @inheritdoc

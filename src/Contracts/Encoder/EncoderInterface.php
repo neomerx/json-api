@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 
@@ -25,11 +25,14 @@ use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
  */
 interface EncoderInterface
 {
+    /** JSON API version implemented by the encoder */
+    const JSON_API_VERSION = '1.0';
+
     /**
      * Encode input as JSON API string.
      *
      * @param object|array                     $data     Data to encode.
-     * @param LinkInterface[]|null             $links    Optional document links information (e.g. request URL, paging).
+     * @param array<string,LinkInterface>|null $links    Optional document links information (e.g. request URL, paging).
      * @param array|object|null                $meta     Optional document meta information.
      * @param EncodingParametersInterface|null $parameters Encoding parameters.
      *
@@ -63,4 +66,11 @@ interface EncoderInterface
      * @return string
      */
     public function errors($errors);
+
+    /**
+     * Get encoder options.
+     *
+     * @return EncoderOptions|null
+     */
+    public function getEncoderOptions();
 }

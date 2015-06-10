@@ -34,15 +34,24 @@ class Link implements LinkInterface
     private $meta;
 
     /**
+     * @var bool
+     */
+    private $treatAsHref;
+
+    /**
      * @param string            $subHref
      * @param array|object|null $meta
+     * @param bool              $treatAsHref If $subHref is a full URL and must not be concatenated with other URLs.
      */
-    public function __construct($subHref, $meta = null)
+    public function __construct($subHref, $meta = null, $treatAsHref = false)
     {
-        assert('is_string($subHref) && (is_null($meta) || is_object($meta) || is_array($meta))');
+        assert(
+            'is_string($subHref) && (is_null($meta) || is_object($meta) || is_array($meta)) && is_bool($treatAsHref)'
+        );
 
-        $this->subHref = $subHref;
-        $this->meta    = $meta;
+        $this->subHref     = $subHref;
+        $this->meta        = $meta;
+        $this->treatAsHref = $treatAsHref;
     }
 
     /**
@@ -59,5 +68,13 @@ class Link implements LinkInterface
     public function getMeta()
     {
         return $this->meta;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isTreatAsHref()
+    {
+        return $this->treatAsHref;
     }
 }

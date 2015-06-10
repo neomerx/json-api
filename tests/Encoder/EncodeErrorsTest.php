@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Author;
@@ -34,7 +35,7 @@ class EncodeErrorsTest extends BaseTestCase
     {
         $error = new Error(
             'some-id',
-            'some-href',
+            new Link('about-link'),
             'some-status',
             'some-code',
             'some-title',
@@ -51,7 +52,7 @@ class EncodeErrorsTest extends BaseTestCase
         {
             "errors":[{
                 "id"     : "some-id",
-                "href"   : "some-href",
+                "links"  : {"about" : "about-link"},
                 "status" : "some-status",
                 "code"   : "some-code",
                 "title"  : "some-title",
@@ -74,7 +75,7 @@ EOL;
     {
         $error = new Error(
             'some-id',
-            'some-href',
+            new Link('about-link'),
             'some-status',
             'some-code',
             'some-title',
@@ -93,7 +94,7 @@ EOL;
         {
             "errors":[{
                 "id"     : "some-id",
-                "href"   : "some-href",
+                "links"  : {"about" : "about-link"},
                 "status" : "some-status",
                 "code"   : "some-code",
                 "title"  : "some-title",

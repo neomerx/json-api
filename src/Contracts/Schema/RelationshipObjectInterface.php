@@ -29,62 +29,6 @@ interface RelationshipObjectInterface
     public function getName();
 
     /**
-     * If 'self' endpoint URL should be shown.
-     *
-     * @return bool
-     */
-    public function isShowSelf();
-
-    /**
-     * Get 'self' URL of link object.
-     *
-     * @return LinkInterface
-     */
-    public function getSelfLink();
-
-    /**
-     * If link should be shown as URL reference ('related').
-     *
-     * @return bool
-     */
-    public function isShowAsReference();
-
-    /**
-     * If 'related' endpoint URL should be shown.
-     *
-     * @return bool
-     */
-    public function isShowRelated();
-
-    /**
-     * If 'data' should be shown.
-     *
-     * @return bool
-     */
-    public function isShowData();
-
-    /**
-     * Get 'related' URL of link object.
-     *
-     * @return LinkInterface
-     */
-    public function getRelatedLink();
-
-    /**
-     * If 'meta' should be shown.
-     *
-     * @return bool
-     */
-    public function isShowMeta();
-
-    /**
-     * If pagination information should be shown.
-     *
-     * @return bool
-     */
-    public function isShowPagination();
-
-    /**
      * Get resource data from relationship.
      *
      * @return object|array|null
@@ -92,9 +36,23 @@ interface RelationshipObjectInterface
     public function getData();
 
     /**
-     * Get pagination information.
+     * Get links.
      *
-     * @return LinkInterface[]|null
+     * @return array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface>
      */
-    public function getPagination();
+    public function getLinks();
+
+    /**
+     * Get meta.
+     *
+     * @return mixed
+     */
+    public function getMeta();
+
+    /**
+     * If 'data' should be shown.
+     *
+     * @return bool
+     */
+    public function isShowData();
 }
