@@ -103,8 +103,8 @@ abstract class SchemaProvider implements SchemaProviderInterface
     {
         assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set');
         assert('is_bool($this->isShowSelfInIncluded) && is_bool($this->isShowRelShipsInIncluded)');
-        assert('is_string($this->selfSubUrl) && empty($this->selfSubUrl) === false', 'Base \'self\' not set');
-        assert('substr($this->selfSubUrl, -1) === \'/\'', 'Url should end with \'/\' separator');
+        assert('is_string($this->selfSubUrl) && empty($this->selfSubUrl) === false', '\'self\' sub-URL not set');
+        assert('substr($this->selfSubUrl, -1) === \'/\'', 'Sub-url should end with \'/\' separator');
 
         $this->factory   = $factory;
         $this->container = $container;
