@@ -61,8 +61,9 @@ class ParametersParser implements ParametersParserInterface
         $contentTypeHeader = null;
 
         try {
+            $contentType = $request->getHeader(HeaderInterface::HEADER_CONTENT_TYPE);
             $contentTypeHeader = Header::parse(
-                $request->getHeader(HeaderInterface::HEADER_CONTENT_TYPE),
+                empty($contentType) === true ? MediaTypeInterface::JSON_API_MEDIA_TYPE : $contentType,
                 HeaderInterface::HEADER_CONTENT_TYPE
             );
         } catch (InvalidArgumentException $exception) {
