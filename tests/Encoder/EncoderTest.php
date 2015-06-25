@@ -288,8 +288,8 @@ EOL;
                     "body"  : "Outside every fat man there was an even fatter man trying to close in"
                 },
                 "relationships" : {
-                    "author"   : null,
-                    "comments" : []
+                    "author"   : {"data" : null},
+                    "comments" : {"data" : []}
                 },
                 "links" : {
                     "self"     : "http://example.com/posts/1"
@@ -489,11 +489,11 @@ EOL;
             Comment::class => CommentSchema::class,
             Post::class    => function ($factory, $container) {
                 $schema = new PostSchema($factory, $container);
-                //$schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, null);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, null);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_DATA, false);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_RELATED, true);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::LINKS, ['foo' => new Link('/your/link', null, true)]);
-                //$schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, []);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, []);
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_DATA, false);
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::LINKS, ['boo' => new Link('another/link')]);
                 return $schema;

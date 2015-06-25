@@ -44,7 +44,7 @@ class ElementPresenter
     /**
      * @param array                       $target
      * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $relationship
+     * @param RelationshipObjectInterface $relation
      * @param mixed                       $value
      *
      * @return void
@@ -52,19 +52,27 @@ class ElementPresenter
     public function setRelationshipTo(
         array &$target,
         ResourceObjectInterface $parent,
-        RelationshipObjectInterface $relationship,
+        RelationshipObjectInterface $relation,
         $value
     ) {
         $parentId     = $parent->getId();
         $parentType   = $parent->getType();
-        $name         = $relationship->getName();
+        $name         = $relation->getName();
         $parentExists = isset($target[$parentType][$parentId]);
 
         assert('$parentExists === true');
         assert('isset($target[$parentType][$parentId][\''.Document::KEYWORD_RELATIONSHIPS.'\'][$name]) === false');
 
         if ($parentExists === true) {
-            $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] = $value;
+            $representation = [];
+
+            if ($relation->isShowData() === true) {
+                $representation[Document::KEYWORD_LINKAGE_DATA][] = $value;
+            }
+
+            $representation += $this->getRelationRepresentation($parent, $relation);
+
+            $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] = $representation;
         }
     }
 
@@ -97,7 +105,7 @@ class ElementPresenter
                     $representation[Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
                 }
 
-                $representation += $this->getRelationRepresentation($parent, $relation, $resource);
+                $representation += $this->getRelationRepresentation($parent, $relation);
 
                 $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] = $representation;
             } else {
