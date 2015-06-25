@@ -60,10 +60,13 @@ class ElementPresenter
         $name         = $relation->getName();
         $parentExists = isset($target[$parentType][$parentId]);
 
-        assert('$parentExists === true');
-        assert('isset($target[$parentType][$parentId][\''.Document::KEYWORD_RELATIONSHIPS.'\'][$name]) === false');
-
+        // parent object might be already fully parsed (with children) so
+        // - it won't exist in $target
+        // - it won't make any sense to parse it again (we'll got exactly the same result and it will be thrown away
+        //   as duplicate relations/included resources are not allowed)
         if ($parentExists === true) {
+            assert('isset($target[$parentType][$parentId][\''.Document::KEYWORD_RELATIONSHIPS.'\'][$name]) === false');
+
             $representation = [];
 
             if ($relation->isShowData() === true) {
