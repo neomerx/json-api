@@ -92,8 +92,14 @@ class ElementPresenter
             $alreadyGotData = isset($target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name]);
             if ($alreadyGotData === false) {
                 // ... add the first one
-                $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] =
-                    $this->getRelationRepresentation($parent, $relation, $resource);
+                $representation = [];
+                if ($relation->isShowData() === true) {
+                    $representation[Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
+                }
+
+                $representation += $this->getRelationRepresentation($parent, $relation, $resource);
+
+                $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] = $representation;
             } else {
                 // ... or add another relation
                 if ($relation->isShowData() === true) {
@@ -237,14 +243,12 @@ class ElementPresenter
     /**
      * @param ResourceObjectInterface     $parent
      * @param RelationshipObjectInterface $relation
-     * @param ResourceObjectInterface     $resource
      *
      * @return array
      */
     private function getRelationRepresentation(
         ResourceObjectInterface $parent,
-        RelationshipObjectInterface $relation,
-        ResourceObjectInterface $resource
+        RelationshipObjectInterface $relation
     ) {
         assert(
             '$relation->getName() !== \''.Document::KEYWORD_SELF.'\'',
@@ -252,10 +256,6 @@ class ElementPresenter
         );
 
         $representation = [];
-
-        if ($relation->isShowData() === true) {
-            $representation[Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
-        }
 
         if (($meta = $relation->getMeta()) !== null) {
             $representation[Document::KEYWORD_META] = $meta;
