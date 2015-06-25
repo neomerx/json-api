@@ -275,8 +275,8 @@ EOL;
                     "body"  : "Outside every fat man there was an even fatter man trying to close in"
                 },
                 "relationships" : {
-                    "author"   : null,
-                    "comments" : []
+                    "author"   : {"data" : null},
+                    "comments" : {"data" : []}
                 }
             }]
         }
@@ -335,7 +335,7 @@ EOL;
                     "author"   : {
                         "data" : { "type" : "posts", "id" : "1" }
                     },
-                    "comments" : []
+                    "comments" : {"data" : []}
                 }
             }]
         }

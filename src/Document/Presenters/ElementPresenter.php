@@ -44,34 +44,42 @@ class ElementPresenter
     /**
      * @param array                       $target
      * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $current
-     * @param mixed                       $url
+     * @param RelationshipObjectInterface $relation
+     * @param mixed                       $value
      *
      * @return void
      */
     public function setRelationshipTo(
         array &$target,
         ResourceObjectInterface $parent,
-        RelationshipObjectInterface $current,
-        $url
+        RelationshipObjectInterface $relation,
+        $value
     ) {
         $parentId     = $parent->getId();
         $parentType   = $parent->getType();
-        $name         = $current->getName();
+        $name         = $relation->getName();
         $parentExists = isset($target[$parentType][$parentId]);
 
         assert('$parentExists === true');
         assert('isset($target[$parentType][$parentId][\''.Document::KEYWORD_RELATIONSHIPS.'\'][$name]) === false');
 
         if ($parentExists === true) {
-            $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] = $url;
+            $representation = [];
+
+            if ($relation->isShowData() === true) {
+                $representation[Document::KEYWORD_LINKAGE_DATA][] = $value;
+            }
+
+            $representation += $this->getRelationRepresentation($parent, $relation);
+
+            $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] = $representation;
         }
     }
 
     /**
      * @param array                       $target
      * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $relationship
+     * @param RelationshipObjectInterface $relation
      * @param ResourceObjectInterface     $resource
      *
      * @return void
@@ -79,7 +87,7 @@ class ElementPresenter
     public function addRelationshipTo(
         array &$target,
         ResourceObjectInterface $parent,
-        RelationshipObjectInterface $relationship,
+        RelationshipObjectInterface $relation,
         ResourceObjectInterface $resource
     ) {
         $parentId     = $parent->getId();
@@ -88,16 +96,28 @@ class ElementPresenter
 
         // parent might be already added to included to it won't be in 'target' buffer
         if ($parentExists === true) {
-            $name = $relationship->getName();
-            $alreadyGotData = isset($target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name]);
-            if ($alreadyGotData === false) {
-                // ... add the first one
-                $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] =
-                    $this->getRelationRepresentation($parent, $relationship, $resource);
-            } else {
-                // ... or add another relation
-                $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS]
-                    [$name][Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
+            $parentAlias = &$target[$parentType][$parentId];
+
+            $name = $relation->getName();
+            $alreadyGotRelation = isset($parentAlias[Document::KEYWORD_RELATIONSHIPS][$name]);
+
+            $linkage = null;
+            if ($relation->isShowData() === true) {
+                $linkage = $this->getLinkageRepresentation($resource);
+            }
+
+            if ($alreadyGotRelation === false) {
+                // ... add the first linkage
+                $representation = [];
+                if ($linkage !== null) {
+                    $representation[Document::KEYWORD_LINKAGE_DATA][] = $linkage;
+                }
+                $representation += $this->getRelationRepresentation($parent, $relation);
+
+                $parentAlias[Document::KEYWORD_RELATIONSHIPS][$name] = $representation;
+            } elseif ($alreadyGotRelation === true && $linkage !== null) {
+                // ... or add another linkage
+                $parentAlias[Document::KEYWORD_RELATIONSHIPS][$name][Document::KEYWORD_LINKAGE_DATA][] = $linkage;
             }
         }
     }
@@ -235,14 +255,12 @@ class ElementPresenter
     /**
      * @param ResourceObjectInterface     $parent
      * @param RelationshipObjectInterface $relation
-     * @param ResourceObjectInterface     $resource
      *
      * @return array
      */
     private function getRelationRepresentation(
         ResourceObjectInterface $parent,
-        RelationshipObjectInterface $relation,
-        ResourceObjectInterface $resource
+        RelationshipObjectInterface $relation
     ) {
         assert(
             '$relation->getName() !== \''.Document::KEYWORD_SELF.'\'',
@@ -250,10 +268,6 @@ class ElementPresenter
         );
 
         $representation = [];
-
-        if ($relation->isShowData() === true) {
-            $representation[Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
-        }
 
         if (($meta = $relation->getMeta()) !== null) {
             $representation[Document::KEYWORD_META] = $meta;
