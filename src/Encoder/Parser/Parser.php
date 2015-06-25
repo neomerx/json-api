@@ -131,7 +131,7 @@ class Parser implements ParserInterface
         } else {
             if (is_array($data) === true) {
                 $isOriginallyArrayed = true;
-                $schema = $this->container->getSchema($data[0]);
+                $schema = $this->container->getSchema(reset($data));
             } else {
                 $isOriginallyArrayed = false;
                 $schema = $this->container->getSchema($data);
