@@ -44,34 +44,34 @@ class ElementPresenter
     /**
      * @param array                       $target
      * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $current
-     * @param mixed                       $url
+     * @param RelationshipObjectInterface $relationship
+     * @param mixed                       $value
      *
      * @return void
      */
     public function setRelationshipTo(
         array &$target,
         ResourceObjectInterface $parent,
-        RelationshipObjectInterface $current,
-        $url
+        RelationshipObjectInterface $relationship,
+        $value
     ) {
         $parentId     = $parent->getId();
         $parentType   = $parent->getType();
-        $name         = $current->getName();
+        $name         = $relationship->getName();
         $parentExists = isset($target[$parentType][$parentId]);
 
         assert('$parentExists === true');
         assert('isset($target[$parentType][$parentId][\''.Document::KEYWORD_RELATIONSHIPS.'\'][$name]) === false');
 
         if ($parentExists === true) {
-            $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] = $url;
+            $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] = $value;
         }
     }
 
     /**
      * @param array                       $target
      * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $relationship
+     * @param RelationshipObjectInterface $relation
      * @param ResourceObjectInterface     $resource
      *
      * @return void
@@ -79,7 +79,7 @@ class ElementPresenter
     public function addRelationshipTo(
         array &$target,
         ResourceObjectInterface $parent,
-        RelationshipObjectInterface $relationship,
+        RelationshipObjectInterface $relation,
         ResourceObjectInterface $resource
     ) {
         $parentId     = $parent->getId();
@@ -88,16 +88,18 @@ class ElementPresenter
 
         // parent might be already added to included to it won't be in 'target' buffer
         if ($parentExists === true) {
-            $name = $relationship->getName();
+            $name = $relation->getName();
             $alreadyGotData = isset($target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name]);
             if ($alreadyGotData === false) {
                 // ... add the first one
                 $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name] =
-                    $this->getRelationRepresentation($parent, $relationship, $resource);
+                    $this->getRelationRepresentation($parent, $relation, $resource);
             } else {
                 // ... or add another relation
-                $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS]
-                    [$name][Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
+                if ($relation->isShowData() === true) {
+                    $target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS]
+                        [$name][Document::KEYWORD_LINKAGE_DATA][] = $this->getLinkageRepresentation($resource);
+                }
             }
         }
     }
