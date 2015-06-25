@@ -463,4 +463,116 @@ EOL;
 
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * Test encode deep duplicate hierarchies.
+     *
+     * Test for issue 35
+     */
+    public function testEncodeDeepDuplicateHierarchies()
+    {
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => PostSchema::class,
+            Site::class    => SiteSchema::class,
+        ], $this->encoderOptions)->encode([$this->site, $this->site]);
+
+        $expected = <<<EOL
+        {
+            "data" : [{
+                "type"  : "sites",
+                "id"    : "2",
+                "attributes" : {
+                    "name"  : "site name"
+                },
+                "relationships" : {
+                    "posts" : {
+                        "data" : {
+                            "type" : "posts",
+                            "id" : "1"
+                        }
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/sites/2"
+                }
+            }, {
+                "type"  : "sites",
+                "id"    : "2",
+                "attributes" : {
+                    "name"  : "site name"
+                },
+                "relationships" : {
+                    "posts" : {
+                        "data" : {
+                            "type" : "posts",
+                            "id" : "1"
+                        }
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/sites/2"
+                }
+            }],
+            "included" : [{
+                "type" : "people",
+                "id"   : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "relationships":{
+                    "comments" : { "data":null }
+                }
+            }, {
+                "type" : "comments",
+                "id"   : "5",
+                "attributes" : {
+                    "body" : "First!"
+                },
+                "relationships" : {
+                    "author" : {
+                        "data" : { "type":"people", "id":"9" }
+                    }
+                },
+                "links":{
+                    "self" : "http://example.com/comments/5"
+                }
+            }, {
+                "type" : "comments",
+                "id"   : "12",
+                "attributes" : {
+                    "body" : "I like XML better"
+                },
+                "relationships":{
+                    "author" : {
+                        "data" : { "type":"people", "id":"9" }
+                    }
+                },
+                "links":{
+                    "self" : "http://example.com/comments/12"
+                }
+            }, {
+                "type"  : "posts",
+                "id"    : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
+                "relationships" : {
+                    "author"   : { "data" : { "type" : "people", "id" : "9" } },
+                    "comments" : { "data" : [
+                        { "type" : "comments", "id" : "5" },
+                        { "type" : "comments", "id" : "12" }
+                    ]}
+                }
+            }]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
 }
