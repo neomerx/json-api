@@ -477,7 +477,7 @@ EOL;
             'relationship-name',
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
-            ['this meta' => 'wont be shown'], //  relationship meta
+            ['some' => 'relationship meta'], //  relationship meta
             true   // show data
         );
 
@@ -494,7 +494,10 @@ EOL;
                     "lastName"  : "Dow"
                 },
                 "relationships" : {
-                    "relationship-name" : []
+                    "relationship-name" : {
+                        "data" : [],
+                        "meta" : { "some" : "relationship meta"}
+                    }
                 }
             }
         }
@@ -537,7 +540,9 @@ EOL;
                     "lastName"  : "Dow"
                 },
                 "relationships" : {
-                    "relationship-name" : null
+                    "relationship-name" : {
+                        "data" : null
+                    }
                 }
             }
         }
@@ -805,7 +810,9 @@ EOL;
                     "lastName"  : "Dow"
                 },
                 "relationships" : {
-                    "comments-relationship" : []
+                    "comments-relationship" : {
+                        "data" : []
+                    }
                 },
                 "links" : {
                     "self" : "peopleSelfUrl/"
@@ -858,7 +865,9 @@ EOL;
                     "lastName"  : "Dow"
                 },
                 "relationships" : {
-                    "comments-relationship" : null
+                    "comments-relationship" : {
+                        "data" : null
+                    }
                 },
                 "links" : {
                     "self" : "peopleSelfUrl/"
@@ -1024,7 +1033,9 @@ EOL;
                     "lastName"  : "Dow"
                 },
                 "relationships" : {
-                    "relationship-name" : null,
+                    "relationship-name" : {
+                        "data" : null
+                    },
                     "meta" : { "some" : "relationships meta" }
                 }
             }
@@ -1077,7 +1088,9 @@ EOL;
                     "lastName"  : "Dow"
                 },
                 "relationships" : {
-                    "relationship-name" : null,
+                    "relationship-name" : {
+                        "data" : null
+                    },
                     "meta" : { "some" : "relationships meta" }
                 }
             }]

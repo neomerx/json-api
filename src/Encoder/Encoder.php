@@ -220,7 +220,7 @@ class Encoder implements EncoderInterface
         } elseif ($parameters !== null && $parameters->getIncludePaths() !== null) {
             return $parameters;
         } else {
-            $schema       = $this->container->getSchema(is_array($data) ? $data[0] : $data);
+            $schema       = $this->container->getSchema(is_array($data) ? reset($data) : $data);
             $includePaths = $schema->getIncludePaths();
             $fieldSets    = $parameters === null ? null : $parameters->getFieldSets();
 

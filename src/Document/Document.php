@@ -192,17 +192,21 @@ class Document implements DocumentInterface
     /**
      * @inheritdoc
      */
-    public function addEmptyRelationshipToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
-    {
-        $this->presenter->setRelationshipTo($this->bufferForData, $parent, $current, []);
+    public function addEmptyRelationshipToData(
+        ResourceObjectInterface $parent,
+        RelationshipObjectInterface $relationship
+    ) {
+        $this->presenter->setRelationshipTo($this->bufferForData, $parent, $relationship, []);
     }
 
     /**
      * @inheritdoc
      */
-    public function addNullRelationshipToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
-    {
-        $this->presenter->setRelationshipTo($this->bufferForData, $parent, $current, null);
+    public function addNullRelationshipToData(
+        ResourceObjectInterface $parent,
+        RelationshipObjectInterface $relationship
+    ) {
+        $this->presenter->setRelationshipTo($this->bufferForData, $parent, $relationship, null);
     }
 
     /**
@@ -210,17 +214,19 @@ class Document implements DocumentInterface
      */
     public function addEmptyRelationshipToIncluded(
         ResourceObjectInterface $parent,
-        RelationshipObjectInterface $current
+        RelationshipObjectInterface $relationship
     ) {
-        $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $current, []);
+        $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $relationship, []);
     }
 
     /**
      * @inheritdoc
      */
-    public function addNullRelationshipToIncluded(ResourceObjectInterface $parent, RelationshipObjectInterface $current)
-    {
-        $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $current, null);
+    public function addNullRelationshipToIncluded(
+        ResourceObjectInterface $parent,
+        RelationshipObjectInterface $relationship
+    ) {
+        $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $relationship, null);
     }
 
     /**

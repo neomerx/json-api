@@ -143,21 +143,27 @@ interface DocumentInterface
      * Add an empty relationship to resource in 'data' section.
      *
      * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $current
+     * @param RelationshipObjectInterface $relationship
      *
      * @return void
      */
-    public function addEmptyRelationshipToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current);
+    public function addEmptyRelationshipToData(
+        ResourceObjectInterface $parent,
+        RelationshipObjectInterface $relationship
+    );
 
     /**
      * Add a null relationship to resource in 'data' section.
      *
      * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $current
+     * @param RelationshipObjectInterface $relationship
      *
      * @return void
      */
-    public function addNullRelationshipToData(ResourceObjectInterface $parent, RelationshipObjectInterface $current);
+    public function addNullRelationshipToData(
+        ResourceObjectInterface $parent,
+        RelationshipObjectInterface $relationship
+    );
 
     /**
      * Add resource to 'included' section.
@@ -187,26 +193,26 @@ interface DocumentInterface
      * Add an empty relationship to resource in 'included' section.
      *
      * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $current
+     * @param RelationshipObjectInterface $relationship
      *
      * @return void
      */
     public function addEmptyRelationshipToIncluded(
         ResourceObjectInterface $parent,
-        RelationshipObjectInterface $current
+        RelationshipObjectInterface $relationship
     );
 
     /**
      * Add a null relationship to resource in 'included' section.
      *
      * @param ResourceObjectInterface     $parent
-     * @param RelationshipObjectInterface $current
+     * @param RelationshipObjectInterface $relationship
      *
      * @return void
      */
     public function addNullRelationshipToIncluded(
         ResourceObjectInterface $parent,
-        RelationshipObjectInterface $current
+        RelationshipObjectInterface $relationship
     );
 
     /**
