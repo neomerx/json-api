@@ -19,6 +19,7 @@
 use \Closure;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use Traversable;
 
 /**
  * @package Neomerx\JsonApi
@@ -88,6 +89,9 @@ class Container implements ContainerInterface
      */
     public function getSchema($resource)
     {
+        if ($resource instanceof Traversable) {
+            $resource = $resource[0];
+        }
         $resourceType = get_class($resource);
 
         if (isset($this->createdProviders[$resourceType])) {
