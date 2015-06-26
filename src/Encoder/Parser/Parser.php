@@ -27,6 +27,7 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use Traversable;
 
 /**
  * The main purpose of the parser is to reach **every resource** that is targeted for inclusion and its
@@ -132,6 +133,9 @@ class Parser implements ParserInterface
             if (is_array($data) === true) {
                 $isOriginallyArrayed = true;
                 $schema = $this->container->getSchema(reset($data));
+            } elseif ($data instanceof Traversable) {
+                $isOriginallyArrayed = true;
+                $schema = $this->container->getSchema($data[0]);
             } else {
                 $isOriginallyArrayed = false;
                 $schema = $this->container->getSchema($data);

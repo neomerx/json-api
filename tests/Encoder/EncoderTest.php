@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use ArrayIterator;
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Post;
@@ -549,4 +550,45 @@ EOL;
 
         return $post;
     }
+
+    /**
+     * Test encode Traversable collection of resource(s).
+     */
+    public function testEncodeTraversableObjectsWithAttributesOnly()
+    {
+        $author   = Author::instance(9, 'Dan', 'Gebhardt');
+        $endcoder = Encoder::instance([
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkRemove(Author::LINK_COMMENTS);
+                return $schema;
+            }
+        ], $this->encoderOptions);
+
+        $itemSet = new ArrayIterator([$author]);
+        $actual  = $endcoder->encode($itemSet);
+
+        $expected = <<<EOL
+        {
+            "data" : [
+                {
+                    "type"       : "people",
+                    "id"         : "9",
+                    "attributes" : {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
+                    "links" : {
+                        "self" : "http://example.com/people/9"
+                    }
+                }
+            ]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
 }
