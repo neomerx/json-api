@@ -131,7 +131,7 @@ class Parser implements ParserInterface
         } elseif ($this->isRefFrame()) {
             yield $this->createReplyForRef();
         } else {
-            if (is_array($data) === true) {
+            if ((is_array($data) === true) or ($data instanceof \Traversable)) {
                 $isOriginallyArrayed = true;
                 $schema = $this->container->getSchema($data[0]);
             } else {
