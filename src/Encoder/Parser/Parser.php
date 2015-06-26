@@ -129,7 +129,7 @@ class Parser implements ParserInterface
         if (empty($data) === true) {
             yield $this->createReplyForEmptyData($data);
         } else {
-            if (is_array($data) === true) {
+            if ((is_array($data) === true) or ($data instanceof \Traversable)) {
                 $isOriginallyArrayed = true;
                 $schema = $this->container->getSchema(reset($data));
             } else {
