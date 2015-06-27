@@ -24,6 +24,7 @@ use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\HandlerFactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -93,10 +94,14 @@ class Encoder implements EncoderInterface
         $meta = null,
         EncodingParametersInterface $parameters = null
     ) {
+        $dataAnalyzer  = $this->parserFactory->createAnalyzer($this->container);
+        list($isEmpty, , $schema) = $dataAnalyzer->analyze($data);
+
+        $parameters    = $this->getEncodingParameters($isEmpty, $schema, $parameters);
+
         $docWriter     = $this->documentFactory->createDocument();
-        $parameters    = $this->getEncodingParameters($data, $parameters);
         $parserManager = $this->parserFactory->createManager($parameters);
-        $parser        = $this->parserFactory->createParser($this->container, $parserManager);
+        $parser        = $this->parserFactory->createParser($dataAnalyzer, $parserManager);
         $interpreter   = $this->handlerFactory->createReplyInterpreter($docWriter, $parameters);
 
         $this->encoderOptions !== null && $this->encoderOptions->getUrlPrefix() !== null ?
@@ -208,19 +213,19 @@ class Encoder implements EncoderInterface
     }
 
     /**
-     * @param array|object|null                $data
+     * @param bool                             $isDataEmpty
+     * @param SchemaProviderInterface          $schema
      * @param EncodingParametersInterface|null $parameters
      *
      * @return EncodingParametersInterface
      */
-    private function getEncodingParameters($data, EncodingParametersInterface $parameters = null)
+    private function getEncodingParameters($isDataEmpty, SchemaProviderInterface $schema = null, $parameters = null)
     {
-        if (empty($data) === true && $parameters === null) {
+        if ($isDataEmpty === true && $parameters === null) {
             return $this->parametersFactory->createEncodingParameters();
         } elseif ($parameters !== null && $parameters->getIncludePaths() !== null) {
             return $parameters;
         } else {
-            $schema       = $this->container->getSchema(is_array($data) ? reset($data) : $data);
             $includePaths = $schema->getIncludePaths();
             $fieldSets    = $parameters === null ? null : $parameters->getFieldSets();
 

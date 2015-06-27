@@ -17,16 +17,17 @@
  */
 
 use \Iterator;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
 /**
  * The main purpose of the parser is to reach **every resource** that is targeted for inclusion and its
@@ -58,9 +59,9 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 class Parser implements ParserInterface
 {
     /**
-     * @var ContainerInterface
+     * @var DataAnalyzerInterface
      */
-    private $container;
+    private $dataAnalyzer;
 
     /**
      * @var ParserFactoryInterface
@@ -85,17 +86,17 @@ class Parser implements ParserInterface
     /**
      * @param ParserFactoryInterface      $parserFactory
      * @param StackFactoryInterface       $stackFactory
-     * @param ContainerInterface          $container
+     * @param DataAnalyzerInterface       $analyzer
      * @param ParserManagerInterface|null $manager
      */
     public function __construct(
         ParserFactoryInterface $parserFactory,
         StackFactoryInterface $stackFactory,
-        ContainerInterface $container,
+        DataAnalyzerInterface $analyzer,
         ParserManagerInterface $manager = null
     ) {
         $this->manager       = $manager;
-        $this->container     = $container;
+        $this->dataAnalyzer  = $analyzer;
         $this->stackFactory  = $stackFactory;
         $this->parserFactory = $parserFactory;
     }
@@ -124,25 +125,23 @@ class Parser implements ParserInterface
      */
     private function parseData($data)
     {
+        list($isEmpty, $isOriginallyArrayed, $schema, $traversableData) = $this->dataAnalyzer->analyze($data);
+        unset($data);
+
+        /** @var bool $isEmpty */
+        /** @var bool $isOriginallyArrayed */
+        /** @var SchemaProviderInterface $schema */
+
         $curFrame = $this->stack->end();
 
-        if (empty($data) === true) {
-            yield $this->createReplyForEmptyData($data);
+        if ($isEmpty === true) {
+            yield $this->createReplyForEmptyData($traversableData);
         } else {
-            if ((is_array($data) === true) or ($data instanceof \Traversable)) {
-                $isOriginallyArrayed = true;
-                $schema = $this->container->getSchema(reset($data));
-            } else {
-                $isOriginallyArrayed = false;
-                $schema = $this->container->getSchema($data);
-                $data   = [$data];
-            }
-
             // duplicated are allowed in data however they shouldn't be in includes
             $isDupAllowed = $curFrame->getLevel() < 2;
 
             $fieldSet = $this->getFieldSet($schema->getResourceType());
-            foreach ($data as $resource) {
+            foreach ($traversableData as $resource) {
                 $resourceObject = $schema->createResourceObject($resource, $isOriginallyArrayed, $fieldSet);
                 $isCircular     = $this->checkCircular($resourceObject);
 

@@ -85,8 +85,9 @@ class ParserTest extends BaseTestCase
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
         ];
-        $container    = (new SchemaFactory())->createContainer($schemas);
-        $this->parser = (new EncoderFactory())->createParser($container);
+        $container      = (new SchemaFactory())->createContainer($schemas);
+        $encoderFactory = new EncoderFactory();
+        $this->parser   = $encoderFactory->createParser($encoderFactory->createAnalyzer($container));
 
         $this->author   = Author::instance(9, 'Dan', 'Gebhardt');
         $this->comments = [
