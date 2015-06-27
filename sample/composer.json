@@ -12,10 +12,10 @@
         "classmap": [
             "models",
             "schemas"
-        ]
+        ],
+      "psr-4": {
+        "Neomerx\\JsonApi\\": "../src/"
+      }
     },
-    "minimum-stability": "dev",
-    "require": {
-        "neomerx/json-api": "~0.5.0"
-    }
+    "minimum-stability": "dev"
 }
