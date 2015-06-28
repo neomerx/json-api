@@ -21,14 +21,14 @@ use \Iterator;
 /**
  * @package Neomerx\JsonApi
  */
-interface ParserInterface
+interface DataAnalyzerInterface
 {
     /**
-     * Parse input data.
+     * Analyze input data.
      *
      * @param array|object|null|Iterator $data
      *
-     * @return Iterator ParserReplyInterface
+     * @return array [$isEmpty, $isCollection, $schema, $traversableData]
      */
-    public function parse($data);
+    public function analyze($data);
 }

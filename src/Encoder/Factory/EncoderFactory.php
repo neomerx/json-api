@@ -20,12 +20,14 @@ use \Neomerx\JsonApi\Encoder\Stack\Stack;
 use \Neomerx\JsonApi\Encoder\Parser\Parser;
 use \Neomerx\JsonApi\Encoder\Stack\StackFrame;
 use \Neomerx\JsonApi\Encoder\Parser\ParserReply;
+use \Neomerx\JsonApi\Encoder\Parser\DataAnalyzer;
 use \Neomerx\JsonApi\Encoder\Parser\ParserManager;
 use \Neomerx\JsonApi\Encoder\Parser\ParserEmptyReply;
 use \Neomerx\JsonApi\Encoder\Handlers\ReplyInterpreter;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
@@ -59,9 +61,9 @@ class EncoderFactory implements ParserFactoryInterface, StackFactoryInterface, H
     /**
      * @inheritdoc
      */
-    public function createParser(ContainerInterface $container, ParserManagerInterface $manager = null)
+    public function createParser(DataAnalyzerInterface $analyzer, ParserManagerInterface $manager = null)
     {
-        return new Parser($this, $this, $container, $manager);
+        return new Parser($this, $this, $analyzer, $manager);
     }
 
     /**
@@ -94,5 +96,13 @@ class EncoderFactory implements ParserFactoryInterface, StackFactoryInterface, H
     public function createReplyInterpreter(DocumentInterface $document, EncodingParametersInterface $parameters)
     {
         return new ReplyInterpreter($document, $parameters);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createAnalyzer(ContainerInterface $container)
+    {
+        return new DataAnalyzer($container);
     }
 }

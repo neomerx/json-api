@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \ArrayIterator;
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Post;
@@ -47,6 +48,18 @@ class EncoderTest extends BaseTestCase
         parent::setUp();
 
         $this->encoderOptions = new EncoderOptions(0, 'http://example.com');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testEncodeInvalidData()
+    {
+        $endcoder = Encoder::instance([
+            Author::class => AuthorSchema::class
+        ], $this->encoderOptions);
+
+        $endcoder->encode('input must be an object or array of objects or iterator over objects');
     }
 
     /**
@@ -521,6 +534,62 @@ EOL;
                     "self" : "http://example.com/posts/1"
                 }
             }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode Traversable (through Iterator) collection of resource(s).
+     */
+    public function testEncodeTraversableObjectsWithAttributesOnly()
+    {
+        $author   = Author::instance(9, 'Dan', 'Gebhardt');
+        $endcoder = Encoder::instance([
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                //$schema->linkRemove(Author::LINK_COMMENTS);
+                return $schema;
+            },
+            Comment::class => CommentSchema::class,
+        ], $this->encoderOptions);
+
+        // iterator here
+        $author->{Author::LINK_COMMENTS} = new ArrayIterator([
+            'comment1' => Comment::instance(5, 'First!'),
+            'comment2' => Comment::instance(12, 'I like XML better'),
+        ]);
+
+        // and iterator here
+        $itemSet = new ArrayIterator(['what_if_its_not_zero_based_array' => $author]);
+        $actual  = $endcoder->encode($itemSet);
+
+        $expected = <<<EOL
+        {
+            "data" : [
+                {
+                    "type"       : "people",
+                    "id"         : "9",
+                    "attributes" : {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
+                    "relationships" : {
+                        "comments" : {
+                            "data" : [
+                                { "type":"comments", "id":"5" },
+                                { "type":"comments", "id":"12" }
+                            ]
+                        }
+                    },
+                    "links" : {
+                        "self" : "http://example.com/people/9"
+                    }
+                }
+            ]
         }
 EOL;
         // remove formatting from 'expected'

@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Iterator;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
@@ -31,7 +32,7 @@ interface EncoderInterface
     /**
      * Encode input as JSON API string.
      *
-     * @param object|array                     $data     Data to encode.
+     * @param object|array|Iterator|null       $data     Data to encode.
      * @param array<string,LinkInterface>|null $links    Optional document links information (e.g. request URL, paging).
      * @param array|object|null                $meta     Optional document meta information.
      * @param EncodingParametersInterface|null $parameters Encoding parameters.

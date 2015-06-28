@@ -16,10 +16,13 @@
  * limitations under the License.
  */
 
+use \Iterator;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
@@ -93,10 +96,13 @@ class Encoder implements EncoderInterface
         $meta = null,
         EncodingParametersInterface $parameters = null
     ) {
+        $dataAnalyzer  = $this->parserFactory->createAnalyzer($this->container);
+
+        $parameters    = $this->getEncodingParameters($data, $dataAnalyzer, $parameters);
+
         $docWriter     = $this->documentFactory->createDocument();
-        $parameters    = $this->getEncodingParameters($data, $parameters);
         $parserManager = $this->parserFactory->createManager($parameters);
-        $parser        = $this->parserFactory->createParser($this->container, $parserManager);
+        $parser        = $this->parserFactory->createParser($dataAnalyzer, $parserManager);
         $interpreter   = $this->handlerFactory->createReplyInterpreter($docWriter, $parameters);
 
         $this->encoderOptions !== null && $this->encoderOptions->getUrlPrefix() !== null ?
@@ -208,19 +214,23 @@ class Encoder implements EncoderInterface
     }
 
     /**
-     * @param array|object|null                $data
+     * @param object|array|Iterator|null       $data
+     * @param DataAnalyzerInterface            $analyzer
      * @param EncodingParametersInterface|null $parameters
      *
      * @return EncodingParametersInterface
      */
-    private function getEncodingParameters($data, EncodingParametersInterface $parameters = null)
+    private function getEncodingParameters($data, DataAnalyzerInterface $analyzer, $parameters = null)
     {
-        if (empty($data) === true && $parameters === null) {
+        /** @var bool $isDataEmpty */
+        /** @var SchemaProviderInterface $schema */
+        list($isDataEmpty, , $schema) = $analyzer->analyze($data);
+
+        if ($isDataEmpty === true && $parameters === null) {
             return $this->parametersFactory->createEncodingParameters();
         } elseif ($parameters !== null && $parameters->getIncludePaths() !== null) {
             return $parameters;
         } else {
-            $schema       = $this->container->getSchema(is_array($data) ? reset($data) : $data);
             $includePaths = $schema->getIncludePaths();
             $fieldSets    = $parameters === null ? null : $parameters->getFieldSets();
 
