@@ -20,6 +20,7 @@ use \Iterator;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
@@ -193,24 +194,41 @@ class Encoder implements EncoderInterface
      */
     public static function instance(array $schemas, EncoderOptions $encodeOptions = null)
     {
-        /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
-        $schemaFactory = new \Neomerx\JsonApi\Schema\SchemaFactory();
-        $container     = $schemaFactory->createContainer($schemas);
-        /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
-        $documentFactory = new \Neomerx\JsonApi\Document\DocumentFactory();
-        /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
-        $encoderFactory = new \Neomerx\JsonApi\Encoder\Factory\EncoderFactory();
-        /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
-        $parameterFactory = new \Neomerx\JsonApi\Parameters\ParametersFactory();
+        /** @var SchemaFactoryInterface $schemaFactory */
+        /** @var DocumentFactoryInterface $documentFactory */
+        /** @var ParserFactoryInterface $parserFactory */
+        /** @var HandlerFactoryInterface $handlerFactory */
+        /** @var ParametersFactoryInterface $parameterFactory */
+        list($schemaFactory, $documentFactory, $parserFactory, $handlerFactory, $parameterFactory) =
+            static::getFactories();
+
+        $container = $schemaFactory->createContainer($schemas);
 
         return new self(
             $documentFactory,
-            $encoderFactory,
-            $encoderFactory,
+            $parserFactory,
+            $handlerFactory,
             $parameterFactory,
             $container,
             $encodeOptions
         );
+    }
+
+    /**
+     * @return array [$schemaFactory, $documentFactory, $parserFactory, $handlerFactory, $parameterFactory]
+     */
+    protected static function getFactories()
+    {
+        /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
+        $schemaFactory = new \Neomerx\JsonApi\Schema\SchemaFactory();
+        /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
+        $documentFactory = new \Neomerx\JsonApi\Document\DocumentFactory();
+        /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
+        $parserFactory = $handlerFactory = new \Neomerx\JsonApi\Encoder\Factory\EncoderFactory();
+        /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
+        $parameterFactory = new \Neomerx\JsonApi\Parameters\ParametersFactory();
+
+        return [$schemaFactory, $documentFactory, $parserFactory, $handlerFactory, $parameterFactory];
     }
 
     /**

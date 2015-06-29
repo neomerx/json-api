@@ -88,7 +88,7 @@ class Container implements ContainerInterface
      */
     public function getSchema($resource)
     {
-        $resourceType = get_class($resource);
+        $resourceType = $this->getResourceType($resource);
 
         if (isset($this->createdProviders[$resourceType])) {
             return $this->createdProviders[$resourceType];
@@ -104,5 +104,15 @@ class Container implements ContainerInterface
         }
 
         return $schema;
+    }
+
+    /**
+     * @param object $resource
+     *
+     * @return string
+     */
+    protected function getResourceType($resource)
+    {
+        return get_class($resource);
     }
 }
