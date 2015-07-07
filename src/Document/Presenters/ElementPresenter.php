@@ -70,7 +70,7 @@ class ElementPresenter
             $representation = [];
 
             if ($relation->isShowData() === true) {
-                $representation[Document::KEYWORD_LINKAGE_DATA][] = $value;
+                $representation[Document::KEYWORD_LINKAGE_DATA] = $value;
             }
 
             $representation += $this->getRelationRepresentation($parent, $relation);
@@ -113,43 +113,27 @@ class ElementPresenter
                 // ... add the first linkage
                 $representation = [];
                 if ($linkage !== null) {
-                    $representation[Document::KEYWORD_LINKAGE_DATA][] = $linkage;
+                    if ($resource->isInArray() === true) {
+                        // original data in array
+                        $representation[Document::KEYWORD_LINKAGE_DATA][] = $linkage;
+                    } else {
+                        // original data not in array (just object)
+                        $representation[Document::KEYWORD_LINKAGE_DATA] = $linkage;
+                    }
                 }
                 $representation += $this->getRelationRepresentation($parent, $relation);
 
                 $parentAlias[Document::KEYWORD_RELATIONSHIPS][$name] = $representation;
             } elseif ($alreadyGotRelation === true && $linkage !== null) {
+                assert(
+                    '$resource->isInArray() === true',
+                    "Data in '$name' relationship are marked as not arrayed however " .
+                    'you try to add multiple data instances'
+                );
                 // ... or add another linkage
                 $parentAlias[Document::KEYWORD_RELATIONSHIPS][$name][Document::KEYWORD_LINKAGE_DATA][] = $linkage;
             }
         }
-    }
-
-    /**
-     * Correct empty or single relationships.
-     *
-     * @param array $resource
-     *
-     * @return array
-     */
-    public function correctRelationships(array $resource)
-    {
-        if (empty($resource[Document::KEYWORD_RELATIONSHIPS]) === false) {
-            foreach ($resource[Document::KEYWORD_RELATIONSHIPS] as &$relation) {
-                if (isset($relation[Document::KEYWORD_LINKAGE_DATA]) === true &&
-                    empty($relation[Document::KEYWORD_LINKAGE_DATA]) === false &&
-                    count($relation[Document::KEYWORD_LINKAGE_DATA]) === 1
-                ) {
-                    $tmp = $relation[Document::KEYWORD_LINKAGE_DATA][0];
-                    unset($relation[Document::KEYWORD_LINKAGE_DATA][0]);
-                    $relation[Document::KEYWORD_LINKAGE_DATA] = $tmp;
-                }
-            }
-        } else {
-            unset($resource[Document::KEYWORD_RELATIONSHIPS]);
-        }
-
-        return $resource;
     }
 
     /**

@@ -113,10 +113,10 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
                 },
                 "relationships" : {
                     "posts" : {
-                        "data" : {
+                        "data" : [{
                             "type" : "posts",
                             "id" : "1"
-                        }
+                        }]
                     }
                 },
                 "links" : {
@@ -206,10 +206,10 @@ EOL;
                 "id"    : "2",
                 "relationships" : {
                     "posts" : {
-                        "data" : {
+                        "data" : [{
                             "type" : "posts",
                             "id" : "1"
-                        }
+                        }]
                     }
                 },
                 "links" : {

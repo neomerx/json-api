@@ -38,7 +38,7 @@ class Post extends stdClass
      *
      * @return Post
      */
-    public static function instance($identity, $title, $body, Author $author, array $comments)
+    public static function instance($identity, $title, $body, Author $author = null, array $comments = [])
     {
         $post = new self();
 

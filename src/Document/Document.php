@@ -241,23 +241,39 @@ class Document implements DocumentInterface
         $foundInIncluded = isset($this->bufferForIncluded[$type][$idx]);
 
         if ($foundInData === true) {
-            $representation = $this->presenter->correctRelationships($this->bufferForData[$type][$idx]);
-            $relShipsMeta   = $resource->getRelationshipsPrimaryMeta();
-            if (empty($relShipsMeta) === false && isset($representation[self::KEYWORD_RELATIONSHIPS]) === true) {
-                $representation[self::KEYWORD_RELATIONSHIPS][self::KEYWORD_META] = $relShipsMeta;
-            }
-            $this->data[]   = $representation;
+            $representation = $this->bufferForData[$type][$idx];
             unset($this->bufferForData[$type][$idx]);
+
+            if (empty($representation[Document::KEYWORD_RELATIONSHIPS]) === true) {
+                // if no relationships have been added remove empty placeholder
+                unset($representation[Document::KEYWORD_RELATIONSHIPS]);
+            } else {
+                // relationship might have meta
+                $relShipsMeta = $resource->getRelationshipsPrimaryMeta();
+                if (empty($relShipsMeta) === false) {
+                    $representation[self::KEYWORD_RELATIONSHIPS][self::KEYWORD_META] = $relShipsMeta;
+                }
+            }
+
+            $this->data[] = $representation;
         }
 
         if ($foundInIncluded === true) {
-            $representation   = $this->presenter->correctRelationships($this->bufferForIncluded[$type][$idx]);
-            $relShipsMeta   = $resource->getRelationshipsInclusionMeta();
-            if (empty($relShipsMeta) === false && isset($representation[self::KEYWORD_RELATIONSHIPS]) === true) {
-                $representation[self::KEYWORD_RELATIONSHIPS][self::KEYWORD_META] = $relShipsMeta;
-            }
-            $this->included[] = $representation;
+            $representation = $this->bufferForIncluded[$type][$idx];
             unset($this->bufferForIncluded[$type][$idx]);
+
+            if (empty($representation[Document::KEYWORD_RELATIONSHIPS]) === true) {
+                // if no relationships have been added remove empty placeholder
+                unset($representation[Document::KEYWORD_RELATIONSHIPS]);
+            } else {
+                // relationship might have meta
+                $relShipsMeta = $resource->getRelationshipsInclusionMeta();
+                if (empty($relShipsMeta) === false) {
+                    $representation[self::KEYWORD_RELATIONSHIPS][self::KEYWORD_META] = $relShipsMeta;
+                }
+            }
+
+            $this->included[] = $representation;
         }
     }
 

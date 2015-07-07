@@ -365,7 +365,7 @@ EOL;
             false, // show relationships in 'included'
             ['this meta' => 'wont be shown'], // meta when resource within 'included'
             ['some' => 'comment meta'] // meta when resource is in relationship
-        ), new stdClass(), false);
+        ), new stdClass(), true);
 
         $link = $this->schemaFactory->createRelationshipObject(
             'comments-relationship',

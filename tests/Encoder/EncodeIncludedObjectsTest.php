@@ -182,10 +182,10 @@ EOL;
                 "id"    : "2",
                 "relationships" : {
                     "posts" : {
-                        "data" : {
+                        "data" : [{
                             "type" : "posts",
                             "id" : "1"
-                        }
+                        }]
                     }
                 },
                 "links" : {
@@ -257,10 +257,10 @@ EOL;
                 },
                 "relationships" : {
                     "posts" : {
-                        "data" : {
+                        "data" : [{
                             "type" : "posts",
                             "id" : "1"
-                        }
+                        }]
                     }
                 },
                 "links" : {
@@ -314,10 +314,10 @@ EOL;
                 },
                 "relationships" : {
                     "posts" : {
-                        "data" : {
+                        "data" : [{
                             "type" : "posts",
                             "id" : "1"
-                        }
+                        }]
                     }
                 },
                 "links" : {
@@ -373,10 +373,10 @@ EOL;
                 },
                 "relationships" : {
                     "posts" : {
-                        "data" : {
+                        "data" : [{
                             "type" : "posts",
                             "id" : "1"
-                        }
+                        }]
                     }
                 },
                 "links" : {
@@ -488,10 +488,10 @@ EOL;
                 },
                 "relationships" : {
                     "posts" : {
-                        "data" : {
+                        "data" : [{
                             "type" : "posts",
                             "id" : "1"
-                        }
+                        }]
                     }
                 },
                 "links" : {
@@ -505,10 +505,10 @@ EOL;
                 },
                 "relationships" : {
                     "posts" : {
-                        "data" : {
+                        "data" : [{
                             "type" : "posts",
                             "id" : "1"
-                        }
+                        }]
                     }
                 },
                 "links" : {

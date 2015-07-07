@@ -599,6 +599,50 @@ EOL;
     }
 
     /**
+     * Test encode resource with single item array relationship.
+     */
+    public function testEncodeRelationshipWithSingleItem()
+    {
+        $post = Post::instance(1, 'Title', 'Body', null, [Comment::instance(5, 'First!')]);
+
+        $actual = Encoder::instance([
+            Comment::class => CommentSchema::class,
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->linkRemove(Post::LINK_AUTHOR);
+                return $schema;
+            },
+        ], $this->encoderOptions)->encode($post);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"  : "posts",
+                "id"    : "1",
+                "attributes" : {
+                    "title" : "Title",
+                    "body"  : "Body"
+                },
+                "relationships" : {
+                    "comments" : {
+                        "data" : [
+                            { "type":"comments", "id":"5" }
+                        ]
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/posts/1"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * @return Post
      */
     private function getStandardPost()
