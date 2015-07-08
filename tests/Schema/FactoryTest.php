@@ -18,8 +18,8 @@
 
 use \Mockery;
 use \stdClass;
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Schema\SchemaFactory;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
@@ -40,7 +40,7 @@ class FactoryTest extends BaseTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->factory = new SchemaFactory();
+        $this->factory = new Factory();
     }
 
     /**

@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Schema\SchemaFactory;
 use \Neomerx\Tests\JsonApi\Data\DummySchema;
 
 /**
@@ -37,7 +37,7 @@ class SchemaTest extends BaseTestCase
     {
         parent::setUp();
 
-        $schemaFactory = new SchemaFactory();
+        $schemaFactory = new Factory();
         $this->schema  = new DummySchema($schemaFactory, $schemaFactory->createContainer());
     }
 

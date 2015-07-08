@@ -17,8 +17,8 @@
  */
 
 use \Neomerx\JsonApi\Schema\Link;
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Document\DocumentFactory;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
 
@@ -39,7 +39,7 @@ class FactoryTest extends BaseTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->factory  = new DocumentFactory();
+        $this->factory = new Factory();
     }
 
     /**

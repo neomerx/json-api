@@ -18,13 +18,12 @@
 
 use \Neomerx\Tests\JsonApi\Data\Post;
 use \Neomerx\Tests\JsonApi\Data\Author;
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Schema\SchemaFactory;
 use \Neomerx\Tests\JsonApi\Data\PostSchema;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
-use \Neomerx\JsonApi\Encoder\Factory\EncoderFactory;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
 
@@ -85,9 +84,9 @@ class ParserTest extends BaseTestCase
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
         ];
-        $container      = (new SchemaFactory())->createContainer($schemas);
-        $encoderFactory = new EncoderFactory();
-        $this->parser   = $encoderFactory->createParser($encoderFactory->createAnalyzer($container));
+        $factory        = new Factory();
+        $container      = $factory->createContainer($schemas);
+        $this->parser   = $factory->createParser($factory->createAnalyzer($container));
 
         $this->author   = Author::instance(9, 'Dan', 'Gebhardt');
         $this->comments = [

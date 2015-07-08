@@ -19,9 +19,8 @@
 use \Mockery;
 use \stdClass;
 use \Neomerx\JsonApi\Schema\Link;
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Schema\SchemaFactory;
-use \Neomerx\JsonApi\Document\DocumentFactory;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
@@ -54,9 +53,10 @@ class DocumentTest extends BaseTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->schemaFactory   = new SchemaFactory();
-        $this->documentFactory = new DocumentFactory();
-        $this->document        = $this->documentFactory->createDocument();
+
+        $this->documentFactory = $this->schemaFactory = new Factory();
+
+        $this->document = $this->documentFactory->createDocument();
     }
 
     /**

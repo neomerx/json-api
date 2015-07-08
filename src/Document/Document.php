@@ -244,9 +244,9 @@ class Document implements DocumentInterface
             $representation = $this->bufferForData[$type][$idx];
             unset($this->bufferForData[$type][$idx]);
 
-            if (empty($representation[Document::KEYWORD_RELATIONSHIPS]) === true) {
+            if (empty($representation[self::KEYWORD_RELATIONSHIPS]) === true) {
                 // if no relationships have been added remove empty placeholder
-                unset($representation[Document::KEYWORD_RELATIONSHIPS]);
+                unset($representation[self::KEYWORD_RELATIONSHIPS]);
             } else {
                 // relationship might have meta
                 $relShipsMeta = $resource->getRelationshipsPrimaryMeta();
@@ -262,9 +262,9 @@ class Document implements DocumentInterface
             $representation = $this->bufferForIncluded[$type][$idx];
             unset($this->bufferForIncluded[$type][$idx]);
 
-            if (empty($representation[Document::KEYWORD_RELATIONSHIPS]) === true) {
+            if (empty($representation[self::KEYWORD_RELATIONSHIPS]) === true) {
                 // if no relationships have been added remove empty placeholder
-                unset($representation[Document::KEYWORD_RELATIONSHIPS]);
+                unset($representation[self::KEYWORD_RELATIONSHIPS]);
             } else {
                 // relationship might have meta
                 $relShipsMeta = $resource->getRelationshipsInclusionMeta();

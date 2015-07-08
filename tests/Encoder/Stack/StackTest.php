@@ -17,8 +17,8 @@
  */
 
 use \Mockery;
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Encoder\Factory\EncoderFactory;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
@@ -50,7 +50,7 @@ class StackTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->stack              = (new EncoderFactory())->createStack();
+        $this->stack              = (new Factory())->createStack();
         $this->mockLinkObject     = Mockery::mock(RelationshipObjectInterface::class);
         $this->mockResourceObject = Mockery::mock(ResourceObjectInterface::class);
 

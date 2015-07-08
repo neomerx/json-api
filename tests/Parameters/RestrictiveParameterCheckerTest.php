@@ -18,10 +18,10 @@
 
 use \Mockery;
 use \Mockery\MockInterface;
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Codec\CodecMatcher;
 use \Neomerx\JsonApi\Parameters\Headers\MediaType;
-use \Neomerx\JsonApi\Parameters\ParametersFactory;
 use \Neomerx\JsonApi\Parameters\RestrictiveParameterChecker;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
@@ -76,7 +76,7 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->parser      = (new ParametersFactory())->createParametersParser();
+        $this->parser      = (new Factory())->createParametersParser();
         $this->mockRequest = Mockery::mock(CurrentRequestInterface::class);
         $this->mockThrower = Mockery::mock(ExceptionThrowerInterface::class);
     }

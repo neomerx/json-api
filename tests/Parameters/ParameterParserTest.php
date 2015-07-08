@@ -18,8 +18,8 @@
 
 use \Mockery;
 use \Mockery\MockInterface;
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Parameters\ParametersFactory;
 use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
@@ -55,7 +55,7 @@ class ParameterParserTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->parser      = (new ParametersFactory())->createParametersParser();
+        $this->parser      = (new Factory())->createParametersParser();
         $this->mockRequest = Mockery::mock(CurrentRequestInterface::class);
         $this->mockThrower = Mockery::mock(ExceptionThrowerInterface::class);
     }

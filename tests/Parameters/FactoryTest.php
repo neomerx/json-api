@@ -17,9 +17,9 @@
  */
 
 use \Mockery;
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Parameters\Headers\MediaType;
-use \Neomerx\JsonApi\Parameters\ParametersFactory;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
@@ -41,7 +41,7 @@ class FactoryTest extends BaseTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->factory  = new ParametersFactory();
+        $this->factory = new Factory();
     }
 
     /**
