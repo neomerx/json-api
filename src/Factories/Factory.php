@@ -103,7 +103,7 @@ class Factory implements FactoryInterface
      */
     public function createParser(DataAnalyzerInterface $analyzer, ParserManagerInterface $manager = null)
     {
-        return new Parser($this, $this, $analyzer, $manager);
+        return new Parser($this, $this, $this, $analyzer, $manager);
     }
 
     /**
@@ -254,9 +254,9 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createRelationshipObject($name, $data, $links, $meta, $isShowData)
+    public function createRelationshipObject($name, $data, $links, $meta, $isShowData, $isRoot)
     {
-        return new RelationshipObject($name, $data, $links, $meta, $isShowData);
+        return new RelationshipObject($name, $data, $links, $meta, $isShowData, $isRoot);
     }
 
     /**

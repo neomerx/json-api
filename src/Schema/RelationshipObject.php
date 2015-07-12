@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Closure;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
@@ -49,21 +50,35 @@ class RelationshipObject implements RelationshipObjectInterface
     private $isShowData;
 
     /**
+     * @var bool
+     */
+    private $isRoot;
+
+    /**
+     * @var bool
+     */
+    private $isDataEvaluated = false;
+
+    /**
      * @param string                                                        $name
      * @param object|array|null                                             $data
      * @param array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface> $links
      * @param mixed                                                         $meta
      * @param bool                                                          $isShowData
+     * @param bool                                                          $isRoot
      */
     public function __construct(
         $name,
         $data,
         $links,
         $meta,
-        $isShowData
+        $isShowData,
+        $isRoot
     ) {
         assert(
-            'is_string($name) && (is_object($data) || is_array($data) || is_null($data)) && is_array($links)'
+            '(($isRoot === false && is_string($name) === true) || ($isRoot === true && $name === null)) && '.
+            '(is_object($data) || is_array($data) || is_null($data)) && '.
+            'is_array($links) && is_bool($isShowData) && is_bool($isRoot)'
         );
 
         $this->name       = $name;
@@ -71,6 +86,7 @@ class RelationshipObject implements RelationshipObjectInterface
         $this->links      = $links;
         $this->meta       = $meta;
         $this->isShowData = $isShowData;
+        $this->isRoot     = $isRoot;
     }
 
     /**
@@ -86,6 +102,16 @@ class RelationshipObject implements RelationshipObjectInterface
      */
     public function getData()
     {
+        if ($this->isDataEvaluated === false) {
+            $this->isDataEvaluated = true;
+
+            if ($this->data instanceof Closure) {
+                /** @var Closure $data */
+                $data = $this->data;
+                $this->data = $data();
+            }
+        }
+
         return $this->data;
     }
 
@@ -111,5 +137,13 @@ class RelationshipObject implements RelationshipObjectInterface
     public function isShowData()
     {
         return $this->isShowData;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isRoot()
+    {
+        return $this->isRoot;
     }
 }

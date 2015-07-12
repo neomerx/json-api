@@ -543,6 +543,60 @@ EOL;
     }
 
     /**
+     * Test closures are not executed in hidden relationships.
+     */
+    public function testDataNotLoadedInHiddenRelationships()
+    {
+        $throwExClosure = function () {
+            throw new \Exception();
+        };
+
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => function ($factory, $container) use ($throwExClosure) {
+                $schema = new PostSchema($factory, $container);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, $throwExClosure);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_DATA, false);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_RELATED, true);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::LINKS, ['foo' => new Link('/your/link', null, true)]);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, $throwExClosure);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_DATA, false);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::LINKS, ['boo' => new Link('another/link')]);
+                return $schema;
+            },
+        ], $this->encoderOptions)->encode($this->getStandardPost());
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"  : "posts",
+                "id"    : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
+                "relationships" : {
+                    "author" : {
+                        "links" : { "foo" : "/your/link", "related" : "http://example.com/posts/1/author" }
+                    },
+                    "comments" : {
+                        "links" : { "boo" : "http://example.com/posts/1/another/link" }
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/posts/1"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * Test encode Traversable (through Iterator) collection of resource(s).
      */
     public function testEncodeTraversableObjectsWithAttributesOnly()

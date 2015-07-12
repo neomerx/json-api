@@ -171,6 +171,7 @@ EOL;
             // include only these attributes and links
             [
                 'comments' => [Comment::ATTRIBUTE_BODY, Comment::LINK_AUTHOR],
+                'posts'    => [Post::LINK_COMMENTS],
                 'sites'    => [Site::LINK_POSTS],
             ]
         ));
@@ -222,7 +223,15 @@ EOL;
                 }
             }, {
                 "type" : "posts",
-                    "id":"1"
+                "id"   : "1",
+                "relationships" : {
+                    "comments" : {
+                        "data" : [
+                            { "type" : "comments", "id" : "5"  },
+                            { "type" : "comments", "id" : "12" }
+                        ]
+                    }
+                }
             }]
         }
 EOL;

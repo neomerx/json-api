@@ -17,6 +17,7 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 
 /**
@@ -37,6 +38,19 @@ interface ParserManagerInterface
         ResourceObjectInterface $resource,
         $isCircular,
         StackReadOnlyInterface $stack
+    );
+
+    /**
+     * Return true if relationship is in input field set and should be included in output.
+     *
+     * @param ResourceObjectInterface     $resource
+     * @param RelationshipObjectInterface $relationship
+     *
+     * @return bool
+     */
+    public function isShouldRelationshipBeInOutput(
+        ResourceObjectInterface $resource,
+        RelationshipObjectInterface $relationship
     );
 
     /**

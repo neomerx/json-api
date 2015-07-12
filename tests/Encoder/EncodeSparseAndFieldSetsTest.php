@@ -195,6 +195,7 @@ EOL;
             // include only these attributes and links
             [
                 'people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME],
+                'posts'  => [Post::LINK_COMMENTS, Post::LINK_AUTHOR],
                 'sites'  => [Site::LINK_POSTS],
             ]
         ));
@@ -237,8 +238,64 @@ EOL;
                 }
             }, {
                 "type" : "posts",
-                "id"   : "1"
+                "id"   : "1",
+                "relationships" : {
+                    "author" : {
+                        "data" : { "type" : "people", "id" : "9" }
+                    },
+                    "comments" : {
+                        "data" : [
+                            { "type" : "comments", "id" : "5" },
+                            { "type" : "comments", "id" : "12" }
+                        ]
+                    }
+                }
             }]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test closures are not executed in lazy relationships.
+     */
+    public function testDataNotLoadedInLazyRelationships()
+    {
+        $throwExClosure = function () {
+            throw new \Exception();
+        };
+
+        $actual = Encoder::instance([
+            Author::class  => function ($factory, $container) use ($throwExClosure) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::DATA, $throwExClosure);
+                return $schema;
+            },
+        ], $this->encoderOptions)->encode($this->author, null, null, new EncodingParameters(
+            // do not include any relationships
+            [],
+            // include only these attributes (thus relationship that throws exception should not be invoked)
+            [
+                'people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME],
+            ]
+        ));
+
+        $expected = <<<EOL
+        {
+            "data":{
+                "type" : "people",
+                "id"   : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "links":{
+                    "self":"http://example.com/people/9"
+                }
+            }
         }
 EOL;
         // remove formatting from 'expected'

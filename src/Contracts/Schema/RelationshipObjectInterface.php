@@ -22,9 +22,9 @@
 interface RelationshipObjectInterface
 {
     /**
-     * Get link name.
+     * Get link name (null for root).
      *
-     * @return string
+     * @return string|null
      */
     public function getName();
 
@@ -55,4 +55,11 @@ interface RelationshipObjectInterface
      * @return bool
      */
     public function isShowData();
+
+    /**
+     * If relationship is from root (non existing root element).
+     *
+     * @return bool
+     */
+    public function isRoot();
 }

@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \Closure;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
@@ -225,14 +224,14 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function getRelationshipObjectIterator($resource)
     {
         foreach ($this->getRelationships($resource) as $name => $desc) {
-            $data          = $this->readData($desc);
+            $data          = $this->getValue($desc, self::DATA);
             $meta          = $this->getValue($desc, self::META, null);
             $isShowSelf    = ($this->getValue($desc, self::SHOW_SELF, false) === true);
             $isShowRelated = ($this->getValue($desc, self::SHOW_RELATED, false) === true);
             $isShowData    = ($this->getValue($desc, self::SHOW_DATA, true) === true);
             $links         = $this->readLinks($name, $desc, $isShowSelf, $isShowRelated);
 
-            yield $this->factory->createRelationshipObject($name, $data, $links, $meta, $isShowData);
+            yield $this->factory->createRelationshipObject($name, $data, $links, $meta, $isShowData, false);
         }
     }
 
@@ -275,19 +274,5 @@ abstract class SchemaProvider implements SchemaProviderInterface
     private function getValue(array $array, $key, $default = null)
     {
         return (isset($array[$key]) === true ? $array[$key] : $default);
-    }
-
-    /**
-     * @param array $description
-     *
-     * @return mixed
-     */
-    private function readData(array $description)
-    {
-        $data = $this->getValue($description, self::DATA);
-        if ($data instanceof Closure) {
-            $data = $data();
-        }
-        return $data;
     }
 }

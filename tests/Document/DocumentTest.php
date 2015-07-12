@@ -252,7 +252,8 @@ EOL;
                 LinkInterface::FIRST   => new Link('/first', null, true),
             ],
             ['some' => 'relationship meta'],
-            true
+            true,
+            false // is root
         );
         $this->document->addRelationshipToData($parent, $link, $resource);
         $this->document->setResourceCompleted($parent);
@@ -313,9 +314,10 @@ EOL;
         $link = $this->schemaFactory->createRelationshipObject(
             'comments-relationship',
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
-            [], //    links
-            null, //  relationship meta
-            true  //  show data
+            [], //   links
+            null, // relationship meta
+            true, // show data
+            false // is root
         );
         $this->document->addRelationshipToData($parent, $link, $resource);
         $this->document->setResourceCompleted($parent);
@@ -370,9 +372,10 @@ EOL;
         $link = $this->schemaFactory->createRelationshipObject(
             'comments-relationship',
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
-            [], //    links
-            null, //  relationship meta
-            true   // show data
+            [], //   links
+            null, // relationship meta
+            true, // show data
+            false // is root
         );
         $this->document->addRelationshipToData($parent, $link, $resource);
         $this->document->addRelationshipToData($parent, $link, $resource);
@@ -433,7 +436,8 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             ['some' => 'relationship meta'], //  relationship meta
-            false //  show data
+            false, // show data
+            false //  is root
         );
 
         $this->document->addRelationshipToData($parent, $link, $resource);
@@ -478,7 +482,8 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], //    links
             ['some' => 'relationship meta'], //  relationship meta
-            true   // show data
+            true, // show data
+            false // is root
         );
 
         $this->document->addEmptyRelationshipToData($parent, $link);
@@ -522,9 +527,10 @@ EOL;
         $link = $this->schemaFactory->createRelationshipObject(
             'relationship-name',
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
-            [], //    links
-            null, //  relationship meta
-            true   // show data
+            [], //   links
+            null, // relationship meta
+            true, // show data
+            false // is root
         );
 
         $this->document->addNullRelationshipToData($parent, $link);
@@ -665,7 +671,8 @@ EOL;
                 LinkInterface::RELATED => new Link('relatedSubUrl'),
             ],
             ['some' => 'relationship meta'], //  relationship meta
-            true  //  show data
+            true, // show data
+            false // is root
         );
 
         $this->document->addRelationshipToIncluded($parent, $link, $resource);
@@ -738,7 +745,8 @@ EOL;
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], // links
             null, //  relationship meta
-            true  //  show data
+            true, //  show data
+            false // is root
         );
 
         $this->document->addRelationshipToIncluded($parent, $link, $resource);
@@ -791,9 +799,10 @@ EOL;
         $link = $this->schemaFactory->createRelationshipObject(
             'comments-relationship',
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
-            [], //    links
-            null, //  relationship meta
-            true   // show data
+            [], //   links
+            null, // relationship meta
+            true, // show data
+            false // is root
         );
 
         $this->document->addEmptyRelationshipToIncluded($parent, $link);
@@ -847,8 +856,9 @@ EOL;
             'comments-relationship',
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
             [], // links
-            null, //  relationship meta
-            true  //  show data
+            null, // relationship meta
+            true, // show data
+            false // is root
         );
 
         $this->document->addNullRelationshipToIncluded($parent, $link);
@@ -1015,9 +1025,10 @@ EOL;
         $link = $this->schemaFactory->createRelationshipObject(
             'relationship-name',
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
-            [], //    links
-            null, //  relationship meta
-            true   // show data
+            [], //   links
+            null, // relationship meta
+            true, // show data
+            false // is root
         );
 
         $this->document->addNullRelationshipToData($parent, $link);
@@ -1069,9 +1080,10 @@ EOL;
         $link = $this->schemaFactory->createRelationshipObject(
             'relationship-name',
             new stdClass(), // in reality it will be a Comment class instance where $resource properties were taken from
-            [], //    links
-            null, //  relationship meta
-            true   // show data
+            [], //   links
+            null, // relationship meta
+            true, // show data
+            false // is root
         );
 
         $this->document->addNullRelationshipToIncluded($parent, $link);

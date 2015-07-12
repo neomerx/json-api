@@ -16,18 +16,19 @@
  * limitations under the License.
  */
 
-use \Iterator;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
-use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use Iterator;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
+use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
 /**
  * The main purpose of the parser is to reach **every resource** that is targeted for inclusion and its
@@ -74,6 +75,11 @@ class Parser implements ParserInterface
     private $stackFactory;
 
     /**
+     * @var SchemaFactoryInterface
+     */
+    private $schemaFactory;
+
+    /**
      * @var StackInterface
      */
     private $stack;
@@ -86,12 +92,14 @@ class Parser implements ParserInterface
     /**
      * @param ParserFactoryInterface      $parserFactory
      * @param StackFactoryInterface       $stackFactory
+     * @param SchemaFactoryInterface      $schemaFactory
      * @param DataAnalyzerInterface       $analyzer
      * @param ParserManagerInterface|null $manager
      */
     public function __construct(
         ParserFactoryInterface $parserFactory,
         StackFactoryInterface $stackFactory,
+        SchemaFactoryInterface $schemaFactory,
         DataAnalyzerInterface $analyzer,
         ParserManagerInterface $manager = null
     ) {
@@ -99,6 +107,7 @@ class Parser implements ParserInterface
         $this->dataAnalyzer  = $analyzer;
         $this->stackFactory  = $stackFactory;
         $this->parserFactory = $parserFactory;
+        $this->schemaFactory = $schemaFactory;
     }
 
     /**
@@ -109,9 +118,12 @@ class Parser implements ParserInterface
         assert('is_array($data) || is_object($data) || is_null($data)');
 
         $this->stack = $this->stackFactory->createStack();
-        $this->stack->push();
+        $rootFrame   = $this->stack->push();
+        $rootFrame->setRelationship(
+            $this->schemaFactory->createRelationshipObject(null, $data, [], null, true, true)
+        );
 
-        foreach ($this->parseData($data) as $parseReply) {
+        foreach ($this->parseData() as $parseReply) {
             yield $parseReply;
         }
 
@@ -119,20 +131,19 @@ class Parser implements ParserInterface
     }
 
     /**
-     * @param array|object|null $data
-     *
      * @return Iterator
      */
-    private function parseData($data)
+    private function parseData()
     {
+        $curFrame = $this->stack->end();
+
+        $data = $curFrame->getRelationship()->isShowData() === true ? $curFrame->getRelationship()->getData() : null;
         list($isEmpty, $isOriginallyArrayed, $schema, $traversableData) = $this->dataAnalyzer->analyze($data);
         unset($data);
 
         /** @var bool $isEmpty */
         /** @var bool $isOriginallyArrayed */
         /** @var SchemaProviderInterface $schema */
-
-        $curFrame = $this->stack->end();
 
         if ($isEmpty === true) {
             yield $this->createReplyForEmptyData($traversableData);
@@ -159,8 +170,10 @@ class Parser implements ParserInterface
                     $nextFrame = $this->stack->push();
                     $nextFrame->setRelationship($relationship);
                     try {
-                        foreach ($this->parseData($relationship->getData()) as $parseResult) {
-                            yield $parseResult;
+                        if ($this->isShouldRelationshipBeInOutput($resourceObject, $relationship) === true) {
+                            foreach ($this->parseData() as $parseResult) {
+                                yield $parseResult;
+                            }
                         }
                     } finally {
                         $this->stack->pop();
@@ -213,6 +226,20 @@ class Parser implements ParserInterface
     {
         return $this->manager === null ? true :
             $this->manager->isShouldParseRelationships($resource, $isCircular, $this->stack);
+    }
+
+    /**
+     * @param ResourceObjectInterface     $resource
+     * @param RelationshipObjectInterface $relationship
+     *
+     * @return bool
+     */
+    private function isShouldRelationshipBeInOutput(
+        ResourceObjectInterface $resource,
+        RelationshipObjectInterface $relationship
+    ) {
+        return $this->manager === null ? true :
+            $this->manager->isShouldRelationshipBeInOutput($resource, $relationship);
     }
 
     /**

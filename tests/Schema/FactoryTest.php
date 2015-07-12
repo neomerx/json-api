@@ -82,7 +82,8 @@ class FactoryTest extends BaseTestCase
             $data  = new stdClass(),
             $links = [LinkInterface::SELF => $this->factory->createLink('selfSubUrl')],
             $meta  = ['some' => 'meta'],
-            $isShowData = true
+            $isShowData = true,
+            $isRoot = false
         ));
 
         $this->assertEquals($name, $relationship->getName());
@@ -90,5 +91,6 @@ class FactoryTest extends BaseTestCase
         $this->assertEquals($links, $relationship->getLinks());
         $this->assertEquals($meta, $relationship->getMeta());
         $this->assertEquals($isShowData, $relationship->isShowData());
+        $this->assertEquals($isRoot, $relationship->isRoot());
     }
 }

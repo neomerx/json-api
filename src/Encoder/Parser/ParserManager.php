@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
@@ -32,11 +33,17 @@ class ParserManager implements ParserManagerInterface
     private $parameters;
 
     /**
+     * @var array
+     */
+    private $fieldSetCache;
+
+    /**
      * @param EncodingParametersInterface $parameters
      */
     public function __construct(EncodingParametersInterface $parameters)
     {
-        $this->parameters = $parameters;
+        $this->fieldSetCache = [];
+        $this->parameters    = $parameters;
     }
 
     /**
@@ -55,10 +62,29 @@ class ParserManager implements ParserManagerInterface
     /**
      * @inheritdoc
      */
+    public function isShouldRelationshipBeInOutput(
+        ResourceObjectInterface $resource,
+        RelationshipObjectInterface $relationship
+    ) {
+        $resourceType     = $resource->getType();
+        $resourceFieldSet = $this->getFieldSet($resourceType);
+
+        return $resourceFieldSet === null ? true : array_key_exists($relationship->getName(), $resourceFieldSet);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getFieldSet($type)
     {
-        $fieldSet = $this->parameters->getFieldSet($type);
-        return $fieldSet === null ? null : array_flip(array_values($fieldSet));
+        settype($type, 'string');
+
+        if (array_key_exists($type, $this->fieldSetCache) === false) {
+            $fieldSet = $this->parameters->getFieldSet($type);
+            $this->fieldSetCache[$type] = $fieldSet === null ? null : array_flip(array_values($fieldSet));
+        }
+
+        return $this->fieldSetCache[$type];
     }
 
     /**
