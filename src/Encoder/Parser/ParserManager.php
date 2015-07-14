@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
@@ -30,7 +30,7 @@ class ParserManager implements ParserManagerInterface
     /**
      * @var EncodingParametersInterface
      */
-    private $parameters;
+    protected $parameters;
 
     /**
      * @var array
@@ -85,6 +85,14 @@ class ParserManager implements ParserManagerInterface
         }
 
         return $this->fieldSetCache[$type];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasExactPathMatch($path)
+    {
+        return $this->parameters->hasExactPathMatch($path);
     }
 
     /**

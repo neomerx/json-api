@@ -16,19 +16,19 @@
  * limitations under the License.
  */
 
-use Iterator;
-use Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
-use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
-use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
-use Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
+use \Iterator;
+use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
+use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 
 /**
  * The main purpose of the parser is to reach **every resource** that is targeted for inclusion and its
@@ -62,32 +62,32 @@ class Parser implements ParserInterface
     /**
      * @var DataAnalyzerInterface
      */
-    private $dataAnalyzer;
+    protected $dataAnalyzer;
 
     /**
      * @var ParserFactoryInterface
      */
-    private $parserFactory;
+    protected $parserFactory;
 
     /**
      * @var StackFactoryInterface
      */
-    private $stackFactory;
+    protected $stackFactory;
 
     /**
      * @var SchemaFactoryInterface
      */
-    private $schemaFactory;
+    protected $schemaFactory;
 
     /**
      * @var StackInterface
      */
-    private $stack;
+    protected $stack;
 
     /**
      * @var ParserManagerInterface|null
      */
-    private $manager;
+    protected $manager;
 
     /**
      * @param ParserFactoryInterface      $parserFactory
@@ -135,11 +135,7 @@ class Parser implements ParserInterface
      */
     private function parseData()
     {
-        $curFrame = $this->stack->end();
-
-        $data = $curFrame->getRelationship()->isShowData() === true ? $curFrame->getRelationship()->getData() : null;
-        list($isEmpty, $isOriginallyArrayed, $schema, $traversableData) = $this->dataAnalyzer->analyze($data);
-        unset($data);
+        list($isEmpty, $isOriginallyArrayed, $schema, $traversableData) = $this->analyzeCurrentData();
 
         /** @var bool $isEmpty */
         /** @var bool $isOriginallyArrayed */
@@ -148,6 +144,8 @@ class Parser implements ParserInterface
         if ($isEmpty === true) {
             yield $this->createReplyForEmptyData($traversableData);
         } else {
+            $curFrame = $this->stack->end();
+
             // duplicated are allowed in data however they shouldn't be in includes
             $isDupAllowed = $curFrame->getLevel() < 2;
 
@@ -183,6 +181,18 @@ class Parser implements ParserInterface
                 yield $this->createReplyResourceCompleted();
             }
         }
+    }
+
+    /**
+     * @return array
+     */
+    protected function analyzeCurrentData()
+    {
+        $relationship = $this->stack->end()->getRelationship();
+
+        $data = $relationship->isShowData() === true ? $relationship->getData() : null;
+
+        return $this->dataAnalyzer->analyze($data);
     }
 
     /**

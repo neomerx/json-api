@@ -38,6 +38,15 @@ interface EncodingParametersInterface
     public function isPathIncluded($path);
 
     /**
+     * If path has exact match with one of the 'include' paths.
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
+    public function hasExactPathMatch($path);
+
+    /**
      * Get filed names that should be in result.
      *
      * @return array|null

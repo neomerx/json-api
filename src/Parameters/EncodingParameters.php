@@ -74,9 +74,17 @@ class EncodingParameters implements EncodingParametersInterface
     {
         return
             $this->pathIndexes === null ||
-            isset($this->pathIndexes[$path]) === true ||
+            $this->hasExactPathMatch($path) === true ||
             // RC4 spec changed requirements and intermediate paths should be included as well
             $this->hasMatchWithIncludedPaths($path) === true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasExactPathMatch($path)
+    {
+        return $this->pathIndexes !== null && array_key_exists($path, $this->pathIndexes) === true;
     }
 
     /**
@@ -107,7 +115,7 @@ class EncodingParameters implements EncodingParametersInterface
     {
         $hasMatch = false;
 
-        if ($this->includePaths !== null) {
+        if ($path !== null && $this->includePaths !== null) {
             if (array_key_exists($path, $this->matchCache) === true) {
                 $hasMatch = $this->matchCache[$path];
             } else {

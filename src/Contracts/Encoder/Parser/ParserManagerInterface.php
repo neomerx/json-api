@@ -61,4 +61,13 @@ interface ParserManagerInterface
      * @return array <string, int>|null
      */
     public function getFieldSet($type);
+
+    /**
+     * Return true if path is within input 'include' parameters.
+     *
+     * @param string|null $path
+     *
+     * @return bool
+     */
+    public function hasExactPathMatch($path);
 }
