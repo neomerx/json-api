@@ -54,7 +54,9 @@ class StackTest extends BaseTestCase
         $this->mockLinkObject     = Mockery::mock(RelationshipObjectInterface::class);
         $this->mockResourceObject = Mockery::mock(ResourceObjectInterface::class);
 
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockLinkObject->shouldReceive('getName')->zeroOrMoreTimes()->withAnyArgs()->andReturn('someName');
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockLinkObject->shouldReceive('isShouldBeIncluded')->zeroOrMoreTimes()->withAnyArgs()->andReturn(true);
     }
 

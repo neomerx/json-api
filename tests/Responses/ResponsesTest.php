@@ -62,6 +62,7 @@ class ResponsesTest extends BaseTestCase
      */
     public function testGetCodeResponse1()
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type']])->andReturn('something');
 
@@ -74,6 +75,7 @@ class ResponsesTest extends BaseTestCase
      */
     public function testGetCodeResponse2()
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type;ext="ext1"']])->andReturn('something');
 
@@ -86,12 +88,14 @@ class ResponsesTest extends BaseTestCase
      */
     public function testGetCodeResponse3()
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type;ext="ext1",supported-ext="sup-ext1"']])
             ->andReturn('something');
 
         $mediaType = new MediaType('some', 'type', [MediaTypeInterface::PARAM_EXT => 'ext1']);
         $mockSupportedExt = Mockery::mock(SupportedExtensionsInterface::class);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $mockSupportedExt->shouldReceive('getExtensions')->once()->withNoArgs()->andReturn('sup-ext1');
 
         /** @var SupportedExtensionsInterface $mockSupportedExt */
@@ -103,12 +107,14 @@ class ResponsesTest extends BaseTestCase
      */
     public function testGetCodeResponse4()
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type;supported-ext="sup-ext1"']])
             ->andReturn('something');
 
         $mediaType = new MediaType('some', 'type');
         $mockSupportedExt = Mockery::mock(SupportedExtensionsInterface::class);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $mockSupportedExt->shouldReceive('getExtensions')->once()->withNoArgs()->andReturn('sup-ext1');
 
         /** @var SupportedExtensionsInterface $mockSupportedExt */
@@ -120,6 +126,7 @@ class ResponsesTest extends BaseTestCase
      */
     public function testGetCodeResponse5()
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type']])
             ->andReturn('something');
@@ -135,6 +142,7 @@ class ResponsesTest extends BaseTestCase
      */
     public function testGetCreatedResponse()
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs(['content', 201, ['Location' => '/resource/123', 'Content-Type' => 'some/type']])
             ->andReturn('something');
@@ -154,6 +162,7 @@ class ResponsesTest extends BaseTestCase
      */
     public function testGetResponse()
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs(['content', 456, ['Content-Type' => 'some/type']])
             ->andReturn('something');

@@ -1168,19 +1168,33 @@ EOL;
     ) {
         $schema = Mockery::mock(SchemaProviderinterface::class);
 
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getResourceType')->zeroOrMoreTimes()->andReturn($type);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getId')->zeroOrMoreTimes()->andReturn($idx);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getSelfSubLink')->zeroOrMoreTimes()->andReturn($selfLink);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getAttributes')->zeroOrMoreTimes()->andReturn($attributes);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('isShowSelf')->zeroOrMoreTimes()->andReturn($showSelfUrl);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('isShowSelfInIncluded')->zeroOrMoreTimes()->andReturn($showSelfInIncluded);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('isShowAttributesInIncluded')->zeroOrMoreTimes()->andReturn($showAttributesInIncluded);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('isShowRelationshipsInIncluded')->zeroOrMoreTimes()->andReturn($relShipsInIncluded);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getIncludePaths')->zeroOrMoreTimes()->andReturn($includePaths);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getPrimaryMeta')->zeroOrMoreTimes()->andReturn($primaryMeta);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getLinkageMeta')->zeroOrMoreTimes()->andReturn($relationshipMeta);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getInclusionMeta')->zeroOrMoreTimes()->andReturn($inclusionMeta);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getRelationshipsPrimaryMeta')->zeroOrMoreTimes()->andReturn($relPrimaryMeta);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getRelationshipsInclusionMeta')->zeroOrMoreTimes()->andReturn($relIncMeta);
 
         return $schema;

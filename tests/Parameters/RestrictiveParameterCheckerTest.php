@@ -419,8 +419,11 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
      */
     private function prepareRequest($contentType, $accept, array $input)
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockRequest->shouldReceive('getHeader')->with('Content-Type')->once()->andReturn($contentType);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockRequest->shouldReceive('getHeader')->with('Accept')->once()->andReturn($accept);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockRequest->shouldReceive('getQueryParameters')->withNoArgs()->once()->andReturn($input);
 
         /** @var CurrentRequestInterface $request */
@@ -438,6 +441,7 @@ class RestrictiveParameterCheckerTest extends BaseTestCase
     private function prepareExceptions($exceptionMethod = null, $times = 1)
     {
         if ($exceptionMethod !== null) {
+            /** @noinspection PhpMethodParametersCountMismatchInspection */
             $this->mockThrower->shouldReceive($exceptionMethod)->times($times)->withNoArgs()->andReturnUndefined();
         }
 

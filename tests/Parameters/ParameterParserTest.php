@@ -317,9 +317,12 @@ class ParameterParserTest extends BaseTestCase
         $acceptTimes = 1,
         $parametersTimes = 1
     ) {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockRequest->shouldReceive('getHeader')->with('Content-Type')
             ->times($contentTypeTimes)->andReturn($contentType);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockRequest->shouldReceive('getHeader')->with('Accept')->times($acceptTimes)->andReturn($accept);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockRequest->shouldReceive('getQueryParameters')
             ->withNoArgs()->times($parametersTimes)->andReturn($input);
 
@@ -338,6 +341,7 @@ class ParameterParserTest extends BaseTestCase
     private function prepareExceptions($exceptionMethod = null, $times = 1)
     {
         if ($exceptionMethod !== null) {
+            /** @noinspection PhpMethodParametersCountMismatchInspection */
             $this->mockThrower->shouldReceive($exceptionMethod)
                 ->times($times)->withNoArgs()->andThrow(new \Exception());
         }

@@ -57,6 +57,7 @@ class FactoryTest extends BaseTestCase
     public function testCreateResourceObject()
     {
         $schema = Mockery::mock(SchemaProviderInterface::class);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getResourceType')->once()->andReturn('some-type');
 
         /** @var SchemaProviderInterface $schema */

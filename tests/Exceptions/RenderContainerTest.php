@@ -56,6 +56,7 @@ class RenderContainerTest extends BaseTestCase
         parent::setUp();
 
         $mockSupportedExtensions = Mockery::mock(SupportedExtensionsInterface::class);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $mockSupportedExtensions->shouldReceive('getExtensions')->zeroOrMoreTimes()->withNoArgs()->andReturn([]);
         $extensionsClosure = function () use ($mockSupportedExtensions) {
             return $mockSupportedExtensions;
@@ -74,6 +75,7 @@ class RenderContainerTest extends BaseTestCase
      */
     public function testGetRenderForUnknownException()
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, self::DEFAULT_CODE, Mockery::any()])
             ->andReturn('error: '. self::DEFAULT_CODE);
@@ -89,6 +91,7 @@ class RenderContainerTest extends BaseTestCase
      */
     public function testGetRenderForKnownException()
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, self::DEFAULT_CODE, Mockery::any()])
             ->andReturn('error: '. self::DEFAULT_CODE);
@@ -115,18 +118,21 @@ class RenderContainerTest extends BaseTestCase
             LogicException::class           => 456,
         ]);
 
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, Mockery::any()])
             ->andReturn('error: '. 123);
         $this->assertNotNull($render = $this->container->getRender(new InvalidArgumentException()));
         $this->assertEquals('error: '. 123, $render());
 
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, 456, Mockery::any()])
             ->andReturn('error: '. 456);
         $this->assertNotNull($render = $this->container->getRender(new LogicException()));
         $this->assertEquals('error: '. 456, $render());
 
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, self::DEFAULT_CODE, Mockery::any()])
             ->andReturn('error: '. self::DEFAULT_CODE);
@@ -147,6 +153,7 @@ class RenderContainerTest extends BaseTestCase
         $error = new Error(null, null, null, null, $title);
         $errorDocument = Encoder::instance([])->error($error);
 
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([Mockery::type('string'), 123, Mockery::any()])
             ->andReturn($errorDocument);
