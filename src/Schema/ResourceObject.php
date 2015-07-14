@@ -58,17 +58,17 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @var SchemaProviderInterface
      */
-    private $schema;
+    protected $schema;
 
     /**
      * @var object
      */
-    private $resource;
+    protected $resource;
 
     /**
      * @var array<string,int>|null
      */
-    private $attributeKeysFilter;
+    protected $attributeKeysFilter;
 
     /**
      * @var bool
