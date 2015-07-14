@@ -19,6 +19,9 @@ use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
  * limitations under the License.
  */
 
+/**
+ * @package Neomerx\Tests\JsonApi
+ */
 class CustomEncoder extends Encoder
 {
     /**

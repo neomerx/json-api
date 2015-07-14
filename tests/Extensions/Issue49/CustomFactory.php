@@ -20,6 +20,9 @@ use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
  * limitations under the License.
  */
 
+/**
+ * @package Neomerx\Tests\JsonApi
+ */
 class CustomFactory extends Factory
 {
     /**

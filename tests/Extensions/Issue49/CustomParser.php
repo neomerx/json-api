@@ -18,6 +18,9 @@ use \Neomerx\JsonApi\Encoder\Parser\Parser;
  * limitations under the License.
  */
 
+/**
+ * @package Neomerx\Tests\JsonApi
+ */
 class CustomParser extends Parser
 {
     /**
