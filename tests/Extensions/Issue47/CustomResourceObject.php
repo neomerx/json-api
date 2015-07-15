@@ -1,5 +1,6 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue47;
 
+use \InvalidArgumentException;
 use \Neomerx\JsonApi\Schema\ResourceObject;
 
 /**
@@ -31,7 +32,29 @@ class CustomResourceObject extends ResourceObject
         $filter     = $this->attributeKeysFilter;
         $attributes = $this->schema->getAttributes($this->resource);
 
-        // TODO implement filtering $attributes with $filter
+        // in real app here should come filtering however for testing it's ok to make sure we have
+        // - attributes
+        // - filter params
+        // - if we return correct result it will be delivered to to invoking test
+
+        // check we have received attribute filter
+        $filterEquals = ($filter === ['private.email' => 0]);
+        if ($filterEquals === false) {
+            throw new InvalidArgumentException();
+        }
+
+        // check we have received attributes
+        $attributesEqual = ($attributes === [
+                'username' => 'vivalacrowe',
+                'private'  => [
+                    'email' => 'hello@vivalacrowe.com',
+                    'name'  => 'Rob',
+                ],
+            ]);
+        if ($attributesEqual === false) {
+            throw new InvalidArgumentException();
+        }
+
         return ['private' => ['email' => 'hello@vivalacrowe.com']];
     }
 }

@@ -36,7 +36,7 @@ class IssueTest extends BaseTestCase
         ])->encode($user, null, null, new EncodingParameters(
             null,
             [
-                'users' => ['private.email']
+                'users' => ['private.email'],
             ]
         ));
 
