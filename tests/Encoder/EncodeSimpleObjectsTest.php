@@ -22,6 +22,7 @@ use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
+use \Neomerx\JsonApi\Parameters\EncodingParameters;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -72,6 +73,33 @@ EOL;
         ]);
 
         $actual = $endcoder->encode([]);
+
+        $expected = <<<EOL
+        {
+            "data" : []
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode empty array.
+     *
+     * Issue #50 @link https://github.com/neomerx/json-api/issues/50
+     */
+    public function testEncodeEmptyWithParameters()
+    {
+        $endcoder = Encoder::instance([
+            Author::class => AuthorSchema::class
+        ]);
+
+        $actual = $endcoder->encode([], null, null, new EncodingParameters(null, [
+            // include only these attributes and links
+            'authors' => [Author::ATTRIBUTE_FIRST_NAME, Author::LINK_COMMENTS],
+        ]));
 
         $expected = <<<EOL
         {
