@@ -188,7 +188,7 @@ class Encoder implements EncoderInterface
         /** @var SchemaProviderInterface $schema */
         list($isDataEmpty, , $schema) = $analyzer->analyze($data);
 
-        if ($isDataEmpty === true && $parameters === null) {
+        if ($isDataEmpty === true) {
             return $this->factory->createEncodingParameters();
         } elseif ($parameters !== null && $parameters->getIncludePaths() !== null) {
             return $parameters;
