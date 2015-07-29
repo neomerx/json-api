@@ -19,9 +19,7 @@
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -29,21 +27,11 @@ use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 class EncodeErrorsTest extends BaseTestCase
 {
     /**
-     * Test encode null.
+     * Test encode error.
      */
     public function testEncodeError()
     {
-        $error = new Error(
-            'some-id',
-            new Link('about-link'),
-            'some-status',
-            'some-code',
-            'some-title',
-            'some-detail',
-            ['source' => 'data'],
-            ['some'   => 'meta']
-        );
-
+        $error    = $this->getError();
         $endcoder = Encoder::instance([]);
 
         $actual = $endcoder->error($error);
@@ -69,24 +57,12 @@ EOL;
     }
 
     /**
-     * Test encode null.
+     * Test encode error array.
      */
     public function testEncodeErrors()
     {
-        $error = new Error(
-            'some-id',
-            new Link('about-link'),
-            'some-status',
-            'some-code',
-            'some-title',
-            'some-detail',
-            ['source' => 'data'],
-            ['some'   => 'meta']
-        );
-
-        $endcoder = Encoder::instance([
-            Author::class => AuthorSchema::class
-        ]);
+        $error    = $this->getError();
+        $endcoder = Encoder::instance([]);
 
         $actual = $endcoder->errors([$error]);
 
@@ -108,5 +84,22 @@ EOL;
         $expected = json_encode(json_decode($expected));
 
         $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @return Error
+     */
+    private function getError()
+    {
+        return new Error(
+            'some-id',
+            new Link('about-link'),
+            'some-status',
+            'some-code',
+            'some-title',
+            'some-detail',
+            ['source' => 'data'],
+            ['some' => 'meta']
+        );
     }
 }
