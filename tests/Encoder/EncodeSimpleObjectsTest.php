@@ -86,6 +86,28 @@ EOL;
     }
 
     /**
+     * Test encode empty iterator.
+     */
+    public function testEncodeEmptyIterator()
+    {
+        $encoder = Encoder::instance([
+            Author::class => AuthorSchema::class,
+        ]);
+
+        $actual = $encoder->encode(new \ArrayIterator([]));
+
+        $expected = <<<EOL
+        {
+            "data": []
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * Test encode empty array.
      *
      * Issue #50 @link https://github.com/neomerx/json-api/issues/50

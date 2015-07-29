@@ -63,6 +63,8 @@ class DataAnalyzer implements DataAnalyzerInterface
             if ($isEmpty === false) {
                 $firstItem       = $data->current();
                 $traversableData = $data;
+            } else {
+                $traversableData = [];
             }
         } elseif (is_object($data) === true) {
             /** @var object $data */
