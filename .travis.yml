@@ -16,6 +16,7 @@ before_script:
 - travis_retry composer install --no-interaction --prefer-dist
 script:
 - phpunit --coverage-text --coverage-clover=coverage.clover
+- cd sample/ && composer update && php sample.php > /dev/null
 notifications:
   webhooks:
     urls:
