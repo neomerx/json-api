@@ -199,6 +199,6 @@ class RenderContainerTest extends BaseTestCase
             ->andReturn($response);
 
         $this->assertNotNull($render = $this->container->getRender(new InvalidArgumentException()));
-        $this->assertEquals($response, $render($headers));
+        $this->assertEquals($response, $render(null, null, $headers));
     }
 }

@@ -124,13 +124,18 @@ class RenderContainer implements RenderContainerInterface
     protected function getDefaultRender()
     {
         /**
-         * @param array $headers
+         * @param mixed          $request
+         * @param Exception|null $exception
+         * @param array          $headers
          *
          * @return mixed
          */
-        return function (array $headers = []) {
+        return function ($request = null, Exception $exception = null, array $headers = []) {
+            $request ?: null;
+            $exception ?: null;
+
             $render = $this->getHttpCodeRender($this->defaultStatusCode);
-            return $render($headers);
+            return $render($request, $exception, $headers);
         };
     }
 
@@ -144,11 +149,16 @@ class RenderContainer implements RenderContainerInterface
     protected function getHttpCodeRender($statusCode)
     {
         /**
-         * @param array $headers
+         * @param mixed          $request
+         * @param Exception|null $exception
+         * @param array          $headers
          *
          * @return mixed
          */
-        return function (array $headers = []) use ($statusCode) {
+        return function ($request = null, Exception $exception = null, array $headers = []) use ($statusCode) {
+            $request ?: null;
+            $exception ?: null;
+
             $extensionsClosure   = $this->extensionsClosure;
             /** @var SupportedExtensionsInterface $supportedExtensions */
             $supportedExtensions = $extensionsClosure();
