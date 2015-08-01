@@ -56,9 +56,10 @@ class Responses implements ResponsesInterface
         $statusCode,
         MediaTypeInterface $mediaType,
         $content = null,
-        SupportedExtensionsInterface $supportedExtensions = null
+        SupportedExtensionsInterface $supportedExtensions = null,
+        array $headers = []
     ) {
-        return $this->createResponse($content, $statusCode, $mediaType, $supportedExtensions);
+        return $this->createResponse($content, $statusCode, $mediaType, $supportedExtensions, $headers);
     }
 
     /**
@@ -68,10 +69,12 @@ class Responses implements ResponsesInterface
         $location,
         MediaTypeInterface $mediaType,
         $content,
-        SupportedExtensionsInterface $supportedExtensions = null
+        SupportedExtensionsInterface $supportedExtensions = null,
+        array $headers = []
     ) {
         assert('is_string($location)');
-        $headers = [self::HEADER_LOCATION => $location];
+        $headers[self::HEADER_LOCATION] = $location;
+
         return $this->createResponse($content, self::HTTP_CREATED, $mediaType, $supportedExtensions, $headers);
     }
 
@@ -93,6 +96,7 @@ class Responses implements ResponsesInterface
     ) {
         assert('is_int($statusCode)');
         $headers[self::HEADER_CONTENT_TYPE] = $this->getContentTypeHeader($mediaType, $supportedExtensions);
+
         return $this->responses->createResponse($content, $statusCode, $headers);
     }
 

@@ -31,6 +31,7 @@ interface ResponsesInterface
      * @param MediaTypeInterface                $mediaType
      * @param string|null                       $content
      * @param SupportedExtensionsInterface|null $supportedExtensions
+     * @param array                             $headers
      *
      * @return mixed
      */
@@ -38,7 +39,8 @@ interface ResponsesInterface
         $statusCode,
         MediaTypeInterface $mediaType,
         $content = null,
-        SupportedExtensionsInterface $supportedExtensions = null
+        SupportedExtensionsInterface $supportedExtensions = null,
+        array $headers = []
     );
 
     /**
@@ -48,6 +50,7 @@ interface ResponsesInterface
      * @param MediaTypeInterface                $mediaType
      * @param string|null                       $content
      * @param SupportedExtensionsInterface|null $supportedExtensions
+     * @param array                             $headers
      *
      * @return mixed
      */
@@ -55,6 +58,7 @@ interface ResponsesInterface
         $location,
         MediaTypeInterface $mediaType,
         $content,
-        SupportedExtensionsInterface $supportedExtensions = null
+        SupportedExtensionsInterface $supportedExtensions = null,
+        array $headers = []
     );
 }

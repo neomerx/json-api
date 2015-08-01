@@ -26,8 +26,10 @@ use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Exceptions\RenderContainer;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Exceptions\RenderContainerInterface;
 use \Neomerx\JsonApi\Contracts\Integration\NativeResponsesInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 
 /**
@@ -145,8 +147,19 @@ class RenderContainerTest extends BaseTestCase
      */
     public function testRegisterJsonApiErrorMapping()
     {
+        // lets check if render can work with headers
+        // Issue #52 https://github.com/neomerx/json-api/issues/52
+        $headers  = [
+            'header' => 'value',
+        ];
+        $expectedHeaders = array_merge(
+            $headers,
+            [HeaderInterface::HEADER_CONTENT_TYPE => MediaTypeInterface::JSON_API_MEDIA_TYPE]
+        );
+
+        $customHttpCode = 123;
         $this->container->registerJsonApiErrorMapping([
-            InvalidArgumentException::class => 123,
+            InvalidArgumentException::class => $customHttpCode,
         ]);
 
         $title = 'Error title';
@@ -155,12 +168,37 @@ class RenderContainerTest extends BaseTestCase
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
-            ->withArgs([Mockery::type('string'), 123, Mockery::any()])
+            ->withArgs([Mockery::type('string'), $customHttpCode, $expectedHeaders])
             ->andReturn($errorDocument);
         $this->assertNotNull($render = $this->container->getRender(new InvalidArgumentException()));
 
         // let's assume our exception can provide JSON API Error information somehow.
 
-        $this->assertEquals($errorDocument, $render([$error]));
+        $this->assertEquals($errorDocument, $render([$error], null, $headers));
+    }
+
+    /**
+     * Test render can add headers to responses.
+     *
+     * Issue #52 https://github.com/neomerx/json-api/issues/52
+     */
+    public function testDefaultHttpCodeRenderWithHeaders()
+    {
+        $response = 'some-response';
+        $headers  = [
+            'header' => 'value',
+        ];
+
+        $expectedHeaders = array_merge(
+            $headers,
+            [HeaderInterface::HEADER_CONTENT_TYPE => MediaTypeInterface::JSON_API_MEDIA_TYPE]
+        );
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->mockResponses->shouldReceive('createResponse')->once()
+            ->withArgs([null, self::DEFAULT_CODE, $expectedHeaders])
+            ->andReturn($response);
+
+        $this->assertNotNull($render = $this->container->getRender(new InvalidArgumentException()));
+        $this->assertEquals($response, $render($headers));
     }
 }

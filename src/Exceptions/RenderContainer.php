@@ -123,9 +123,14 @@ class RenderContainer implements RenderContainerInterface
      */
     protected function getDefaultRender()
     {
-        return function () {
+        /**
+         * @param array $headers
+         *
+         * @return mixed
+         */
+        return function (array $headers = []) {
             $render = $this->getHttpCodeRender($this->defaultStatusCode);
-            return $render();
+            return $render($headers);
         };
     }
 
@@ -138,7 +143,12 @@ class RenderContainer implements RenderContainerInterface
      */
     protected function getHttpCodeRender($statusCode)
     {
-        return function () use ($statusCode) {
+        /**
+         * @param array $headers
+         *
+         * @return mixed
+         */
+        return function (array $headers = []) use ($statusCode) {
             $extensionsClosure   = $this->extensionsClosure;
             /** @var SupportedExtensionsInterface $supportedExtensions */
             $supportedExtensions = $extensionsClosure();
@@ -149,7 +159,7 @@ class RenderContainer implements RenderContainerInterface
                 MediaTypeInterface::JSON_API_SUB_TYPE
             );
 
-            return $this->responses->getResponse($statusCode, $mediaType, $content, $supportedExtensions);
+            return $this->responses->getResponse($statusCode, $mediaType, $content, $supportedExtensions, $headers);
         };
     }
 
@@ -165,10 +175,11 @@ class RenderContainer implements RenderContainerInterface
         /**
          * @param ErrorInterface[] $errors
          * @param EncoderOptions   $encodeOptions
+         * @param array            $headers
          *
          * @return mixed
          */
-        return function (array $errors, EncoderOptions $encodeOptions = null) use ($statusCode) {
+        return function (array $errors, EncoderOptions $encodeOptions = null, array $headers = []) use ($statusCode) {
             $extensionsClosure   = $this->extensionsClosure;
             /** @var SupportedExtensionsInterface $supportedExtensions */
             $supportedExtensions = $extensionsClosure();
@@ -179,7 +190,7 @@ class RenderContainer implements RenderContainerInterface
                 MediaTypeInterface::JSON_API_SUB_TYPE
             );
 
-            return $this->responses->getResponse($statusCode, $mediaType, $content, $supportedExtensions);
+            return $this->responses->getResponse($statusCode, $mediaType, $content, $supportedExtensions, $headers);
         };
     }
 }
