@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Schema\SchemaProvider;
 
 /**
@@ -25,6 +26,11 @@ class SiteSchema extends SchemaProvider
 {
     protected $resourceType = 'sites';
     protected $selfSubUrl  = '/sites/';
+
+    /**
+     * @var bool
+     */
+    public static $isShowCustomLinks = true;
 
     public function getId($site)
     {
@@ -43,8 +49,17 @@ class SiteSchema extends SchemaProvider
     public function getRelationships($site)
     {
         /** @var Site $site */
+
+        $links = static::$isShowCustomLinks === false ? [] : [
+            'some-sublink'  => new Link('resource-sublink'),
+            'external-link' => new Link('www.example.com', null, true),
+        ];
+
         return [
-            'posts' => [self::DATA => $site->posts],
+            'posts' => [
+                self::DATA  => $site->posts,
+                self::LINKS => $links,
+            ],
         ];
     }
 

@@ -136,6 +136,26 @@ class Application
     }
 
     /**
+     * Shows how schema could change dynamically.
+     */
+    private function dynamicSchemaExample()
+    {
+        echo 'Neomerx JSON API sample application (dynamic schema)' . PHP_EOL;
+
+        $site = Site::instance('1', 'JSON API Samples', []);
+
+        $encoder = Encoder::instance([
+            Site::class => SiteSchema::class,
+        ], new EncoderOptions(JSON_PRETTY_PRINT));
+
+        SiteSchema::$isShowCustomLinks = false;
+        echo $encoder->encode($site) . PHP_EOL;
+
+        SiteSchema::$isShowCustomLinks = true;
+        echo $encoder->encode($site) . PHP_EOL;
+    }
+
+    /**
      * Run performance test.
      *
      * @param int $iterations
@@ -185,6 +205,7 @@ class Application
             $this->showIncludedObjectsExample();
             $this->showSparseAndFieldSetsExample();
             $this->showTopLevelMetaAndLinksExample();
+            $this->dynamicSchemaExample();
         } else {
             $num = $args['t'];
             $inv = empty($num) === true || is_numeric($num) === false || ctype_digit($num) == false || (int)$num <= 0;
