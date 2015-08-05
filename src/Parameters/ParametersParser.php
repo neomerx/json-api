@@ -107,7 +107,7 @@ class ParametersParser implements ParametersParserInterface
      */
     private function getIncludePaths(array $parameters)
     {
-        $paths = $this->getParamOrNull($parameters, self::PARAM_INCLUDE);
+        $paths = $this->getStringParamOrNull($parameters, self::PARAM_INCLUDE);
         return (empty($paths) === true ? null : explode(',', rtrim($paths, ',')));
     }
 
@@ -142,6 +142,7 @@ class ParametersParser implements ParametersParserInterface
     protected function getSortParameters(array $parameters)
     {
         $sortParams = null;
+        // get string param or null
         $sortParam  = $this->getParamOrNull($parameters, self::PARAM_SORT);
         if ($sortParam !== null) {
             foreach (explode(',', $sortParam) as $param) {
@@ -162,7 +163,7 @@ class ParametersParser implements ParametersParserInterface
      */
     private function getPagingParameters(array $parameters)
     {
-        return $this->getParamOrNull($parameters, self::PARAM_PAGE);
+        return $this->getArrayParamOrNull($parameters, self::PARAM_PAGE);
     }
 
     /**
@@ -172,7 +173,7 @@ class ParametersParser implements ParametersParserInterface
      */
     private function getFilteringParameters(array $parameters)
     {
-        return $this->getParamOrNull($parameters, self::PARAM_FILTER);
+        return $this->getArrayParamOrNull($parameters, self::PARAM_FILTER);
     }
 
     /**
@@ -191,6 +192,36 @@ class ParametersParser implements ParametersParserInterface
         ];
         $unrecognized = array_diff_key($parameters, $supported);
         return empty($unrecognized) === true ? null : $unrecognized;
+    }
+
+    /**
+     * @param array $parameters
+     * @param string $name
+     *
+     * @return string|null
+     */
+    private function getArrayParamOrNull(array $parameters, $name)
+    {
+        $value = $this->getParamOrNull($parameters, $name);
+
+        ($value !== null && is_array($value) === false) ? $this->exceptionThrower->throwBadRequest() : null;
+
+        return $value;
+    }
+
+    /**
+     * @param array $parameters
+     * @param string $name
+     *
+     * @return string|null
+     */
+    private function getStringParamOrNull(array $parameters, $name)
+    {
+        $value = $this->getParamOrNull($parameters, $name);
+
+        ($value !== null && is_string($value) === false) ? $this->exceptionThrower->throwBadRequest() : null;
+
+        return $value;
     }
 
     /**

@@ -145,6 +145,66 @@ class ParameterParserTest extends BaseTestCase
     }
 
     /**
+     * Test invalid params.
+     *
+     * Issue #58 @see https://github.com/neomerx/json-api/issues/58
+     *
+     * @expectedException \Exception
+     */
+    public function testInvalidPageParams()
+    {
+        $input = [
+            'page' => '2',
+        ];
+        $this->assertNotNull($parameters = $this->parser->parse(
+            $this->prepareRequest(self::TYPE, self::TYPE, $input),
+            $this->prepareExceptions('throwBadRequest')
+        ));
+
+        $this->assertNull($parameters->getPaginationParameters());
+    }
+
+    /**
+     * Test invalid params.
+     *
+     * Issue #58 @see https://github.com/neomerx/json-api/issues/58
+     *
+     * @expectedException \Exception
+     */
+    public function testInvalidFilterParams()
+    {
+        $input = [
+            'filter' => 'whatever',
+        ];
+        $this->assertNotNull($parameters = $this->parser->parse(
+            $this->prepareRequest(self::TYPE, self::TYPE, $input),
+            $this->prepareExceptions('throwBadRequest')
+        ));
+
+        $this->assertNull($parameters->getSortParameters());
+    }
+
+    /**
+     * Test invalid params.
+     *
+     * Issue #58 @see https://github.com/neomerx/json-api/issues/58
+     *
+     * @expectedException \Exception
+     */
+    public function testInvalidIncludeParams()
+    {
+        $input = [
+            'include' => ['whatever'],
+        ];
+        $this->assertNotNull($parameters = $this->parser->parse(
+            $this->prepareRequest(self::TYPE, self::TYPE, $input),
+            $this->prepareExceptions('throwBadRequest')
+        ));
+
+        $this->assertNull($parameters->getIncludePaths());
+    }
+
+    /**
      * Test parse headers.
      */
     public function testParseHeadersNoParams()
