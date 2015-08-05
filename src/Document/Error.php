@@ -68,8 +68,8 @@ class Error implements ErrorInterface
     /**
      * @param int|string|null    $idx
      * @param LinkInterface|null $aboutLink
-     * @param string|null        $status
-     * @param string|null        $code
+     * @param int|string|null    $status
+     * @param int|string|null    $code
      * @param string|null        $title
      * @param string|null        $detail
      * @param array|null         $source
