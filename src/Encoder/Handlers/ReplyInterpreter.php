@@ -61,7 +61,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
 
         $previous = $reply->getStack()->penult();
 
-        switch($current->getLevel()) {
+        switch ($current->getLevel()) {
             case 1:
                 $this->addToData($reply, $current);
                 break;
@@ -128,7 +128,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     private function addToData(ParserReplyInterface $reply, Frame $current)
     {
-        switch($reply->getReplyType()) {
+        switch ($reply->getReplyType()) {
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
                 $this->document->setNullData();
                 break;
@@ -167,7 +167,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
         $relationship = $current->getRelationship();
         $parent       = $previous->getResource();
 
-        switch($reply->getReplyType()) {
+        switch ($reply->getReplyType()) {
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
                 $this->document->addNullRelationshipToData($parent, $relationship);
                 break;
@@ -192,7 +192,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
         $relationship = $current->getRelationship();
         $parent       = $previous->getResource();
 
-        switch($reply->getReplyType()) {
+        switch ($reply->getReplyType()) {
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
                 $this->document->addNullRelationshipToIncluded($parent, $relationship);
                 break;
