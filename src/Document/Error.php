@@ -68,8 +68,8 @@ class Error implements ErrorInterface
     /**
      * @param int|string|null    $idx
      * @param LinkInterface|null $aboutLink
-     * @param string|null        $status
-     * @param string|null        $code
+     * @param int|string|null    $status
+     * @param int|string|null    $code
      * @param string|null        $title
      * @param string|null        $detail
      * @param array|null         $source
@@ -87,15 +87,16 @@ class Error implements ErrorInterface
     ) {
         assert(
             '($idx === null || is_int($idx) || is_string($idx)) &&'.
-            '($status === null || is_string($status)) && ($code === null || is_string($code)) &&'.
+            '($status === null || is_int($status) || is_string($status)) &&'.
+            '($code === null || is_int($code) || is_string($code)) &&'.
             '($title === null  || is_string($title)) && ($title === null || is_string($title)) &&'.
             '($detail === null || is_string($detail)) && ($meta === null || is_array($meta))'
         );
 
         $this->idx     = $idx;
         $this->links   = ($aboutLink === null ? null : [DocumentInterface::KEYWORD_ERRORS_ABOUT => $aboutLink]);
-        $this->status  = $status;
-        $this->code    = $code;
+        $this->status  = (string) $status;
+        $this->code    = (string) $code;
         $this->title   = $title;
         $this->source  = $source;
         $this->detail  = $detail;

@@ -954,6 +954,42 @@ EOL;
     }
 
     /**
+     * Test add error.
+     */
+    public function testAddErrorWithIntegerStatusAndCode()
+    {
+        // First add something to document. When error is added nothing except errors must be in result
+        $this->document->setDocumentLinks([Link::SELF => new Link('selfUrl')]);
+
+        $this->document->addError($this->documentFactory->createError(
+            'some-id',
+            new Link('about-link'),
+            500,
+            1337,
+            'some-title',
+            'some-detail',
+            ['source' => 'data'],
+            ['meta' => 'data']
+        ));
+
+        $expected = <<<EOL
+        {
+            "errors":[{
+                "id"     : "some-id",
+                "links"  : {"about" : "about-link"},
+                "status" : "500",
+                "code"   : "1337",
+                "title"  : "some-title",
+                "detail" : "some-detail",
+                "source" : {"source" : "data"},
+                "meta"   : {"meta" : "data"}
+            }]
+        }
+EOL;
+        $this->check($expected);
+    }
+
+    /**
      * Test add JSON API version info.
      */
     public function testAddVersion()
