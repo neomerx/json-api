@@ -26,7 +26,8 @@
   "require-dev": {
     "phpunit/phpunit": "~4.6",
     "mockery/mockery": "~0.9.4",
-    "scrutinizer/ocular": "~1.1"
+    "scrutinizer/ocular": "~1.1",
+    "squizlabs/php_codesniffer": "2.*"
   },
   "minimum-stability": "stable",
   "autoload": {
@@ -38,5 +39,10 @@
     "psr-4": {
       "Neomerx\\Tests\\JsonApi\\": "tests/"
     }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "htest": "hhvm ./vendor/phpunit/phpunit/phpunit",
+    "phpcs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests"
   }
 }
