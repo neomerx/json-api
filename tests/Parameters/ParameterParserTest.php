@@ -205,6 +205,26 @@ class ParameterParserTest extends BaseTestCase
     }
 
     /**
+     * Test invalid params.
+     *
+     * Issue #58 @see https://github.com/neomerx/json-api/issues/58
+     *
+     * @expectedException \Exception
+     */
+    public function testInvalidSortParams()
+    {
+        $input = [
+            'sort' => ['whatever'],
+        ];
+        $this->assertNotNull($parameters = $this->parser->parse(
+            $this->prepareRequest(self::TYPE, self::TYPE, $input),
+            $this->prepareExceptions('throwBadRequest')
+        ));
+
+        $this->assertNull($parameters->getIncludePaths());
+    }
+
+    /**
      * Test parse headers.
      */
     public function testParseHeadersNoParams()

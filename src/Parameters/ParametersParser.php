@@ -142,8 +142,7 @@ class ParametersParser implements ParametersParserInterface
     protected function getSortParameters(array $parameters)
     {
         $sortParams = null;
-        // get string param or null
-        $sortParam  = $this->getParamOrNull($parameters, self::PARAM_SORT);
+        $sortParam  = $this->getStringParamOrNull($parameters, self::PARAM_SORT);
         if ($sortParam !== null) {
             foreach (explode(',', $sortParam) as $param) {
                 $isDesc = false;
@@ -204,7 +203,8 @@ class ParametersParser implements ParametersParserInterface
     {
         $value = $this->getParamOrNull($parameters, $name);
 
-        ($value !== null && is_array($value) === false) ? $this->exceptionThrower->throwBadRequest() : null;
+        $isArrayOrNull = ($value === null || is_array($value) === true);
+        $isArrayOrNull === true ?: $this->exceptionThrower->throwBadRequest();
 
         return $value;
     }
@@ -219,7 +219,8 @@ class ParametersParser implements ParametersParserInterface
     {
         $value = $this->getParamOrNull($parameters, $name);
 
-        ($value !== null && is_string($value) === false) ? $this->exceptionThrower->throwBadRequest() : null;
+        $isStringOrNull = ($value === null || is_string($value) === true);
+        $isStringOrNull === true ?: $this->exceptionThrower->throwBadRequest();
 
         return $value;
     }
