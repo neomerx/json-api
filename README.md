@@ -39,7 +39,7 @@ $encoder = Encoder::instance([
     '\Author' => '\AuthorSchema',
 ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com/api/v1'));
 
-echo $encoder->encode($author) . PHP_EOL;
+echo $encoder->encodeData($author) . PHP_EOL;
 ```
 
 will output
