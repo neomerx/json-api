@@ -157,24 +157,24 @@ class Parser implements ParserInterface
                 $this->stack->setCurrentResource($resourceObject);
                 yield $this->createReplyResourceStarted();
 
-                if (($isCircular === true && $isDupAllowed === false) ||
-                    $this->shouldParseRelationships($resourceObject, $isCircular) === false
-                ) {
+                if ($isCircular === true && $isDupAllowed === false) {
                     continue;
                 }
 
-                foreach ($schema->getRelationshipObjectIterator($resource) as $relationship) {
-                    /** @var RelationshipObjectInterface $relationship */
-                    $nextFrame = $this->stack->push();
-                    $nextFrame->setRelationship($relationship);
-                    try {
-                        if ($this->isShouldRelationshipBeInOutput($resourceObject, $relationship) === true) {
-                            foreach ($this->parseData() as $parseResult) {
-                                yield $parseResult;
+                if ($this->shouldParseRelationships($resourceObject, $isCircular) === true) {
+                    foreach ($schema->getRelationshipObjectIterator($resource) as $relationship) {
+                        /** @var RelationshipObjectInterface $relationship */
+                        $nextFrame = $this->stack->push();
+                        $nextFrame->setRelationship($relationship);
+                        try {
+                            if ($this->isShouldRelationshipBeInOutput($resourceObject, $relationship) === true) {
+                                foreach ($this->parseData() as $parseResult) {
+                                    yield $parseResult;
+                                }
                             }
+                        } finally {
+                            $this->stack->pop();
                         }
-                    } finally {
-                        $this->stack->pop();
                     }
                 }
 

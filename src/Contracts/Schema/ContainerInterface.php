@@ -29,4 +29,13 @@ interface ContainerInterface
      * @return SchemaProviderInterface
      */
     public function getSchema($resourceObject);
+
+    /**
+     * Get schema provider by resource type.
+     *
+     * @param string $resourceType
+     *
+     * @return SchemaProviderInterface
+     */
+    public function getSchemaByType($resourceType);
 }

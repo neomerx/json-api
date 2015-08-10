@@ -93,6 +93,8 @@ class EncoderOptions
     }
 
     /**
+     * @deprecated
+     *
      * If JSON API version should be rendered on document top level.
      *
      * @return bool
@@ -103,6 +105,8 @@ class EncoderOptions
     }
 
     /**
+     * @deprecated
+     *
      * Get JSON API meta information for version.
      *
      * @link http://jsonapi.org/format/#document-jsonapi-object

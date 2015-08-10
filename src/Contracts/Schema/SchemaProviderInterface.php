@@ -73,7 +73,7 @@ interface SchemaProviderInterface
      *
      * @param object $resource
      *
-     * @return Iterator LinkObjectInterface[]
+     * @return Iterator RelationshipObjectInterface[]
      */
     public function getRelationshipObjectIterator($resource);
 

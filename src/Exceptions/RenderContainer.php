@@ -194,7 +194,7 @@ class RenderContainer implements RenderContainerInterface
             /** @var SupportedExtensionsInterface $supportedExtensions */
             $supportedExtensions = $extensionsClosure();
 
-            $content   = Encoder::instance([], $encodeOptions)->errors($errors);
+            $content   = Encoder::instance([], $encodeOptions)->encodeErrors($errors);
             $mediaType = $this->factory->createMediaType(
                 MediaTypeInterface::JSON_API_TYPE,
                 MediaTypeInterface::JSON_API_SUB_TYPE

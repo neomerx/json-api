@@ -50,7 +50,7 @@ class EncodeSimpleObjectsTest extends BaseTestCase
             Author::class => AuthorSchema::class
         ]);
 
-        $actual = $endcoder->encode(null);
+        $actual = $endcoder->encodeData(null);
 
         $expected = <<<EOL
         {
@@ -72,7 +72,7 @@ EOL;
             Author::class => AuthorSchema::class
         ]);
 
-        $actual = $endcoder->encode([]);
+        $actual = $endcoder->encodeData([]);
 
         $expected = <<<EOL
         {
@@ -94,7 +94,7 @@ EOL;
             Author::class => AuthorSchema::class,
         ]);
 
-        $actual = $encoder->encode(new \ArrayIterator([]));
+        $actual = $encoder->encodeData(new \ArrayIterator([]));
 
         $expected = <<<EOL
         {
@@ -118,7 +118,7 @@ EOL;
             Author::class => AuthorSchema::class
         ]);
 
-        $actual = $endcoder->encode([], null, null, new EncodingParameters(null, [
+        $actual = $endcoder->encodeData([], new EncodingParameters(null, [
             // include only these attributes and links
             'authors' => [Author::ATTRIBUTE_FIRST_NAME, Author::LINK_COMMENTS],
         ]));
@@ -148,7 +148,7 @@ EOL;
             }
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encode($author);
+        $actual = $endcoder->encodeData($author);
 
         $expected = <<<EOL
         {
@@ -172,6 +172,58 @@ EOL;
     }
 
     /**
+     * Test encode simple object as resource identity.
+     */
+    public function testEncodeObjectAsResourceIdentity()
+    {
+        $author   = Author::instance(9, 'Dan', 'Gebhardt');
+        $endcoder = Encoder::instance([
+            Author::class => AuthorSchema::class
+        ], $this->encoderOptions);
+
+        $actual = $endcoder->encodeIdentifiers($author);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "people",
+                "id"   : "9"
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode array of simple objects as resource identity.
+     */
+    public function testEncodeArrayAsResourceIdentity()
+    {
+        $author   = Author::instance(9, 'Dan', 'Gebhardt');
+        $endcoder = Encoder::instance([
+            Author::class => AuthorSchema::class
+        ], $this->encoderOptions);
+
+        $actual = $endcoder->encodeIdentifiers([$author]);
+
+        $expected = <<<EOL
+        {
+            "data" : [{
+                "type" : "people",
+                "id"   : "9"
+            }]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * Test encode simple object with attributes only in array.
      */
     public function testEncodeObjectWithAttributesOnlyInArray()
@@ -185,7 +237,7 @@ EOL;
             }
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encode([$author]);
+        $actual = $endcoder->encodeData([$author]);
 
         $expected = <<<EOL
         {
@@ -222,7 +274,7 @@ EOL;
             }
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encode(['key_doesnt_matter' => $author]);
+        $actual = $endcoder->encodeData(['key_doesnt_matter' => $author]);
 
         $expected = <<<EOL
         {
@@ -259,7 +311,7 @@ EOL;
             }
         ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
 
-        $actual = $endcoder->encode($author);
+        $actual = $endcoder->encodeData($author);
 
         $expected = <<<EOL
 {
@@ -295,7 +347,7 @@ EOL;
             }
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encode([$author1, $author2]);
+        $actual = $endcoder->encodeData([$author1, $author2]);
 
         $expected = <<<EOL
         {
@@ -354,6 +406,7 @@ EOL;
                 return $schema;
             }
         ], $this->encoderOptions)->encode($author, $links, $meta);
+        // replace with ->withLinks($links)->withMeta($meta)->encodeData($author) when depreciated methods removed
 
         $expected = <<<EOL
         {
@@ -408,6 +461,7 @@ EOL;
                 return $schema;
             }
         ])->meta($meta);
+        // replace with encodeMeta when depreciated method is removed
 
         $expected = <<<EOL
         {
@@ -427,11 +481,36 @@ EOL;
         $this->assertEquals($expected, $actual);
     }
 
+    /**
+     * Test encoding with JSON API version.
+     */
     public function testEncodeJsonApiVersion()
+    {
+        $actual = Encoder::instance([])->withJsonApiVersion(['some' => 'meta'])->encodeData(null);
+
+        $expected = <<<EOL
+        {
+            "jsonapi" : {
+                "version" : "1.0",
+                "meta"    : { "some" : "meta" }
+            },
+            "data" : null
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encoding with JSON API version.
+     */
+    public function testEncodeJsonApiVersionDeprecated()
     {
         $endcoder = Encoder::instance([], new EncoderOptions(0, null, true, ['some' => 'meta']));
 
-        $actual = $endcoder->encode(null);
+        $actual = $endcoder->encodeData(null);
 
         $expected = <<<EOL
         {

@@ -34,6 +34,7 @@ class EncodeErrorsTest extends BaseTestCase
         $error    = $this->getError();
         $endcoder = Encoder::instance([]);
 
+        // replace with encodeError when depreciated method is removed
         $actual = $endcoder->error($error);
 
         $expected = <<<EOL
@@ -64,6 +65,7 @@ EOL;
         $error    = $this->getError();
         $endcoder = Encoder::instance([]);
 
+        // replace with encodeErrors when depreciated method is removed
         $actual = $endcoder->errors([$error]);
 
         $expected = <<<EOL

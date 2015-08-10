@@ -59,7 +59,7 @@ class EncoderTest extends BaseTestCase
             Author::class => AuthorSchema::class
         ], $this->encoderOptions);
 
-        $endcoder->encode('input must be an object or array of objects or iterator over objects');
+        $endcoder->encodeData('input must be an object or array of objects or iterator over objects');
     }
 
     /**
@@ -76,7 +76,7 @@ class EncoderTest extends BaseTestCase
             }
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encode([$author, $author]);
+        $actual = $endcoder->encodeData([$author, $author]);
 
         $expected = <<<EOL
         {
@@ -131,7 +131,7 @@ EOL;
             },
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encode([$author, $author]);
+        $actual = $endcoder->encodeData([$author, $author]);
 
         $expected = <<<EOL
         {
@@ -193,7 +193,7 @@ EOL;
 
         $author->{Author::LINK_COMMENTS} = $comments;
 
-        $actual = $endcoder->encode([$author, $author], null, null, new EncodingParameters(
+        $actual = $endcoder->encodeData([$author, $author], new EncodingParameters(
             null,
             ['people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME]] // filter attributes
         ));
@@ -241,7 +241,7 @@ EOL;
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
-        ], $this->encoderOptions)->encode($this->getStandardPost());
+        ], $this->encoderOptions)->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -289,7 +289,7 @@ EOL;
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, []);
                 return $schema;
             },
-        ], $this->encoderOptions)->encode($this->getStandardPost());
+        ], $this->encoderOptions)->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -332,7 +332,7 @@ EOL;
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_RELATED, true);
                 return $schema;
             },
-        ], $this->encoderOptions)->encode($this->getStandardPost());
+        ], $this->encoderOptions)->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -396,7 +396,7 @@ EOL;
                 return $schema;
             },
             Comment::class => CommentSchema::class,
-        ], $this->encoderOptions)->encode($author);
+        ], $this->encoderOptions)->encodeData($author);
 
         $expected = <<<EOL
         {
@@ -446,7 +446,7 @@ EOL;
                 $schema->setRelationshipsMeta(['some' => 'meta']);
                 return $schema;
             },
-        ], $this->encoderOptions)->encode($this->getStandardPost());
+        ], $this->encoderOptions)->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -511,7 +511,7 @@ EOL;
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::LINKS, ['boo' => new Link('another/link')]);
                 return $schema;
             },
-        ], $this->encoderOptions)->encode($this->getStandardPost());
+        ], $this->encoderOptions)->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -565,7 +565,7 @@ EOL;
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::LINKS, ['boo' => new Link('another/link')]);
                 return $schema;
             },
-        ], $this->encoderOptions)->encode($this->getStandardPost());
+        ], $this->encoderOptions)->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -619,7 +619,7 @@ EOL;
 
         // and iterator here
         $itemSet = new ArrayIterator(['what_if_its_not_zero_based_array' => $author]);
-        $actual  = $endcoder->encode($itemSet);
+        $actual  = $endcoder->encodeData($itemSet);
 
         $expected = <<<EOL
         {
@@ -666,7 +666,7 @@ EOL;
                 $schema->linkRemove(Post::LINK_AUTHOR);
                 return $schema;
             },
-        ], $this->encoderOptions)->encode($post);
+        ], $this->encoderOptions)->encodeData($post);
 
         $expected = <<<EOL
         {
@@ -688,6 +688,54 @@ EOL;
                     "self" : "http://example.com/posts/1"
                 }
             }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode with relationship self Link.
+     */
+    public function testEncodeWithRelationshipSelfLink()
+    {
+        $post   = $this->getStandardPost();
+        $actual = Encoder::instance([
+            Post::class => PostSchema::class,
+        ])->withRelationshipSelfLink($post, Post::LINK_AUTHOR)->encodeData([]);
+
+        $expected = <<<EOL
+        {
+            "links": {
+                "self": "/posts/1/relationships/author"
+            },
+            "data" : []
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode with relationship related Link.
+     */
+    public function testEncodeWithRelationshipRelatedLink()
+    {
+        $post   = $this->getStandardPost();
+        $actual = Encoder::instance([
+            Post::class => PostSchema::class,
+        ])->withRelationshipRelatedLink($post, Post::LINK_AUTHOR)->encodeData([]);
+
+        $expected = <<<EOL
+        {
+            "links": {
+                "related": "/posts/1/author"
+            },
+            "data" : []
         }
 EOL;
         // remove formatting from 'expected'

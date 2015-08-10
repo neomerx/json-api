@@ -41,7 +41,7 @@ class Application
             Author::class  => AuthorSchema::class,
         ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com/api/v1'));
 
-        echo $encoder->encode($author) . PHP_EOL;
+        echo $encoder->encodeData($author) . PHP_EOL;
     }
 
     /**
@@ -56,8 +56,8 @@ class Application
             Comment::instance('456', 'Included objects work as easy as basic ones', $author),
             Comment::instance('789', 'Let\'s try!', $author),
         ];
-        $post     = Post::instance('321', 'Included objects', 'Yes, it is supported', $author, $comments);
-        $site     = Site::instance('1', 'JSON API Samples', [$post]);
+        $post = Post::instance('321', 'Included objects', 'Yes, it is supported', $author, $comments);
+        $site = Site::instance('1', 'JSON API Samples', [$post]);
 
         $encoder  = Encoder::instance([
             Author::class  => AuthorSchema::class,
@@ -66,7 +66,7 @@ class Application
             Site::class    => SiteSchema::class
         ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
 
-        echo $encoder->encode($site) . PHP_EOL;
+        echo $encoder->encodeData($site) . PHP_EOL;
     }
 
     /**
@@ -81,8 +81,8 @@ class Application
             Comment::instance('456', 'Included objects work as easy as basic ones', $author),
             Comment::instance('789', 'Let\'s try!', $author),
         ];
-        $post     = Post::instance('321', 'Included objects', 'Yes, it is supported', $author, $comments);
-        $site     = Site::instance('1', 'JSON API Samples', [$post]);
+        $post = Post::instance('321', 'Included objects', 'Yes, it is supported', $author, $comments);
+        $site = Site::instance('1', 'JSON API Samples', [$post]);
 
         $options  = new EncodingParameters(
             ['posts.author'], // Paths to be included. Note 'posts.comments' will not be shown.
@@ -99,7 +99,7 @@ class Application
             Site::class    => SiteSchema::class
         ], new EncoderOptions(JSON_PRETTY_PRINT));
 
-        echo $encoder->encode($site, null, null, $options) . PHP_EOL;
+        echo $encoder->encodeData($site, $options) . PHP_EOL;
     }
 
     /**
@@ -132,7 +132,7 @@ class Application
             Site::class    => SiteSchema::class
         ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
 
-        echo $encoder->encode($author, $links, $meta) . PHP_EOL;
+        echo $encoder->withLinks($links)->withMeta($meta)->encodeData($author) . PHP_EOL;
     }
 
     /**
@@ -149,10 +149,10 @@ class Application
         ], new EncoderOptions(JSON_PRETTY_PRINT));
 
         SiteSchema::$isShowCustomLinks = false;
-        echo $encoder->encode($site) . PHP_EOL;
+        echo $encoder->encodeData($site) . PHP_EOL;
 
         SiteSchema::$isShowCustomLinks = true;
-        echo $encoder->encode($site) . PHP_EOL;
+        echo $encoder->encodeData($site) . PHP_EOL;
     }
 
     /**
@@ -184,12 +184,10 @@ class Application
             $post     = Post::instance('321', 'Included objects' . $rand, 'Yes, it is supported', $author, $comments);
             $site     = Site::instance('1', 'JSON API Samples' . $rand, [$post]);
 
-            $encoder->encode(
-                $site,
-                [Link::SELF => new Link('http://example.com/sites/1?' . $rand, null, true)],
-                ['some' => ['meta' => 'information' . $rand]],
-                $options
-            );
+            $encoder
+                ->withLinks([Link::SELF => new Link('http://example.com/sites/1?' . $rand, null, true)])
+                ->withMeta(['some' => ['meta' => 'information' . $rand]])
+                ->encodeData($site, $options);
         }
     }
 

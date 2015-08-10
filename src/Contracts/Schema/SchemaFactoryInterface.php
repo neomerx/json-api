@@ -31,6 +31,15 @@ interface SchemaFactoryInterface
     public function createContainer(array $providers = []);
 
     /**
+     * Create adapter for schema provider container that returns 'resource identifiers' schemes.
+     *
+     * @param ContainerInterface $container
+     *
+     * @return ContainerInterface
+     */
+    public function createResourceIdentifierContainerAdapter(ContainerInterface $container);
+
+    /**
      * Create resource object.
      *
      * @param SchemaProviderInterface $schema
@@ -66,8 +75,18 @@ interface SchemaFactoryInterface
      *
      * @param string            $subHref
      * @param array|object|null $meta
+     * @param bool              $treatAsHref If $subHref is a full URL and must not be concatenated with other URLs.
      *
      * @return LinkInterface
      */
-    public function createLink($subHref, $meta = null);
+    public function createLink($subHref, $meta = null, $treatAsHref = false);
+
+    /**
+     * Create an adapter for schema that will provide data to encode them as resource identifiers.
+     *
+     * @param SchemaProviderInterface $schema
+     *
+     * @return SchemaProviderInterface
+     */
+    public function createResourceIdentifierSchemaAdapter(SchemaProviderInterface $schema);
 }

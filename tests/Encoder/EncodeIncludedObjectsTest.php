@@ -100,7 +100,7 @@ class EncodeIncludedObjectsTest extends BaseTestCase
                 $schema->setIncludePaths([Post::LINK_COMMENTS]);
                 return $schema;
             },
-        ], $this->encoderOptions)->encode($this->post);
+        ], $this->encoderOptions)->encodeData($this->post);
 
         $expected = <<<EOL
         {
@@ -165,7 +165,7 @@ EOL;
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encode($this->site, null, null, new EncodingParameters(
+        ], $this->encoderOptions)->encodeData($this->site, new EncodingParameters(
             // include only this relation (according to the spec intermediate will be included as well)
             [Site::LINK_POSTS . '.' . Post::LINK_COMMENTS],
             // include only these attributes and links
@@ -254,7 +254,7 @@ EOL;
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encode($this->site);
+        ], $this->encoderOptions)->encodeData($this->site);
 
         $expected = <<<EOL
         {
@@ -311,7 +311,7 @@ EOL;
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encode($this->site);
+        ], $this->encoderOptions)->encodeData($this->site);
 
         $expected = <<<EOL
         {
@@ -370,7 +370,7 @@ EOL;
                 $schema->setIncludePaths([Site::LINK_POSTS]);
                 return $schema;
             },
-        ], $this->encoderOptions)->encode($this->site);
+        ], $this->encoderOptions)->encodeData($this->site);
 
         $expected = <<<EOL
         {
@@ -436,7 +436,7 @@ EOL;
                 );
                 return $schema;
             },
-        ], $this->encoderOptions)->encode($this->post);
+        ], $this->encoderOptions)->encodeData($this->post);
 
         $expected = <<<EOL
         {
@@ -485,7 +485,7 @@ EOL;
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encode([$this->site, $this->site]);
+        ], $this->encoderOptions)->encodeData([$this->site, $this->site]);
 
         $expected = <<<EOL
         {

@@ -21,6 +21,7 @@ use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
+use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -224,14 +225,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function getRelationshipObjectIterator($resource)
     {
         foreach ($this->getRelationships($resource) as $name => $desc) {
-            $data          = $this->getValue($desc, self::DATA);
-            $meta          = $this->getValue($desc, self::META, null);
-            $isShowSelf    = ($this->getValue($desc, self::SHOW_SELF, false) === true);
-            $isShowRelated = ($this->getValue($desc, self::SHOW_RELATED, false) === true);
-            $isShowData    = ($this->getValue($desc, self::SHOW_DATA, true) === true);
-            $links         = $this->readLinks($name, $desc, $isShowSelf, $isShowRelated);
-
-            yield $this->factory->createRelationshipObject($name, $data, $links, $meta, $isShowData, false);
+            yield $this->createRelationshipObject($name, $desc);
         }
     }
 
@@ -255,13 +249,33 @@ abstract class SchemaProvider implements SchemaProviderInterface
     {
         $links = $this->getValue($description, self::LINKS, []);
         if ($isShowSelf === true && isset($links[LinkInterface::SELF]) === false) {
-            $links[LinkInterface::SELF] = $this->factory->createLink('relationships/'.$relationshipName);
+            $links[LinkInterface::SELF] = $this->factory->createLink(
+                DocumentInterface::KEYWORD_RELATIONSHIPS. '/'.$relationshipName
+            );
         }
         if ($isShowRelated === true && isset($links[LinkInterface::RELATED]) === false) {
             $links[LinkInterface::RELATED] = $this->factory->createLink($relationshipName);
         }
 
         return $links;
+    }
+
+    /**
+     * @param string $name
+     * @param array  $desc
+     *
+     * @return RelationshipObjectInterface
+     */
+    protected function createRelationshipObject($name, array $desc)
+    {
+        $data          = $this->getValue($desc, self::DATA);
+        $meta          = $this->getValue($desc, self::META, null);
+        $isShowSelf    = ($this->getValue($desc, self::SHOW_SELF, false) === true);
+        $isShowRelated = ($this->getValue($desc, self::SHOW_RELATED, false) === true);
+        $isShowData    = ($this->getValue($desc, self::SHOW_DATA, true) === true);
+        $links         = $this->readLinks($name, $desc, $isShowSelf, $isShowRelated);
+
+        return $this->factory->createRelationshipObject($name, $data, $links, $meta, $isShowData, false);
     }
 
     /**

@@ -90,6 +90,14 @@ class Container implements ContainerInterface
     {
         $resourceType = $this->getResourceType($resource);
 
+        return $this->getSchemaByType($resourceType);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSchemaByType($resourceType)
+    {
         if (isset($this->createdProviders[$resourceType])) {
             return $this->createdProviders[$resourceType];
         }

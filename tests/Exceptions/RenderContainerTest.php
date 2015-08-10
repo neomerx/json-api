@@ -164,7 +164,7 @@ class RenderContainerTest extends BaseTestCase
 
         $title = 'Error title';
         $error = new Error(null, null, null, null, $title);
-        $errorDocument = Encoder::instance([])->error($error);
+        $errorDocument = Encoder::instance([])->encodeError($error);
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()

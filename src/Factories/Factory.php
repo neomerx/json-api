@@ -42,7 +42,9 @@ use \Neomerx\JsonApi\Parameters\Headers\AcceptMediaType;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use \Neomerx\JsonApi\Schema\ResourceIdentifierSchemaAdapter;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
+use \Neomerx\JsonApi\Schema\ResourceIdentifierContainerAdapter;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
@@ -262,8 +264,24 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createLink($subHref, $meta = null)
+    public function createLink($subHref, $meta = null, $treatAsHref = false)
     {
-        return new Link($subHref, $meta);
+        return new Link($subHref, $meta, $treatAsHref);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createResourceIdentifierSchemaAdapter(SchemaProviderInterface $schema)
+    {
+        return new ResourceIdentifierSchemaAdapter($this, $schema);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createResourceIdentifierContainerAdapter(ContainerInterface $container)
+    {
+        return new ResourceIdentifierContainerAdapter($this, $container);
     }
 }

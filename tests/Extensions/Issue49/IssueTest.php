@@ -94,7 +94,7 @@ class IssueTest extends BaseTestCase
                 return $schema;
             },
             Comment::class => CommentSchema::class,
-        ], $this->encoderOptions)->encode($this->author, null, null, new EncodingParameters(
+        ], $this->encoderOptions)->encodeData($this->author, new EncodingParameters(
             // include only these relationships
             [Author::LINK_COMMENTS]
         ));

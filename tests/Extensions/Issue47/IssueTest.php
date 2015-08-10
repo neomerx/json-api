@@ -33,7 +33,7 @@ class IssueTest extends BaseTestCase
 
         $actual = CustomEncoder::instance([
             User::class => UserSchema::class,
-        ])->encode($user, null, null, new EncodingParameters(
+        ])->encodeData($user, new EncodingParameters(
             null,
             [
                 'users' => ['private.email'],

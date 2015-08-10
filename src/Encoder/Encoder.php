@@ -21,6 +21,7 @@ use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
@@ -47,6 +48,28 @@ class Encoder implements EncoderInterface
     protected $encoderOptions;
 
     /**
+     * Links in array<string,LinkInterface> format.
+     *
+     * @var array|null
+     */
+    protected $links;
+
+    /**
+     * @var array|object|null
+     */
+    protected $meta;
+
+    /**
+     * @var bool
+     */
+    protected $isAddJsonApiVersion;
+
+    /**
+     * @var mixed|null
+     */
+    protected $jsonApiVersionMeta;
+
+    /**
      * @param FactoryInterface    $factory
      * @param array               $schemas
      * @param EncoderOptions|null $encoderOptions
@@ -56,47 +79,98 @@ class Encoder implements EncoderInterface
         $this->factory        = $factory;
         $this->container      = $factory->createContainer($schemas);
         $this->encoderOptions = $encoderOptions;
+
+        $this->resetEncodeParameters();
     }
 
     /**
      * @inheritdoc
      */
-    public function encode(
-        $data,
-        $links = null,
-        $meta = null,
-        EncodingParametersInterface $parameters = null
-    ) {
-        $dataAnalyzer  = $this->factory->createAnalyzer($this->container);
+    public function withLinks(array $links)
+    {
+        $this->links = array_merge($this->links, $links);
 
-        $parameters    = $this->getEncodingParameters($data, $dataAnalyzer, $parameters);
-
-        $docWriter     = $this->factory->createDocument();
-        $parserManager = $this->factory->createManager($parameters);
-        $parser        = $this->factory->createParser($dataAnalyzer, $parserManager);
-        $interpreter   = $this->factory->createReplyInterpreter($docWriter, $parameters);
-
-        $this->encoderOptions !== null && $this->encoderOptions->getUrlPrefix() !== null ?
-            $docWriter->setUrlPrefix($this->encoderOptions->getUrlPrefix()) : null;
-
-        foreach ($parser->parse($data) as $reply) {
-            $interpreter->handle($reply);
-        }
-
-        $meta  === null ?: $docWriter->setMetaToDocument($meta);
-        $links === null ?: $docWriter->setDocumentLinks($links);
-
-        if ($this->encoderOptions !== null && $this->encoderOptions->isShowVersionInfo() === true) {
-            $docWriter->addJsonApiVersion(self::JSON_API_VERSION, $this->encoderOptions->getVersionMeta());
-        }
-
-        return $this->encodeToJson($docWriter->getDocument());
+        return $this;
     }
 
     /**
      * @inheritdoc
      */
-    public function error(ErrorInterface $error)
+    public function withMeta($meta)
+    {
+        $this->meta = $meta;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function withJsonApiVersion($meta = null)
+    {
+        $this->isAddJsonApiVersion = true;
+        $this->jsonApiVersionMeta  = $meta;
+
+        return $this;
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function withRelationshipSelfLink($resource, $relationshipName, $meta = null, $treatAsHref = false)
+    {
+        $parentSubLink = $this->container->getSchema($resource)->getSelfSubLink($resource);
+
+        $selfHref = $parentSubLink->getSubHref() .'/'. DocumentInterface::KEYWORD_RELATIONSHIPS .'/'. $relationshipName;
+        $links    = [
+            DocumentInterface::KEYWORD_SELF => $this->factory->createLink($selfHref, $meta, $treatAsHref),
+        ];
+
+        return $this->withLinks($links);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function withRelationshipRelatedLink($resource, $relationshipName, $meta = null, $treatAsHref = false)
+    {
+        $parentSubLink = $this->container->getSchema($resource)->getSelfSubLink($resource);
+
+        $selfHref = $parentSubLink->getSubHref() .'/'. $relationshipName;
+        $links    = [
+            DocumentInterface::KEYWORD_RELATED => $this->factory->createLink($selfHref, $meta, $treatAsHref),
+        ];
+
+        return $this->withLinks($links);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function encodeData($data, EncodingParametersInterface $parameters = null)
+    {
+        $container = $this->container;
+        $result    = $this->encodeDataInternal($container, $data, $parameters);
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function encodeIdentifiers($data, EncodingParametersInterface $parameters = null)
+    {
+        $container = $this->factory->createResourceIdentifierContainerAdapter($this->container);
+        $result    = $this->encodeDataInternal($container, $data, $parameters);
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function encodeError(ErrorInterface $error)
     {
         $docWriter = $this->factory->createDocument();
 
@@ -108,11 +182,10 @@ class Encoder implements EncoderInterface
     /**
      * @inheritdoc
      */
-    public function errors($errors)
+    public function encodeErrors($errors)
     {
         $docWriter = $this->factory->createDocument();
         foreach ($errors as $error) {
-            assert('$error instanceof '.ErrorInterface::class);
             $docWriter->addError($error);
         }
 
@@ -122,7 +195,7 @@ class Encoder implements EncoderInterface
     /**
      * @inheritdoc
      */
-    public function meta($meta)
+    public function encodeMeta($meta)
     {
         $docWriter = $this->factory->createDocument();
 
@@ -135,9 +208,88 @@ class Encoder implements EncoderInterface
     /**
      * @inheritdoc
      */
+    public function encode($data, $links = null, $meta = null, EncodingParametersInterface $parameters = null)
+    {
+        return $this->withLinks($links === null ? [] : $links)->withMeta($meta)->encodeData($data, $parameters);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function error(ErrorInterface $error)
+    {
+        return $this->encodeError($error);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function errors($errors)
+    {
+        return $this->encodeErrors($errors);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function meta($meta)
+    {
+        return $this->encodeMeta($meta);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getEncoderOptions()
     {
         return $this->encoderOptions;
+    }
+
+    /**
+     * @param ContainerInterface               $container
+     * @param object|array|Iterator|null       $data
+     * @param EncodingParametersInterface|null $parameters
+     *
+     * @return string
+     */
+    protected function encodeDataInternal(
+        ContainerInterface $container,
+        $data,
+        EncodingParametersInterface $parameters = null
+    ) {
+        $dataAnalyzer  = $this->factory->createAnalyzer($container);
+        $parameters    = $this->getEncodingParameters($data, $dataAnalyzer, $parameters);
+        $docWriter     = $this->factory->createDocument();
+        $parserManager = $this->factory->createManager($parameters);
+        $interpreter   = $this->factory->createReplyInterpreter($docWriter, $parameters);
+
+        $parser = $this->factory->createParser($dataAnalyzer, $parserManager);
+
+        $this->encoderOptions !== null && $this->encoderOptions->getUrlPrefix() !== null ?
+            $docWriter->setUrlPrefix($this->encoderOptions->getUrlPrefix()) : null;
+
+        foreach ($parser->parse($data) as $reply) {
+            $interpreter->handle($reply);
+        }
+
+        if ($this->meta !== null) {
+            $docWriter->setMetaToDocument($this->meta);
+        }
+
+        if (empty($this->links) === false) {
+            $docWriter->setDocumentLinks($this->links);
+        }
+
+        if ($this->isAddJsonApiVersion === true) {
+            $docWriter->addJsonApiVersion(self::JSON_API_VERSION, $this->jsonApiVersionMeta);
+        } elseif ($this->encoderOptions !== null && $this->encoderOptions->isShowVersionInfo() === true) {
+            $docWriter->addJsonApiVersion(self::JSON_API_VERSION, $this->encoderOptions->getVersionMeta());
+        }
+
+        $result = $this->encodeToJson($docWriter->getDocument());
+        $this->resetEncodeParameters();
+
+        return $result;
     }
 
     /**
@@ -160,7 +312,7 @@ class Encoder implements EncoderInterface
      * @param array               $schemas       Schema providers.
      * @param EncoderOptions|null $encodeOptions
      *
-     * @return Encoder
+     * @return EncoderInterface
      */
     public static function instance(array $schemas, EncoderOptions $encodeOptions = null)
     {
@@ -198,5 +350,16 @@ class Encoder implements EncoderInterface
 
             return $this->factory->createEncodingParameters($includePaths, $fieldSets);
         }
+    }
+
+    /**
+     * Reset encode parameters.
+     */
+    private function resetEncodeParameters()
+    {
+        $this->meta                = null;
+        $this->links               = [];
+        $this->isAddJsonApiVersion = false;
+        $this->jsonApiVersionMeta  = null;
     }
 }

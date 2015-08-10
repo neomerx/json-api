@@ -94,7 +94,7 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encode($this->site, null, null, new EncodingParameters(
+        ], $this->encoderOptions)->encodeData($this->site, new EncodingParameters(
             [
                 // include only this relations
                 Site::LINK_POSTS,
@@ -190,7 +190,7 @@ EOL;
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encode($this->site, null, null, new EncodingParameters(
+        ], $this->encoderOptions)->encodeData($this->site, new EncodingParameters(
             null,
             // include only these attributes and links
             [
@@ -274,7 +274,7 @@ EOL;
                 $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::DATA, $throwExClosure);
                 return $schema;
             },
-        ], $this->encoderOptions)->encode($this->author, null, null, new EncodingParameters(
+        ], $this->encoderOptions)->encodeData($this->author, new EncodingParameters(
             // do not include any relationships
             [],
             // include only these attributes (thus relationship that throws exception should not be invoked)

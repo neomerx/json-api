@@ -56,7 +56,7 @@ interface ParserFactoryInterface
     public function createParser(DataAnalyzerInterface $analyzer, ParserManagerInterface $manager = null);
 
     /**
-     * Create parser manager.
+     * Create parser manager for parsing full objects.
      *
      * @param EncodingParametersInterface $parameters
      *
