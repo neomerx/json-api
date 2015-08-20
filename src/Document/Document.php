@@ -344,7 +344,7 @@ class Document implements DocumentInterface
             return $value !== null;
         });
 
-        $this->errors[] = $representation;
+        $this->errors[] = (object)$representation;
     }
 
     /**

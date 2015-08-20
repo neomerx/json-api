@@ -95,8 +95,8 @@ class Error implements ErrorInterface
 
         $this->idx     = $idx;
         $this->links   = ($aboutLink === null ? null : [DocumentInterface::KEYWORD_ERRORS_ABOUT => $aboutLink]);
-        $this->status  = (string) $status;
-        $this->code    = (string) $code;
+        $this->status  = ($status !== null ? (string)$status : null);
+        $this->code    = ($code !== null ? (string)$code : null);
         $this->title   = $title;
         $this->source  = $source;
         $this->detail  = $detail;
