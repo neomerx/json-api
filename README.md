@@ -30,6 +30,17 @@ High code quality and **100% test coverage** with **150+ tests**. Production rea
 </blockquote>
 <p align="right">&ndash;<strong>Jeremy Cloutier</strong></p>
 
+## Full-stack Integration
+
+This package is framework agnostic and if you are looking for practical usage sample you might be interested in
+- Quick start JSON API application [Limoncello Collins](https://github.com/neomerx/limoncello-collins) or [Limoncello Shot](https://github.com/neomerx/limoncello-shot).
+- A single-page JavaScript Application [Limoncello Ember](https://github.com/neomerx/limoncello-ember) that works with those API Servers.
+
+The server and client support
+- CRUD operations for a few sample data models and Users.
+- Cross-origin requests (CORS) to API server.
+- Server login (Basic Auth) and API authentication (JWT Bearer).
+
 ## Sample usage
 
 Assuming you've got an ```$author``` of type ```\Author``` you can encode it to JSON API as simple as this
