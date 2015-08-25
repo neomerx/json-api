@@ -102,7 +102,7 @@ class Container implements ContainerInterface
             return $this->createdProviders[$resourceType];
         }
 
-        assert('isset($this->providerMapping[$resourceType])', 'Have you added provider for `'.$resourceType.'`?');
+        assert('isset($this->providerMapping[$resourceType])', 'Have you added Schema for `'.$resourceType.'`?');
 
         $classNameOrClosure = $this->providerMapping[$resourceType];
         if ($classNameOrClosure instanceof Closure) {
