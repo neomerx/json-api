@@ -103,13 +103,6 @@ interface SchemaProviderInterface
     public function isShowAttributesInIncluded();
 
     /**
-     * If links be shown for included resources.
-     *
-     * @return bool
-     */
-    public function isShowRelationshipsInIncluded();
-
-    /**
      * Get schema default include paths.
      *
      * @return string[]

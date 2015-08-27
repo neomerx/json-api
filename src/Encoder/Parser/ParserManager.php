@@ -55,7 +55,7 @@ class ParserManager implements ParserManagerInterface
         StackReadOnlyInterface $stack
     ) {
         list($onTheWay, $parentIsTarget) = $this->foundInPaths($stack);
-        $shouldContinue = $onTheWay || ($parentIsTarget && $resource->isShowRelationshipsInIncluded());
+        $shouldContinue = $onTheWay || $parentIsTarget;
         return $shouldContinue;
     }
 

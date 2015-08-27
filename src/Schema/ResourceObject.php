@@ -210,14 +210,6 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function isShowRelationshipsInIncluded()
-    {
-        return $this->schema->isShowRelationshipsInIncluded();
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function isInArray()
     {
         return $this->isInArray;

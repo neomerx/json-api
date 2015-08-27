@@ -85,11 +85,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     protected $isShowAttributesInIncluded = true;
 
     /**
-     * @var bool
-     */
-    protected $isShowRelShipsInIncluded = true;
-
-    /**
      * @var SchemaFactoryInterface
      */
     private $factory;
@@ -106,7 +101,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
     {
         assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set');
-        assert('is_bool($this->isShowSelfInIncluded) && is_bool($this->isShowRelShipsInIncluded)');
+        assert('is_bool($this->isShowSelfInIncluded)');
         assert('is_string($this->selfSubUrl) && empty($this->selfSubUrl) === false', '\'self\' sub-URL not set');
         assert('substr($this->selfSubUrl, -1) === \'/\'', 'Sub-url should end with \'/\' separator');
 
@@ -176,14 +171,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function isShowAttributesInIncluded()
     {
         return $this->isShowAttributesInIncluded;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowRelationshipsInIncluded()
-    {
-        return $this->isShowRelShipsInIncluded;
     }
 
     /**

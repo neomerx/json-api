@@ -106,13 +106,6 @@ interface ResourceObjectInterface
     public function isShowAttributesInIncluded();
 
     /**
-     * If resource relationships should be shown for included resources.
-     *
-     * @return bool
-     */
-    public function isShowRelationshipsInIncluded();
-
-    /**
      * If original data we part of an array of elements.
      *
      * @return bool
