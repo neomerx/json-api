@@ -47,8 +47,8 @@ class ResourceIdentifierSchemaAdapterTest extends BaseTestCase
 
         $resource = (object)['whatever'];
         $adapter->getSelfSubLink($resource);
-        $this->assertFalse($adapter->isShowSelf());
-        $this->assertFalse($adapter->isShowSelfInIncluded());
+        $this->assertEmpty($adapter->getResourceLinks($resource));
+        $this->assertEmpty($adapter->getIncludedResourceLinks($resource));
         $this->assertEmpty($adapter->getAttributes($resource));
         $this->assertFalse($adapter->isShowAttributesInIncluded());
         $this->assertFalse($adapter->isShowRelationshipsInIncluded());

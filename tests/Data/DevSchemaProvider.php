@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Closure;
 use \Neomerx\JsonApi\Schema\SchemaProvider;
 
 /**
@@ -51,6 +52,11 @@ abstract class DevSchemaProvider extends SchemaProvider
     private $relationshipsMeta;
 
     /**
+     * @var Closure
+     */
+    private $resourceLinksClosure = null;
+
+    /**
      * @inheritdoc
      */
     public function getRelationshipsPrimaryMeta($resource)
@@ -67,11 +73,31 @@ abstract class DevSchemaProvider extends SchemaProvider
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getResourceLinks($resource)
+    {
+        if (($linksClosure = $this->resourceLinksClosure) === null) {
+            return parent::getResourceLinks($resource);
+        } else {
+            return $linksClosure($resource);
+        }
+    }
+
+    /**
      * @param array $relationshipMeta
      */
     public function setRelationshipsMeta($relationshipMeta)
     {
         $this->relationshipsMeta = $relationshipMeta;
+    }
+
+    /**
+     * @param Closure $linksClosure
+     */
+    public function setResourceLinksClosure(Closure $linksClosure)
+    {
+        $this->resourceLinksClosure = $linksClosure;
     }
 
     /**

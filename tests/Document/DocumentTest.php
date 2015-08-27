@@ -127,7 +127,7 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('selfUrl'),
-            true,
+            [LinkInterface::SELF => new Link('selfUrl')], // links for resource
             ['some' => 'meta']
         ), new stdClass(), true));
         $this->document->setResourceCompleted($resource);
@@ -165,7 +165,7 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             null, // self url
-            false, // show self
+            [], // links for resource
             null   // meta
         ), new stdClass(), false));
 
@@ -226,7 +226,7 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('peopleSelfUrl'), // self url
-            false, // show self
+            [], // links for resource
             null // meta
         ), new stdClass(), false));
 
@@ -235,9 +235,9 @@ EOL;
             '321',
             null, // attributes
             new Link('commentsSelfUrl/'),
-            true, // show self
+            [LinkInterface::SELF => new Link('commentsSelfUrl/')], // links for resource
             ['this meta' => 'wont be included'],
-            false,
+            [], // links for included resource
             false,
             null,
             ['some' => 'comment meta']
@@ -294,7 +294,7 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('selfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             null //   meta
         ), new stdClass(), false));
 
@@ -303,9 +303,9 @@ EOL;
             '321',
             null, // attributes
             new Link('commentsSelfUrl/'),
-            true, // show self
+            [LinkInterface::SELF => new Link('commentsSelfUrl/')], // links for resource
             ['this meta' => 'wont be shown'], // meta when resource is primary
-            false,
+            [], // links for included resource
             false,
             ['this meta' => 'wont be shown'], // meta when resource within 'included'
             ['some' => 'comment meta'] // meta when resource is in relationship
@@ -352,7 +352,7 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('selfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             null //   meta
         ), new stdClass(), false));
 
@@ -361,9 +361,9 @@ EOL;
             '321',
             null, // attributes
             new Link('selfUrlWillBeHidden/'),
-            true, // show self
+            [LinkInterface::SELF => new Link('selfUrlWillBeHidden/')], // links for resource
             ['this meta' => 'wont be shown'], // meta when resource is primary
-            false, // show 'self' in 'included'
+            [], // links for included resource
             false, // show relationships in 'included'
             ['this meta' => 'wont be shown'], // meta when resource within 'included'
             ['some' => 'comment meta'] // meta when resource is in relationship
@@ -414,7 +414,7 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('selfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             null //   meta
         ), new stdClass(), false));
 
@@ -423,9 +423,9 @@ EOL;
             '321',
             null, // attributes
             new Link('selfUrlWillBeHidden/'),
-            true, // show self
+            [LinkInterface::SELF => new Link('selfUrlWillBeHidden/')], // links for resource
             ['this meta' => 'wont be shown'], // meta when resource is primary
-            false, // show 'self' in 'included'
+            [], // links for included resource
             false, // show relationships in 'included'
             ['this meta' => 'wont be shown'], // meta when resource within 'included'
             ['some' => 'comment meta'] // meta when resource is in relationship
@@ -473,7 +473,7 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('peopleSelfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             null   // meta
         ), new stdClass(), false));
 
@@ -520,7 +520,7 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('peopleSelfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             null //   meta
         ), new stdClass(), false));
 
@@ -566,9 +566,9 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('peopleSelfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             null, //  meta
-            true, //  show 'self' in 'included'
+            [LinkInterface::SELF => new Link('peopleSelfUrl/')], // links for included resource
             false, // show 'relationships' in 'included'
             ['some' => 'meta'] // meta when resource within 'included'
         ), new stdClass(), false));
@@ -609,7 +609,7 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('peopleSelfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             null //   meta
         ), new stdClass(), false));
 
@@ -643,9 +643,9 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('peopleSelfUrl'), // self url
-            false, // show self
+            [], // links for resource
             ['this meta' => 'wont be shown'], // meta when primary resource
-            true, //  show 'self' in 'included'
+            [LinkInterface::SELF => new Link('peopleSelfUrl')], // links for included resource
             false, // show 'relationships' in 'included'
             ['some' => 'author meta'] // meta when resource within 'included'
         ), new stdClass(), false));
@@ -655,9 +655,9 @@ EOL;
             '321',
             null, // attributes
             new Link('selfUrlWillBeHidden/'),
-            true, // show self
+            [LinkInterface::SELF => new Link('selfUrlWillBeHidden/')], // links for resource
             ['this meta' => 'wont be shown'], // meta when resource is primary
-            false, // show 'self' in 'included'
+            [], // links for included resource
             false, // show relationships in 'included'
             ['this meta' => 'wont be shown'], // meta when resource within 'included'
             ['some' => 'comment meta'] // meta when resource is in relationship
@@ -720,9 +720,9 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('peopleSelfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             ['this meta' => 'wont be shown'], // meta when primary resource
-            true, //  show 'self' in 'included'
+            [LinkInterface::SELF => new Link('peopleSelfUrl/')], // links for included resource
             false, // show 'relationships' in 'included'
             ['some' => 'author meta'] // meta when resource within 'included'
         ), new stdClass(), false));
@@ -732,9 +732,9 @@ EOL;
             '321',
             null, // attributes
             new Link('selfUrlWillBeHidden/'),
-            true, // show self
+            [LinkInterface::SELF => new Link('selfUrlWillBeHidden/')], // links for resource
             ['this meta' => 'wont be shown'], // meta when resource is primary
-            false, // show 'self' in 'included'
+            [], // links for included resource
             false, // show relationships in 'included'
             ['this meta' => 'wont be shown'], // meta when resource within 'included'
             ['some' => 'comment meta'] // meta when resource is in relationship
@@ -789,9 +789,9 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('peopleSelfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             ['this meta' => 'wont be shown'], // meta when primary resource
-            true, //  show 'self' in 'included'
+            [LinkInterface::SELF => new Link('peopleSelfUrl/')], // links for included resource
             false, // show 'relationships' in 'included'
             ['some' => 'author meta'] // meta when resource within 'included'
         ), new stdClass(), false));
@@ -845,9 +845,9 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('peopleSelfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             ['this meta' => 'wont be shown'], // meta when primary resource
-            true, //  show 'self' in 'included'
+            [LinkInterface::SELF => new Link('peopleSelfUrl/')], // links for included resource
             false, // show 'relationships' in 'included'
             ['some' => 'author meta'] // meta when resource within 'included'
         ), new stdClass(), false));
@@ -901,7 +901,7 @@ EOL;
             '123',
             null, // attributes
             new Link('peopleSelfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             null // meta when primary resource
         ), new stdClass(), false));
         $this->document->setResourceCompleted($resource);
@@ -1022,7 +1022,7 @@ EOL;
             '123',
             null, // attributes
             new Link('peopleSelfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             null // meta when primary resource
         ), new stdClass(), false));
         $this->document->setResourceCompleted($resource);
@@ -1047,9 +1047,9 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('peopleSelfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             null, //   meta
-            false, // show self in included
+            [], // links for included resource
             false, // show relationships in included
             null, //  inclusion meta
             null, //  relationship meta
@@ -1101,9 +1101,9 @@ EOL;
             '123',
             ['firstName' => 'John', 'lastName' => 'Dow'],
             new Link('peopleSelfUrl/'), // self url
-            false, // show self
+            [], // links for resource
             null, //   meta
-            false, // show self in included
+            [], // links for included resource
             false, // show relationships in included
             null, //  inclusion meta
             null, //  relationship meta
@@ -1173,9 +1173,9 @@ EOL;
      * @param string        $idx
      * @param array|null    $attributes
      * @param LinkInterface|null $selfLink
-     * @param bool          $showSelfUrl
+     * @param array         $resourceLinks
      * @param mixed         $primaryMeta
-     * @param bool          $showSelfInIncluded
+     * @param array         $includedResLinks
      * @param bool          $relShipsInIncluded
      * @param mixed         $inclusionMeta
      * @param mixed         $relationshipMeta
@@ -1191,9 +1191,9 @@ EOL;
         $idx,
         $attributes,
         $selfLink,
-        $showSelfUrl,
+        array $resourceLinks,
         $primaryMeta,
-        $showSelfInIncluded = false,
+        array $includedResLinks = [],
         $relShipsInIncluded = false,
         $inclusionMeta = null,
         $relationshipMeta = null,
@@ -1213,9 +1213,9 @@ EOL;
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getAttributes')->zeroOrMoreTimes()->andReturn($attributes);
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $schema->shouldReceive('isShowSelf')->zeroOrMoreTimes()->andReturn($showSelfUrl);
+        $schema->shouldReceive('getResourceLinks')->zeroOrMoreTimes()->andReturn($resourceLinks);
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $schema->shouldReceive('isShowSelfInIncluded')->zeroOrMoreTimes()->andReturn($showSelfInIncluded);
+        $schema->shouldReceive('getIncludedResourceLinks')->zeroOrMoreTimes()->andReturn($includedResLinks);
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('isShowAttributesInIncluded')->zeroOrMoreTimes()->andReturn($showAttributesInIncluded);
         /** @noinspection PhpMethodParametersCountMismatchInspection */

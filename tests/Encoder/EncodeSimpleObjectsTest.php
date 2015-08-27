@@ -172,6 +172,51 @@ EOL;
     }
 
     /**
+     * Test encode simple object with attributes and custom links.
+     *
+     * @see https://github.com/neomerx/json-api/issues/64
+     */
+    public function testEncodeObjectWithAttributesAndCustomLinks()
+    {
+        $author   = Author::instance(9, 'Dan', 'Gebhardt');
+        $endcoder = Encoder::instance([
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkRemove(Author::LINK_COMMENTS);
+                $schema->setResourceLinksClosure(function ($resource) {
+                    $this->assertNotNull($resource);
+                    return [
+                        'custom' => new Link('http://custom-link.com/', null, true),
+                    ];
+                });
+                return $schema;
+            }
+        ], $this->encoderOptions);
+
+        $actual = $endcoder->encodeData($author);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"       : "people",
+                "id"         : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "links" : {
+                    "custom" : "http://custom-link.com/"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * Test encode simple object as resource identity.
      */
     public function testEncodeObjectAsResourceIdentity()

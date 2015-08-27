@@ -148,7 +148,7 @@ class ElementPresenter
     {
         return $this->convertResourceToArray(
             $resource,
-            $resource->isShowSelf(),
+            $resource->getResourceLinks(),
             $resource->getPrimaryMeta(),
             $isShowAttributes
         );
@@ -165,7 +165,7 @@ class ElementPresenter
     {
         return $this->convertResourceToArray(
             $resource,
-            $resource->isShowSelfInIncluded(),
+            $resource->getIncludedResourceLinks(),
             $resource->getInclusionMeta(),
             $resource->isShowAttributesInIncluded()
         );
@@ -277,13 +277,13 @@ class ElementPresenter
      * Convert resource object to array.
      *
      * @param ResourceObjectInterface $resource
-     * @param bool                    $isShowSelf
+     * @param array                   $resourceLinks
      * @param mixed                   $meta
      * @param bool                    $isShowAttributes
      *
      * @return array
      */
-    private function convertResourceToArray(ResourceObjectInterface $resource, $isShowSelf, $meta, $isShowAttributes)
+    private function convertResourceToArray(ResourceObjectInterface $resource, $resourceLinks, $meta, $isShowAttributes)
     {
         $representation = [
             Document::KEYWORD_TYPE => $resource->getType(),
@@ -304,9 +304,12 @@ class ElementPresenter
         // links and meta which is not visually beautiful
         $representation[Document::KEYWORD_RELATIONSHIPS] = null;
 
-        if ($isShowSelf === true) {
-            $representation[Document::KEYWORD_LINKS][Document::KEYWORD_SELF] =
-                $this->getLinkRepresentation($this->document->getUrlPrefix(), $resource->getSelfSubLink());
+        if (empty($resourceLinks) === false) {
+            foreach ($resourceLinks as $linkName => $link) {
+                /** @var LinkInterface $link */
+                $representation[Document::KEYWORD_LINKS][$linkName] =
+                    $this->getLinkRepresentation($this->document->getUrlPrefix(), $link);
+            }
         }
 
         if ($meta !== null) {

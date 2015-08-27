@@ -66,11 +66,15 @@ abstract class SchemaProvider implements SchemaProviderInterface
     protected $selfSubUrl;
 
     /**
+     * @deprecated Override getResourceLinks instead
+     *
      * @var bool
      */
     protected $isShowSelf = true;
 
     /**
+     * @deprecated Override getIncludedResourceLinks instead
+     *
      * @var bool
      */
     protected $isShowSelfInIncluded = false;
@@ -83,7 +87,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @var bool
      */
-    protected $isShowRelShipsInIncluded = false;
+    protected $isShowRelShipsInIncluded = true;
 
     /**
      * @var SchemaFactoryInterface
@@ -169,22 +173,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function isShowSelf()
-    {
-        return $this->isShowSelf;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowSelfInIncluded()
-    {
-        return $this->isShowSelfInIncluded;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function isShowAttributesInIncluded()
     {
         return $this->isShowAttributesInIncluded;
@@ -235,6 +223,34 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function getIncludePaths()
     {
         return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getResourceLinks($resource)
+    {
+        $links = [];
+
+        if ($this->isShowSelf === true) {
+            $links[LinkInterface::SELF] = $this->getSelfSubLink($resource);
+        }
+
+        return $links;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIncludedResourceLinks($resource)
+    {
+        $links = [];
+
+        if ($this->isShowSelfInIncluded === true) {
+            $links[LinkInterface::SELF] = $this->getSelfSubLink($resource);
+        }
+
+        return $links;
     }
 
     /**

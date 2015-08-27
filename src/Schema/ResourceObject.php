@@ -186,17 +186,17 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function isShowSelf()
+    public function getResourceLinks()
     {
-        return $this->schema->isShowSelf();
+        return $this->schema->getResourceLinks($this->resource);
     }
 
     /**
      * @inheritdoc
      */
-    public function isShowSelfInIncluded()
+    public function getIncludedResourceLinks()
     {
-        return $this->schema->isShowSelfInIncluded();
+        return $this->schema->getIncludedResourceLinks($this->resource);
     }
 
     /**

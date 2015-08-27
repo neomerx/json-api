@@ -78,18 +78,22 @@ interface SchemaProviderInterface
     public function getRelationshipObjectIterator($resource);
 
     /**
-     * If 'self' endpoint URL.
+     * Get links related to resource.
      *
-     * @return bool
+     * @param mixed $resource
+     *
+     * @return array Array key is link name and value is LinkInterface.
      */
-    public function isShowSelf();
+    public function getResourceLinks($resource);
 
     /**
-     * If 'self' endpoint URL should be shown for included resources.
+     * Get links related to resource when it is in 'included' section.
      *
-     * @return bool
+     * @param mixed $resource
+     *
+     * @return array Array key is link name and value is LinkInterface.
      */
-    public function isShowSelfInIncluded();
+    public function getIncludedResourceLinks($resource);
 
     /**
      * If resource attributes should be shown when the resource is within 'included'.

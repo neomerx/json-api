@@ -97,17 +97,17 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function isShowSelf()
+    public function getResourceLinks($resource)
     {
-        return false;
+        return [];
     }
 
     /**
      * @inheritdoc
      */
-    public function isShowSelfInIncluded()
+    public function getIncludedResourceLinks($resource)
     {
-        return false;
+        return [];
     }
 
     /**

@@ -85,18 +85,18 @@ interface ResourceObjectInterface
     public function getSelfSubLink();
 
     /**
-     * If 'self' endpoint URL should be shown for resource in 'data' section.
+     * Get links related to resource.
      *
-     * @return bool
+     * @return array
      */
-    public function isShowSelf();
+    public function getResourceLinks();
 
     /**
-     * If 'self' endpoint URL should be shown for included resources.
+     * Get links related to resource when it is in 'included' section.
      *
-     * @return bool
+     * @return array
      */
-    public function isShowSelfInIncluded();
+    public function getIncludedResourceLinks();
 
     /**
      * If resource attributes should be shown when the resource is within 'included'.
