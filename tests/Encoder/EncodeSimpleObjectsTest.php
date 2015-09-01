@@ -22,6 +22,7 @@ use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
+use \Neomerx\Tests\JsonApi\Data\DummyEncoder;
 use \Neomerx\JsonApi\Parameters\EncodingParameters;
 
 /**
@@ -570,5 +571,16 @@ EOL;
         $expected = json_encode(json_decode($expected));
 
         $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encoder will create instances of child classes.
+     *
+     * @see https://github.com/neomerx/json-api/issues/67
+     */
+    public function testEnheritedEncoder()
+    {
+        $childEncoder = DummyEncoder::instance([]);
+        $this->assertEquals(DummyEncoder::class, get_class($childEncoder));
     }
 }

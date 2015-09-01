@@ -316,7 +316,7 @@ class Encoder implements EncoderInterface
      */
     public static function instance(array $schemas, EncoderOptions $encodeOptions = null)
     {
-        return new self(static::getFactory(), $schemas, $encodeOptions);
+        return new static(static::getFactory(), $schemas, $encodeOptions);
     }
 
     /**
