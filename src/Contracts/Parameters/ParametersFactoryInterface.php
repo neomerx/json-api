@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
+use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptMediaTypeInterface;
@@ -127,4 +129,65 @@ interface ParametersFactoryInterface
      * @return AcceptHeaderInterface
      */
     public function createAcceptHeader($unsortedMediaTypes);
+
+    /**
+     * Create header parameters checker.
+     *
+     * @param ExceptionThrowerInterface $exceptionThrower
+     * @param CodecMatcherInterface     $codecMatcher
+     *
+     * @return HeadersCheckerInterface
+     */
+    public function createHeadersChecker(
+        ExceptionThrowerInterface $exceptionThrower,
+        CodecMatcherInterface $codecMatcher
+    );
+
+    /**
+     * Create query parameters checker.
+     *
+     * @param ExceptionThrowerInterface $exceptionThrower
+     * @param bool|false                $allowUnrecognized
+     * @param array|null                $includePaths
+     * @param array|null                $fieldSetTypes
+     * @param array|null                $sortParameters
+     * @param array|null                $pagingParameters
+     * @param array|null                $filteringParameters
+     *
+     * @return QueryCheckerInterface
+     */
+    public function createQueryChecker(
+        ExceptionThrowerInterface $exceptionThrower,
+        $allowUnrecognized = false,
+        array $includePaths = null,
+        array $fieldSetTypes = null,
+        array $sortParameters = null,
+        array $pagingParameters = null,
+        array $filteringParameters = null
+    );
+
+    /**
+     * Create parameters checker for headers and query.
+     *
+     * @param ExceptionThrowerInterface $exceptionThrower
+     * @param CodecMatcherInterface     $codecMatcher
+     * @param bool|false                $allowUnrecognized
+     * @param array|null                $includePaths
+     * @param array|null                $fieldSetTypes
+     * @param array|null                $sortParameters
+     * @param array|null                $pagingParameters
+     * @param array|null                $filteringParameters
+     *
+     * @return ParametersCheckerInterface
+     */
+    public function createParametersChecker(
+        ExceptionThrowerInterface $exceptionThrower,
+        CodecMatcherInterface $codecMatcher,
+        $allowUnrecognized = false,
+        array $includePaths = null,
+        array $fieldSetTypes = null,
+        array $sortParameters = null,
+        array $pagingParameters = null,
+        array $filteringParameters = null
+    );
 }

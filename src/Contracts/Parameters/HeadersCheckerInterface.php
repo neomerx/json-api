@@ -19,13 +19,12 @@
 /**
  * @package Neomerx\JsonApi
  */
-
-interface ParameterCheckerInterface
+interface HeadersCheckerInterface
 {
     /**
      * @param ParametersInterface $parameters
      *
      * @return void
      */
-    public function check(ParametersInterface $parameters);
+    public function checkHeaders(ParametersInterface $parameters);
 }
