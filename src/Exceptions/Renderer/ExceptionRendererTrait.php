@@ -73,7 +73,7 @@ trait ExceptionRendererTrait
      */
     public function isStatusCode($statusCode)
     {
-        return (400 <= $statusCode && 600 > $statusCode);
+        return (100 <= $statusCode && 600 > $statusCode);
     }
 
     /**
