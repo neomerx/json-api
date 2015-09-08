@@ -1,4 +1,6 @@
-<?php namespace Neomerx\JsonApi\Contracts\Codec;
+<?php
+
+namespace Neomerx\JsonApi\Contracts\Codec;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -22,20 +24,19 @@ use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptMediaTypeInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
 interface CodecMatcherInterface
 {
+
     /**
      * Register encoder.
      *
      * @param MediaTypeInterface $mediaType
      * @param Closure            $encoderClosure
-     *
-     * @return void
+     * @return $this
      */
     public function registerEncoder(MediaTypeInterface $mediaType, Closure $encoderClosure);
 
@@ -44,49 +45,73 @@ interface CodecMatcherInterface
      *
      * @param MediaTypeInterface $mediaType
      * @param Closure            $decoderClosure
-     *
-     * @return void
+     * @return $this
      */
     public function registerDecoder(MediaTypeInterface $mediaType, Closure $decoderClosure);
 
     /**
-     * Get encoder.
-     *
-     * @return EncoderInterface|null
+     * @param MediaTypeInterface $mediaType
+     * @param Closure $encoder
+     * @param Closure $decoder
+     * @return $this
      */
-    public function getEncoder();
+    public function registerBoth(MediaTypeInterface $mediaType, Closure $encoder, Closure $decoder);
 
     /**
-     * Set encoder.
+     * Register the default media type that should be used if match is not found.
+     *
+     * A default media type is required for instances where a fallback encoder is required. For example, if an error
+     * needs to be encoded but the error was caused by there not being an encoder match, a renderer will need a fallback
+     * encoder to use.
+     *
+     * @param MediaTypeInterface $mediaType
+     * @return $this
+     */
+    public function registerDefault(MediaTypeInterface $mediaType);
+
+    /**
+     * @return EncoderMatchInterface
+     */
+    public function getDefaultEncoder();
+
+    /**
+     * Get the matched encoder, or null if no match.
+     *
+     * @return EncoderMatchInterface|null
+     */
+    public function getEncoderMatch();
+
+    /**
+     * Set the matched encoder.
      *
      * @param EncoderInterface|Closure $encoder
-     *
-     * @return void
+     * @param MediaTypeInterface $mediaType
+     * @return $this
      */
-    public function setEncoder($encoder);
+    public function setEncoder($encoder, MediaTypeInterface $mediaType);
 
     /**
-     * Get decoder.
+     * Get the matched decoder, or null if no match.
      *
-     * @return DecoderInterface|null
+     * @return DecoderMatchInterface|null
      */
-    public function getDecoder();
+    public function getDecoderMatch();
 
     /**
-     * Set decoder.
+     * Set the matched decoder.
      *
      * @param DecoderInterface|Closure $decoder
-     *
-     * @return DecoderInterface
+     * @param MediaTypeInterface $mediaType
+     * @return mixed
      */
-    public function setDecoder($decoder);
+    public function setDecoder($decoder, MediaTypeInterface $mediaType);
 
     /**
      * Find best encoder match for 'Accept' header.
      *
      * @param AcceptHeaderInterface $acceptHeader
-     *
-     * @return void
+     * @return EncoderMatchInterface|null
+     *      the encoder that was matched, or null if none.
      */
     public function matchEncoder(AcceptHeaderInterface $acceptHeader);
 
@@ -94,36 +119,9 @@ interface CodecMatcherInterface
      * Find best decoder match for 'Content-Type' header.
      *
      * @param HeaderInterface $contentTypeHeader
-     *
-     * @return void
+     * @return DecoderMatchInterface|null
+     *      the decoder that was found, or nll if none.
      */
     public function findDecoder(HeaderInterface $contentTypeHeader);
 
-    /**
-     * Get media type from 'Accept' header that matched to one of the registered encoder media types.
-     *
-     * @return AcceptMediaTypeInterface|null
-     */
-    public function getEncoderHeaderMatchedType();
-
-    /**
-     * Get media type that was registered for matched encoder.
-     *
-     * @return MediaTypeInterface|null
-     */
-    public function getEncoderRegisteredMatchedType();
-
-    /**
-     * Get media type from 'Content-Type' header that matched to one of the registered decoder media types.
-     *
-     * @return MediaTypeInterface|null
-     */
-    public function getDecoderHeaderMatchedType();
-
-    /**
-     * Get media type that was registered for matched decoder.
-     *
-     * @return MediaTypeInterface|null
-     */
-    public function getDecoderRegisteredMatchedType();
 }
