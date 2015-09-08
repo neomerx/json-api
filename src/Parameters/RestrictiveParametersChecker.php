@@ -3,23 +3,23 @@
 namespace Neomerx\JsonApi\Parameters;
 
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
-use Neomerx\JsonApi\Contracts\Parameters\CombinedCheckerInterface;
+use Neomerx\JsonApi\Contracts\Parameters\ParametersCheckerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class RestrictiveChecker implements CombinedCheckerInterface
+class RestrictiveParametersChecker implements ParametersCheckerInterface
 {
 
     /**
-     * @var RestrictiveHeaderChecker
+     * @var RestrictiveHeadersChecker
      */
     private $headerChecker;
 
     /**
-     * @var RestrictiveParameterChecker
+     * @var RestrictiveQueryChecker
      */
     private $parameterChecker;
 
@@ -43,12 +43,12 @@ class RestrictiveChecker implements CombinedCheckerInterface
         array $pagingParameters = null,
         array $filteringParameters = null
     ) {
-        $this->headerChecker = new RestrictiveHeaderChecker(
+        $this->headerChecker = new RestrictiveHeadersChecker(
             $exceptionThrower,
             $codecMatcher
         );
 
-        $this->parameterChecker = new RestrictiveParameterChecker(
+        $this->parameterChecker = new RestrictiveQueryChecker(
             $exceptionThrower,
             $allowUnrecognized,
             $includePaths,
@@ -60,27 +60,24 @@ class RestrictiveChecker implements CombinedCheckerInterface
     }
 
     /**
-     * @param ParametersInterface $parameters
-     * @return void
+     * @inheritdoc
      */
     public function check(ParametersInterface $parameters)
     {
         $this->checkHeaders($parameters);
-        $this->checkParameters($parameters);
+        $this->checkQuery($parameters);
     }
 
     /**
-     * @param ParametersInterface $parameters
-     * @return void
+     * @inheritdoc
      */
-    public function checkParameters(ParametersInterface $parameters)
+    public function checkQuery(ParametersInterface $parameters)
     {
-        $this->parameterChecker->checkParameters($parameters);
+        $this->parameterChecker->checkQuery($parameters);
     }
 
     /**
-     * @param ParametersInterface $parameters
-     * @return void
+     * @inheritdoc
      */
     public function checkHeaders(ParametersInterface $parameters)
     {

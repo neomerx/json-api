@@ -3,14 +3,14 @@
 namespace Neomerx\JsonApi\Parameters;
 
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
-use Neomerx\JsonApi\Contracts\Parameters\HeaderCheckerInterface;
+use Neomerx\JsonApi\Contracts\Parameters\HeadersCheckerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class RestrictiveHeaderChecker implements HeaderCheckerInterface
+class RestrictiveHeadersChecker implements HeadersCheckerInterface
 {
     /**
      * @var ExceptionThrowerInterface

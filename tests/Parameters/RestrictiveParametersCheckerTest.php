@@ -22,7 +22,7 @@ use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Codec\CodecMatcher;
 use \Neomerx\JsonApi\Parameters\Headers\MediaType;
-use \Neomerx\JsonApi\Parameters\RestrictiveChecker;
+use \Neomerx\JsonApi\Parameters\RestrictiveParametersChecker;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
@@ -32,7 +32,7 @@ use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class RestrictiveCheckerTest extends BaseTestCase
+class RestrictiveParametersCheckerTest extends BaseTestCase
 {
     /** JSON API type */
     const JSON_API_TYPE = MediaTypeInterface::JSON_API_MEDIA_TYPE;
@@ -150,7 +150,7 @@ class RestrictiveCheckerTest extends BaseTestCase
      */
     public function testAllowedInputPaths()
     {
-        $checker = new RestrictiveChecker(
+        $checker = new RestrictiveParametersChecker(
             $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
@@ -173,7 +173,7 @@ class RestrictiveCheckerTest extends BaseTestCase
      */
     public function testNotAllowedInputPaths()
     {
-        $checker = new RestrictiveChecker(
+        $checker = new RestrictiveParametersChecker(
             $this->prepareExceptions('throwBadRequest'),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
@@ -196,7 +196,7 @@ class RestrictiveCheckerTest extends BaseTestCase
      */
     public function testAllowedFieldSets()
     {
-        $checker = new RestrictiveChecker(
+        $checker = new RestrictiveParametersChecker(
             $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
@@ -220,7 +220,7 @@ class RestrictiveCheckerTest extends BaseTestCase
      */
     public function testAllowedAllFieldSets()
     {
-        $checker = new RestrictiveChecker(
+        $checker = new RestrictiveParametersChecker(
             $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
@@ -244,7 +244,7 @@ class RestrictiveCheckerTest extends BaseTestCase
      */
     public function testNonEsistingFieldSets()
     {
-        $checker = new RestrictiveChecker(
+        $checker = new RestrictiveParametersChecker(
             $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
@@ -268,7 +268,7 @@ class RestrictiveCheckerTest extends BaseTestCase
      */
     public function testNotAllowedFieldSets()
     {
-        $checker = new RestrictiveChecker(
+        $checker = new RestrictiveParametersChecker(
             $this->prepareExceptions('throwBadRequest'),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
@@ -293,7 +293,7 @@ class RestrictiveCheckerTest extends BaseTestCase
     public function testAllowedSearchParams()
     {
         $allowedSortParams = ['created', 'title', 'name.with.dots', 'and-others'];
-        $checker = new RestrictiveChecker(
+        $checker = new RestrictiveParametersChecker(
             $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
@@ -319,7 +319,7 @@ class RestrictiveCheckerTest extends BaseTestCase
     public function testNotAllowedSearchParams()
     {
         $allowedSortParams = ['created', 'name']; // in input will be 'title' which is not on the list
-        $checker = new RestrictiveChecker(
+        $checker = new RestrictiveParametersChecker(
             $this->prepareExceptions('throwBadRequest', 2), // expect just at least one 'bad request'
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
@@ -344,7 +344,7 @@ class RestrictiveCheckerTest extends BaseTestCase
      */
     public function testAllowedUnrecognizedParameters()
     {
-        $checker = new RestrictiveChecker(
+        $checker = new RestrictiveParametersChecker(
             $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
@@ -370,7 +370,7 @@ class RestrictiveCheckerTest extends BaseTestCase
      */
     public function testNotAllowedUnrecognizedParameters()
     {
-        $checker = new RestrictiveChecker(
+        $checker = new RestrictiveParametersChecker(
             $this->prepareExceptions('throwBadRequest'),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
@@ -480,11 +480,11 @@ class RestrictiveCheckerTest extends BaseTestCase
     /**
      * @param string|null $exceptionMethod
      *
-     * @return RestrictiveChecker
+     * @return RestrictiveParametersChecker
      */
     private function getCheckerWithExtensions($exceptionMethod = null)
     {
-        $checker = new RestrictiveChecker(
+        $checker = new RestrictiveParametersChecker(
             $this->prepareExceptions($exceptionMethod),
             $this->prepareCodecMatcher(
                 [

@@ -6,7 +6,7 @@ namespace Neomerx\JsonApi\Contracts\Parameters;
  * Interface CombinedCheckerInterface
  * @package Neomerx\JsonApi
  */
-interface CombinedCheckerInterface extends HeaderCheckerInterface, ParameterCheckerInterface
+interface ParametersCheckerInterface extends HeadersCheckerInterface, QueryCheckerInterface
 {
 
     /**

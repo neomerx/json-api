@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Parameters\ParameterCheckerInterface;
+use Neomerx\JsonApi\Contracts\Parameters\QueryCheckerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
@@ -24,7 +24,7 @@ use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 /**
  * @package Neomerx\JsonApi
  */
-class RestrictiveParameterChecker implements ParameterCheckerInterface
+class RestrictiveQueryChecker implements QueryCheckerInterface
 {
     /**
      * @var ExceptionThrowerInterface
@@ -89,10 +89,9 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     }
 
     /**
-     * @param ParametersInterface $parameters
-     * @return void
+     * @inheritdoc
      */
-    public function checkParameters(ParametersInterface $parameters)
+    public function checkQuery(ParametersInterface $parameters)
     {
         $this->checkIncludePaths($parameters);
         $this->checkFieldSets($parameters);
