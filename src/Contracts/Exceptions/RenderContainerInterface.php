@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Closure;
 use \Exception;
+use Neomerx\JsonApi\Contracts\Exceptions\Renderer\ExceptionRendererInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -28,11 +28,10 @@ interface RenderContainerInterface
      * Register exception render
      *
      * @param string  $exceptionClass
-     * @param Closure $render
-     *
+     * @param ExceptionRendererInterface $render
      * @return void
      */
-    public function registerRender($exceptionClass, Closure $render);
+    public function registerRenderer($exceptionClass, ExceptionRendererInterface $render);
 
     /**
      * Register HTTP status code mapping for exceptions.
@@ -56,8 +55,7 @@ interface RenderContainerInterface
      * Get registered or default render for exception.
      *
      * @param Exception $exception
-     *
-     * @return Closure
+     * @return ExceptionRendererInterface
      */
-    public function getRender(Exception $exception);
+    public function getRenderer(Exception $exception);
 }
