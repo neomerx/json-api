@@ -17,15 +17,15 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
+use Neomerx\JsonApi\Contracts\Parameters\CombinedCheckerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\ParameterCheckerInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class RestrictiveParameterChecker implements ParameterCheckerInterface
+class RestrictiveParameterChecker implements CombinedCheckerInterface
 {
     /**
      * @var ExceptionThrowerInterface
@@ -98,20 +98,38 @@ class RestrictiveParameterChecker implements ParameterCheckerInterface
     }
 
     /**
-     * @inheritdoc
+     * @param ParametersInterface $parameters
+     * @return void
      */
     public function check(ParametersInterface $parameters)
     {
-        // Note: for the next 2 checks the order is specified by spec. See details inside.
-        $this->checkAcceptHeader($parameters);
-        $this->checkContentTypeHeader($parameters);
+        $this->checkHeaders($parameters);
+        $this->checkParameters($parameters);
+    }
 
+    /**
+     * @param ParametersInterface $parameters
+     * @return void
+     */
+    public function checkParameters(ParametersInterface $parameters)
+    {
         $this->checkIncludePaths($parameters);
         $this->checkFieldSets($parameters);
         $this->checkFiltering($parameters);
         $this->checkSorting($parameters);
         $this->checkPaging($parameters);
         $this->checkUnrecognized($parameters);
+    }
+
+    /**
+     * @param ParametersInterface $parameters
+     * @return void
+     */
+    public function checkHeaders(ParametersInterface $parameters)
+    {
+        // Note: for these checks the order is specified by spec. See details inside.
+        $this->checkAcceptHeader($parameters);
+        $this->checkContentTypeHeader($parameters);
     }
 
     /**

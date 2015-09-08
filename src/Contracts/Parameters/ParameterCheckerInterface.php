@@ -27,5 +27,5 @@ interface ParameterCheckerInterface
      *
      * @return void
      */
-    public function check(ParametersInterface $parameters);
+    public function checkParameters(ParametersInterface $parameters);
 }
