@@ -116,6 +116,10 @@ If you have spotted any specification changes that are not reflected in this pac
 
 Current tasks are managed with [Waffle.io](https://waffle.io/neomerx/json-api).
 
+There are 2 ways to send pull requests
+- small pull requests should be sent to `develop` branch as **1 commit**
+- for bigger pull requests (e.g. new features) it's recommended to create an `issue` requesting a new branch for that feature. When a new branch named `feature/issueXX` is created (where `XX` is the issue number) you should post pull requests to this branch. When the feature is completed the branch will be squashed and merged to `develop` and then to `master` branches.
+
 ## License
 
 Apache License (Version 2.0). Please see [License File](LICENSE) for more information.
