@@ -20,9 +20,14 @@ use \Mockery;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Parameters\Headers\MediaType;
+use \Neomerx\JsonApi\Parameters\RestrictiveQueryChecker;
+use \Neomerx\JsonApi\Parameters\RestrictiveHeadersChecker;
+use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
+use \Neomerx\JsonApi\Parameters\RestrictiveParametersChecker;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
 
 /**
@@ -167,5 +172,56 @@ class FactoryTest extends BaseTestCase
         $this->assertNotNull($header);
         $this->assertCount(1, $header->getMediaTypes());
         $this->assertEquals('type/subType', $header->getMediaTypes()[0]->getMediaType());
+    }
+
+    public function testCreateParametersChecker()
+    {
+        /** @var ExceptionThrowerInterface $thrower */
+        $thrower = Mockery::mock(ExceptionThrowerInterface::class);
+        /** @var CodecMatcherInterface $matcher */
+        $matcher = Mockery::mock(CodecMatcherInterface::class);
+
+        $headersChecker = $this->factory->createHeadersChecker($thrower, $matcher);
+        $this->assertEquals(new RestrictiveHeadersChecker($thrower, $matcher), $headersChecker);
+
+        $allowUnrecognised = true;
+        $includePaths = ['foo', 'bar'];
+        $fieldSetTypes = ['baz', 'bat'];
+        $sortParameters = ['foobar', 'bazbat'];
+        $pagingParameters = ['bar', 'foo'];
+        $filteringParameters = ['bat', 'baz'];
+
+        $queryChecker = $this->factory->createQueryChecker(
+            $thrower,
+            $allowUnrecognised,
+            $includePaths,
+            $fieldSetTypes,
+            $sortParameters,
+            $pagingParameters,
+            $filteringParameters
+        );
+
+        $this->assertEquals(new RestrictiveQueryChecker(
+            $thrower,
+            $allowUnrecognised,
+            $includePaths,
+            $fieldSetTypes,
+            $sortParameters,
+            $pagingParameters,
+            $filteringParameters
+        ), $queryChecker);
+
+        $parametersChecker = $this->factory->createParametersChecker(
+            $thrower,
+            $matcher,
+            $allowUnrecognised,
+            $includePaths,
+            $fieldSetTypes,
+            $sortParameters,
+            $pagingParameters,
+            $filteringParameters
+        );
+
+        $this->assertEquals(new RestrictiveParametersChecker($headersChecker, $queryChecker), $parametersChecker);
     }
 }

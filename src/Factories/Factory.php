@@ -38,16 +38,21 @@ use \Neomerx\JsonApi\Parameters\SupportedExtensions;
 use \Neomerx\JsonApi\Encoder\Parser\ParserEmptyReply;
 use \Neomerx\JsonApi\Parameters\Headers\AcceptHeader;
 use \Neomerx\JsonApi\Encoder\Handlers\ReplyInterpreter;
+use \Neomerx\JsonApi\Parameters\RestrictiveQueryChecker;
 use \Neomerx\JsonApi\Parameters\Headers\AcceptMediaType;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use \Neomerx\JsonApi\Parameters\RestrictiveHeadersChecker;
+use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Schema\ResourceIdentifierSchemaAdapter;
+use \Neomerx\JsonApi\Parameters\RestrictiveParametersChecker;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 use \Neomerx\JsonApi\Schema\ResourceIdentifierContainerAdapter;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
+use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
@@ -233,6 +238,67 @@ class Factory implements FactoryInterface
     {
         return new AcceptHeader($unsortedMediaTypes);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function createHeadersChecker(
+        ExceptionThrowerInterface $exceptionThrower,
+        CodecMatcherInterface $codecMatcher
+    ) {
+        return new RestrictiveHeadersChecker($exceptionThrower, $codecMatcher);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createQueryChecker(
+        ExceptionThrowerInterface $exceptionThrower,
+        $allowUnrecognized = false,
+        array $includePaths = null,
+        array $fieldSetTypes = null,
+        array $sortParameters = null,
+        array $pagingParameters = null,
+        array $filteringParameters = null
+    ) {
+        return new RestrictiveQueryChecker(
+            $exceptionThrower,
+            $allowUnrecognized,
+            $includePaths,
+            $fieldSetTypes,
+            $sortParameters,
+            $pagingParameters,
+            $filteringParameters
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createParametersChecker(
+        ExceptionThrowerInterface $exceptionThrower,
+        CodecMatcherInterface $codecMatcher,
+        $allowUnrecognized = false,
+        array $includePaths = null,
+        array $fieldSetTypes = null,
+        array $sortParameters = null,
+        array $pagingParameters = null,
+        array $filteringParameters = null
+    ) {
+        $headersChecker = $this->createHeadersChecker($exceptionThrower, $codecMatcher);
+        $queryChecker   = $this->createQueryChecker(
+            $exceptionThrower,
+            $allowUnrecognized,
+            $includePaths,
+            $fieldSetTypes,
+            $sortParameters,
+            $pagingParameters,
+            $filteringParameters
+        );
+
+        return new RestrictiveParametersChecker($headersChecker, $queryChecker);
+    }
+
     /**
      * @inheritdoc
      */
