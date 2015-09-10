@@ -18,16 +18,11 @@
 
 use \Closure;
 use \Exception;
-use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Responses\Responses;
-use \Neomerx\JsonApi\Encoder\EncoderOptions;
-use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use Neomerx\JsonApi\Contracts\Exceptions\Renderer\ExceptionRendererInterface;
+use Neomerx\JsonApi\Exceptions\Renderer\ErrorsRenderer;
+use Neomerx\JsonApi\Exceptions\Renderer\HttpCodeRenderer;
 use \Neomerx\JsonApi\Contracts\Responses\ResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Exceptions\RenderContainerInterface;
-use \Neomerx\JsonApi\Contracts\Integration\NativeResponsesInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -37,7 +32,7 @@ class RenderContainer implements RenderContainerInterface
     /**
      * @var array
      */
-    private $renders = [];
+    private $renderers = [];
 
     /**
      * @var ResponsesInterface
@@ -53,27 +48,20 @@ class RenderContainer implements RenderContainerInterface
      * @var int
      */
     private $defaultStatusCode;
-    /**
-     * @var ParametersFactoryInterface
-     */
-    private $factory;
 
     /**
-     * @param ParametersFactoryInterface $factory
-     * @param NativeResponsesInterface   $responses
+     * @param ResponsesInterface         $responses
      * @param Closure                    $extensionsClosure Returns extensions for the current request/controller.
      * @param int                        $defaultStatusCode Default status code for unknown exceptions.
      */
     public function __construct(
-        ParametersFactoryInterface $factory,
-        NativeResponsesInterface $responses,
+        ResponsesInterface $responses,
         Closure $extensionsClosure,
         $defaultStatusCode
     ) {
         assert('is_int($defaultStatusCode) && $defaultStatusCode >= 500 && $defaultStatusCode < 600');
 
-        $this->factory           = $factory;
-        $this->responses         = new Responses($responses);
+        $this->responses         = $responses;
         $this->extensionsClosure = $extensionsClosure;
         $this->defaultStatusCode = $defaultStatusCode;
     }
@@ -81,9 +69,9 @@ class RenderContainer implements RenderContainerInterface
     /**
      * @inheritdoc
      */
-    public function registerRender($exceptionClass, Closure $render)
+    public function registerRenderer($exceptionClass, ExceptionRendererInterface $render)
     {
-        $this->renders[$exceptionClass] = $render;
+        $this->renderers[$exceptionClass] = $render;
     }
 
     /**
@@ -92,7 +80,7 @@ class RenderContainer implements RenderContainerInterface
     public function registerHttpCodeMapping(array $exceptionMapping)
     {
         foreach ($exceptionMapping as $exceptionClass => $httpStatusCode) {
-            $this->registerRender($exceptionClass, $this->getHttpCodeRender($httpStatusCode));
+            $this->registerRenderer($exceptionClass, $this->getHttpCodeRenderer($httpStatusCode));
         }
     }
 
@@ -102,105 +90,59 @@ class RenderContainer implements RenderContainerInterface
     public function registerJsonApiErrorMapping(array $exceptionMapping)
     {
         foreach ($exceptionMapping as $exceptionClass => $httpStatusCode) {
-            $this->registerRender($exceptionClass, $this->getErrorsRender($httpStatusCode));
+            $this->registerRenderer($exceptionClass, $this->getErrorsRenderer($httpStatusCode));
         }
     }
 
     /**
      * @inheritdoc
      */
-    public function getRender(Exception $exception)
+    public function getRenderer(Exception $exception)
     {
-        $exClass = get_class($exception);
-        return isset($this->renders[$exClass]) === true ? $this->renders[$exClass] : $this->getDefaultRender();
+        $exClass  = get_class($exception);
+        $renderer = isset($this->renderers[$exClass]) === true ? $this->renderers[$exClass] : $this->getDefaultRenderer();
+
+        if ($this->extensionsClosure instanceof \Closure) {
+            $renderer->withSupportedExtensions(call_user_func($this->extensionsClosure));
+        }
+
+        return $renderer;
     }
 
     /**
      * Get default render for unregistered exception. You can override this
      * method to change unhandled exception representation.
      *
-     * @return Closure
+     * @return HttpCodeRenderer
      */
-    protected function getDefaultRender()
+    protected function getDefaultRenderer()
     {
-        /**
-         * @param mixed          $request
-         * @param Exception|null $exception
-         * @param array          $headers
-         *
-         * @return mixed
-         */
-        return function ($request = null, Exception $exception = null, array $headers = []) {
-            $request ?: null;
-            $exception ?: null;
-
-            $render = $this->getHttpCodeRender($this->defaultStatusCode);
-            return $render($request, $exception, $headers);
-        };
+        return $this->getHttpCodeRenderer($this->defaultStatusCode);
     }
 
     /**
      * Get render that returns JSON API response with empty body and specified HTTP status code.
      *
      * @param int $statusCode
-     *
-     * @return Closure
+     * @return HttpCodeRenderer
      */
-    protected function getHttpCodeRender($statusCode)
+    protected function getHttpCodeRenderer($statusCode)
     {
-        /**
-         * @param mixed          $request
-         * @param Exception|null $exception
-         * @param array          $headers
-         *
-         * @return mixed
-         */
-        return function ($request = null, Exception $exception = null, array $headers = []) use ($statusCode) {
-            $request ?: null;
-            $exception ?: null;
-
-            $extensionsClosure   = $this->extensionsClosure;
-            /** @var SupportedExtensionsInterface $supportedExtensions */
-            $supportedExtensions = $extensionsClosure();
-
-            $content   = null;
-            $mediaType = $this->factory->createMediaType(
-                MediaTypeInterface::JSON_API_TYPE,
-                MediaTypeInterface::JSON_API_SUB_TYPE
-            );
-
-            return $this->responses->getResponse($statusCode, $mediaType, $content, $supportedExtensions, $headers);
-        };
+        $renderer = new HttpCodeRenderer($this->responses);
+        $renderer->withStatusCode($statusCode);
+        return $renderer;
     }
 
     /**
      * Get render that returns JSON API response with JSON API Error objects and specified HTTP status code.
      *
      * @param int $statusCode
-     *
-     * @return Closure
+     * @return ErrorsRenderer
      */
-    protected function getErrorsRender($statusCode)
+    protected function getErrorsRenderer($statusCode)
     {
-        /**
-         * @param ErrorInterface[] $errors
-         * @param EncoderOptions   $encodeOptions
-         * @param array            $headers
-         *
-         * @return mixed
-         */
-        return function (array $errors, EncoderOptions $encodeOptions = null, array $headers = []) use ($statusCode) {
-            $extensionsClosure   = $this->extensionsClosure;
-            /** @var SupportedExtensionsInterface $supportedExtensions */
-            $supportedExtensions = $extensionsClosure();
-
-            $content   = Encoder::instance([], $encodeOptions)->encodeErrors($errors);
-            $mediaType = $this->factory->createMediaType(
-                MediaTypeInterface::JSON_API_TYPE,
-                MediaTypeInterface::JSON_API_SUB_TYPE
-            );
-
-            return $this->responses->getResponse($statusCode, $mediaType, $content, $supportedExtensions, $headers);
-        };
+        $renderer = new ErrorsRenderer($this->responses);
+        $renderer->withStatusCode($statusCode);
+        return $renderer;
     }
 }

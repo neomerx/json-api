@@ -21,9 +21,9 @@ use \Exception;
 use \LogicException;
 use \Mockery\MockInterface;
 use \InvalidArgumentException;
-use \Neomerx\JsonApi\Document\Error;
+use Neomerx\JsonApi\Exceptions\ThrowableError;
 use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Factories\Factory;
+use Neomerx\JsonApi\Responses\Responses;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Exceptions\RenderContainer;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
@@ -31,6 +31,7 @@ use \Neomerx\JsonApi\Contracts\Exceptions\RenderContainerInterface;
 use \Neomerx\JsonApi\Contracts\Integration\NativeResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
+use Neomerx\JsonApi\Contracts\Exceptions\Renderer\ExceptionRendererInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -51,13 +52,19 @@ class RenderContainerTest extends BaseTestCase
     private $mockResponses;
 
     /**
+     * @var MockInterface
+     */
+    private $mockSupportedExtensions;
+
+    /**
      * Set up tests.
      */
     protected function setUp()
     {
         parent::setUp();
 
-        $mockSupportedExtensions = Mockery::mock(SupportedExtensionsInterface::class);
+        $this->mockSupportedExtensions = Mockery::mock(SupportedExtensionsInterface::class);
+        $mockSupportedExtensions = $this->mockSupportedExtensions;
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $mockSupportedExtensions->shouldReceive('getExtensions')->zeroOrMoreTimes()->withNoArgs()->andReturn([]);
         $extensionsClosure = function () use ($mockSupportedExtensions) {
@@ -69,7 +76,7 @@ class RenderContainerTest extends BaseTestCase
         /** @var NativeResponsesInterface $mockResponses */
         $mockResponses = $this->mockResponses;
 
-        $this->container = new RenderContainer(new Factory(), $mockResponses, $extensionsClosure, self::DEFAULT_CODE);
+        $this->container = new RenderContainer(new Responses($mockResponses), $extensionsClosure, self::DEFAULT_CODE);
     }
 
     /**
@@ -84,8 +91,9 @@ class RenderContainerTest extends BaseTestCase
 
         // we haven't registered any renders yet so any exception will be unknown
 
-        $this->assertNotNull($render = $this->container->getRender(new Exception()));
-        $this->assertEquals('error: '. self::DEFAULT_CODE, $render());
+        $renderer = $this->container->getRenderer(new Exception());
+        $this->assertInstanceOf(ExceptionRendererInterface::class, $renderer);
+        $this->assertEquals('error: '. self::DEFAULT_CODE, $renderer->render(new Exception()));
     }
 
     /**
@@ -98,16 +106,20 @@ class RenderContainerTest extends BaseTestCase
             ->withArgs([null, self::DEFAULT_CODE, Mockery::any()])
             ->andReturn('error: '. self::DEFAULT_CODE);
 
-        $customRender = function ($arg1, $arg2, $arg3) {
-            return $arg1 . ' ' . $arg2 . ' ' . $arg3;
-        };
-        $this->container->registerRender(InvalidArgumentException::class, $customRender);
-        $this->assertNotNull($render = $this->container->getRender(new InvalidArgumentException()));
-        $this->assertEquals('I am a custom render', $render('I am', 'a custom', 'render'));
+        $mockRenderer = Mockery::mock(ExceptionRendererInterface::class);
+        $mockRenderer->shouldReceive('withSupportedExtensions')->once()
+            ->withArgs([$this->mockSupportedExtensions])
+            ->andReturnSelf();
+
+        /** @var ExceptionRendererInterface $mockRenderer */
+        $this->container->registerRenderer(InvalidArgumentException::class, $mockRenderer);
+        $this->assertSame($mockRenderer, $this->container->getRenderer(new InvalidArgumentException()));
 
         // renders for unknown exceptions should work as well
-        $this->assertNotNull($render = $this->container->getRender(new Exception()));
-        $this->assertEquals('error: '. self::DEFAULT_CODE, $render());
+        $renderer = $this->container->getRenderer(new Exception());
+        $this->assertInstanceOf(ExceptionRendererInterface::class, $renderer);
+        $this->assertNotSame($mockRenderer, $renderer);
+        $this->assertEquals('error: ' . self::DEFAULT_CODE, $renderer->render(new InvalidArgumentException()));
     }
 
     /**
@@ -116,30 +128,33 @@ class RenderContainerTest extends BaseTestCase
     public function testRegisterHttpCodeMapping()
     {
         $this->container->registerHttpCodeMapping([
-            InvalidArgumentException::class => 123,
+            InvalidArgumentException::class => 418,
             LogicException::class           => 456,
         ]);
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
-            ->withArgs([null, 123, Mockery::any()])
-            ->andReturn('error: '. 123);
-        $this->assertNotNull($render = $this->container->getRender(new InvalidArgumentException()));
-        $this->assertEquals('error: '. 123, $render());
+            ->withArgs([null, 418, Mockery::any()])
+            ->andReturn('error: '. 418);
+        $renderer = $this->container->getRenderer(new InvalidArgumentException());
+        $this->assertInstanceOf(ExceptionRendererInterface::class, $renderer);
+        $this->assertEquals('error: '. 418, $renderer->render(new InvalidArgumentException()));
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, 456, Mockery::any()])
             ->andReturn('error: '. 456);
-        $this->assertNotNull($render = $this->container->getRender(new LogicException()));
-        $this->assertEquals('error: '. 456, $render());
+        $renderer = $this->container->getRenderer(new LogicException());
+        $this->assertInstanceOf(ExceptionRendererInterface::class, $renderer);
+        $this->assertEquals('error: '. 456, $renderer->render(new LogicException()));
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([null, self::DEFAULT_CODE, Mockery::any()])
             ->andReturn('error: '. self::DEFAULT_CODE);
-        $this->assertNotNull($render = $this->container->getRender(new Exception()));
-        $this->assertEquals('error: '. self::DEFAULT_CODE, $render());
+        $renderer = $this->container->getRenderer(new Exception());
+        $this->assertInstanceOf(ExceptionRendererInterface::class, $renderer);
+        $this->assertEquals('error: '. self::DEFAULT_CODE, $renderer->render(new Exception()));
     }
 
     /**
@@ -157,24 +172,25 @@ class RenderContainerTest extends BaseTestCase
             [HeaderInterface::HEADER_CONTENT_TYPE => MediaTypeInterface::JSON_API_MEDIA_TYPE]
         );
 
-        $customHttpCode = 123;
+        $customHttpCode = 418;
         $this->container->registerJsonApiErrorMapping([
-            InvalidArgumentException::class => $customHttpCode,
+            ThrowableError::class => $customHttpCode,
         ]);
 
         $title = 'Error title';
-        $error = new Error(null, null, null, null, $title);
+        $error = new ThrowableError(null, null, null, null, $title);
         $errorDocument = Encoder::instance([])->encodeError($error);
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockResponses->shouldReceive('createResponse')->once()
             ->withArgs([Mockery::type('string'), $customHttpCode, $expectedHeaders])
             ->andReturn($errorDocument);
-        $this->assertNotNull($render = $this->container->getRender(new InvalidArgumentException()));
+        $renderer = $this->container->getRenderer($error);
+        $this->assertInstanceOf(ExceptionRendererInterface::class, $renderer);
 
         // let's assume our exception can provide JSON API Error information somehow.
-
-        $this->assertEquals($errorDocument, $render([$error], null, $headers));
+        $actual = $renderer->withHeaders($headers)->render($error);
+        $this->assertEquals($errorDocument, $actual);
     }
 
     /**
@@ -198,7 +214,9 @@ class RenderContainerTest extends BaseTestCase
             ->withArgs([null, self::DEFAULT_CODE, $expectedHeaders])
             ->andReturn($response);
 
-        $this->assertNotNull($render = $this->container->getRender(new InvalidArgumentException()));
-        $this->assertEquals($response, $render(null, null, $headers));
+        $renderer = $this->container->getRenderer(new InvalidArgumentException());
+        $this->assertInstanceOf(ExceptionRendererInterface::class, $renderer);
+        $actual = $renderer->withHeaders($headers)->render(new InvalidArgumentException());
+        $this->assertEquals($response, $actual);
     }
 }
