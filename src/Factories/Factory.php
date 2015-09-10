@@ -16,6 +16,13 @@
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
+use Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
+use Neomerx\JsonApi\Contracts\Parameters\HeadersCheckerInterface;
+use Neomerx\JsonApi\Contracts\Parameters\QueryCheckerInterface;
+use Neomerx\JsonApi\Parameters\RestrictiveHeadersChecker;
+use Neomerx\JsonApi\Parameters\RestrictiveParametersChecker;
+use Neomerx\JsonApi\Parameters\RestrictiveQueryChecker;
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Schema\Container;
@@ -233,6 +240,50 @@ class Factory implements FactoryInterface
     {
         return new AcceptHeader($unsortedMediaTypes);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function createHeadersChecker(
+        ExceptionThrowerInterface $exceptionThrower,
+        CodecMatcherInterface $codecMatcher
+    ) {
+        return new RestrictiveHeadersChecker($exceptionThrower, $codecMatcher);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createQueryChecker(
+        ExceptionThrowerInterface $exceptionThrower,
+        $allowUnrecognized = false,
+        array $includePaths = null,
+        array $fieldSetTypes = null,
+        array $sortParameters = null,
+        array $pagingParameters = null,
+        array $filteringParameters = null
+    ) {
+        return new RestrictiveQueryChecker(
+            $exceptionThrower,
+            $allowUnrecognized,
+            $includePaths,
+            $fieldSetTypes,
+            $sortParameters,
+            $pagingParameters,
+            $filteringParameters
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createParametersChecker(
+        HeadersCheckerInterface $headersChecker,
+        QueryCheckerInterface $queryChecker
+    ) {
+        return new RestrictiveParametersChecker($headersChecker, $queryChecker);
+    }
+
     /**
      * @inheritdoc
      */
