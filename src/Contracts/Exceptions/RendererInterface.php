@@ -16,48 +16,47 @@
  * limitations under the License.
  */
 
-use \Closure;
 use \Exception;
+use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-interface RenderContainerInterface
+interface RendererInterface
 {
     /**
-     * Register exception render
+     * @param int $statusCode
      *
-     * @param string  $exceptionClass
-     * @param Closure $render
-     *
-     * @return void
+     * @return $this
      */
-    public function registerRender($exceptionClass, Closure $render);
+    public function withStatusCode($statusCode);
 
     /**
-     * Register HTTP status code mapping for exceptions.
+     * @param array $headers
      *
-     * @param array $exceptionMapping
-     *
-     * @return void
+     * @return $this
      */
-    public function registerHttpCodeMapping(array $exceptionMapping);
+    public function withHeaders(array $headers);
 
     /**
-     * Register JSON API Error object renders mapping for exceptions.
+     * @param SupportedExtensionsInterface $extensions
      *
-     * @param array $exceptionMapping
-     *
-     * @return void
+     * @return $this
      */
-    public function registerJsonApiErrorMapping(array $exceptionMapping);
+    public function withSupportedExtensions(SupportedExtensionsInterface $extensions);
 
     /**
-     * Get registered or default render for exception.
+     * @param MediaTypeInterface $mediaType
      *
+     * @return $this
+     */
+    public function withMediaType(MediaTypeInterface $mediaType);
+
+    /**
      * @param Exception $exception
      *
-     * @return Closure
+     * @return mixed
      */
-    public function getRender(Exception $exception);
+    public function render(Exception $exception);
 }
