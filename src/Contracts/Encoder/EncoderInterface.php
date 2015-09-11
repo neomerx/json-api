@@ -134,53 +134,6 @@ interface EncoderInterface
     public function encodeMeta($meta);
 
     /**
-     * @deprecated Use encodeData instead
-     *
-     * Encode input as JSON API string.
-     *
-     * @param object|array|Iterator|null       $data     Data to encode.
-     * @param array<string,LinkInterface>|null $links    Optional document links information (e.g. request URL, paging).
-     * @param array|object|null                $meta     Optional document meta information.
-     * @param EncodingParametersInterface|null $parameters Encoding parameters.
-     *
-     * @return string
-     */
-    public function encode($data, $links = null, $meta = null, EncodingParametersInterface $parameters = null);
-
-    /**
-     * @deprecated Use encodeMeta instead
-     *
-     * Encode input meta as JSON API string.
-     *
-     * @param array|object $meta Meta information.
-     *
-     * @return string
-     */
-    public function meta($meta);
-
-    /**
-     * @deprecated Use encodeError instead
-     *
-     * Encode error as JSON API string.
-     *
-     * @param ErrorInterface $error
-     *
-     * @return string
-     */
-    public function error(ErrorInterface $error);
-
-    /**
-     * @deprecated Use encodeErrors instead
-     *
-     * Encode errors as JSON API string.
-     *
-     * @param ErrorInterface[] $errors
-     *
-     * @return string
-     */
-    public function errors($errors);
-
-    /**
      * Get encoder options.
      *
      * @return EncoderOptions|null

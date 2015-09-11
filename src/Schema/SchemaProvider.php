@@ -66,20 +66,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     protected $selfSubUrl;
 
     /**
-     * @deprecated Override getResourceLinks instead
-     *
-     * @var bool
-     */
-    protected $isShowSelf = true;
-
-    /**
-     * @deprecated Override getIncludedResourceLinks instead
-     *
-     * @var bool
-     */
-    protected $isShowSelfInIncluded = false;
-
-    /**
      * @var bool
      */
     protected $isShowAttributesInIncluded = true;
@@ -101,7 +87,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
     {
         assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set');
-        assert('is_bool($this->isShowSelfInIncluded)');
         assert('is_string($this->selfSubUrl) && empty($this->selfSubUrl) === false', '\'self\' sub-URL not set');
         assert('substr($this->selfSubUrl, -1) === \'/\'', 'Sub-url should end with \'/\' separator');
 
@@ -217,11 +202,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function getResourceLinks($resource)
     {
-        $links = [];
-
-        if ($this->isShowSelf === true) {
-            $links[LinkInterface::SELF] = $this->getSelfSubLink($resource);
-        }
+        $links = [
+            LinkInterface::SELF => $this->getSelfSubLink($resource),
+        ];
 
         return $links;
     }
@@ -231,13 +214,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function getIncludedResourceLinks($resource)
     {
-        $links = [];
-
-        if ($this->isShowSelfInIncluded === true) {
-            $links[LinkInterface::SELF] = $this->getSelfSubLink($resource);
-        }
-
-        return $links;
+        return [];
     }
 
     /**

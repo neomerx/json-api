@@ -32,16 +32,6 @@ class EncoderOptions
     private $depth;
 
     /**
-     * @var bool
-     */
-    private $isShowVersionInfo;
-
-    /**
-     * @var mixed|null
-     */
-    private $versionMeta;
-
-    /**
      * @var null|string
      */
     private $urlPrefix;
@@ -49,27 +39,18 @@ class EncoderOptions
     /**
      * @param int         $options
      * @param string|null $urlPrefix
-     * @param bool        $isShowVersionInfo
-     * @param mixed       $versionMeta
      * @param int         $depth
      */
     public function __construct(
         $options = 0,
         $urlPrefix = null,
-        $isShowVersionInfo = false,
-        $versionMeta = null,
         $depth = 512
     ) {
-        assert(
-            'is_int($options) && is_int($depth) && ($urlPrefix === null || is_string($urlPrefix)) &&'.
-            ' is_bool($isShowVersionInfo)'
-        );
+        assert('is_int($options) && is_int($depth) && ($urlPrefix === null || is_string($urlPrefix))');
 
-        $this->options           = $options;
-        $this->depth             = $depth;
-        $this->urlPrefix         = $urlPrefix;
-        $this->isShowVersionInfo = $isShowVersionInfo;
-        $this->versionMeta       = $versionMeta;
+        $this->options   = $options;
+        $this->depth     = $depth;
+        $this->urlPrefix = $urlPrefix;
     }
 
     /**
@@ -90,32 +71,6 @@ class EncoderOptions
     public function getDepth()
     {
         return $this->depth;
-    }
-
-    /**
-     * @deprecated
-     *
-     * If JSON API version should be rendered on document top level.
-     *
-     * @return bool
-     */
-    public function isShowVersionInfo()
-    {
-        return $this->isShowVersionInfo;
-    }
-
-    /**
-     * @deprecated
-     *
-     * Get JSON API meta information for version.
-     *
-     * @link http://jsonapi.org/format/#document-jsonapi-object
-     *
-     * @return mixed|null
-     */
-    public function getVersionMeta()
-    {
-        return $this->versionMeta;
     }
 
     /**

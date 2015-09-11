@@ -16,16 +16,13 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+
 /**
  * @package Neomerx\Tests\JsonApi
  */
 class CommentSchema extends DevSchemaProvider
 {
-    /**
-     * @var bool
-     */
-    protected $isShowSelfInIncluded = true;
-
     /**
      * @inheritdoc
      */
@@ -69,6 +66,18 @@ class CommentSchema extends DevSchemaProvider
 
         // NOTE: The line(s) below for testing purposes only. Not for production.
         $this->fixLinks($links);
+
+        return $links;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIncludedResourceLinks($resource)
+    {
+        $links = [
+            LinkInterface::SELF => $this->getSelfSubLink($resource),
+        ];
 
         return $links;
     }

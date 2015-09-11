@@ -451,8 +451,7 @@ EOL;
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
-        ], $this->encoderOptions)->encode($author, $links, $meta);
-        // replace with ->withLinks($links)->withMeta($meta)->encodeData($author) when depreciated methods removed
+        ], $this->encoderOptions)->withLinks($links)->withMeta($meta)->encodeData($author);
 
         $expected = <<<EOL
         {
@@ -506,8 +505,7 @@ EOL;
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
-        ])->meta($meta);
-        // replace with encodeMeta when depreciated method is removed
+        ])->encodeMeta($meta);
 
         $expected = <<<EOL
         {
@@ -533,30 +531,6 @@ EOL;
     public function testEncodeJsonApiVersion()
     {
         $actual = Encoder::instance([])->withJsonApiVersion(['some' => 'meta'])->encodeData(null);
-
-        $expected = <<<EOL
-        {
-            "jsonapi" : {
-                "version" : "1.0",
-                "meta"    : { "some" : "meta" }
-            },
-            "data" : null
-        }
-EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
-    }
-
-    /**
-     * Test encoding with JSON API version.
-     */
-    public function testEncodeJsonApiVersionDeprecated()
-    {
-        $endcoder = Encoder::instance([], new EncoderOptions(0, null, true, ['some' => 'meta']));
-
-        $actual = $endcoder->encodeData(null);
 
         $expected = <<<EOL
         {

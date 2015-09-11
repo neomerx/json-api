@@ -208,38 +208,6 @@ class Encoder implements EncoderInterface
     /**
      * @inheritdoc
      */
-    public function encode($data, $links = null, $meta = null, EncodingParametersInterface $parameters = null)
-    {
-        return $this->withLinks($links === null ? [] : $links)->withMeta($meta)->encodeData($data, $parameters);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function error(ErrorInterface $error)
-    {
-        return $this->encodeError($error);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function errors($errors)
-    {
-        return $this->encodeErrors($errors);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function meta($meta)
-    {
-        return $this->encodeMeta($meta);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getEncoderOptions()
     {
         return $this->encoderOptions;
@@ -282,8 +250,6 @@ class Encoder implements EncoderInterface
 
         if ($this->isAddJsonApiVersion === true) {
             $docWriter->addJsonApiVersion(self::JSON_API_VERSION, $this->jsonApiVersionMeta);
-        } elseif ($this->encoderOptions !== null && $this->encoderOptions->isShowVersionInfo() === true) {
-            $docWriter->addJsonApiVersion(self::JSON_API_VERSION, $this->encoderOptions->getVersionMeta());
         }
 
         $result = $this->encodeToJson($docWriter->getDocument());
