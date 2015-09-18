@@ -39,7 +39,9 @@ class ResourceIdentifierContainerAdapterTest extends BaseTestCase
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $container->shouldReceive('getSchemaByType')->once()->withAnyArgs()->andReturn($schema);
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $factory->shouldReceive('createResourceIdentifierSchemaAdapter')->twice()->withAnyArgs()->andReturnUndefined();
+        $container->shouldReceive('getSchemaByResourceType')->once()->withAnyArgs()->andReturn($schema);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $factory->shouldReceive('createResourceIdentifierSchemaAdapter')->times(3)->withAnyArgs()->andReturnUndefined();
 
         /** @var FactoryInterface $factory */
         /** @var ContainerInterface $container */
@@ -49,5 +51,6 @@ class ResourceIdentifierContainerAdapterTest extends BaseTestCase
         $resource = (object)['whatever'];
         $adapter->getSchema($resource);
         $adapter->getSchemaByType($resource);
+        $adapter->getSchemaByResourceType('does not matter');
     }
 }

@@ -1,8 +1,5 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue47;
 
-use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
  *
@@ -18,6 +15,9 @@ use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+use \Neomerx\JsonApi\Encoder\Encoder;
+use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi

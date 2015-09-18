@@ -24,27 +24,9 @@ interface EncodingParametersInterface
     /**
      * Get requested include paths.
      *
-     * @return string[]|null
+     * @return array|null
      */
     public function getIncludePaths();
-
-    /**
-     * If path is included.
-     *
-     * @param string $path
-     *
-     * @return bool
-     */
-    public function isPathIncluded($path);
-
-    /**
-     * If path has exact match with one of the 'include' paths.
-     *
-     * @param string $path
-     *
-     * @return bool
-     */
-    public function hasExactPathMatch($path);
 
     /**
      * Get filed names that should be in result.
@@ -61,13 +43,4 @@ interface EncodingParametersInterface
      * @return string[]|null
      */
     public function getFieldSet($type);
-
-    /**
-     * If path matches one of the included paths.
-     *
-     * @param string $path
-     *
-     * @return bool
-     */
-    public function hasMatchWithIncludedPaths($path);
 }

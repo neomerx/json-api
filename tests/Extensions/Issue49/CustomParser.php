@@ -1,7 +1,5 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue49;
 
-use \Neomerx\JsonApi\Encoder\Parser\Parser;
-
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
  *
@@ -18,6 +16,8 @@ use \Neomerx\JsonApi\Encoder\Parser\Parser;
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Encoder\Parser\Parser;
+
 /**
  * @package Neomerx\Tests\JsonApi
  */
@@ -28,20 +28,17 @@ class CustomParser extends Parser
      */
     protected function analyzeCurrentData()
     {
-        $curFrame = $this->stack->end();
-
-        if ($this->manager !== null && $this->manager->hasExactPathMatch($curFrame->getPath()) === true) {
-            $relationship = $curFrame->getRelationship();
-            $updatedRelationship = $this->schemaFactory->createRelationshipObject(
-                $relationship->getName(),
-                $relationship->getData(),
-                $relationship->getLinks(),
-                $relationship->getMeta(),
-                true,
-                $relationship->isRoot()
-            );
-            $this->stack->setCurrentRelationship($updatedRelationship);
-        }
+        $curFrame            = $this->stack->end();
+        $relationship        = $curFrame->getRelationship();
+        $updatedRelationship = $this->schemaFactory->createRelationshipObject(
+            $relationship->getName(),
+            $relationship->getData(),
+            $relationship->getLinks(),
+            $relationship->getMeta(),
+            true,
+            $relationship->isRoot()
+        );
+        $this->stack->setCurrentRelationship($updatedRelationship);
 
         return parent::analyzeCurrentData();
     }

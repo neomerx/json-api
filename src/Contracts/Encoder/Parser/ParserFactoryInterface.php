@@ -18,7 +18,7 @@
 
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -48,28 +48,19 @@ interface ParserFactoryInterface
     /**
      * Create parser.
      *
-     * @param DataAnalyzerInterface       $analyzer
+     * @param ContainerInterface          $container
      * @param ParserManagerInterface|null $manager
      *
      * @return ParserInterface
      */
-    public function createParser(DataAnalyzerInterface $analyzer, ParserManagerInterface $manager = null);
+    public function createParser(ContainerInterface $container, ParserManagerInterface $manager = null);
 
     /**
      * Create parser manager for parsing full objects.
      *
-     * @param EncodingParametersInterface $parameters
+     * @param ParametersAnalyzerInterface $parameterAnalyzer
      *
      * @return ParserManagerInterface
      */
-    public function createManager(EncodingParametersInterface $parameters);
-
-    /**
-     * Create data analyzer.
-     *
-     * @param ContainerInterface $container
-     *
-     * @return DataAnalyzerInterface
-     */
-    public function createAnalyzer(ContainerInterface $container);
+    public function createManager(ParametersAnalyzerInterface $parameterAnalyzer);
 }

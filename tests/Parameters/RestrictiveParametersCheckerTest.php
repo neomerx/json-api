@@ -22,8 +22,6 @@ use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\JsonApi\Codec\CodecMatcher;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Parameters\Headers\MediaType;
-use \Neomerx\JsonApi\Parameters\RestrictiveQueryChecker;
-use \Neomerx\JsonApi\Parameters\RestrictiveHeadersChecker;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Parameters\RestrictiveParametersChecker;
 use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
@@ -525,9 +523,9 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         array $pagingParameters = null,
         array $filteringParameters = null
     ) {
-        $headersChecker = new RestrictiveHeadersChecker($exceptionThrower, $codecMatcher);
-        $queryChecker = new RestrictiveQueryChecker(
+        return (new Factory())->createParametersChecker(
             $exceptionThrower,
+            $codecMatcher,
             $allowUnrecognized,
             $includePaths,
             $fieldSetTypes,
@@ -535,7 +533,5 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
             $pagingParameters,
             $filteringParameters
         );
-
-        return new RestrictiveParametersChecker($headersChecker, $queryChecker);
     }
 }

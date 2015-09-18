@@ -1,4 +1,7 @@
-<?php namespace Neomerx\Tests\JsonApi\Data;
+<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue67;
+
+use \Neomerx\JsonApi\Encoder\Encoder;
+use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,11 +19,16 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Encoder\Encoder;
-
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class DummyEncoder extends Encoder
+class CustomEncoder extends Encoder
 {
+    /**
+     * @return FactoryInterface
+     */
+    protected static function getFactory()
+    {
+        return new CustomFactory();
+    }
 }

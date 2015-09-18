@@ -16,11 +16,9 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -28,9 +26,9 @@ use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 class ParserManager implements ParserManagerInterface
 {
     /**
-     * @var EncodingParametersInterface
+     * @var ParametersAnalyzerInterface
      */
-    protected $parameters;
+    protected $parameterAnalyzer;
 
     /**
      * @var array
@@ -38,38 +36,47 @@ class ParserManager implements ParserManagerInterface
     private $fieldSetCache;
 
     /**
-     * @param EncodingParametersInterface $parameters
+     * @param ParametersAnalyzerInterface $parameterAnalyzer
      */
-    public function __construct(EncodingParametersInterface $parameters)
+    public function __construct(ParametersAnalyzerInterface $parameterAnalyzer)
     {
-        $this->fieldSetCache = [];
-        $this->parameters    = $parameters;
+        $this->fieldSetCache     = [];
+        $this->parameterAnalyzer = $parameterAnalyzer;
     }
 
     /**
      * @inheritdoc
      */
-    public function isShouldParseRelationships(
-        ResourceObjectInterface $resource,
-        $isCircular,
-        StackReadOnlyInterface $stack
-    ) {
-        list($onTheWay, $parentIsTarget) = $this->foundInPaths($stack);
-        $shouldContinue = $onTheWay || $parentIsTarget;
+    public function isShouldParseRelationships(StackReadOnlyInterface $stack)
+    {
+        if ($stack->count() < 2) {
+            // top level, no resources ware started to parse yet
+            $shouldContinue = true;
+        } else {
+            // on the way to included paths
+            $shouldContinue = $this->parameterAnalyzer->isPathIncluded(
+                $stack->end()->getPath(),
+                $stack->root()->getResource()->getType()
+            );
+        }
+
         return $shouldContinue;
     }
 
     /**
      * @inheritdoc
      */
-    public function isShouldRelationshipBeInOutput(
-        ResourceObjectInterface $resource,
-        RelationshipObjectInterface $relationship
-    ) {
-        $resourceType     = $resource->getType();
+    public function isRelationshipInFieldSet(StackReadOnlyInterface $stack)
+    {
+        $resourceType     = $stack->penult()->getResource()->getType();
         $resourceFieldSet = $this->getFieldSet($resourceType);
 
-        return $resourceFieldSet === null ? true : array_key_exists($relationship->getName(), $resourceFieldSet);
+        $inFieldSet = $resourceFieldSet === null ? true : array_key_exists(
+            $stack->end()->getRelationship()->getName(),
+            $resourceFieldSet
+        );
+
+        return $inFieldSet;
     }
 
     /**
@@ -80,37 +87,10 @@ class ParserManager implements ParserManagerInterface
         settype($type, 'string');
 
         if (array_key_exists($type, $this->fieldSetCache) === false) {
-            $fieldSet = $this->parameters->getFieldSet($type);
+            $fieldSet = $this->parameterAnalyzer->getParameters()->getFieldSet($type);
             $this->fieldSetCache[$type] = $fieldSet === null ? null : array_flip(array_values($fieldSet));
         }
 
         return $this->fieldSetCache[$type];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function hasExactPathMatch($path)
-    {
-        return $this->parameters->hasExactPathMatch($path);
-    }
-
-    /**
-     * @param StackReadOnlyInterface $stack
-     *
-     * @return bool[]
-     */
-    private function foundInPaths(StackReadOnlyInterface $stack)
-    {
-        if ($stack->count() < 2) {
-            // top level, no resources ware started to parse yet
-            $onTheWay       = true;
-            $parentIsTarget = false;
-        } else {
-            $onTheWay       = $this->parameters->hasMatchWithIncludedPaths($stack->end()->getPath());
-            $parentIsTarget = $this->parameters->isPathIncluded($stack->penult()->getPath());
-        }
-
-        return [$onTheWay, $parentIsTarget];
     }
 }

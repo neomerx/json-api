@@ -16,6 +16,10 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
+use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
+use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface as SchFI;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface as DFI;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface as StkFI;
@@ -28,4 +32,13 @@ use \Neomerx\JsonApi\Contracts\Encoder\Handlers\HandlerFactoryInterface as HFI;
  */
 interface FactoryInterface extends DFI, PrsFI, StkFI, HFI, PrmFI, SchFI
 {
+    /**
+     * Create encoder.
+     *
+     * @param ContainerInterface  $container
+     * @param EncoderOptions|null $encoderOptions
+     *
+     * @return EncoderInterface
+     */
+    public function createEncoder(ContainerInterface $container, EncoderOptions $encoderOptions = null);
 }

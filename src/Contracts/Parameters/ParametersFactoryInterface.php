@@ -16,12 +16,14 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptMediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -37,6 +39,16 @@ interface ParametersFactoryInterface
      * @return EncodingParametersInterface
      */
     public function createEncodingParameters($includePaths = null, array $fieldSets = null);
+
+    /**
+     * Create parameter analyzer.
+     *
+     * @param EncodingParametersInterface $parameters
+     * @param ContainerInterface          $container
+     *
+     * @return ParametersAnalyzerInterface
+     */
+    public function createParametersAnalyzer(EncodingParametersInterface $parameters, ContainerInterface $container);
 
     /**
      * Create media type.

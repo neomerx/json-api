@@ -17,6 +17,7 @@
  */
 
 use \Iterator;
+use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
@@ -25,7 +26,6 @@ use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
@@ -60,11 +60,6 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 class Parser implements ParserInterface
 {
     /**
-     * @var DataAnalyzerInterface
-     */
-    protected $dataAnalyzer;
-
-    /**
      * @var ParserFactoryInterface
      */
     protected $parserFactory;
@@ -90,21 +85,26 @@ class Parser implements ParserInterface
     protected $manager;
 
     /**
+     * @var ContainerInterface
+     */
+    protected $container;
+
+    /**
      * @param ParserFactoryInterface      $parserFactory
      * @param StackFactoryInterface       $stackFactory
      * @param SchemaFactoryInterface      $schemaFactory
-     * @param DataAnalyzerInterface       $analyzer
+     * @param ContainerInterface          $container
      * @param ParserManagerInterface|null $manager
      */
     public function __construct(
         ParserFactoryInterface $parserFactory,
         StackFactoryInterface $stackFactory,
         SchemaFactoryInterface $schemaFactory,
-        DataAnalyzerInterface $analyzer,
+        ContainerInterface $container,
         ParserManagerInterface $manager = null
     ) {
         $this->manager       = $manager;
-        $this->dataAnalyzer  = $analyzer;
+        $this->container     = $container;
         $this->stackFactory  = $stackFactory;
         $this->parserFactory = $parserFactory;
         $this->schemaFactory = $schemaFactory;
@@ -135,11 +135,10 @@ class Parser implements ParserInterface
      */
     private function parseData()
     {
-        list($isEmpty, $isOriginallyArrayed, $schema, $traversableData) = $this->analyzeCurrentData();
+        list($isEmpty, $isOriginallyArrayed, $traversableData) = $this->analyzeCurrentData();
 
         /** @var bool $isEmpty */
         /** @var bool $isOriginallyArrayed */
-        /** @var SchemaProviderInterface $schema */
 
         if ($isEmpty === true) {
             yield $this->createReplyForEmptyData($traversableData);
@@ -149,8 +148,9 @@ class Parser implements ParserInterface
             // duplicated are allowed in data however they shouldn't be in includes
             $isDupAllowed = $curFrame->getLevel() < 2;
 
-            $fieldSet = $this->getFieldSet($schema->getResourceType());
             foreach ($traversableData as $resource) {
+                $schema         = $this->getSchema($resource);
+                $fieldSet       = $this->getFieldSet($schema->getResourceType());
                 $resourceObject = $schema->createResourceObject($resource, $isOriginallyArrayed, $fieldSet);
                 $isCircular     = $this->checkCircular($resourceObject);
 
@@ -161,13 +161,13 @@ class Parser implements ParserInterface
                     continue;
                 }
 
-                if ($this->shouldParseRelationships($resourceObject, $isCircular) === true) {
+                if ($this->shouldParseRelationships() === true) {
                     foreach ($schema->getRelationshipObjectIterator($resource) as $relationship) {
                         /** @var RelationshipObjectInterface $relationship */
                         $nextFrame = $this->stack->push();
                         $nextFrame->setRelationship($relationship);
                         try {
-                            if ($this->isShouldRelationshipBeInOutput($resourceObject, $relationship) === true) {
+                            if ($this->isRelationshipInFieldSet() === true) {
                                 foreach ($this->parseData() as $parseResult) {
                                     yield $parseResult;
                                 }
@@ -189,10 +189,52 @@ class Parser implements ParserInterface
     protected function analyzeCurrentData()
     {
         $relationship = $this->stack->end()->getRelationship();
-
         $data = $relationship->isShowData() === true ? $relationship->getData() : null;
 
-        return $this->dataAnalyzer->analyze($data);
+        $isCollection    = true;
+        $isEmpty         = true;
+        $schema          = null;
+        $traversableData = null;
+        $firstItem       = null;
+
+        assert('is_array($data) || is_object($data) || $data === null || $data instanceof Iterator');
+
+        if (is_array($data) === true) {
+            /** @var array $data */
+            $isEmpty = empty($data);
+            $traversableData = $data;
+            if ($isEmpty === false) {
+            }
+        } elseif ($data instanceof Iterator) {
+            /** @var Iterator $data */
+            $data->rewind();
+            $isEmpty = ($data->valid() === false);
+            if ($isEmpty === false) {
+                $traversableData = $data;
+            } else {
+                $traversableData = [];
+            }
+        } elseif (is_object($data) === true) {
+            /** @var object $data */
+            $isEmpty         = ($data === null);
+            $isCollection    = false;
+            $traversableData = [$data];
+        } elseif ($data === null) {
+            $isCollection = false;
+            $isEmpty      = true;
+        }
+
+        return [$isEmpty, $isCollection, $traversableData];
+    }
+
+    /**
+     * @param mixed $resource
+     *
+     * @return SchemaProviderInterface
+     */
+    private function getSchema($resource)
+    {
+        return $this->container->getSchema($resource);
     }
 
     /**
@@ -227,29 +269,19 @@ class Parser implements ParserInterface
     }
 
     /**
-     * @param ResourceObjectInterface $resource
-     * @param bool                    $isCircular
-     *
      * @return bool
      */
-    private function shouldParseRelationships(ResourceObjectInterface $resource, $isCircular)
+    private function shouldParseRelationships()
     {
-        return $this->manager === null ? true :
-            $this->manager->isShouldParseRelationships($resource, $isCircular, $this->stack);
+        return $this->manager === null ? true : $this->manager->isShouldParseRelationships($this->stack);
     }
 
     /**
-     * @param ResourceObjectInterface     $resource
-     * @param RelationshipObjectInterface $relationship
-     *
      * @return bool
      */
-    private function isShouldRelationshipBeInOutput(
-        ResourceObjectInterface $resource,
-        RelationshipObjectInterface $relationship
-    ) {
-        return $this->manager === null ? true :
-            $this->manager->isShouldRelationshipBeInOutput($resource, $relationship);
+    private function isRelationshipInFieldSet()
+    {
+        return $this->manager === null ? true : $this->manager->isRelationshipInFieldSet($this->stack);
     }
 
     /**

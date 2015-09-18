@@ -17,12 +17,13 @@
  */
 
 use \Neomerx\JsonApi\Schema\Link;
+use \Neomerx\Tests\JsonApi\Data\Site;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
+use \Neomerx\Tests\JsonApi\Data\SiteSchema;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
-use \Neomerx\Tests\JsonApi\Data\DummyEncoder;
 use \Neomerx\JsonApi\Parameters\EncodingParameters;
 
 /**
@@ -548,13 +549,58 @@ EOL;
     }
 
     /**
-     * Test encoder will create instances of child classes.
-     *
-     * @see https://github.com/neomerx/json-api/issues/67
+     * Test encode polymorphic array (resources of different types).
      */
-    public function testEnheritedEncoder()
+    public function testEncodePolymorphicArray()
     {
-        $childEncoder = DummyEncoder::instance([]);
-        $this->assertEquals(DummyEncoder::class, get_class($childEncoder));
+        $author = Author::instance(7, 'First', 'Last', []);
+        $site   = Site::instance(9, 'Main Site', []);
+        $endcoder = Encoder::instance([
+            Author::class => AuthorSchema::class,
+            Site::class   => SiteSchema::class,
+        ], $this->encoderOptions);
+
+        $actual = $endcoder->encodeData([$author, $site]);
+
+        $expected = <<<EOL
+        {
+            "data" : [
+                {
+                    "type" : "people",
+                    "id"   : "7",
+                    "attributes" : {
+                        "first_name" : "First",
+                        "last_name"  : "Last"
+                    },
+                    "relationships" : {
+                        "comments" : {
+                            "data" : []
+                        }
+                    },
+                    "links" : {
+                        "self":"http://example.com/people/7"
+                    }
+                }, {
+                    "type" : "sites",
+                    "id"   : "9",
+                    "attributes" : {
+                        "name" : "Main Site"
+                    },
+                    "relationships" : {
+                        "posts" : {
+                            "data" : []
+                        }
+                    },
+                    "links" : {
+                        "self":"http://example.com/sites/9"
+                    }
+                }
+            ]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
     }
 }

@@ -107,8 +107,10 @@ class ParametersParser implements ParametersParserInterface
      */
     private function getIncludePaths(array $parameters)
     {
-        $paths = $this->getStringParamOrNull($parameters, self::PARAM_INCLUDE);
-        return (empty($paths) === true ? null : explode(',', rtrim($paths, ',')));
+        $paths  = $this->getStringParamOrNull($parameters, self::PARAM_INCLUDE);
+        $result = empty($paths) === false ? explode(',', rtrim($paths, ',')) : null;
+
+        return $result;
     }
 
     /**

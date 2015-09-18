@@ -1,7 +1,5 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue47;
 
-use \Neomerx\JsonApi\Schema\SchemaProvider;
-
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
  *
@@ -17,6 +15,8 @@ use \Neomerx\JsonApi\Schema\SchemaProvider;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+use \Neomerx\JsonApi\Schema\SchemaProvider;
 
 /**
  * @package Neomerx\Tests\JsonApi

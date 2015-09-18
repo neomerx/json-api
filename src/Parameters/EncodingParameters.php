@@ -24,14 +24,9 @@ use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 class EncodingParameters implements EncodingParametersInterface
 {
     /**
-     * @var string[]|null
+     * @var array|null
      */
     private $includePaths;
-
-    /**
-     * @var array
-     */
-    private $pathIndexes;
 
     /**
      * @var array|null
@@ -39,24 +34,13 @@ class EncodingParameters implements EncodingParametersInterface
     private $fieldSets;
 
     /**
-     * @var array|null
+     * @param array|null $includePaths
+     * @param array|null $fieldSets
      */
-    private $matchCache;
-
-    /**
-     * @param string[]|null $includePaths
-     * @param array|null    $fieldSets
-     */
-    public function __construct($includePaths = null, array $fieldSets = null)
+    public function __construct(array $includePaths = null, array $fieldSets = null)
     {
         $this->fieldSets    = $fieldSets;
         $this->includePaths = $includePaths;
-
-        if ($this->includePaths !== null) {
-            assert('is_array($this->includePaths)');
-            $this->pathIndexes = array_flip(array_values($this->includePaths));
-            $this->matchCache  = [];
-        }
     }
 
     /**
@@ -65,26 +49,6 @@ class EncodingParameters implements EncodingParametersInterface
     public function getIncludePaths()
     {
         return $this->includePaths;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isPathIncluded($path)
-    {
-        return
-            $this->pathIndexes === null ||
-            $this->hasExactPathMatch($path) === true ||
-            // RC4 spec changed requirements and intermediate paths should be included as well
-            $this->hasMatchWithIncludedPaths($path) === true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function hasExactPathMatch($path)
-    {
-        return $this->pathIndexes !== null && array_key_exists($path, $this->pathIndexes) === true;
     }
 
     /**
@@ -106,29 +70,5 @@ class EncodingParameters implements EncodingParametersInterface
         } else {
             return (isset($this->fieldSets[$type]) === true ? $this->fieldSets[$type] : []);
         }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function hasMatchWithIncludedPaths($path)
-    {
-        $hasMatch = false;
-
-        if ($path !== null && $this->includePaths !== null) {
-            if (array_key_exists($path, $this->matchCache) === true) {
-                $hasMatch = $this->matchCache[$path];
-            } else {
-                foreach ($this->includePaths as $targetPath) {
-                    if (strpos($targetPath, $path) === 0) {
-                        $hasMatch = true;
-                        break;
-                    }
-                }
-                $this->matchCache[$path] = $hasMatch;
-            }
-        }
-
-        return $hasMatch;
     }
 }

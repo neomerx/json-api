@@ -18,17 +18,18 @@
 
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Document\Error;
+use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\JsonApi\Schema\Container;
 use \Neomerx\JsonApi\Document\Document;
 use \Neomerx\JsonApi\Encoder\Stack\Stack;
 use \Neomerx\JsonApi\Encoder\Parser\Parser;
 use \Neomerx\JsonApi\Parameters\Parameters;
 use \Neomerx\JsonApi\Schema\ResourceObject;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Encoder\Stack\StackFrame;
 use \Neomerx\JsonApi\Parameters\SortParameter;
 use \Neomerx\JsonApi\Schema\RelationshipObject;
 use \Neomerx\JsonApi\Encoder\Parser\ParserReply;
-use \Neomerx\JsonApi\Encoder\Parser\DataAnalyzer;
 use \Neomerx\JsonApi\Parameters\ParametersParser;
 use \Neomerx\JsonApi\Encoder\Parser\ParserManager;
 use \Neomerx\JsonApi\Parameters\Headers\MediaType;
@@ -45,12 +46,12 @@ use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 use \Neomerx\JsonApi\Parameters\RestrictiveHeadersChecker;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
+use \Neomerx\JsonApi\Encoder\Parameters\ParametersAnalyzer;
 use \Neomerx\JsonApi\Schema\ResourceIdentifierSchemaAdapter;
 use \Neomerx\JsonApi\Parameters\RestrictiveParametersChecker;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 use \Neomerx\JsonApi\Schema\ResourceIdentifierContainerAdapter;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
@@ -58,12 +59,21 @@ use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
 class Factory implements FactoryInterface
 {
+    /**
+     * @inheritdoc
+     */
+    public function createEncoder(ContainerInterface $container, EncoderOptions $encoderOptions = null)
+    {
+        return new Encoder($this, $container, $encoderOptions);
+    }
+
     /**
      * @inheritdoc
      */
@@ -108,17 +118,17 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createParser(DataAnalyzerInterface $analyzer, ParserManagerInterface $manager = null)
+    public function createParser(ContainerInterface $container, ParserManagerInterface $manager = null)
     {
-        return new Parser($this, $this, $this, $analyzer, $manager);
+        return new Parser($this, $this, $this, $container, $manager);
     }
 
     /**
      * @inheritdoc
      */
-    public function createManager(EncodingParametersInterface $parameters)
+    public function createManager(ParametersAnalyzerInterface $parameterAnalyzer)
     {
-        return new ParserManager($parameters);
+        return new ParserManager($parameterAnalyzer);
     }
 
     /**
@@ -140,24 +150,25 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createReplyInterpreter(DocumentInterface $document, EncodingParametersInterface $parameters)
+    public function createReplyInterpreter(DocumentInterface $document, ParametersAnalyzerInterface $parameterAnalyzer)
     {
-        return new ReplyInterpreter($document, $parameters);
+        return new ReplyInterpreter($document, $parameterAnalyzer);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function createAnalyzer(ContainerInterface $container)
-    {
-        return new DataAnalyzer($container);
-    }
     /**
      * @inheritdoc
      */
     public function createEncodingParameters($includePaths = null, array $fieldSets = null)
     {
         return new EncodingParameters($includePaths, $fieldSets);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createParametersAnalyzer(EncodingParametersInterface $parameters, ContainerInterface $container)
+    {
+        return new ParametersAnalyzer($parameters, $container);
     }
 
     /**

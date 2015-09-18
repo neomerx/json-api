@@ -95,8 +95,8 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class,
         ], $this->encoderOptions)->encodeData($this->site, new EncodingParameters(
+            // include only this relations
             [
-                // include only this relations
                 Site::LINK_POSTS,
                 Site::LINK_POSTS . '.' . Post::LINK_COMMENTS,
             ],

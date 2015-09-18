@@ -39,6 +39,9 @@ class ResourceIdentifierSchemaAdapterTest extends BaseTestCase
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getLinkageMeta')->once()->withAnyArgs()->andReturn(['some' => 'meta']);
 
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $schema->shouldReceive('getPrimaryMeta')->once()->withAnyArgs()->andReturn(['some' => 'meta']);
+
         /** @var FactoryInterface $factory */
         /** @var ContainerInterface $container */
         /** @var SchemaProviderInterface $schema */
@@ -50,9 +53,12 @@ class ResourceIdentifierSchemaAdapterTest extends BaseTestCase
         $this->assertEmpty($adapter->getResourceLinks($resource));
         $this->assertEmpty($adapter->getIncludedResourceLinks($resource));
         $this->assertEmpty($adapter->getAttributes($resource));
+        $this->assertEmpty($adapter->getIncludePaths());
+        $this->assertNotEmpty($adapter->getPrimaryMeta($resource));
         $this->assertFalse($adapter->isShowAttributesInIncluded());
         $this->assertFalse($adapter->isShowRelationshipsInIncluded());
         $this->assertNull($adapter->getInclusionMeta($resource));
+        $this->assertNotNull($adapter->getRelationshipObjectIterator($resource));
         $this->assertNull($adapter->getRelationshipsPrimaryMeta($resource));
         $this->assertNull($adapter->getRelationshipsInclusionMeta($resource));
         $adapter->getLinkageMeta($resource);

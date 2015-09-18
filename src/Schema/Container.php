@@ -19,6 +19,7 @@
 use \Closure;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -34,6 +35,11 @@ class Container implements ContainerInterface
      * @var array
      */
     private $createdProviders = [];
+
+    /**
+     * @var array
+     */
+    private $resourceType2Type = [];
 
     /**
      * @var SchemaFactoryInterface
@@ -96,22 +102,39 @@ class Container implements ContainerInterface
     /**
      * @inheritdoc
      */
-    public function getSchemaByType($resourceType)
+    public function getSchemaByType($type)
     {
-        if (isset($this->createdProviders[$resourceType])) {
-            return $this->createdProviders[$resourceType];
+        if (isset($this->createdProviders[$type])) {
+            return $this->createdProviders[$type];
         }
 
-        assert('isset($this->providerMapping[$resourceType])', 'Have you added Schema for `'.$resourceType.'`?');
+        assert('isset($this->providerMapping[$type])', 'Have you added Schema for `'.$type.'`?');
 
-        $classNameOrClosure = $this->providerMapping[$resourceType];
+        $classNameOrClosure = $this->providerMapping[$type];
         if ($classNameOrClosure instanceof Closure) {
-            $this->createdProviders[$resourceType] = ($schema = $classNameOrClosure($this->factory, $this));
+            $this->createdProviders[$type] = ($schema = $classNameOrClosure($this->factory, $this));
         } else {
-            $this->createdProviders[$resourceType] = ($schema = new $classNameOrClosure($this->factory, $this));
+            $this->createdProviders[$type] = ($schema = new $classNameOrClosure($this->factory, $this));
         }
+
+        /** @var SchemaProviderInterface $schema */
+
+        $this->resourceType2Type[$schema->getResourceType()] = $type;
 
         return $schema;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSchemaByResourceType($resourceType)
+    {
+        assert(
+            'isset($this->resourceType2Type[$resourceType])',
+            'Have you added Schema for resource type `'.$resourceType.'`?'
+        );
+
+        return $this->getSchemaByType($this->resourceType2Type[$resourceType]);
     }
 
     /**

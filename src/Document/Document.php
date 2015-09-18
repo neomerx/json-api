@@ -45,12 +45,22 @@ class Document implements DocumentInterface
     /**
      * @var array
      */
-    private $isIncludedMarks;
+    private $hasBeenMetAlready;
 
     /**
      * @var array|null
      */
     private $included;
+
+    /**
+     * @var int
+     */
+    private $includedIndex = 0;
+
+    /**
+     * @var array
+     */
+    private $includedResources = [];
 
     /**
      * @var array|null
@@ -126,9 +136,9 @@ class Document implements DocumentInterface
     {
         $idx  = $resource->getId();
         $type = $resource->getType();
-        if (isset($this->isIncludedMarks[$type][$idx]) === false) {
-            $this->isIncludedMarks[$type][$idx] = true;
+        if (isset($this->hasBeenMetAlready[$type][$idx]) === false) {
             $this->bufferForIncluded[$type][$idx] = $this->presenter->convertIncludedResourceToArray($resource);
+            $this->hasBeenMetAlready[$type][$idx] = true;
         }
     }
 
@@ -149,6 +159,16 @@ class Document implements DocumentInterface
         $type = $resource->getType();
         assert('isset($this->bufferForData[$type][$idx]) === false');
         $this->bufferForData[$type][$idx] = $this->presenter->convertDataResourceToArray($resource, true);
+        $this->hasBeenMetAlready[$type][$idx] = true;
+
+        // check if resource has already been added to included
+        // (for example as related resource of one of the previous main resources)
+        if (isset($this->includedResources[$type][$idx]) === true) {
+            $includedIndex = $this->includedResources[$type][$idx];
+
+            // remove duplicate from 'included' (leave only in main resources)
+            unset($this->included[$includedIndex]);
+        }
     }
 
     /**
@@ -274,6 +294,9 @@ class Document implements DocumentInterface
             }
 
             $this->included[] = $representation;
+            // remember we added (type, id) at index
+            $this->includedResources[$type][$idx] = $this->includedIndex;
+            $this->includedIndex++;
         }
     }
 
@@ -291,7 +314,7 @@ class Document implements DocumentInterface
             self::KEYWORD_META     => $this->meta,
             self::KEYWORD_LINKS    => $this->links,
             self::KEYWORD_DATA     => true, // this field wont be filtered
-            self::KEYWORD_INCLUDED => $this->included,
+            self::KEYWORD_INCLUDED => $this->included === null ? null : array_values($this->included),
         ], function ($value) {
             return $value !== null;
         });

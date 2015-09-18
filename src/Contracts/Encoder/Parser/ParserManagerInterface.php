@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 
 /**
@@ -28,30 +26,20 @@ interface ParserManagerInterface
     /**
      * If parser should parse relationships for the resource.
      *
-     * @param ResourceObjectInterface $resource
-     * @param bool                    $isCircular
      * @param StackReadOnlyInterface  $stack
      *
      * @return bool
      */
-    public function isShouldParseRelationships(
-        ResourceObjectInterface $resource,
-        $isCircular,
-        StackReadOnlyInterface $stack
-    );
+    public function isShouldParseRelationships(StackReadOnlyInterface $stack);
 
     /**
      * Return true if relationship is in input field set and should be included in output.
      *
-     * @param ResourceObjectInterface     $resource
-     * @param RelationshipObjectInterface $relationship
+     * @param StackReadOnlyInterface $stack
      *
      * @return bool
      */
-    public function isShouldRelationshipBeInOutput(
-        ResourceObjectInterface $resource,
-        RelationshipObjectInterface $relationship
-    );
+    public function isRelationshipInFieldSet(StackReadOnlyInterface $stack);
 
     /**
      * Get field set for resource. Required fields will be array keys.
@@ -61,13 +49,4 @@ interface ParserManagerInterface
      * @return array <string, int>|null
      */
     public function getFieldSet($type);
-
-    /**
-     * Return true if path is within input 'include' parameters.
-     *
-     * @param string|null $path
-     *
-     * @return bool
-     */
-    public function hasExactPathMatch($path);
 }

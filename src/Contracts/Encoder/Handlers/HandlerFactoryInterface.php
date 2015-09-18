@@ -17,7 +17,7 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -28,9 +28,9 @@ interface HandlerFactoryInterface
      * Create parser reply interpreter.
      *
      * @param DocumentInterface           $document
-     * @param EncodingParametersInterface $parameters
+     * @param ParametersAnalyzerInterface $parameterAnalyzer
      *
      * @return ReplyInterpreterInterface
      */
-    public function createReplyInterpreter(DocumentInterface $document, EncodingParametersInterface $parameters);
+    public function createReplyInterpreter(DocumentInterface $document, ParametersAnalyzerInterface $parameterAnalyzer);
 }

@@ -86,7 +86,7 @@ class ParserTest extends BaseTestCase
         ];
         $factory        = new Factory();
         $container      = $factory->createContainer($schemas);
-        $this->parser   = $factory->createParser($factory->createAnalyzer($container));
+        $this->parser   = $factory->createParser($container);
 
         $this->author   = Author::instance(9, 'Dan', 'Gebhardt');
         $this->comments = [

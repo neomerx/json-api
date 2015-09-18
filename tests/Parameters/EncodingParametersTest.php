@@ -35,7 +35,6 @@ class EncodingParametersTest extends BaseTestCase
         $this->assertNull($parameters->getFieldSets());
         $this->assertNull($parameters->getIncludePaths());
         $this->assertNull($parameters->getFieldSet('whatever'));
-        $this->assertTrue($parameters->isPathIncluded('any.path'));
     }
 
     /**
@@ -43,18 +42,15 @@ class EncodingParametersTest extends BaseTestCase
      */
     public function testNotNulls()
     {
+        $type = 'type';
         $parameters = new EncodingParameters(
-            $paths = ['some.path'],
-            $fieldsets = ['type' => ['field1', 'field2']]
+            $paths = [$type => ['some.path']],
+            $fieldsets = [$type => ['field1', 'field2']]
         );
 
         $this->assertEquals($fieldsets, $parameters->getFieldSets());
         $this->assertEquals($paths, $parameters->getIncludePaths());
         $this->assertEquals([], $parameters->getFieldSet('typeNotInSet'));
-        $this->assertEquals($fieldsets['type'], $parameters->getFieldSet('type'));
-        $this->assertTrue($parameters->isPathIncluded('some.path'));
-        $this->assertTrue($parameters->isPathIncluded('some'));
-        $this->assertFalse($parameters->isPathIncluded('some.path.plus'));
-        $this->assertFalse($parameters->isPathIncluded('completely.different'));
+        $this->assertEquals($fieldsets[$type], $parameters->getFieldSet($type));
     }
 }

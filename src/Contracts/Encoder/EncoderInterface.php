@@ -17,7 +17,6 @@
  */
 
 use \Iterator;
-use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 
@@ -132,11 +131,4 @@ interface EncoderInterface
      * @return string
      */
     public function encodeMeta($meta);
-
-    /**
-     * Get encoder options.
-     *
-     * @return EncoderOptions|null
-     */
-    public function getEncoderOptions();
 }

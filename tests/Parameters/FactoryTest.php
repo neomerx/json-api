@@ -78,7 +78,7 @@ class FactoryTest extends BaseTestCase
         $this->assertNotNull($parameters = $this->factory->createParameters(
             $contentTypeHeader,
             $acceptHeader,
-            $includePaths = ['p1', 'p2'],
+            $includePaths = ['some-type' => ['p1', 'p2']],
             $fieldSets = ['s1' => ['value11', 'value12']],
             $sortParameters = [$sortParam],
             $pagingParameters = ['first' => 5, 'page' => 30],
@@ -100,7 +100,7 @@ class FactoryTest extends BaseTestCase
     public function testCreateEncodingParameters()
     {
         $this->assertNotNull($parameters = $this->factory->createEncodingParameters(
-            $includePaths = ['p1', 'p2'],
+            $includePaths = ['some-type' => ['p1', 'p2']],
             $fieldSets    = ['s1' => ['value11', 'value12']]
         ));
 

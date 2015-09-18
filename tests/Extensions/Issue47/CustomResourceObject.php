@@ -1,8 +1,5 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue47;
 
-use \InvalidArgumentException;
-use \Neomerx\JsonApi\Schema\ResourceObject;
-
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
  *
@@ -18,6 +15,9 @@ use \Neomerx\JsonApi\Schema\ResourceObject;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+use \InvalidArgumentException;
+use \Neomerx\JsonApi\Schema\ResourceObject;
 
 /**
  * @package Neomerx\Tests\JsonApi

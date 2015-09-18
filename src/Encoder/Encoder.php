@@ -17,15 +17,15 @@
  */
 
 use \Iterator;
+use \InvalidArgumentException;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -71,13 +71,16 @@ class Encoder implements EncoderInterface
 
     /**
      * @param FactoryInterface    $factory
-     * @param array               $schemas
+     * @param ContainerInterface  $container
      * @param EncoderOptions|null $encoderOptions
      */
-    public function __construct(FactoryInterface $factory, array $schemas, EncoderOptions $encoderOptions = null)
-    {
+    public function __construct(
+        FactoryInterface $factory,
+        ContainerInterface $container,
+        EncoderOptions $encoderOptions = null
+    ) {
         $this->factory        = $factory;
-        $this->container      = $factory->createContainer($schemas);
+        $this->container      = $container;
         $this->encoderOptions = $encoderOptions;
 
         $this->resetEncodeParameters();
@@ -206,14 +209,6 @@ class Encoder implements EncoderInterface
     }
 
     /**
-     * @inheritdoc
-     */
-    public function getEncoderOptions()
-    {
-        return $this->encoderOptions;
-    }
-
-    /**
      * @param ContainerInterface               $container
      * @param object|array|Iterator|null       $data
      * @param EncodingParametersInterface|null $parameters
@@ -225,13 +220,15 @@ class Encoder implements EncoderInterface
         $data,
         EncodingParametersInterface $parameters = null
     ) {
-        $dataAnalyzer  = $this->factory->createAnalyzer($container);
-        $parameters    = $this->getEncodingParameters($data, $dataAnalyzer, $parameters);
-        $docWriter     = $this->factory->createDocument();
-        $parserManager = $this->factory->createManager($parameters);
-        $interpreter   = $this->factory->createReplyInterpreter($docWriter, $parameters);
+        if (is_array($data) === false && is_object($data) === false && $data !== null && !($data instanceof Iterator)) {
+            throw new InvalidArgumentException('data');
+        }
 
-        $parser = $this->factory->createParser($dataAnalyzer, $parserManager);
+        $docWriter     = $this->factory->createDocument();
+        $paramAnalyzer = $this->createParametersAnalyzer($container, $parameters);
+        $parserManager = $this->factory->createManager($paramAnalyzer);
+        $interpreter   = $this->factory->createReplyInterpreter($docWriter, $paramAnalyzer);
+        $parser        = $this->factory->createParser($container, $parserManager);
 
         $this->encoderOptions !== null && $this->encoderOptions->getUrlPrefix() !== null ?
             $docWriter->setUrlPrefix($this->encoderOptions->getUrlPrefix()) : null;
@@ -282,7 +279,11 @@ class Encoder implements EncoderInterface
      */
     public static function instance(array $schemas, EncoderOptions $encodeOptions = null)
     {
-        return new static(static::getFactory(), $schemas, $encodeOptions);
+        $factory   = static::getFactory();
+        $container = $factory->createContainer($schemas);
+        $encoder   = $factory->createEncoder($container, $encodeOptions);
+
+        return $encoder;
     }
 
     /**
@@ -294,28 +295,19 @@ class Encoder implements EncoderInterface
     }
 
     /**
-     * @param object|array|Iterator|null       $data
-     * @param DataAnalyzerInterface            $analyzer
+     * @param ContainerInterface               $container
      * @param EncodingParametersInterface|null $parameters
      *
-     * @return EncodingParametersInterface
+     * @return ParametersAnalyzerInterface
      */
-    private function getEncodingParameters($data, DataAnalyzerInterface $analyzer, $parameters = null)
-    {
-        /** @var bool $isDataEmpty */
-        /** @var SchemaProviderInterface $schema */
-        list($isDataEmpty, , $schema) = $analyzer->analyze($data);
-
-        if ($isDataEmpty === true) {
-            return $this->factory->createEncodingParameters();
-        } elseif ($parameters !== null && $parameters->getIncludePaths() !== null) {
-            return $parameters;
-        } else {
-            $includePaths = $schema->getIncludePaths();
-            $fieldSets    = $parameters === null ? null : $parameters->getFieldSets();
-
-            return $this->factory->createEncodingParameters($includePaths, $fieldSets);
-        }
+    private function createParametersAnalyzer(
+        ContainerInterface $container,
+        EncodingParametersInterface $parameters = null
+    ) {
+        return $this->factory->createParametersAnalyzer(
+            $parameters === null ? $this->factory->createEncodingParameters() : $parameters,
+            $container
+        );
     }
 
     /**

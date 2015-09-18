@@ -1,9 +1,5 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue49;
 
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\DataAnalyzerInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
-
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
  *
@@ -20,6 +16,10 @@ use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Factory;
+use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
+
 /**
  * @package Neomerx\Tests\JsonApi
  */
@@ -28,8 +28,8 @@ class CustomFactory extends Factory
     /**
      * @inheritdoc
      */
-    public function createParser(DataAnalyzerInterface $analyzer, ParserManagerInterface $manager = null)
+    public function createParser(ContainerInterface $container, ParserManagerInterface $manager = null)
     {
-        return new CustomParser($this, $this, $this, $analyzer, $manager);
+        return new CustomParser($this, $this, $this, $container, $manager);
     }
 }

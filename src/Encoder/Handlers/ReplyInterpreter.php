@@ -18,8 +18,8 @@
 
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\ReplyInterpreterInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface as Frame;
 
 /**
@@ -33,18 +33,18 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     private $document;
 
     /**
-     * @var EncodingParametersInterface|null
+     * @var ParametersAnalyzerInterface
      */
-    private $parameters;
+    private $parameterAnalyzer;
 
     /**
      * @param DocumentInterface           $document
-     * @param EncodingParametersInterface $parameters
+     * @param ParametersAnalyzerInterface $parameterAnalyzer
      */
-    public function __construct(DocumentInterface $document, EncodingParametersInterface $parameters)
+    public function __construct(DocumentInterface $document, ParametersAnalyzerInterface $parameterAnalyzer)
     {
-        $this->document   = $document;
-        $this->parameters = $parameters;
+        $this->document          = $document;
+        $this->parameterAnalyzer = $parameterAnalyzer;
     }
 
     /**
@@ -52,7 +52,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     public function handle(ParserReplyInterface $reply)
     {
-        $current = $reply->getStack()->end();
+        $current  = $reply->getStack()->end();
 
         if ($reply->getReplyType() === ParserReplyInterface::REPLY_TYPE_RESOURCE_COMPLETED) {
             $this->setResourceCompleted($current);
@@ -66,22 +66,25 @@ class ReplyInterpreter implements ReplyInterpreterInterface
                 $this->addToData($reply, $current);
                 break;
             case 2:
-                $this->handleRelationships($reply, $current, $previous);
+                $rootType = $reply->getStack()->root()->getResource()->getType();
+                $this->handleRelationships($rootType, $reply, $current, $previous);
                 break;
             default:
-                $this->handleIncluded($reply, $current, $previous);
+                $rootType = $reply->getStack()->root()->getResource()->getType();
+                $this->handleIncluded($rootType, $reply, $current, $previous);
                 break;
         }
     }
 
     /**
+     * @param string               $rootType
      * @param ParserReplyInterface $reply
      * @param Frame                $current
      * @param Frame                $previous
      */
-    protected function handleRelationships(ParserReplyInterface $reply, Frame $current, Frame $previous)
+    protected function handleRelationships($rootType, ParserReplyInterface $reply, Frame $current, Frame $previous)
     {
-        $this->addToIncludedAndCheckIfParentIsTarget($reply, $current, $previous);
+        $this->addToIncludedAndCheckIfParentIsTarget($rootType, $reply, $current, $previous);
 
         if ($this->isRelationshipInFieldSet($current, $previous) === true) {
             $this->addRelationshipToData($reply, $current, $previous);
@@ -89,13 +92,14 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     }
 
     /**
+     * @param string               $rootType
      * @param ParserReplyInterface $reply
      * @param Frame                $current
      * @param Frame                $previous
      */
-    protected function handleIncluded(ParserReplyInterface $reply, Frame $current, Frame $previous)
+    protected function handleIncluded($rootType, ParserReplyInterface $reply, Frame $current, Frame $previous)
     {
-        if ($this->addToIncludedAndCheckIfParentIsTarget($reply, $current, $previous) === true &&
+        if ($this->addToIncludedAndCheckIfParentIsTarget($rootType, $reply, $current, $previous) === true &&
             $this->isRelationshipInFieldSet($current, $previous) === true
         ) {
             $this->addRelationshipToIncluded($reply, $current, $previous);
@@ -103,15 +107,20 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     }
 
     /**
+     * @param string               $rootType
      * @param ParserReplyInterface $reply
      * @param Frame                $current
      * @param Frame                $previous
      *
      * @return bool
      */
-    private function addToIncludedAndCheckIfParentIsTarget(ParserReplyInterface $reply, Frame $current, Frame $previous)
-    {
-        list($parentIsTarget, $currentIsTarget) = $this->getIfTargets($current, $previous);
+    private function addToIncludedAndCheckIfParentIsTarget(
+        $rootType,
+        ParserReplyInterface $reply,
+        Frame $current,
+        Frame $previous
+    ) {
+        list($parentIsTarget, $currentIsTarget) = $this->getIfTargets($rootType, $current, $previous);
 
         if ($currentIsTarget === true) {
             $this->addToIncluded($reply, $current);
@@ -217,15 +226,17 @@ class ReplyInterpreter implements ReplyInterpreterInterface
     }
 
     /**
+     * @param string     $rootType
      * @param Frame      $current
      * @param Frame|null $previous
      *
      * @return bool[]
      */
-    private function getIfTargets(Frame $current, Frame $previous = null)
+    private function getIfTargets($rootType, Frame $current, Frame $previous = null)
     {
-        $parentIsTarget  = ($previous === null || $this->parameters->isPathIncluded($previous->getPath()));
-        $currentIsTarget = $this->parameters->isPathIncluded($current->getPath());
+        $currentIsTarget = $this->parameterAnalyzer->isPathIncluded($current->getPath(), $rootType);
+        $parentIsTarget  = ($previous === null ||
+            $this->parameterAnalyzer->isPathIncluded($previous->getPath(), $rootType));
 
         return [$parentIsTarget, $currentIsTarget];
     }
@@ -240,7 +251,9 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     private function isRelationshipInFieldSet(Frame $current, Frame $previous)
     {
-        if (($fieldSet = $this->parameters->getFieldSet($previous->getResource()->getType())) === null) {
+        $parentType = $previous->getResource()->getType();
+        $parameters = $this->parameterAnalyzer->getParameters();
+        if (($fieldSet = $parameters->getFieldSet($parentType)) === null) {
             return true;
         }
 

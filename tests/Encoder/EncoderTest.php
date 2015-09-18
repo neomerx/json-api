@@ -484,15 +484,6 @@ EOL;
     }
 
     /**
-     * Test get encoder options.
-     */
-    public function testGetEncoderOptions()
-    {
-        $endoder = Encoder::instance([], $this->encoderOptions);
-        $this->assertSame($this->encoderOptions, $endoder->getEncoderOptions());
-    }
-
-    /**
      * Test add links to empty relationship.
      */
     public function testAddLinksToEmptyRelationship()

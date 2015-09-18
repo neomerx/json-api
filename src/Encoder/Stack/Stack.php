@@ -78,6 +78,14 @@ class Stack implements StackInterface
     /**
      * @inheritdoc
      */
+    public function root()
+    {
+        return $this->size > 0 ? $this->stack[0] : null;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function end()
     {
         return $this->size > 0 ? $this->stack[$this->size - 1] : null;

@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder\Parser;
+<?php namespace Neomerx\JsonApi\Contracts\Encoder\Parameters;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,19 +16,27 @@
  * limitations under the License.
  */
 
-use \Iterator;
+use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-interface DataAnalyzerInterface
+interface ParametersAnalyzerInterface
 {
     /**
-     * Analyze input data.
+     * Get parameters.
      *
-     * @param array|object|null|Iterator $data
-     *
-     * @return array [$isEmpty, $isCollection, $schema, $traversableData]
+     * @return EncodingParametersInterface
      */
-    public function analyze($data);
+    public function getParameters();
+
+    /**
+     * If path is included.
+     *
+     * @param string $path
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function isPathIncluded($path, $type);
 }

@@ -584,4 +584,216 @@ EOL;
 
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * Test encode nested included objects for polymorphic arrays.
+     */
+    public function testEncodeWithIncludedForPolymorphicArrays()
+    {
+        $this->author->{Author::LINK_COMMENTS} = $this->comments;
+
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => PostSchema::class,
+            Site::class    => SiteSchema::class,
+        ], $this->encoderOptions)->encodeData([$this->site, $this->author], new EncodingParameters([
+            Site::LINK_POSTS . '.' . Post::LINK_AUTHOR,
+            Author::LINK_COMMENTS,
+        ]));
+
+        $expected = <<<EOL
+        {
+            "data":[
+                {
+                    "type" : "sites",
+                    "id"   : "2",
+                    "attributes" : {
+                        "name" : "site name"
+                    },
+                    "relationships" : {
+                        "posts" : {
+                            "data" : [
+                                { "type":"posts", "id":"1" }
+                            ]
+                        }
+                    },
+                    "links":{
+                        "self" : "http://example.com/sites/2"
+                    }
+                },
+                {
+                    "type" : "people",
+                    "id"   : "9",
+                    "attributes" : {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
+                    "relationships" : {
+                        "comments" : {
+                            "data" : [
+                                { "type":"comments", "id":"5" },
+                                { "type":"comments", "id":"12" }
+                            ]
+                        }
+                    },
+                    "links":{
+                        "self":"http://example.com/people/9"
+                    }
+                }
+            ],
+            "included":[
+                {
+                    "type" : "posts",
+                    "id"   : "1",
+                    "attributes" : {
+                        "title" : "JSON API paints my bikeshed!",
+                        "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                    },
+                    "relationships" : {
+                        "author" : {
+                            "data" : {
+                                "type" : "people",
+                                "id"   : "9"
+                            }
+                        },
+                        "comments" : {
+                            "data" : [
+                                { "type":"comments", "id":"5" },
+                                { "type":"comments", "id":"12" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type" : "comments",
+                    "id"   : "5",
+                    "attributes" : {
+                        "body" : "First!"
+                    },
+                    "relationships" : {
+                        "author" : {
+                            "data" : { "type":"people", "id":"9" }
+                        }
+                    },
+                    "links":{
+                        "self":"http://example.com/comments/5"
+                    }
+                },
+                {
+                    "type" : "comments",
+                    "id"   : "12",
+                    "attributes" : {
+                        "body" : "I like XML better"
+                    },
+                    "relationships" : {
+                        "author" : {
+                            "data" : { "type" : "people", "id" : "9" }
+                        }
+                    },
+                    "links" : {
+                        "self" : "http://example.com/comments/12"
+                    }
+                }
+            ]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode relationship with polymorphic data.
+     */
+    public function testEncodePolymorphicRelationship()
+    {
+        // let's hack a little bit and place additional resource(s) into relationship
+        $this->author->{Author::LINK_COMMENTS} = array_merge([$this->site], $this->comments);
+
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => PostSchema::class,
+            Site::class    => SiteSchema::class,
+        ], $this->encoderOptions)->encodeData($this->author, new EncodingParameters([
+            Author::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR,
+        ]));
+
+        $expected = <<<EOL
+        {
+            "data":{
+                "type" : "people",
+                "id"   : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "relationships" : {
+                    "comments" : {
+                        "data" : [
+                            { "type" : "sites",    "id" : "2" },
+                            { "type" : "comments", "id" : "5" },
+                            { "type" : "comments", "id" : "12" }
+                        ]
+                    }
+                },
+                "links":{
+                    "self":"http://example.com/people/9"
+                }
+            },
+            "included":[
+                {
+                    "type" : "sites",
+                    "id"   : "2",
+                    "attributes" : {
+                        "name" : "site name"
+                    },
+                    "relationships" : {
+                        "posts" : {
+                            "data" : [
+                                { "type" : "posts", "id" : "1" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type" : "comments",
+                    "id"   : "5",
+                    "attributes" : {
+                        "body" : "First!"
+                    },
+                    "relationships" : {
+                        "author" : {
+                            "data" : { "type" : "people", "id" : "9" }
+                        }
+                    },
+                    "links" : {
+                        "self" : "http://example.com/comments/5"
+                    }
+                },
+                {
+                    "type" : "comments",
+                    "id"   : "12",
+                    "attributes" : {
+                        "body" : "I like XML better"
+                    },
+                    "relationships" : {
+                        "author" : {
+                            "data" : { "type" : "people", "id" : "9" }
+                        }
+                    },
+                    "links" : {
+                        "self" : "http://example.com/comments/12"
+                    }
+                }
+            ]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
 }

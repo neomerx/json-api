@@ -114,7 +114,7 @@ class IssueTest extends BaseTestCase
                             { "type" : "comments", "id" : "5" },
                             { "type" : "comments", "id" : "12" }
                         ],
-                        "meta" : { "tip":"could be included" }
+                        "meta" : { "tip" : "could be included" }
                     }
                 },
                 "links":{

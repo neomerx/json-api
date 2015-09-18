@@ -25,6 +25,13 @@ use \IteratorAggregate;
 interface StackReadOnlyInterface extends IteratorAggregate, Countable
 {
     /**
+     * Get root stack frame.
+     *
+     * @return StackFrameReadOnlyInterface|null
+     */
+    public function root();
+
+    /**
      * Get a stack frame from end.
      *
      * @return StackFrameReadOnlyInterface|null

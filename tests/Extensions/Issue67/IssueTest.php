@@ -1,4 +1,4 @@
-<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue49;
+<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue67;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,19 +16,21 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use \Neomerx\Tests\JsonApi\BaseTestCase;
 
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class CustomEncoder extends Encoder
+class IssueTest extends BaseTestCase
 {
     /**
-     * @return FactoryInterface
+     * Test encoder will create instances of child classes.
+     *
+     * @see https://github.com/neomerx/json-api/issues/67
      */
-    protected static function getFactory()
+    public function testEnheritedEncoder()
     {
-        return new CustomFactory();
+        $childEncoder = CustomEncoder::instance([]);
+        $this->assertEquals(CustomEncoder::class, get_class($childEncoder));
     }
 }
