@@ -14,6 +14,7 @@ A good API is one of most effective ways to improve the experience for your clie
 This framework agnostic package implements [JSON API](http://jsonapi.org/) specification **version v1.0** and helps focusing on core application functionality rather than on protocol implementation. It supports document structure, errors, data fetching as described in [JSON API Format](http://jsonapi.org/format/) and covers parsing and checking HTTP request parameters and headers. For instance it helps to correctly respond with ```Unsupported Media Type``` (HTTP code 415) and ```Not Acceptable``` (HTTP code 406) to invalid requests. You don't need to manually validate all input parameters on every request. You can configure what parameters are supported by your services and this package will check incoming requests automatically. It greatly simplifies API development and fully support specification. In particular
 
 * Resource attributes and relationships
+* Polymorphic resource data and relationships
 * Compound documents with inclusion of related resources (circular resource references supported)
 * Meta information for document, resources, errors, relationship and link objects
 * Parsing HTTP ```Accept``` and ```Content-Type``` headers in accordance with RFC 2616
@@ -21,7 +22,7 @@ This framework agnostic package implements [JSON API](http://jsonapi.org/) speci
 * Sparse fieldsets and customized included paths
 * Errors
 
-High code quality and **100% test coverage** with **150+ tests**. Production ready.
+High code quality and **100% test coverage** with **180+ tests**. Production ready.
 
 **To find out more, please check out the [Wiki](https://github.com/neomerx/json-api/wiki) and [Sample App](/sample)**.
 
