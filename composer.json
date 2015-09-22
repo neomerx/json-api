@@ -41,7 +41,8 @@
     }
   },
   "scripts": {
-    "test": "phpunit",
+    "test": "composer ptest && composer phpcs",
+    "ptest": "php ./vendor/phpunit/phpunit/phpunit",
     "htest": "hhvm ./vendor/phpunit/phpunit/phpunit",
     "phpcs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests"
   }
