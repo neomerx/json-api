@@ -15,7 +15,13 @@
         ]
     },
     "minimum-stability": "dev",
+    "repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/neomerx/json-api"
+    }
+    ],
     "require": {
-        "neomerx/json-api": "~0.5.0"
+        "neomerx/json-api": "dev-develop"
     }
 }

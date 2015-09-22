@@ -42,7 +42,7 @@ class CommentSchema extends SchemaProvider
         ];
     }
 
-    public function getRelationships($comment)
+    public function getRelationships($comment, array $includeList)
     {
         /** @var Comment $comment */
         return [
