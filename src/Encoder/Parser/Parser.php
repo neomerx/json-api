@@ -194,9 +194,7 @@ class Parser implements ParserInterface
 
         $isCollection    = true;
         $isEmpty         = true;
-        $schema          = null;
         $traversableData = null;
-        $firstItem       = null;
 
         assert('is_array($data) || is_object($data) || $data === null || $data instanceof Iterator');
 
@@ -204,8 +202,6 @@ class Parser implements ParserInterface
             /** @var array $data */
             $isEmpty = empty($data);
             $traversableData = $data;
-            if ($isEmpty === false) {
-            }
         } elseif ($data instanceof Iterator) {
             /** @var Iterator $data */
             $data->rewind();

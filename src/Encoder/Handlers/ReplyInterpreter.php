@@ -52,7 +52,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface
      */
     public function handle(ParserReplyInterface $reply)
     {
-        $current  = $reply->getStack()->end();
+        $current = $reply->getStack()->end();
 
         if ($reply->getReplyType() === ParserReplyInterface::REPLY_TYPE_RESOURCE_COMPLETED) {
             $this->setResourceCompleted($current);

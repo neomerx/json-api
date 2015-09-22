@@ -199,7 +199,7 @@ class ParametersParser implements ParametersParserInterface
      * @param array $parameters
      * @param string $name
      *
-     * @return string|null
+     * @return array|null
      */
     private function getArrayParamOrNull(array $parameters, $name)
     {

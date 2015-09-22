@@ -46,7 +46,7 @@ interface ParametersAnalyzerInterface
      * @param string $path
      * @param string $type
      *
-     * @return string[]|null
+     * @return string[]
      */
     public function getIncludeRelationships($path, $type);
 }

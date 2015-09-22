@@ -131,8 +131,8 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface
     /**
      * If path has exact match with one of the 'include' paths.
      *
-     * @param array  $paths
-     * @param string $path
+     * @param string[] $paths
+     * @param string   $path
      *
      * @return bool
      */
@@ -146,8 +146,8 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface
     /**
      * If path matches one of the included paths.
      *
-     * @param array  $paths
-     * @param string $path
+     * @param string[] $paths
+     * @param string   $path
      *
      * @return bool
      */
