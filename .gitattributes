@@ -8,3 +8,5 @@
 /.travis.yml        export-ignore
 /tests              export-ignore
 /sample             export-ignore
+
+./sample/composer.json  merge=ours
