@@ -80,7 +80,7 @@ class Parser implements ParserInterface
     protected $stack;
 
     /**
-     * @var ParserManagerInterface|null
+     * @var ParserManagerInterface
      */
     protected $manager;
 
@@ -90,18 +90,18 @@ class Parser implements ParserInterface
     protected $container;
 
     /**
-     * @param ParserFactoryInterface      $parserFactory
-     * @param StackFactoryInterface       $stackFactory
-     * @param SchemaFactoryInterface      $schemaFactory
-     * @param ContainerInterface          $container
-     * @param ParserManagerInterface|null $manager
+     * @param ParserFactoryInterface $parserFactory
+     * @param StackFactoryInterface  $stackFactory
+     * @param SchemaFactoryInterface $schemaFactory
+     * @param ContainerInterface     $container
+     * @param ParserManagerInterface $manager
      */
     public function __construct(
         ParserFactoryInterface $parserFactory,
         StackFactoryInterface $stackFactory,
         SchemaFactoryInterface $schemaFactory,
         ContainerInterface $container,
-        ParserManagerInterface $manager = null
+        ParserManagerInterface $manager
     ) {
         $this->manager       = $manager;
         $this->container     = $container;
@@ -162,7 +162,8 @@ class Parser implements ParserInterface
                 }
 
                 if ($this->shouldParseRelationships() === true) {
-                    foreach ($schema->getRelationshipObjectIterator($resource) as $relationship) {
+                    $relationships = $this->getIncludeRelationships();
+                    foreach ($schema->getRelationshipObjectIterator($resource, $relationships) as $relationship) {
                         /** @var RelationshipObjectInterface $relationship */
                         $nextFrame = $this->stack->push();
                         $nextFrame->setRelationship($relationship);
@@ -273,7 +274,15 @@ class Parser implements ParserInterface
      */
     private function shouldParseRelationships()
     {
-        return $this->manager === null ? true : $this->manager->isShouldParseRelationships($this->stack);
+        return $this->manager->isShouldParseRelationships($this->stack);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getIncludeRelationships()
+    {
+        return $this->manager->getIncludeRelationships($this->stack);
     }
 
     /**
@@ -281,7 +290,7 @@ class Parser implements ParserInterface
      */
     private function isRelationshipInFieldSet()
     {
-        return $this->manager === null ? true : $this->manager->isRelationshipInFieldSet($this->stack);
+        return $this->manager->isRelationshipInFieldSet($this->stack);
     }
 
     /**
@@ -309,6 +318,6 @@ class Parser implements ParserInterface
      */
     private function getFieldSet($resourceType)
     {
-        return ($this->manager === null ? null : $this->manager->getFieldSet($resourceType));
+        return $this->manager->getFieldSet($resourceType);
     }
 }

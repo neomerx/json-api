@@ -54,14 +54,25 @@ class CommentSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($comment)
+    public function getRelationships($comment, array $includeRelationships = [])
     {
         assert('$comment instanceof '.Comment::class);
 
+        if (isset($includeRelationships[Comment::LINK_AUTHOR]) === false) {
+            $data = $comment->{Comment::LINK_AUTHOR};
+        } else {
+            // issue #75 https://github.com/neomerx/json-api/issues/75
+            // as author will not be included as full resource let's replace it with just identity (type + id)
+            /** @var Author $author */
+            $author         = $comment->{Comment::LINK_AUTHOR};
+            $authorId       = $author->{Author::ATTRIBUTE_ID};
+            $authorIdentity = Author::instance($authorId, null, null);
+
+            $data = $authorIdentity;
+        }
+
         $links = [
-            Comment::LINK_AUTHOR => [
-                self::DATA => isset($comment->{Comment::LINK_AUTHOR}) ? $comment->{Comment::LINK_AUTHOR} : null,
-            ],
+            Comment::LINK_AUTHOR => [self::DATA => $data],
         ];
 
         // NOTE: The line(s) below for testing purposes only. Not for production.

@@ -54,13 +54,25 @@ class ParserManager implements ParserManagerInterface
             $shouldContinue = true;
         } else {
             // on the way to included paths
-            $shouldContinue = $this->parameterAnalyzer->isPathIncluded(
-                $stack->end()->getPath(),
-                $stack->root()->getResource()->getType()
-            );
+            $currentPath     = $stack->end()->getPath();
+            $currentRootType = $stack->root()->getResource()->getType();
+
+            $shouldContinue = $this->parameterAnalyzer->isPathIncluded($currentPath, $currentRootType);
         }
 
         return $shouldContinue;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIncludeRelationships(StackReadOnlyInterface $stack)
+    {
+        $currentPath     = $stack->end()->getPath();
+        $currentRootType = $stack->root()->getResource()->getType();
+        $includePaths    = $this->parameterAnalyzer->getIncludeRelationships($currentPath, $currentRootType);
+
+        return $includePaths;
     }
 
     /**

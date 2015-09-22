@@ -39,4 +39,14 @@ interface ParametersAnalyzerInterface
      * @return bool
      */
     public function isPathIncluded($path, $type);
+
+    /**
+     * Get a list of relationship that should be included for $path of root type $type.
+     *
+     * @param string $path
+     * @param string $type
+     *
+     * @return string[]|null
+     */
+    public function getIncludeRelationships($path, $type);
 }

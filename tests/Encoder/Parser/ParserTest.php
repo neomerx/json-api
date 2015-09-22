@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Mockery;
+use \Mockery\MockInterface;
 use \Neomerx\Tests\JsonApi\Data\Post;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\JsonApi\Factories\Factory;
@@ -26,6 +28,7 @@ use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -36,6 +39,11 @@ class ParserTest extends BaseTestCase
      * @var ParserInterface
      */
     private $parser;
+
+    /**
+     * @var MockInterface
+     */
+    private $parserManager;
 
     /**
      * @var Author
@@ -79,6 +87,22 @@ class ParserTest extends BaseTestCase
     {
         parent::setUp();
 
+        $this->parserManager = Mockery::mock(ParserManagerInterface::class);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->parserManager->shouldReceive('getFieldSet')->zeroOrMoreTimes()->withAnyArgs()->andReturnNull();
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->parserManager->shouldReceive('isShouldParseRelationships')
+            ->zeroOrMoreTimes()->withAnyArgs()->andReturn(true);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->parserManager->shouldReceive('isRelationshipInFieldSet')
+            ->zeroOrMoreTimes()->withAnyArgs()->andReturn(true);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->parserManager->shouldReceive('getIncludeRelationships')
+            ->zeroOrMoreTimes()->withAnyArgs()->andReturn([]);
+
+        /** @var ParserManagerInterface $parserManager */
+        $parserManager = $this->parserManager;
+
         $schemas = [
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
@@ -86,7 +110,7 @@ class ParserTest extends BaseTestCase
         ];
         $factory        = new Factory();
         $container      = $factory->createContainer($schemas);
-        $this->parser   = $factory->createParser($container);
+        $this->parser   = $factory->createParser($container, $parserManager);
 
         $this->author   = Author::instance(9, 'Dan', 'Gebhardt');
         $this->comments = [

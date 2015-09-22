@@ -72,7 +72,7 @@ class SiteSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($site)
+    public function getRelationships($site, array $includeRelationships = [])
     {
         assert('$site instanceof '.Site::class);
 

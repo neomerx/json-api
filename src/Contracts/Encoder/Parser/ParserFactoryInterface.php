@@ -48,12 +48,12 @@ interface ParserFactoryInterface
     /**
      * Create parser.
      *
-     * @param ContainerInterface          $container
-     * @param ParserManagerInterface|null $manager
+     * @param ContainerInterface     $container
+     * @param ParserManagerInterface $manager
      *
      * @return ParserInterface
      */
-    public function createParser(ContainerInterface $container, ParserManagerInterface $manager = null);
+    public function createParser(ContainerInterface $container, ParserManagerInterface $manager);
 
     /**
      * Create parser manager for parsing full objects.

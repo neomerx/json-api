@@ -28,7 +28,7 @@ class CustomFactory extends Factory
     /**
      * @inheritdoc
      */
-    public function createParser(ContainerInterface $container, ParserManagerInterface $manager = null)
+    public function createParser(ContainerInterface $container, ParserManagerInterface $manager)
     {
         return new CustomParser($this, $this, $this, $container, $manager);
     }

@@ -82,6 +82,8 @@ interface DocumentInterface
     const KEYWORD_ERRORS_SOURCE = 'source';
     /** Reserved keyword */
     const KEYWORD_ERRORS_ABOUT  = 'about';
+    /** Include path separator */
+    const PATH_SEPARATOR        = '.';
 
     /**
      * Set URLs to top-level 'links' section.

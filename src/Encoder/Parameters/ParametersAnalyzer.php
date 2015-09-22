@@ -17,6 +17,7 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
@@ -41,6 +42,11 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface
     private $includePathsCache = [];
 
     /**
+     * @var array
+     */
+    private $includeRelationshipsCache = [];
+
+    /**
      * Constructor.
      *
      * @param EncodingParametersInterface $parameters
@@ -60,7 +66,6 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface
         return $this->parameters;
     }
 
-
     /**
      * @inheritdoc
      */
@@ -71,21 +76,54 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface
             return $this->includePathsCache[$type][$path];
         }
 
-        // if include paths are set in params use them otherwise use default include paths from schema
-        $includePaths = $this->parameters->getIncludePaths();
-        if (empty($includePaths) === false) {
-            $typePaths = $includePaths;
-        } else {
-            $schema = $this->container->getSchemaByResourceType($type);
-            $typePaths = $schema->getIncludePaths();
-        }
+        $includePaths = $this->getIncludePathsByType($type);
 
         $result =
-            $this->hasExactPathMatch($typePaths, $path) === true ||
+            $this->hasExactPathMatch($includePaths, $path) === true ||
             // RC4 spec changed requirements and intermediate paths should be included as well
-            $this->hasMatchWithIncludedPaths($typePaths, $path) === true;
+            $this->hasMatchWithIncludedPaths($includePaths, $path) === true;
 
         $this->includePathsCache[$type][$path] = $result;
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIncludeRelationships($path, $type)
+    {
+        // check if it's in cache
+        if (isset($this->includeRelationshipsCache[$type][$path]) === true) {
+            return $this->includeRelationshipsCache[$type][$path];
+        }
+
+        $includePaths  = $this->getIncludePathsByType($type);
+        $pathBeginning = (string)$path;
+        $pathLength    = strlen($pathBeginning);
+
+        $result = [];
+        foreach ($includePaths as $curPath) {
+            if ($pathLength === 0) {
+                $nextSeparatorPos = strpos($curPath, DocumentInterface::PATH_SEPARATOR);
+                $relationshipName = $nextSeparatorPos === false ?
+                    $curPath : substr($curPath, 0, $nextSeparatorPos);
+            } elseif (strpos($curPath, $pathBeginning . DocumentInterface::PATH_SEPARATOR) === 0) {
+                $nextSeparatorPos = strpos($curPath, DocumentInterface::PATH_SEPARATOR, $pathLength + 1);
+                $relationshipName = $nextSeparatorPos === false ?
+                    substr($curPath, $pathLength + 1) :
+                    substr($curPath, $pathLength + 1, $nextSeparatorPos - $pathLength - 1);
+            } else {
+                $relationshipName = null;
+            }
+
+            // add $relationshipName to $result if not yet there
+            if ($relationshipName !== null && in_array($relationshipName, $result, true) === false) {
+                $result[$relationshipName] = $relationshipName;
+            }
+        }
+
+        $this->includeRelationshipsCache[$type][$path] = $result;
 
         return $result;
     }
@@ -100,7 +138,7 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface
      */
     protected function hasExactPathMatch(array $paths, $path)
     {
-        $result = in_array($path, $paths);
+        $result = in_array($path, $paths, true);
 
         return $result;
     }
@@ -127,5 +165,25 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface
         }
 
         return $hasMatch;
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return string[]
+     */
+    private function getIncludePathsByType($type)
+    {
+        // if include paths are set in params use them otherwise use default include paths from schema
+
+        $includePaths = $this->parameters->getIncludePaths();
+        if (empty($includePaths) === false) {
+            $typePaths = $includePaths;
+        } else {
+            $schema    = $this->container->getSchemaByResourceType($type);
+            $typePaths = $schema->getIncludePaths();
+        }
+
+        return $typePaths;
     }
 }

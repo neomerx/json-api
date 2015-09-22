@@ -33,6 +33,15 @@ interface ParserManagerInterface
     public function isShouldParseRelationships(StackReadOnlyInterface $stack);
 
     /**
+     * Get a list of paths that should be included for current (end) stack element.
+     *
+     * @param StackReadOnlyInterface $stack
+     *
+     * @return string[]
+     */
+    public function getIncludeRelationships(StackReadOnlyInterface $stack);
+
+    /**
      * Return true if relationship is in input field set and should be included in output.
      *
      * @param StackReadOnlyInterface $stack

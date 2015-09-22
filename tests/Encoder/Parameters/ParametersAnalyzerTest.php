@@ -105,4 +105,32 @@ class ParametersAnalyzerTest extends BaseTestCase
 
         $this->assertFalse($analyzer->isPathIncluded('some.path', $type));
     }
+
+    /**
+     * Test get relationships to be included for input path.
+     */
+    public function testGetIncludeRelationships()
+    {
+        $type = 'some-type';
+
+        /** @var ContainerInterface $container */
+        $container = $this->container;
+        $analyzer = (new Factory())->createParametersAnalyzer(new EncodingParameters([
+            'some',
+            'some.path',
+            'some.path.deeper',
+            'some.another.path',
+            'some.another.even.deeper',
+        ]), $container);
+
+        $getRels = function ($path) use ($analyzer, $type) {
+            return $analyzer->getIncludeRelationships($path, $type);
+        };
+
+        $this->assertEquals(['some' => 'some'], $getRels(null));
+        $this->assertEquals(['some' => 'some'], $getRels(''));
+        $this->assertEquals(['path' => 'path', 'another' => 'another'], $getRels('some'));
+        $this->assertEquals(['deeper' => 'deeper'], $getRels('some.path'));
+        $this->assertEquals(['path' => 'path', 'even' => 'even'], $getRels('some.another'));
+    }
 }

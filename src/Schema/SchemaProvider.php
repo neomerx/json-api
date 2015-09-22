@@ -46,15 +46,6 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /** If data should be shown in relationships. */
     const SHOW_DATA = 'showData';
 
-    /** Property name */
-    const ATTRIBUTES = DocumentInterface::KEYWORD_ATTRIBUTES;
-
-    /** Property name */
-    const RELATIONSHIPS = DocumentInterface::KEYWORD_RELATIONSHIPS;
-
-    /** Property name */
-    const INCLUDED = DocumentInterface::KEYWORD_INCLUDED;
-
     /**
      * @var string
      */
@@ -162,12 +153,15 @@ abstract class SchemaProvider implements SchemaProviderInterface
      * Get resource links.
      *
      * @param object $resource
+     * @param array  $includeRelationships A list of relationships that will be included as full resources.
      *
      * @return array
      */
-    public function getRelationships($resource)
+    public function getRelationships($resource, array $includeRelationships = [])
     {
         $resource ?: null;
+        $includeRelationships ?: null;
+
         return [];
     }
 
@@ -182,9 +176,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getRelationshipObjectIterator($resource)
+    public function getRelationshipObjectIterator($resource, array $includeRelationships)
     {
-        foreach ($this->getRelationships($resource) as $name => $desc) {
+        foreach ($this->getRelationships($resource, $includeRelationships) as $name => $desc) {
             yield $this->createRelationshipObject($name, $desc);
         }
     }

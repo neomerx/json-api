@@ -118,7 +118,7 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createParser(ContainerInterface $container, ParserManagerInterface $manager = null)
+    public function createParser(ContainerInterface $container, ParserManagerInterface $manager)
     {
         return new Parser($this, $this, $this, $container, $manager);
     }

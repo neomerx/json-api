@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
@@ -127,7 +128,8 @@ class StackFrame implements StackFrameInterface
         if ($this->previous === null || $this->previous->getPath() === null) {
             $this->path = $this->relationship->getName();
         } else {
-            $this->path = $this->previous->getPath() . '.' . $this->relationship->getName();
+            $this->path =
+                $this->previous->getPath() . DocumentInterface::PATH_SEPARATOR . $this->relationship->getName();
         }
     }
 }

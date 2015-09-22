@@ -53,7 +53,7 @@ class AuthorSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($author)
+    public function getRelationships($author, array $includeRelationships = [])
     {
         assert('$author instanceof '.Author::class);
 
