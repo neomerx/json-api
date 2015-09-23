@@ -22,6 +22,6 @@
     }
     ],
     "require": {
-        "neomerx/json-api": "dev-develop"
+        "neomerx/json-api": "dev-master"
     }
 }
