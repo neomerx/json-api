@@ -17,7 +17,7 @@ This framework agnostic package implements [JSON API](http://jsonapi.org/) speci
 * Polymorphic resource data and relationships
 * Compound documents with inclusion of related resources (circular resource references supported)
 * Meta information for document, resources, errors, relationship and link objects
-* Parsing HTTP ```Accept``` and ```Content-Type``` headers in accordance with RFC 2616
+* Parsing HTTP `Accept` and `Content-Type` headers in accordance with [RFC 7231](https://tools.ietf.org/html/rfc7231)
 * Parsing parameters for pagination, sorting and filtering
 * Sparse fieldsets and customized included paths
 * Errors

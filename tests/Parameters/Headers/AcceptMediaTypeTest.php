@@ -49,16 +49,6 @@ class AcceptMediaTypeTest extends BaseTestCase
      *
      * @expectedException \InvalidArgumentException
      */
-    public function testInvalidConstructorParams3()
-    {
-        new AcceptMediaType(1, 'type', 'subtype', 123);
-    }
-
-    /**
-     * Test invalid constructor parameters.
-     *
-     * @expectedException \InvalidArgumentException
-     */
     public function testInvalidConstructorParams4()
     {
         new AcceptMediaType(1, 'type', 'subtype', null, 5);

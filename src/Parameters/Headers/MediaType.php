@@ -45,11 +45,20 @@ class MediaType implements MediaTypeInterface
     private $parameters;
 
     /**
+     * A list of parameter names for case-insensitive compare. Keys must be lower-cased.
+     *
+     * @var array
+     */
+    protected $caseInsensitiveParams = [
+        'charset' => true,
+    ];
+
+    /**
      * @param string                    $type
      * @param string                    $subType
      * @param array<string,string>|null $parameters
      */
-    public function __construct($type, $subType, $parameters = null)
+    public function __construct($type, $subType, array $parameters = null)
     {
         $type = trim($type);
         if (empty($type) === true) {
@@ -59,10 +68,6 @@ class MediaType implements MediaTypeInterface
         $subType = trim($subType);
         if (empty($subType) === true) {
             throw new InvalidArgumentException('subType');
-        }
-
-        if ($parameters !== null && is_array($parameters) === false) {
-            throw new InvalidArgumentException('parameters');
         }
 
         $this->type       = $type;
@@ -156,7 +161,7 @@ class MediaType implements MediaTypeInterface
             $parameters[trim($key)] = trim($value, ' "');
         }
 
-        return new MediaType($type, $subType, $parameters);
+        return new static($type, $subType, $parameters);
     }
 
     /**
@@ -166,7 +171,7 @@ class MediaType implements MediaTypeInterface
      */
     private function isTypeMatches(MediaTypeInterface $mediaType)
     {
-        return $this->getType() === $mediaType->getType() || $mediaType->getType() === '*';
+        return $mediaType->getType() === '*' || $this->isTypeEquals($mediaType);
     }
 
     /**
@@ -176,7 +181,9 @@ class MediaType implements MediaTypeInterface
      */
     private function isTypeEquals(MediaTypeInterface $mediaType)
     {
-        return $this->getType() === $mediaType->getType();
+        // Type, subtype and param name should be compared case-insensitive
+        // https://tools.ietf.org/html/rfc7231#section-3.1.1.1
+        return strcasecmp($this->getType(), $mediaType->getType()) === 0;
     }
 
     /**
@@ -186,7 +193,7 @@ class MediaType implements MediaTypeInterface
      */
     private function isSubTypeMatches(MediaTypeInterface $mediaType)
     {
-        return $this->getSubType() === $mediaType->getSubType() || $mediaType->getSubType() === '*';
+        return $mediaType->getSubType() === '*' || $this->isSubTypeEquals($mediaType);
     }
 
     /**
@@ -196,7 +203,9 @@ class MediaType implements MediaTypeInterface
      */
     private function isSubTypeEquals(MediaTypeInterface $mediaType)
     {
-        return $this->getSubType() === $mediaType->getSubType();
+        // Type, subtype and param name should be compared case-insensitive
+        // https://tools.ietf.org/html/rfc7231#section-3.1.1.1
+        return strcasecmp($this->getSubType(), $mediaType->getSubType()) === 0;
     }
 
     /**
@@ -208,11 +217,48 @@ class MediaType implements MediaTypeInterface
     {
         if ($this->getParameters() === null && $mediaType->getParameters() === null) {
             return true;
-        } elseif ($this->getParameters() !== null && $mediaType->getParameters() !== null) {
-            $intersect = array_intersect($this->getParameters(), $mediaType->getParameters());
-            return (count($this->getParameters()) === count($intersect));
+        } elseif (empty($this->getParameters()) === false && empty($mediaType->getParameters()) === false) {
+            // Type, subtype and param name should be compared case-insensitive
+            // https://tools.ietf.org/html/rfc7231#section-3.1.1.1
+            $ourParameters       = array_change_key_case($this->getParameters());
+            $parametersToCompare = array_change_key_case($mediaType->getParameters());
+
+            // if number of params different they are not equal
+            if (count($ourParameters) !== count($parametersToCompare)) {
+                return false;
+            }
+
+            // if we are here we compare if all param names are equal
+            if (empty(array_diff_key($ourParameters, $parametersToCompare)) === false) {
+                return false;
+            }
+
+            // If we are here we have to compare values. Also some of the values should be compared case-insensitive
+            // according to https://tools.ietf.org/html/rfc7231#section-3.1.1.1
+            // > 'Parameter values might or might not be case-sensitive, depending on
+            // the semantics of the parameter name.'
+            foreach ($ourParameters as $name => $value) {
+                $valueToCompare = $parametersToCompare[$name];
+                $valuesEqual    = $this->isParamCaseInsensitive($name) === true ?
+                    strcasecmp($value, $valueToCompare) === 0 : $value === $valueToCompare;
+                if ($valuesEqual === false) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         return false;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    private function isParamCaseInsensitive($name)
+    {
+        return isset($this->caseInsensitiveParams[$name]);
     }
 }

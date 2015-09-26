@@ -45,16 +45,6 @@ class MediaTypeTest extends BaseTestCase
     }
 
     /**
-     * Test invalid constructor parameters.
-     *
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidConstructorParams3()
-    {
-        new MediaType('type', 'subtype', 123);
-    }
-
-    /**
      * Test invalid parse parameters.
      *
      * @expectedException \InvalidArgumentException
@@ -72,5 +62,24 @@ class MediaTypeTest extends BaseTestCase
     public function testInvalidParseParams2()
     {
         MediaType::parse(1, 'boo/bar+baz;param');
+    }
+
+    /**
+     * Test compare media types
+     */
+    public function testCompareMediaTypes()
+    {
+        $type1 = MediaType::parse(null, 'text/html;charset=utf-8');
+        $type2 = MediaType::parse(null, 'Text/HTML; Charset="utf-8"');
+        $type3 = MediaType::parse(null, 'text/plain;charset=utf-8');
+        $type4 = MediaType::parse(null, 'text/html;otherParam=utf-8');
+        $type5 = MediaType::parse(null, 'text/html;charset=UTF-8');
+        $type6 = MediaType::parse(null, 'text/html;charset=UTF-8;oneMore=param');
+
+        $this->assertTrue($type1->equalsTo($type2));
+        $this->assertFalse($type1->equalsTo($type3));
+        $this->assertFalse($type1->equalsTo($type4));
+        $this->assertTrue($type1->equalsTo($type5));
+        $this->assertFalse($type1->equalsTo($type6));
     }
 }
