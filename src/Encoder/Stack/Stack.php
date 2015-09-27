@@ -60,7 +60,7 @@ class Stack implements StackInterface
      */
     public function push()
     {
-        $frame = $this->factory->createFrame($this->size + 1, $this->end());
+        $frame = $this->factory->createFrame($this->end());
         array_push($this->stack, $frame);
         $this->size++;
         return $frame;
@@ -122,7 +122,6 @@ class Stack implements StackInterface
     {
         /** @var StackFrameInterface $lastFrame */
         $lastFrame = end($this->stack);
-        assert('is_null($lastFrame) === false');
         $lastFrame->setResource($resource);
     }
 
@@ -133,7 +132,6 @@ class Stack implements StackInterface
     {
         /** @var StackFrameInterface $lastFrame */
         $lastFrame = end($this->stack);
-        assert('is_null($lastFrame) === false');
         $lastFrame->setRelationship($relationship);
     }
 }

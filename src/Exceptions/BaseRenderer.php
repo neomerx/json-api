@@ -17,6 +17,7 @@
  */
 
 use \Exception;
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Exceptions\RendererInterface;
 use \Neomerx\JsonApi\Contracts\Responses\ResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
@@ -145,7 +146,9 @@ abstract class BaseRenderer implements RendererInterface
     public function render(Exception $exception)
     {
         $mediaType = $this->getMediaType();
-        assert('$mediaType !== null', 'Media type should be specified for exception renderers.');
+
+        // Media type should be specified for exception renderers
+        $mediaType !== null ?: Exceptions::throwInvalidArgument('mediaType');
 
         return $this->responses->getResponse(
             $this->getStatusCode(),

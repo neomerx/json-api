@@ -134,9 +134,9 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createFrame($level, StackFrameReadOnlyInterface $previous = null)
+    public function createFrame(StackFrameReadOnlyInterface $previous = null)
     {
-        return new StackFrame($level, $previous);
+        return new StackFrame($previous);
     }
 
     /**

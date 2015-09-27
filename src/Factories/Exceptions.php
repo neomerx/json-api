@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Encoder\Parser;
+<?php namespace Neomerx\JsonApi\Factories;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,24 +16,31 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
+use \LogicException;
+use \InvalidArgumentException;
 
 /**
  * @package Neomerx\JsonApi
  */
-class ParserReply extends BaseReply
+class Exceptions
 {
     /**
-     * @param int                    $replyType
-     * @param StackReadOnlyInterface $stack
+     * @param string $parameterName
+     *
+     * @throws InvalidArgumentException
      */
-    public function __construct($replyType, StackReadOnlyInterface $stack)
+    public static function throwInvalidArgument($parameterName)
     {
-        $isOk =
-            ($replyType === self::REPLY_TYPE_RESOURCE_STARTED || $replyType === self::REPLY_TYPE_RESOURCE_COMPLETED);
-        $isOk ?: Exceptions::throwInvalidArgument('replyType');
+        throw new InvalidArgumentException($parameterName);
+    }
 
-        parent::__construct($replyType, $stack);
+    /**
+     * @param string|null $message
+     *
+     * @throws LogicException
+     */
+    public static function throwLogicException($message = null)
+    {
+        throw new LogicException($message);
     }
 }

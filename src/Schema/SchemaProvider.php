@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
@@ -52,7 +53,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     protected $resourceType;
 
     /**
-     * @var string
+     * @var string Must end with '/'
      */
     protected $selfSubUrl;
 
@@ -77,9 +78,13 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
     {
-        assert('is_string($this->resourceType) && empty($this->resourceType) === false', 'Resource type not set');
-        assert('is_string($this->selfSubUrl) && empty($this->selfSubUrl) === false', '\'self\' sub-URL not set');
-        assert('substr($this->selfSubUrl, -1) === \'/\'', 'Sub-url should end with \'/\' separator');
+        // Check resource type is set for the Schema
+        $isOk = (is_string($this->resourceType) === true && empty($this->resourceType) === false);
+        $isOk ?: Exceptions::throwInvalidArgument('resourceType');
+
+        // Check 'self' sub-URL is set for the Schema
+        $isOk = (is_string($this->selfSubUrl) === true && empty($this->selfSubUrl) === false);
+        $isOk ?: Exceptions::throwInvalidArgument('selfSubUrl');
 
         $this->factory   = $factory;
         $this->container = $container;

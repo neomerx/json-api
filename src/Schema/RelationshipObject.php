@@ -17,6 +17,7 @@
  */
 
 use \Closure;
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
@@ -61,7 +62,7 @@ class RelationshipObject implements RelationshipObjectInterface
 
     /**
      * @param string                                                        $name
-     * @param object|array|null                                             $data
+     * @param object|array|null|Closure                                     $data
      * @param array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface> $links
      * @param mixed                                                         $meta
      * @param bool                                                          $isShowData
@@ -70,16 +71,15 @@ class RelationshipObject implements RelationshipObjectInterface
     public function __construct(
         $name,
         $data,
-        $links,
+        array $links,
         $meta,
         $isShowData,
         $isRoot
     ) {
-        assert(
-            '(($isRoot === false && is_string($name) === true) || ($isRoot === true && $name === null)) && '.
-            '(is_object($data) || is_array($data) || is_null($data)) && '.
-            'is_array($links) && is_bool($isShowData) && is_bool($isRoot)'
-        );
+        is_bool($isRoot) === true ?: Exceptions::throwInvalidArgument('isRoot');
+        is_bool($isShowData) === true ?: Exceptions::throwInvalidArgument('isShowData');
+        $isOk = (($isRoot === false && is_string($name) === true) || ($isRoot === true && $name === null));
+        $isOk ?: Exceptions::throwInvalidArgument('name');
 
         $this->name       = $name;
         $this->data       = $data;

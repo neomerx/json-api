@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
@@ -61,7 +62,7 @@ class Error implements ErrorInterface
     private $source;
 
     /**
-     * @var array|null
+     * @var mixed|null
      */
     private $meta;
 
@@ -73,7 +74,7 @@ class Error implements ErrorInterface
      * @param string|null        $title
      * @param string|null        $detail
      * @param array|null         $source
-     * @param array|null         $meta
+     * @param mixed|null         $meta
      */
     public function __construct(
         $idx = null,
@@ -83,15 +84,13 @@ class Error implements ErrorInterface
         $title = null,
         $detail = null,
         array $source = null,
-        array $meta = null
+        $meta = null
     ) {
-        assert(
-            '($idx === null || is_int($idx) || is_string($idx)) &&'.
-            '($status === null || is_int($status) || is_string($status)) &&'.
-            '($code === null || is_int($code) || is_string($code)) &&'.
-            '($title === null  || is_string($title)) && ($title === null || is_string($title)) &&'.
-            '($detail === null || is_string($detail)) && ($meta === null || is_array($meta))'
-        );
+        $this->checkIdx($idx);
+        $this->checkCode($code);
+        $this->checkTitle($title);
+        $this->checkStatus($status);
+        $this->checkDetail($detail);
 
         $this->idx     = $idx;
         $this->links   = ($aboutLink === null ? null : [DocumentInterface::KEYWORD_ERRORS_ABOUT => $aboutLink]);
@@ -165,5 +164,47 @@ class Error implements ErrorInterface
     public function getMeta()
     {
         return $this->meta;
+    }
+
+    /**
+     * @param int|string|null $idx
+     */
+    private function checkIdx($idx)
+    {
+        ($idx === null || is_int($idx) === true || is_string($idx) === true) ?: Exceptions::throwInvalidArgument('idx');
+    }
+
+    /**
+     * @param string|null $title
+     */
+    private function checkTitle($title)
+    {
+        ($title === null || is_string($title) === true) ?: Exceptions::throwInvalidArgument('title');
+    }
+
+    /**
+     * @param string|null $detail
+     */
+    private function checkDetail($detail)
+    {
+        ($detail === null || is_string($detail) === true) ?: Exceptions::throwInvalidArgument('detail');
+    }
+
+    /**
+     * @param int|string|null $status
+     */
+    private function checkStatus($status)
+    {
+        $isOk = ($status === null || is_int($status) === true || is_string($status) === true);
+        $isOk ?: Exceptions::throwInvalidArgument('status');
+    }
+
+    /**
+     * @param int|string|null $code
+     */
+    private function checkCode($code)
+    {
+        $isOk = ($code === null || is_int($code) === true || is_string($code) === true);
+        $isOk ?: Exceptions::throwInvalidArgument('code');
     }
 }

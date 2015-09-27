@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Exceptions;
+
 /**
  * @package Neomerx\JsonApi
  */
@@ -46,7 +48,9 @@ class EncoderOptions
         $urlPrefix = null,
         $depth = 512
     ) {
-        assert('is_int($options) && is_int($depth) && ($urlPrefix === null || is_string($urlPrefix))');
+        is_int($depth) === true ?: Exceptions::throwInvalidArgument('depth');
+        is_int($options) === true ?: Exceptions::throwInvalidArgument('options');
+        ($urlPrefix === null || is_string($urlPrefix) === true) ?: Exceptions::throwInvalidArgument('urlPrefix');
 
         $this->options   = $options;
         $this->depth     = $depth;

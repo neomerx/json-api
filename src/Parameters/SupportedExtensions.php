@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 
@@ -42,7 +43,8 @@ class SupportedExtensions implements SupportedExtensionsInterface
      */
     public function setExtensions($extensions)
     {
-        assert('is_string($extensions) === true');
+        is_string($extensions) === true ?: Exceptions::throwInvalidArgument('extensions');
+
         $this->extensions = $extensions;
     }
 

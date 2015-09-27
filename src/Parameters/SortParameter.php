@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 
 /**
@@ -39,7 +40,8 @@ class SortParameter implements SortParameterInterface
      */
     public function __construct($sortField, $isAscending)
     {
-        assert('is_string($sortField) && is_bool($isAscending)');
+        is_string($sortField) === true ?: Exceptions::throwInvalidArgument('sortField');
+        is_bool($isAscending) === true ?: Exceptions::throwInvalidArgument('isAscending');
 
         $this->sortField   = $sortField;
         $this->isAscending = $isAscending;

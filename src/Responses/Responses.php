@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Responses\ResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Integration\NativeResponsesInterface;
@@ -72,8 +73,7 @@ class Responses implements ResponsesInterface
         SupportedExtensionsInterface $supportedExtensions = null,
         array $headers = []
     ) {
-        assert('is_string($location)');
-        $headers[self::HEADER_LOCATION] = $location;
+        $headers = $this->setLocationHeader($location, $headers);
 
         return $this->createResponse($content, self::HTTP_CREATED, $mediaType, $supportedExtensions, $headers);
     }
@@ -94,7 +94,8 @@ class Responses implements ResponsesInterface
         SupportedExtensionsInterface $supportedExtensions = null,
         array $headers = []
     ) {
-        assert('is_int($statusCode)');
+        is_int($statusCode) === true ?: Exceptions::throwInvalidArgument('statusCode');
+
         $headers[self::HEADER_CONTENT_TYPE] = $this->getContentTypeHeader($mediaType, $supportedExtensions);
 
         return $this->responses->createResponse($content, $statusCode, $headers);
@@ -127,5 +128,20 @@ class Responses implements ResponsesInterface
             $contentType .= $separator . MediaTypeInterface::PARAM_SUPPORTED_EXT . '="' . $supExt . '"';
 
         return $contentType;
+    }
+
+    /**
+     * @param string $location
+     * @param array  $headers
+     *
+     * @return array
+     */
+    private function setLocationHeader($location, array $headers)
+    {
+        is_string($location) === true ?: Exceptions::throwInvalidArgument('location');
+
+        $headers[self::HEADER_LOCATION] = $location;
+
+        return $headers;
     }
 }

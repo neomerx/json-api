@@ -17,6 +17,7 @@
  */
 
 use \Neomerx\JsonApi\Document\Document;
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
@@ -65,7 +66,8 @@ class ElementPresenter
         // - it won't make any sense to parse it again (we'll got exactly the same result and it will be thrown away
         //   as duplicate relations/included resources are not allowed)
         if ($parentExists === true) {
-            assert('isset($target[$parentType][$parentId][\''.Document::KEYWORD_RELATIONSHIPS.'\'][$name]) === false');
+            $isOk = isset($target[$parentType][$parentId][Document::KEYWORD_RELATIONSHIPS][$name]) === false;
+            $isOk ?: Exceptions::throwLogicException();
 
             $representation = [];
 
@@ -125,11 +127,10 @@ class ElementPresenter
 
                 $parentAlias[Document::KEYWORD_RELATIONSHIPS][$name] = $representation;
             } elseif ($alreadyGotRelation === true && $linkage !== null) {
-                assert(
-                    '$resource->isInArray() === true',
-                    "Data in '$name' relationship are marked as not arrayed however " .
-                    'you try to add multiple data instances'
-                );
+                // Check data in '$name' relationship are marked as not arrayed otherwise
+                // it's fail to add multiple data instances
+                $resource->isInArray() === true ?: Exceptions::throwLogicException();
+
                 // ... or add another linkage
                 $parentAlias[Document::KEYWORD_RELATIONSHIPS][$name][Document::KEYWORD_LINKAGE_DATA][] = $linkage;
             }
@@ -249,10 +250,8 @@ class ElementPresenter
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relation
     ) {
-        assert(
-            '$relation->getName() !== \''.Document::KEYWORD_SELF.'\'',
-            '"self" is a reserved keyword and cannot be used as a related resource link name'
-        );
+        // "self" is a reserved keyword and cannot be used as a related resource link name
+        ($relation->getName() !== Document::KEYWORD_SELF) ?: Exceptions::throwInvalidArgument('relation.name');
 
         $representation = [];
 
@@ -291,11 +290,11 @@ class ElementPresenter
         ];
 
         $attributes = $resource->getAttributes();
-        assert(
-            'isset($attributes[\''.Document::KEYWORD_TYPE.'\']) === false && '.
-            'isset($attributes[\''.Document::KEYWORD_ID.'\']) === false',
-            '"type" and "id" are reserved keywords and cannot be used as resource object attributes'
-        );
+
+        // "type" and "id" are reserved keywords and cannot be used as resource object attributes
+        (isset($attributes[Document::KEYWORD_TYPE]) === false) ?: Exceptions::throwInvalidArgument('attributes');
+        (isset($attributes[Document::KEYWORD_ID]) === false) ?: Exceptions::throwInvalidArgument('attributes');
+
         if ($isShowAttributes === true && empty($attributes) === false) {
             $representation[Document::KEYWORD_ATTRIBUTES] = $attributes;
         }

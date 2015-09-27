@@ -17,6 +17,7 @@
  */
 
 use \Iterator;
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
@@ -115,8 +116,6 @@ class Parser implements ParserInterface
      */
     public function parse($data)
     {
-        assert('is_array($data) || is_object($data) || is_null($data)');
-
         $this->stack = $this->stackFactory->createStack();
         $rootFrame   = $this->stack->push();
         $rootFrame->setRelationship(
@@ -196,7 +195,8 @@ class Parser implements ParserInterface
         $isEmpty         = true;
         $traversableData = null;
 
-        assert('is_array($data) || is_object($data) || $data === null || $data instanceof Iterator');
+        $isOk = (is_array($data) === true || is_object($data) === true || $data === null || $data instanceof Iterator);
+        $isOk ?: Exceptions::throwInvalidArgument('data');
 
         if (is_array($data) === true) {
             /** @var array $data */
@@ -241,7 +241,7 @@ class Parser implements ParserInterface
      */
     private function createReplyForEmptyData($data)
     {
-        assert('empty($data) && (is_array($data) || is_null($data))');
+        ($data === null || (is_array($data) === true && empty($data) === true)) ?: Exceptions::throwLogicException();
 
         $replyType = ($data === null ? ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED :
             ParserReplyInterface::REPLY_TYPE_EMPTY_RESOURCE_STARTED);

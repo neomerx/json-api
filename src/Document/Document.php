@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Closure;
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Document\Presenters\ElementPresenter;
@@ -125,7 +127,7 @@ class Document implements DocumentInterface
      */
     public function setMetaToDocument($meta)
     {
-        assert('is_object($meta) || is_array($meta)');
+        (is_object($meta) === true || is_array($meta) === true) ?: Exceptions::throwInvalidArgument('meta');
         $this->meta = $meta;
     }
 
@@ -148,16 +150,18 @@ class Document implements DocumentInterface
     public function addToData(ResourceObjectInterface $resource)
     {
         // check if 'not-arrayed' data were added you cannot add to 'non-array' data section anymore
-        assert('$this->isDataArrayed === null || $this->isDataArrayed === true');
+        ($this->isDataArrayed === true || $this->isDataArrayed === null) ?: Exceptions::throwLogicException();
 
         $this->isDataArrayed !== null ?: $this->isDataArrayed = $resource->isInArray();
 
         // check all resources have the same isInArray flag
-        assert('$this->isDataArrayed === $resource->isInArray()');
+        ($this->isDataArrayed === $resource->isInArray()) ?: Exceptions::throwLogicException();
 
         $idx  = $resource->getId();
         $type = $resource->getType();
-        assert('isset($this->bufferForData[$type][$idx]) === false');
+
+        isset($this->bufferForData[$type][$idx]) === false ?: Exceptions::throwLogicException();
+
         $this->bufferForData[$type][$idx] = $this->presenter->convertDataResourceToArray($resource, true);
         $this->hasBeenMetAlready[$type][$idx] = true;
 
@@ -260,40 +264,37 @@ class Document implements DocumentInterface
         $foundInData     = isset($this->bufferForData[$type][$idx]);
         $foundInIncluded = isset($this->bufferForIncluded[$type][$idx]);
 
-        if ($foundInData === true) {
-            $representation = $this->bufferForData[$type][$idx];
-            unset($this->bufferForData[$type][$idx]);
-
+        $addMeta = function (array $representation, Closure $getMetaClosure) {
             if (empty($representation[self::KEYWORD_RELATIONSHIPS]) === true) {
                 // if no relationships have been added remove empty placeholder
                 unset($representation[self::KEYWORD_RELATIONSHIPS]);
             } else {
                 // relationship might have meta
-                $relShipsMeta = $resource->getRelationshipsPrimaryMeta();
+                $relShipsMeta = $getMetaClosure();
                 if (empty($relShipsMeta) === false) {
                     $representation[self::KEYWORD_RELATIONSHIPS][self::KEYWORD_META] = $relShipsMeta;
                 }
             }
 
-            $this->data[] = $representation;
+            return $representation;
+        };
+
+        if ($foundInData === true) {
+            $representation = $this->bufferForData[$type][$idx];
+            unset($this->bufferForData[$type][$idx]);
+
+            $this->data[] = $addMeta($representation, function () use ($resource) {
+                return $resource->getRelationshipsPrimaryMeta();
+            });
         }
 
         if ($foundInIncluded === true) {
             $representation = $this->bufferForIncluded[$type][$idx];
             unset($this->bufferForIncluded[$type][$idx]);
 
-            if (empty($representation[self::KEYWORD_RELATIONSHIPS]) === true) {
-                // if no relationships have been added remove empty placeholder
-                unset($representation[self::KEYWORD_RELATIONSHIPS]);
-            } else {
-                // relationship might have meta
-                $relShipsMeta = $resource->getRelationshipsInclusionMeta();
-                if (empty($relShipsMeta) === false) {
-                    $representation[self::KEYWORD_RELATIONSHIPS][self::KEYWORD_META] = $relShipsMeta;
-                }
-            }
-
-            $this->included[] = $representation;
+            $this->included[] = $addMeta($representation, function () use ($resource) {
+                return $resource->getRelationshipsInclusionMeta();
+            });
             // remember we added (type, id) at index
             $this->includedResources[$type][$idx] = $this->includedIndex;
             $this->includedIndex++;

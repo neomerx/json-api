@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 
 /**
@@ -39,15 +40,14 @@ class Link implements LinkInterface
     private $treatAsHref;
 
     /**
-     * @param string            $subHref
-     * @param array|object|null $meta
-     * @param bool              $treatAsHref If $subHref is a full URL and must not be concatenated with other URLs.
+     * @param string $subHref
+     * @param mixed  $meta
+     * @param bool   $treatAsHref If $subHref is a full URL and must not be concatenated with other URLs.
      */
     public function __construct($subHref, $meta = null, $treatAsHref = false)
     {
-        assert(
-            'is_string($subHref) && (is_null($meta) || is_object($meta) || is_array($meta)) && is_bool($treatAsHref)'
-        );
+        is_string($subHref) === true ?: Exceptions::throwInvalidArgument('subHref');
+        is_bool($treatAsHref) === true ?: Exceptions::throwInvalidArgument('treatAsHref');
 
         $this->subHref     = $subHref;
         $this->meta        = $meta;

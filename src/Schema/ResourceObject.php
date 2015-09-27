@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
@@ -127,10 +128,7 @@ class ResourceObject implements ResourceObjectInterface
         $isInArray,
         array $attributeKeysFilter = null
     ) {
-        assert(
-            'is_bool($isInArray) && is_object($resource) && '.
-            '($attributeKeysFilter === null || is_array($attributeKeysFilter))'
-        );
+        $this->checkInput($resource, $isInArray);
 
         $this->schema              = $schema;
         $this->resource            = $resource;
@@ -278,5 +276,15 @@ class ResourceObject implements ResourceObjectInterface
         }
 
         return $this->relationshipMeta;
+    }
+
+    /**
+     * @param object $resource
+     * @param bool   $isInArray
+     */
+    private function checkInput($resource, $isInArray)
+    {
+        is_bool($isInArray) === true ?: Exceptions::throwInvalidArgument('isInArray');
+        is_object($resource) === true ?: Exceptions::throwInvalidArgument('resource');
     }
 }

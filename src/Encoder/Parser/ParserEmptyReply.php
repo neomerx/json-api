@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 
 /**
@@ -29,10 +30,8 @@ class ParserEmptyReply extends BaseReply
      */
     public function __construct($replyType, StackReadOnlyInterface $stack)
     {
-        assert(
-            '$replyType === ' . self::REPLY_TYPE_NULL_RESOURCE_STARTED . ' || '.
-            '$replyType === ' . self::REPLY_TYPE_EMPTY_RESOURCE_STARTED
-        );
+        ($replyType === self::REPLY_TYPE_NULL_RESOURCE_STARTED ||
+            $replyType === self::REPLY_TYPE_EMPTY_RESOURCE_STARTED) ?: Exceptions::throwInvalidArgument('replyType');
 
         parent::__construct($replyType, $stack);
     }

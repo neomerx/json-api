@@ -17,6 +17,7 @@
  */
 
 use \Closure;
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
@@ -59,18 +60,23 @@ class Container implements ContainerInterface
     /**
      * Register provider for resource type.
      *
-     * @param string        $resourceType
-     * @param string|object $schema
+     * @param string         $resourceType
+     * @param string|Closure $schema
      *
      * @return void
      */
     public function register($resourceType, $schema)
     {
-        assert(
-            'is_string($resourceType) && empty($resourceType) === false &&'.
-            'isset($this->providerMapping[$resourceType]) === false &&'.
-            '((is_string($schema) && empty($schema) === false) || $schema instanceof '. Closure::class . ')'
-        );
+        // Resource type must be non-empty string
+        $isOk = (is_string($resourceType) === true && empty($resourceType) === false);
+        $isOk ?: Exceptions::throwInvalidArgument('resourceType');
+
+        // Schema must be non-empty string or Closure
+        $isOk = ((is_string($schema) === true && empty($schema) === false) || $schema instanceof Closure);
+        $isOk ?: Exceptions::throwInvalidArgument('schema');
+
+        // Resource type should not be used more than once to register a schema
+        isset($this->providerMapping[$resourceType]) === false ?: Exceptions::throwInvalidArgument('resourceType');
 
         $this->providerMapping[$resourceType] = $schema;
     }
@@ -104,11 +110,14 @@ class Container implements ContainerInterface
      */
     public function getSchemaByType($type)
     {
+        is_string($type) === true ?: Exceptions::throwInvalidArgument('type');
+
         if (isset($this->createdProviders[$type])) {
             return $this->createdProviders[$type];
         }
 
-        assert('isset($this->providerMapping[$type])', 'Have you added Schema for `'.$type.'`?');
+        // Schema is not registered for type $type
+        isset($this->providerMapping[$type]) === true ?: Exceptions::throwInvalidArgument('type');
 
         $classNameOrClosure = $this->providerMapping[$type];
         if ($classNameOrClosure instanceof Closure) {
@@ -129,10 +138,9 @@ class Container implements ContainerInterface
      */
     public function getSchemaByResourceType($resourceType)
     {
-        assert(
-            'isset($this->resourceType2Type[$resourceType])',
-            'Have you added Schema for resource type `'.$resourceType.'`?'
-        );
+        // Schema is not registered for resource type $resourceType
+        $isOk = (is_string($resourceType) === true && isset($this->resourceType2Type[$resourceType]) === true);
+        $isOk ?: Exceptions::throwInvalidArgument('resourceType');
 
         return $this->getSchemaByType($this->resourceType2Type[$resourceType]);
     }

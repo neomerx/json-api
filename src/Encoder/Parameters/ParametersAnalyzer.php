@@ -105,20 +105,15 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface
         $result = [];
         foreach ($includePaths as $curPath) {
             if ($pathLength === 0) {
-                $nextSeparatorPos = strpos($curPath, DocumentInterface::PATH_SEPARATOR);
-                $relationshipName = $nextSeparatorPos === false ?
-                    $curPath : substr($curPath, 0, $nextSeparatorPos);
+                $relationshipName = $this->getRelationshipNameForTopResource($curPath);
             } elseif (strpos($curPath, $pathBeginning . DocumentInterface::PATH_SEPARATOR) === 0) {
-                $nextSeparatorPos = strpos($curPath, DocumentInterface::PATH_SEPARATOR, $pathLength + 1);
-                $relationshipName = $nextSeparatorPos === false ?
-                    substr($curPath, $pathLength + 1) :
-                    substr($curPath, $pathLength + 1, $nextSeparatorPos - $pathLength - 1);
+                $relationshipName = $this->getRelationshipNameForResource($curPath, $pathLength);
             } else {
                 $relationshipName = null;
             }
 
             // add $relationshipName to $result if not yet there
-            if ($relationshipName !== null && in_array($relationshipName, $result, true) === false) {
+            if ($relationshipName !== null && isset($result[$relationshipName]) === false) {
                 $result[$relationshipName] = $relationshipName;
             }
         }
@@ -185,5 +180,34 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface
         }
 
         return $typePaths;
+    }
+
+    /**
+     * @param string $curPath
+     *
+     * @return string
+     */
+    private function getRelationshipNameForTopResource($curPath)
+    {
+        $nextSeparatorPos = strpos($curPath, DocumentInterface::PATH_SEPARATOR);
+        $relationshipName = $nextSeparatorPos === false ? $curPath : substr($curPath, 0, $nextSeparatorPos);
+
+        return $relationshipName;
+    }
+
+    /**
+     * @param string $curPath
+     * @param int    $pathLength
+     *
+     * @return string
+     */
+    private function getRelationshipNameForResource($curPath, $pathLength)
+    {
+        $nextSeparatorPos = strpos($curPath, DocumentInterface::PATH_SEPARATOR, $pathLength + 1);
+        $relationshipName = $nextSeparatorPos === false ?
+            substr($curPath, $pathLength + 1) :
+            substr($curPath, $pathLength + 1, $nextSeparatorPos - $pathLength - 1);
+
+        return $relationshipName;
     }
 }

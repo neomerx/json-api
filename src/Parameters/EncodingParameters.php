@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
 
 /**
@@ -64,7 +65,8 @@ class EncodingParameters implements EncodingParametersInterface
      */
     public function getFieldSet($type)
     {
-        assert('is_string($type)');
+        is_string($type) === true ?: Exceptions::throwInvalidArgument('type');
+
         if ($this->fieldSets === null) {
             return null;
         } else {

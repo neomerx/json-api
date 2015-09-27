@@ -156,11 +156,11 @@ class Application
     }
 
     /**
-     * Run performance test.
+     * Run performance test for many times for small nested resources.
      *
      * @param int $iterations
      */
-    private function runPerformanceTest($iterations)
+    private function runPerformanceTestForSmallNestedResources($iterations)
     {
         $options = new EncodingParameters(
             ['posts.author'],
@@ -192,6 +192,59 @@ class Application
     }
 
     /**
+     * Run performance test one time for big collection of resources.
+     *
+     * @param int $numberOfItems
+     */
+    private function runPerformanceTestForBigCollection($numberOfItems)
+    {
+        $sites = [];
+        for ($index = 0; $index < $numberOfItems; ++$index) {
+            $rand = rand();
+
+            $author   = Author::instance('123', 'John' . $rand, 'Dow' . $rand);
+            $comments = [
+                Comment::instance('456', 'Included objects work as easy as basic ones' . $rand, $author),
+                Comment::instance('789', 'Let\'s try!' . $rand, $author),
+            ];
+            $post = Post::instance('321', 'Included objects' . $rand, 'Yes, it is supported', $author, $comments);
+            $site = Site::instance('1', 'JSON API Samples' . $rand, [$post]);
+
+            $sites[] = $site;
+        }
+
+        $options = new EncodingParameters(
+            ['posts.author', 'posts.comments'],
+            ['sites' => ['name'], 'people' => ['first_name']]
+        );
+        $encoder = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => PostSchema::class,
+            Site::class    => SiteSchema::class
+        ]);
+
+        $encoder->encodeData($sites, $options);
+    }
+
+    /**
+     * @param Closure $closure
+     * @param float  &$time
+     *
+     * @return mixed
+     */
+    private function getTime(\Closure $closure, &$time)
+    {
+        $time_start = microtime(true);
+        try {
+            return $closure();
+        } finally {
+            $time_end   = microtime(true);
+            $time = $time_end - $time_start;
+        }
+    }
+
+    /**
      * Main entry point.
      */
     public function main()
@@ -209,8 +262,19 @@ class Application
             $inv = empty($num) === true || is_numeric($num) === false || ctype_digit($num) == false || (int)$num <= 0;
             $num = $inv === true ? 1000 : (int)$num;
 
-            echo "Neomerx JSON API performance test ($num iterations)..." . PHP_EOL;
-            $this->runPerformanceTest($num);
+            $time = 0;
+
+            echo "Neomerx JSON API performance test ($num iterations for small resources)... ";
+            $this->getTime(function () use ($num) {
+                $this->runPerformanceTestForSmallNestedResources($num);
+            }, $time);
+            echo $time . ' seconds'  . PHP_EOL;
+
+            echo "Neomerx JSON API performance test (1 iteration for $num resources)... ";
+            $this->getTime(function () use ($num) {
+                $this->runPerformanceTestForBigCollection($num);
+            }, $time);
+            echo $time . ' seconds'  . PHP_EOL;
         }
     }
 }

@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Encoder\Parser;
+<?php namespace Neomerx\Tests\JsonApi\Factories;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,24 +16,31 @@
  * limitations under the License.
  */
 
+use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 
 /**
- * @package Neomerx\JsonApi
+ * @package Neomerx\Tests\JsonApi
  */
-class ParserReply extends BaseReply
+class ExceptionsTest extends BaseTestCase
 {
     /**
-     * @param int                    $replyType
-     * @param StackReadOnlyInterface $stack
+     * Test throwInvalidArgument.
+     *
+     * @expectedException \InvalidArgumentException
      */
-    public function __construct($replyType, StackReadOnlyInterface $stack)
+    public function testThrowInvalidArgument()
     {
-        $isOk =
-            ($replyType === self::REPLY_TYPE_RESOURCE_STARTED || $replyType === self::REPLY_TYPE_RESOURCE_COMPLETED);
-        $isOk ?: Exceptions::throwInvalidArgument('replyType');
+        Exceptions::throwInvalidArgument('param');
+    }
 
-        parent::__construct($replyType, $stack);
+    /**
+     * Test throwLogicException.
+     *
+     * @expectedException \LogicException
+     */
+    public function testThrowLogicException()
+    {
+        Exceptions::throwLogicException('message');
     }
 }

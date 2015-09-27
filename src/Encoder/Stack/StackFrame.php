@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameInterface;
@@ -53,18 +54,17 @@ class StackFrame implements StackFrameInterface
     private $path = null;
 
     /**
-     * @param int                              $level
      * @param StackFrameReadOnlyInterface|null $previous
      */
-    public function __construct($level, StackFrameReadOnlyInterface $previous = null)
+    public function __construct(StackFrameReadOnlyInterface $previous = null)
     {
         settype($level, 'int');
-        assert(
-            '$level > 0 &&'.
-            '(($level === 1 && $previous === null) || '.
-            '($level > 1 && $previous !== null && $level === $previous->getLevel() + 1)) &&'.
-            '($level <= 2 || $previous->getRelationship() !== null)'
-        );
+
+        $level = $previous === null ? 1 : $previous->getLevel() + 1;
+
+        // debug check
+        $isOk = ($level <= 2 || ($previous !== null && $previous->getRelationship() !== null));
+        $isOk ?: Exceptions::throwLogicException();
 
         $this->level    = $level;
         $this->previous = $previous;
