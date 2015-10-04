@@ -31,7 +31,7 @@ class ExceptionsTest extends BaseTestCase
      */
     public function testThrowInvalidArgument()
     {
-        Exceptions::throwInvalidArgument('param');
+        Exceptions::throwInvalidArgument('param', 'some value');
     }
 
     /**

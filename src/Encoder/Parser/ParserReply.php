@@ -32,7 +32,7 @@ class ParserReply extends BaseReply
     {
         $isOk =
             ($replyType === self::REPLY_TYPE_RESOURCE_STARTED || $replyType === self::REPLY_TYPE_RESOURCE_COMPLETED);
-        $isOk ?: Exceptions::throwInvalidArgument('replyType');
+        $isOk ?: Exceptions::throwInvalidArgument('replyType', $replyType);
 
         parent::__construct($replyType, $stack);
     }

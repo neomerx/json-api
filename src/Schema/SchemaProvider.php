@@ -80,11 +80,11 @@ abstract class SchemaProvider implements SchemaProviderInterface
     {
         // Check resource type is set for the Schema
         $isOk = (is_string($this->resourceType) === true && empty($this->resourceType) === false);
-        $isOk ?: Exceptions::throwInvalidArgument('resourceType');
+        $isOk ?: Exceptions::throwInvalidArgument('resourceType', $this->resourceType);
 
         // Check 'self' sub-URL is set for the Schema
         $isOk = (is_string($this->selfSubUrl) === true && empty($this->selfSubUrl) === false);
-        $isOk ?: Exceptions::throwInvalidArgument('selfSubUrl');
+        $isOk ?: Exceptions::throwInvalidArgument('selfSubUrl', $this->selfSubUrl);
 
         $this->factory   = $factory;
         $this->container = $container;
@@ -96,6 +96,14 @@ abstract class SchemaProvider implements SchemaProviderInterface
     public function getResourceType()
     {
         return $this->resourceType;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSelfSubUrl()
+    {
+        return $this->selfSubUrl;
     }
 
     /**

@@ -55,11 +55,11 @@ class EncoderTest extends BaseTestCase
      */
     public function testEncodeInvalidData()
     {
-        $endcoder = Encoder::instance([
+        $encoder = Encoder::instance([
             Author::class => AuthorSchema::class
         ], $this->encoderOptions);
 
-        $endcoder->encodeData('input must be an object or array of objects or iterator over objects');
+        $encoder->encodeData('input must be an object or array of objects or iterator over objects');
     }
 
     /**
@@ -67,8 +67,8 @@ class EncoderTest extends BaseTestCase
      */
     public function testEncodeArrayOfDuplicateObjectsWithAttributesOnly()
     {
-        $author   = Author::instance(9, 'Dan', 'Gebhardt');
-        $endcoder = Encoder::instance([
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
             Author::class => function ($factory, $container) {
                 $schema = new AuthorSchema($factory, $container);
                 $schema->linkRemove(Author::LINK_COMMENTS);
@@ -76,7 +76,7 @@ class EncoderTest extends BaseTestCase
             }
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encodeData([$author, $author]);
+        $actual = $encoder->encodeData([$author, $author]);
 
         $expected = <<<EOL
         {
@@ -123,7 +123,7 @@ EOL;
         // Don't be confused by the link name. It does not matter and I just don't want to create a new schema.
         $author->{Author::LINK_COMMENTS} = $author;
 
-        $endcoder = Encoder::instance([
+        $encoder = Encoder::instance([
             Author::class => function ($factory, $container) {
                 $schema = new AuthorSchema($factory, $container);
                 $schema->setIncludePaths([]);
@@ -131,7 +131,7 @@ EOL;
             },
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encodeData([$author, $author]);
+        $actual = $encoder->encodeData([$author, $author]);
 
         $expected = <<<EOL
         {
@@ -186,14 +186,14 @@ EOL;
             Comment::instance(5, 'First!', $author),
             Comment::instance(12, 'I like XML better', $author),
         ];
-        $endcoder = Encoder::instance([
+        $encoder = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
         ], $this->encoderOptions);
 
         $author->{Author::LINK_COMMENTS} = $comments;
 
-        $actual = $endcoder->encodeData([$author, $author], new EncodingParameters(
+        $actual = $encoder->encodeData([$author, $author], new EncodingParameters(
             null,
             ['people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME]] // filter attributes
         ));
@@ -592,8 +592,8 @@ EOL;
      */
     public function testEncodeTraversableObjectsWithAttributesOnly()
     {
-        $author   = Author::instance(9, 'Dan', 'Gebhardt');
-        $endcoder = Encoder::instance([
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
             Author::class => function ($factory, $container) {
                 $schema = new AuthorSchema($factory, $container);
                 //$schema->linkRemove(Author::LINK_COMMENTS);
@@ -610,7 +610,7 @@ EOL;
 
         // and iterator here
         $itemSet = new ArrayIterator(['what_if_its_not_zero_based_array' => $author]);
-        $actual  = $endcoder->encodeData($itemSet);
+        $actual  = $encoder->encodeData($itemSet);
 
         $expected = <<<EOL
         {

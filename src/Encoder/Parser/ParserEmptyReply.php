@@ -30,8 +30,9 @@ class ParserEmptyReply extends BaseReply
      */
     public function __construct($replyType, StackReadOnlyInterface $stack)
     {
-        ($replyType === self::REPLY_TYPE_NULL_RESOURCE_STARTED ||
-            $replyType === self::REPLY_TYPE_EMPTY_RESOURCE_STARTED) ?: Exceptions::throwInvalidArgument('replyType');
+        $isOk = ($replyType === self::REPLY_TYPE_NULL_RESOURCE_STARTED ||
+            $replyType === self::REPLY_TYPE_EMPTY_RESOURCE_STARTED);
+        $isOk ?: Exceptions::throwInvalidArgument('replyType', $replyType);
 
         parent::__construct($replyType, $stack);
     }

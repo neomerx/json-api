@@ -171,7 +171,8 @@ class Error implements ErrorInterface
      */
     private function checkIdx($idx)
     {
-        ($idx === null || is_int($idx) === true || is_string($idx) === true) ?: Exceptions::throwInvalidArgument('idx');
+        ($idx === null || is_int($idx) === true ||
+            is_string($idx) === true) ?: Exceptions::throwInvalidArgument('idx', $idx);
     }
 
     /**
@@ -179,7 +180,7 @@ class Error implements ErrorInterface
      */
     private function checkTitle($title)
     {
-        ($title === null || is_string($title) === true) ?: Exceptions::throwInvalidArgument('title');
+        ($title === null || is_string($title) === true) ?: Exceptions::throwInvalidArgument('title', $title);
     }
 
     /**
@@ -187,7 +188,7 @@ class Error implements ErrorInterface
      */
     private function checkDetail($detail)
     {
-        ($detail === null || is_string($detail) === true) ?: Exceptions::throwInvalidArgument('detail');
+        ($detail === null || is_string($detail) === true) ?: Exceptions::throwInvalidArgument('detail', $detail);
     }
 
     /**
@@ -196,7 +197,7 @@ class Error implements ErrorInterface
     private function checkStatus($status)
     {
         $isOk = ($status === null || is_int($status) === true || is_string($status) === true);
-        $isOk ?: Exceptions::throwInvalidArgument('status');
+        $isOk ?: Exceptions::throwInvalidArgument('status', $status);
     }
 
     /**
@@ -205,6 +206,6 @@ class Error implements ErrorInterface
     private function checkCode($code)
     {
         $isOk = ($code === null || is_int($code) === true || is_string($code) === true);
-        $isOk ?: Exceptions::throwInvalidArgument('code');
+        $isOk ?: Exceptions::throwInvalidArgument('code', $code);
     }
 }

@@ -31,10 +31,10 @@ class EncodeErrorsTest extends BaseTestCase
      */
     public function testEncodeError()
     {
-        $error    = $this->getError();
-        $endcoder = Encoder::instance([]);
+        $error   = $this->getError();
+        $encoder = Encoder::instance([]);
 
-        $actual = $endcoder->encodeError($error);
+        $actual = $encoder->encodeError($error);
 
         $expected = <<<EOL
         {
@@ -61,10 +61,10 @@ EOL;
      */
     public function testEncodeErrors()
     {
-        $error    = $this->getError();
-        $endcoder = Encoder::instance([]);
+        $error   = $this->getError();
+        $encoder = Encoder::instance([]);
 
-        $actual = $endcoder->encodeErrors([$error]);
+        $actual = $encoder->encodeErrors([$error]);
 
         $expected = <<<EOL
         {
@@ -93,9 +93,9 @@ EOL;
      */
     public function testEncodeEmptyError()
     {
-        $error    = new Error();
-        $endcoder = Encoder::instance([]);
-        $actual   = $endcoder->encodeError($error);
+        $error   = new Error();
+        $encoder = Encoder::instance([]);
+        $actual  = $encoder->encodeError($error);
 
         $expected = <<<EOL
         {

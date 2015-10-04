@@ -48,9 +48,11 @@ class EncoderOptions
         $urlPrefix = null,
         $depth = 512
     ) {
-        is_int($depth) === true ?: Exceptions::throwInvalidArgument('depth');
-        is_int($options) === true ?: Exceptions::throwInvalidArgument('options');
-        ($urlPrefix === null || is_string($urlPrefix) === true) ?: Exceptions::throwInvalidArgument('urlPrefix');
+        is_int($depth) === true ?: Exceptions::throwInvalidArgument('depth', $depth);
+        is_int($options) === true ?: Exceptions::throwInvalidArgument('options', $options);
+
+        $isOk = ($urlPrefix === null || is_string($urlPrefix) === true);
+        $isOk ?: Exceptions::throwInvalidArgument('urlPrefix', $urlPrefix);
 
         $this->options   = $options;
         $this->depth     = $depth;

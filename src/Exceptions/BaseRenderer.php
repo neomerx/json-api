@@ -148,7 +148,7 @@ abstract class BaseRenderer implements RendererInterface
         $mediaType = $this->getMediaType();
 
         // Media type should be specified for exception renderers
-        $mediaType !== null ?: Exceptions::throwInvalidArgument('mediaType');
+        $mediaType !== null ?: Exceptions::throwInvalidArgument('mediaType', $mediaType);
 
         return $this->responses->getResponse(
             $this->getStatusCode(),

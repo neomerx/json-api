@@ -31,6 +31,13 @@ interface SchemaProviderInterface
     public function getResourceType();
 
     /**
+     * Get resource sub URL.
+     *
+     * @return string
+     */
+    public function getSelfSubUrl();
+
+    /**
      * Get resource identity.
      *
      * @param object $resource

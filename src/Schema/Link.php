@@ -46,8 +46,8 @@ class Link implements LinkInterface
      */
     public function __construct($subHref, $meta = null, $treatAsHref = false)
     {
-        is_string($subHref) === true ?: Exceptions::throwInvalidArgument('subHref');
-        is_bool($treatAsHref) === true ?: Exceptions::throwInvalidArgument('treatAsHref');
+        is_string($subHref) === true ?: Exceptions::throwInvalidArgument('subHref', $subHref);
+        is_bool($treatAsHref) === true ?: Exceptions::throwInvalidArgument('treatAsHref', $treatAsHref);
 
         $this->subHref     = $subHref;
         $this->meta        = $meta;

@@ -76,10 +76,10 @@ class RelationshipObject implements RelationshipObjectInterface
         $isShowData,
         $isRoot
     ) {
-        is_bool($isRoot) === true ?: Exceptions::throwInvalidArgument('isRoot');
-        is_bool($isShowData) === true ?: Exceptions::throwInvalidArgument('isShowData');
+        is_bool($isRoot) === true ?: Exceptions::throwInvalidArgument('isRoot', $isRoot);
+        is_bool($isShowData) === true ?: Exceptions::throwInvalidArgument('isShowData', $isShowData);
         $isOk = (($isRoot === false && is_string($name) === true) || ($isRoot === true && $name === null));
-        $isOk ?: Exceptions::throwInvalidArgument('name');
+        $isOk ?: Exceptions::throwInvalidArgument('name', $name);
 
         $this->name       = $name;
         $this->data       = $data;

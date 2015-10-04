@@ -196,7 +196,7 @@ class Parser implements ParserInterface
         $traversableData = null;
 
         $isOk = (is_array($data) === true || is_object($data) === true || $data === null || $data instanceof Iterator);
-        $isOk ?: Exceptions::throwInvalidArgument('data');
+        $isOk ?: Exceptions::throwInvalidArgument('data', $data);
 
         if (is_array($data) === true) {
             /** @var array $data */

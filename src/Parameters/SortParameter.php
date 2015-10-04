@@ -40,8 +40,8 @@ class SortParameter implements SortParameterInterface
      */
     public function __construct($sortField, $isAscending)
     {
-        is_string($sortField) === true ?: Exceptions::throwInvalidArgument('sortField');
-        is_bool($isAscending) === true ?: Exceptions::throwInvalidArgument('isAscending');
+        is_string($sortField) === true ?: Exceptions::throwInvalidArgument('sortField', $sortField);
+        is_bool($isAscending) === true ?: Exceptions::throwInvalidArgument('isAscending', $isAscending);
 
         $this->sortField   = $sortField;
         $this->isAscending = $isAscending;

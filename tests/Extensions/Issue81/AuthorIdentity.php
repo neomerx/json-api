@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Factories;
+<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue81;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,34 +16,23 @@
  * limitations under the License.
  */
 
-use \LogicException;
-use \InvalidArgumentException;
-
 /**
- * @package Neomerx\JsonApi
+ * @package Neomerx\Tests\JsonApi
  */
-class Exceptions
+class AuthorIdentity
 {
     /**
-     * @param string $parameterName
-     * @param mixed  $value
-     *
-     * @throws InvalidArgumentException
+     * @var string
      */
-    public static function throwInvalidArgument($parameterName, $value)
-    {
-        $value ?: null;
-
-        throw new InvalidArgumentException($parameterName);
-    }
+    public $idx;
 
     /**
-     * @param string|null $message
+     * AuthorIdentity constructor.
      *
-     * @throws LogicException
+     * @param string $idx
      */
-    public static function throwLogicException($message = null)
+    public function __construct($idx)
     {
-        throw new LogicException($message);
+        $this->idx = $idx;
     }
 }

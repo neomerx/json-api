@@ -127,7 +127,7 @@ class Document implements DocumentInterface
      */
     public function setMetaToDocument($meta)
     {
-        (is_object($meta) === true || is_array($meta) === true) ?: Exceptions::throwInvalidArgument('meta');
+        (is_object($meta) === true || is_array($meta) === true) ?: Exceptions::throwInvalidArgument('meta', $meta);
         $this->meta = $meta;
     }
 

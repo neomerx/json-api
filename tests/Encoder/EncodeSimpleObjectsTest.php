@@ -48,11 +48,11 @@ class EncodeSimpleObjectsTest extends BaseTestCase
      */
     public function testEncodeNull()
     {
-        $endcoder = Encoder::instance([
+        $encoder = Encoder::instance([
             Author::class => AuthorSchema::class
         ]);
 
-        $actual = $endcoder->encodeData(null);
+        $actual = $encoder->encodeData(null);
 
         $expected = <<<EOL
         {
@@ -70,11 +70,11 @@ EOL;
      */
     public function testEncodeEmpty()
     {
-        $endcoder = Encoder::instance([
+        $encoder = Encoder::instance([
             Author::class => AuthorSchema::class
         ]);
 
-        $actual = $endcoder->encodeData([]);
+        $actual = $encoder->encodeData([]);
 
         $expected = <<<EOL
         {
@@ -116,11 +116,11 @@ EOL;
      */
     public function testEncodeEmptyWithParameters()
     {
-        $endcoder = Encoder::instance([
+        $encoder = Encoder::instance([
             Author::class => AuthorSchema::class
         ]);
 
-        $actual = $endcoder->encodeData([], new EncodingParameters(null, [
+        $actual = $encoder->encodeData([], new EncodingParameters(null, [
             // include only these attributes and links
             'authors' => [Author::ATTRIBUTE_FIRST_NAME, Author::LINK_COMMENTS],
         ]));
@@ -141,8 +141,8 @@ EOL;
      */
     public function testEncodeObjectWithAttributesOnly()
     {
-        $author   = Author::instance(9, 'Dan', 'Gebhardt');
-        $endcoder = Encoder::instance([
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
             Author::class => function ($factory, $container) {
                 $schema = new AuthorSchema($factory, $container);
                 $schema->linkRemove(Author::LINK_COMMENTS);
@@ -150,7 +150,7 @@ EOL;
             }
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encodeData($author);
+        $actual = $encoder->encodeData($author);
 
         $expected = <<<EOL
         {
@@ -180,8 +180,8 @@ EOL;
      */
     public function testEncodeObjectWithAttributesAndCustomLinks()
     {
-        $author   = Author::instance(9, 'Dan', 'Gebhardt');
-        $endcoder = Encoder::instance([
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
             Author::class => function ($factory, $container) {
                 $schema = new AuthorSchema($factory, $container);
                 $schema->linkRemove(Author::LINK_COMMENTS);
@@ -195,7 +195,7 @@ EOL;
             }
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encodeData($author);
+        $actual = $encoder->encodeData($author);
 
         $expected = <<<EOL
         {
@@ -223,12 +223,12 @@ EOL;
      */
     public function testEncodeObjectAsResourceIdentity()
     {
-        $author   = Author::instance(9, 'Dan', 'Gebhardt');
-        $endcoder = Encoder::instance([
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
             Author::class => AuthorSchema::class
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encodeIdentifiers($author);
+        $actual = $encoder->encodeIdentifiers($author);
 
         $expected = <<<EOL
         {
@@ -249,12 +249,12 @@ EOL;
      */
     public function testEncodeArrayAsResourceIdentity()
     {
-        $author   = Author::instance(9, 'Dan', 'Gebhardt');
-        $endcoder = Encoder::instance([
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
             Author::class => AuthorSchema::class
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encodeIdentifiers([$author]);
+        $actual = $encoder->encodeIdentifiers([$author]);
 
         $expected = <<<EOL
         {
@@ -275,8 +275,8 @@ EOL;
      */
     public function testEncodeObjectWithAttributesOnlyInArray()
     {
-        $author   = Author::instance(9, 'Dan', 'Gebhardt');
-        $endcoder = Encoder::instance([
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
             Author::class => function ($factory, $container) {
                 $schema = new AuthorSchema($factory, $container);
                 $schema->linkRemove(Author::LINK_COMMENTS);
@@ -284,7 +284,7 @@ EOL;
             }
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encodeData([$author]);
+        $actual = $encoder->encodeData([$author]);
 
         $expected = <<<EOL
         {
@@ -312,8 +312,8 @@ EOL;
      */
     public function testEncodeObjectWithAttributesOnlyInAssocArray()
     {
-        $author   = Author::instance(9, 'Dan', 'Gebhardt');
-        $endcoder = Encoder::instance([
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
             Author::class => function ($factory, $container) {
                 $schema = new AuthorSchema($factory, $container);
                 $schema->linkRemove(Author::LINK_COMMENTS);
@@ -321,7 +321,7 @@ EOL;
             }
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encodeData(['key_doesnt_matter' => $author]);
+        $actual = $encoder->encodeData(['key_doesnt_matter' => $author]);
 
         $expected = <<<EOL
         {
@@ -349,8 +349,8 @@ EOL;
      */
     public function testEncodeObjectWithAttributesOnlyPrettyPrinted()
     {
-        $author   = Author::instance(9, 'Dan', 'Gebhardt');
-        $endcoder = Encoder::instance([
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
             Author::class => function ($factory, $container) {
                 $schema = new AuthorSchema($factory, $container);
                 $schema->linkRemove(Author::LINK_COMMENTS);
@@ -358,7 +358,7 @@ EOL;
             }
         ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
 
-        $actual = $endcoder->encodeData($author);
+        $actual = $encoder->encodeData($author);
 
         $expected = <<<EOL
 {
@@ -384,9 +384,9 @@ EOL;
      */
     public function testEncodeArrayOfObjectsWithAttributesOnly()
     {
-        $author1  = Author::instance(7, 'First', 'Last');
-        $author2  = Author::instance(9, 'Dan', 'Gebhardt');
-        $endcoder = Encoder::instance([
+        $author1 = Author::instance(7, 'First', 'Last');
+        $author2 = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
             Author::class => function ($factory, $container) {
                 $schema = new AuthorSchema($factory, $container);
                 $schema->linkRemove(Author::LINK_COMMENTS);
@@ -394,7 +394,7 @@ EOL;
             }
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encodeData([$author1, $author2]);
+        $actual = $encoder->encodeData([$author1, $author2]);
 
         $expected = <<<EOL
         {
@@ -553,14 +553,14 @@ EOL;
      */
     public function testEncodePolymorphicArray()
     {
-        $author = Author::instance(7, 'First', 'Last', []);
-        $site   = Site::instance(9, 'Main Site', []);
-        $endcoder = Encoder::instance([
+        $author  = Author::instance(7, 'First', 'Last', []);
+        $site    = Site::instance(9, 'Main Site', []);
+        $encoder = Encoder::instance([
             Author::class => AuthorSchema::class,
             Site::class   => SiteSchema::class,
         ], $this->encoderOptions);
 
-        $actual = $endcoder->encodeData([$author, $site]);
+        $actual = $encoder->encodeData([$author, $site]);
 
         $expected = <<<EOL
         {

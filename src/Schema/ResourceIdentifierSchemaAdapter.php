@@ -56,6 +56,14 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
+    public function getSelfSubUrl()
+    {
+        return $this->schema->getSelfSubUrl();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getId($resource)
     {
         return $this->schema->getId($resource);

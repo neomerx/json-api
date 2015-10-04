@@ -251,7 +251,8 @@ class ElementPresenter
         RelationshipObjectInterface $relation
     ) {
         // "self" is a reserved keyword and cannot be used as a related resource link name
-        ($relation->getName() !== Document::KEYWORD_SELF) ?: Exceptions::throwInvalidArgument('relation.name');
+        $isOk = ($relation->getName() !== Document::KEYWORD_SELF);
+        $isOk ?: Exceptions::throwInvalidArgument('relation.name', $relation->getName());
 
         $representation = [];
 
@@ -292,8 +293,10 @@ class ElementPresenter
         $attributes = $resource->getAttributes();
 
         // "type" and "id" are reserved keywords and cannot be used as resource object attributes
-        (isset($attributes[Document::KEYWORD_TYPE]) === false) ?: Exceptions::throwInvalidArgument('attributes');
-        (isset($attributes[Document::KEYWORD_ID]) === false) ?: Exceptions::throwInvalidArgument('attributes');
+        $isOk = (isset($attributes[Document::KEYWORD_TYPE]) === false);
+        $isOk ?: Exceptions::throwInvalidArgument('attributes', Document::KEYWORD_TYPE);
+        $isOk = (isset($attributes[Document::KEYWORD_ID]) === false);
+        $isOk ?: Exceptions::throwInvalidArgument('attributes', Document::KEYWORD_ID);
 
         if ($isShowAttributes === true && empty($attributes) === false) {
             $representation[Document::KEYWORD_ATTRIBUTES] = $attributes;

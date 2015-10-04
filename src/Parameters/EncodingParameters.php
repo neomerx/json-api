@@ -65,7 +65,7 @@ class EncodingParameters implements EncodingParametersInterface
      */
     public function getFieldSet($type)
     {
-        is_string($type) === true ?: Exceptions::throwInvalidArgument('type');
+        is_string($type) === true ?: Exceptions::throwInvalidArgument('type', $type);
 
         if ($this->fieldSets === null) {
             return null;

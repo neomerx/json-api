@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Closure;
+use Neomerx\JsonApi\Schema\IdentitySchema;
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Encoder\Encoder;
@@ -360,5 +362,13 @@ class Factory implements FactoryInterface
     public function createResourceIdentifierContainerAdapter(ContainerInterface $container)
     {
         return new ResourceIdentifierContainerAdapter($this, $container);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createIdentitySchema(ContainerInterface $container, $classType, Closure $identityClosure)
+    {
+        return new IdentitySchema($this, $container, $classType, $identityClosure);
     }
 }

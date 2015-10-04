@@ -43,7 +43,7 @@ class SupportedExtensions implements SupportedExtensionsInterface
      */
     public function setExtensions($extensions)
     {
-        is_string($extensions) === true ?: Exceptions::throwInvalidArgument('extensions');
+        is_string($extensions) === true ?: Exceptions::throwInvalidArgument('extensions', $extensions);
 
         $this->extensions = $extensions;
     }

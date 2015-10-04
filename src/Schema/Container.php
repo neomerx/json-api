@@ -69,14 +69,15 @@ class Container implements ContainerInterface
     {
         // Resource type must be non-empty string
         $isOk = (is_string($resourceType) === true && empty($resourceType) === false);
-        $isOk ?: Exceptions::throwInvalidArgument('resourceType');
+        $isOk ?: Exceptions::throwInvalidArgument('resourceType', $resourceType);
 
         // Schema must be non-empty string or Closure
         $isOk = ((is_string($schema) === true && empty($schema) === false) || $schema instanceof Closure);
-        $isOk ?: Exceptions::throwInvalidArgument('schema');
+        $isOk ?: Exceptions::throwInvalidArgument('schema', $schema);
 
         // Resource type should not be used more than once to register a schema
-        isset($this->providerMapping[$resourceType]) === false ?: Exceptions::throwInvalidArgument('resourceType');
+        $isOk = isset($this->providerMapping[$resourceType]) === false;
+        $isOk ?: Exceptions::throwInvalidArgument('resourceType', $resourceType);
 
         $this->providerMapping[$resourceType] = $schema;
     }
@@ -110,14 +111,14 @@ class Container implements ContainerInterface
      */
     public function getSchemaByType($type)
     {
-        is_string($type) === true ?: Exceptions::throwInvalidArgument('type');
+        is_string($type) === true ?: Exceptions::throwInvalidArgument('type', $type);
 
         if (isset($this->createdProviders[$type])) {
             return $this->createdProviders[$type];
         }
 
         // Schema is not registered for type $type
-        isset($this->providerMapping[$type]) === true ?: Exceptions::throwInvalidArgument('type');
+        isset($this->providerMapping[$type]) === true ?: Exceptions::throwInvalidArgument('type', $type);
 
         $classNameOrClosure = $this->providerMapping[$type];
         if ($classNameOrClosure instanceof Closure) {
@@ -140,7 +141,7 @@ class Container implements ContainerInterface
     {
         // Schema is not registered for resource type $resourceType
         $isOk = (is_string($resourceType) === true && isset($this->resourceType2Type[$resourceType]) === true);
-        $isOk ?: Exceptions::throwInvalidArgument('resourceType');
+        $isOk ?: Exceptions::throwInvalidArgument('resourceType', $resourceType);
 
         return $this->getSchemaByType($this->resourceType2Type[$resourceType]);
     }

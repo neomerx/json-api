@@ -37,6 +37,9 @@ class ResourceIdentifierSchemaAdapterTest extends BaseTestCase
         $schema->shouldReceive('getSelfSubLink')->once()->withAnyArgs()->andReturn('/sublink');
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $schema->shouldReceive('getSelfSubUrl')->once()->withAnyArgs()->andReturn('/suburl/');
+
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getLinkageMeta')->once()->withAnyArgs()->andReturn(['some' => 'meta']);
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
@@ -50,6 +53,7 @@ class ResourceIdentifierSchemaAdapterTest extends BaseTestCase
 
         $resource = (object)['whatever'];
         $adapter->getSelfSubLink($resource);
+        $adapter->getSelfSubUrl();
         $this->assertEmpty($adapter->getResourceLinks($resource));
         $this->assertEmpty($adapter->getIncludedResourceLinks($resource));
         $this->assertEmpty($adapter->getAttributes($resource));

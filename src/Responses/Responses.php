@@ -94,7 +94,7 @@ class Responses implements ResponsesInterface
         SupportedExtensionsInterface $supportedExtensions = null,
         array $headers = []
     ) {
-        is_int($statusCode) === true ?: Exceptions::throwInvalidArgument('statusCode');
+        is_int($statusCode) === true ?: Exceptions::throwInvalidArgument('statusCode', $statusCode);
 
         $headers[self::HEADER_CONTENT_TYPE] = $this->getContentTypeHeader($mediaType, $supportedExtensions);
 
@@ -138,7 +138,7 @@ class Responses implements ResponsesInterface
      */
     private function setLocationHeader($location, array $headers)
     {
-        is_string($location) === true ?: Exceptions::throwInvalidArgument('location');
+        is_string($location) === true ?: Exceptions::throwInvalidArgument('location', $location);
 
         $headers[self::HEADER_LOCATION] = $location;
 

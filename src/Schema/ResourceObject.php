@@ -284,7 +284,7 @@ class ResourceObject implements ResourceObjectInterface
      */
     private function checkInput($resource, $isInArray)
     {
-        is_bool($isInArray) === true ?: Exceptions::throwInvalidArgument('isInArray');
-        is_object($resource) === true ?: Exceptions::throwInvalidArgument('resource');
+        is_bool($isInArray) === true ?: Exceptions::throwInvalidArgument('isInArray', $isInArray);
+        is_object($resource) === true ?: Exceptions::throwInvalidArgument('resource', $resource);
     }
 }

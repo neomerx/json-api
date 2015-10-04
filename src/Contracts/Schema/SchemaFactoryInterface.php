@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Closure;
+
 /**
  * @package Neomerx\JsonApi
  */
@@ -89,4 +91,15 @@ interface SchemaFactoryInterface
      * @return SchemaProviderInterface
      */
     public function createResourceIdentifierSchemaAdapter(SchemaProviderInterface $schema);
+
+    /**
+     * Create schema for identity objects.
+     *
+     * @param ContainerInterface $container
+     * @param string             $classType
+     * @param Closure            $identityClosure function($resource) : string
+     *
+     * @return SchemaProviderInterface
+     */
+    public function createIdentitySchema(ContainerInterface $container, $classType, Closure $identityClosure);
 }
