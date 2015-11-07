@@ -380,6 +380,26 @@ class ParameterParserTest extends BaseTestCase
     }
 
     /**
+     * Test that unrecognized parameters are ignored when calling `isEmpty` - issue #89
+     *
+     * @author https://github.com/lindyhopchris
+     */
+    public function testUnrecognizedParametersIgnoredByIsEmpty()
+    {
+        $input = [
+            'unrecognized' => 'foo',
+        ];
+
+        $parameters = $this->parser->parse(
+            $this->prepareRequest(self::TYPE, self::TYPE, $input),
+            $this->prepareExceptions()
+        );
+
+        $this->assertTrue($parameters->isEmpty());
+        $this->assertEquals(['unrecognized' => 'foo'], $parameters->getUnrecognizedParameters());
+    }
+
+    /**
      * @param string $contentType
      * @param string $accept
      * @param array  $input

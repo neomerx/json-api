@@ -267,7 +267,7 @@ class Factory implements FactoryInterface
      */
     public function createQueryChecker(
         ExceptionThrowerInterface $exceptionThrower,
-        $allowUnrecognized = false,
+        $allowUnrecognized = true,
         array $includePaths = null,
         array $fieldSetTypes = null,
         array $sortParameters = null,

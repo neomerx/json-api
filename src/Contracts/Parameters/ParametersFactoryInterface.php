@@ -195,7 +195,7 @@ interface ParametersFactoryInterface
     public function createParametersChecker(
         ExceptionThrowerInterface $exceptionThrower,
         CodecMatcherInterface $codecMatcher,
-        $allowUnrecognized = false,
+        $allowUnrecognized = true,
         array $includePaths = null,
         array $fieldSetTypes = null,
         array $sortParameters = null,

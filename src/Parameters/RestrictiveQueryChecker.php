@@ -72,7 +72,7 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
      */
     public function __construct(
         ExceptionThrowerInterface $exceptionThrower,
-        $allowUnrecognized = false,
+        $allowUnrecognized = true,
         array $includePaths = null,
         array $fieldSetTypes = null,
         array $sortParameters = null,

@@ -73,7 +73,7 @@ interface ParametersInterface extends EncodingParametersInterface
     public function getUnrecognizedParameters();
 
     /**
-     * Returns true if inclusion, field set, sorting, paging, filtering and unrecognized parameters are empty.
+     * Returns true if inclusion, field set, sorting, paging, and filtering parameters are empty.
      *
      * @return bool
      */
