@@ -77,12 +77,12 @@ class Document implements DocumentInterface
     /**
      * @var array
      */
-    private $bufferForData;
+    private $bufferForData = [];
 
     /**
      * @var array
      */
-    private $bufferForIncluded;
+    private $bufferForIncluded = [];
 
     /**
      * If original data were in array.
@@ -315,7 +315,7 @@ class Document implements DocumentInterface
             self::KEYWORD_META     => $this->meta,
             self::KEYWORD_LINKS    => $this->links,
             self::KEYWORD_DATA     => true, // this field wont be filtered
-            self::KEYWORD_INCLUDED => $this->included === null ? null : array_values($this->included),
+            self::KEYWORD_INCLUDED => empty($this->included) === true ? null : array_values($this->included),
         ], function ($value) {
             return $value !== null;
         });
