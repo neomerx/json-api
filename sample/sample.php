@@ -1,4 +1,4 @@
-<?php
+<?php namespace Neomerx\Samples\JsonApi;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -20,6 +20,7 @@ use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Parameters\EncodingParameters;
+use \Neomerx\Samples\JsonApi\Application\EncodeSamples;
 
 require './vendor/autoload.php';
 
@@ -29,19 +30,25 @@ require './vendor/autoload.php';
 class Application
 {
     /**
+     * @var EncodeSamples
+     */
+    private $samples;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->samples = new EncodeSamples();
+    }
+
+    /**
      * Shows basic usage.
      */
     private function showBasicExample()
     {
         echo 'Neomerx JSON API sample application (basic usage)' . PHP_EOL;
-
-        $author  = Author::instance('123', 'John', 'Dow');
-
-        $encoder = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-        ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com/api/v1'));
-
-        echo $encoder->encodeData($author) . PHP_EOL;
+        echo $this->samples->getBasicExample() . PHP_EOL;
     }
 
     /**
@@ -50,23 +57,7 @@ class Application
     private function showIncludedObjectsExample()
     {
         echo 'Neomerx JSON API sample application (included objects)' . PHP_EOL;
-
-        $author   = Author::instance('123', 'John', 'Dow');
-        $comments = [
-            Comment::instance('456', 'Included objects work as easy as basic ones', $author),
-            Comment::instance('789', 'Let\'s try!', $author),
-        ];
-        $post = Post::instance('321', 'Included objects', 'Yes, it is supported', $author, $comments);
-        $site = Site::instance('1', 'JSON API Samples', [$post]);
-
-        $encoder  = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class
-        ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
-
-        echo $encoder->encodeData($site) . PHP_EOL;
+        echo $this->samples->getIncludedObjectsExample() . PHP_EOL;
     }
 
     /**
@@ -75,31 +66,7 @@ class Application
     private function showSparseAndFieldSetsExample()
     {
         echo 'Neomerx JSON API sample application (sparse and field sets)' . PHP_EOL;
-
-        $author   = Author::instance('123', 'John', 'Dow');
-        $comments = [
-            Comment::instance('456', 'Included objects work as easy as basic ones', $author),
-            Comment::instance('789', 'Let\'s try!', $author),
-        ];
-        $post = Post::instance('321', 'Included objects', 'Yes, it is supported', $author, $comments);
-        $site = Site::instance('1', 'JSON API Samples', [$post]);
-
-        $options  = new EncodingParameters(
-            ['posts.author'], // Paths to be included. Note 'posts.comments' will not be shown.
-            [
-                // Attributes and links that should be shown
-                'sites'  => ['name'],
-                'people' => ['first_name'],
-            ]
-        );
-        $encoder  = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class
-        ], new EncoderOptions(JSON_PRETTY_PRINT));
-
-        echo $encoder->encodeData($site, $options) . PHP_EOL;
+        echo $this->samples->getSparseAndFieldSetsExample() . PHP_EOL;
     }
 
     /**
@@ -108,31 +75,7 @@ class Application
     private function showTopLevelMetaAndLinksExample()
     {
         echo 'Neomerx JSON API sample application (top level links and meta information)' . PHP_EOL;
-
-        $author = Author::instance('123', 'John', 'Dow');
-        $meta   = [
-            "copyright" => "Copyright 2015 Example Corp.",
-            "authors"   => [
-                "Yehuda Katz",
-                "Steve Klabnik",
-                "Dan Gebhardt"
-            ]
-        ];
-        $links  = [
-            Link::FIRST => new Link('http://example.com/people?first', null, true),
-            Link::LAST  => new Link('http://example.com/people?last', null, true),
-            Link::PREV  => new Link('http://example.com/people?prev', null, true),
-            Link::NEXT  => new Link('http://example.com/people?next', null, true),
-        ];
-
-        $encoder  = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class
-        ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
-
-        echo $encoder->withLinks($links)->withMeta($meta)->encodeData($author) . PHP_EOL;
+        echo $this->samples->getTopLevelMetaAndLinksExample() . PHP_EOL;
     }
 
     /**
@@ -142,106 +85,33 @@ class Application
     {
         echo 'Neomerx JSON API sample application (dynamic schema)' . PHP_EOL;
 
-        $site = Site::instance('1', 'JSON API Samples', []);
-
-        $encoder = Encoder::instance([
-            Site::class => SiteSchema::class,
-        ], new EncoderOptions(JSON_PRETTY_PRINT));
-
-        SiteSchema::$isShowCustomLinks = false;
-        echo $encoder->encodeData($site) . PHP_EOL;
-
-        SiteSchema::$isShowCustomLinks = true;
-        echo $encoder->encodeData($site) . PHP_EOL;
+        $results = $this->samples->getDynamicSchemaExample();
+        echo $results[0] . PHP_EOL;
+        echo $results[1] . PHP_EOL;
     }
 
     /**
-     * Run performance test for many times for small nested resources.
+     * Run performance test for encoding many times a relatively small but nested resources.
      *
-     * @param int $iterations
+     * @param int $num
      */
-    private function runPerformanceTestForSmallNestedResources($iterations)
+    private function runPerformanceTestForSmallNestedResources($num)
     {
-        $options = new EncodingParameters(
-            ['posts.author'],
-            ['sites' => ['name'], 'people' => ['first_name']]
-        );
-        $encoder = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class
-        ]);
-
-        for ($index = 0; $index < $iterations; ++$index) {
-            $rand = rand();
-
-            $author   = Author::instance('123', 'John' . $rand, 'Dow' . $rand);
-            $comments = [
-                Comment::instance('456', 'Included objects work as easy as basic ones' . $rand, $author),
-                Comment::instance('789', 'Let\'s try!' . $rand, $author),
-            ];
-            $post     = Post::instance('321', 'Included objects' . $rand, 'Yes, it is supported', $author, $comments);
-            $site     = Site::instance('1', 'JSON API Samples' . $rand, [$post]);
-
-            $encoder
-                ->withLinks([Link::SELF => new Link('http://example.com/sites/1?' . $rand, null, true)])
-                ->withMeta(['some' => ['meta' => 'information' . $rand]])
-                ->encodeData($site, $options);
-        }
+        echo "Neomerx JSON API performance test ($num iterations for small resources)... ";
+        $time = $this->samples->runPerformanceTestForSmallNestedResources($num);
+        echo $time . ' seconds' . PHP_EOL;
     }
 
     /**
-     * Run performance test one time for big collection of resources.
+     * Run performance test for encoding once a big and nested resource.
      *
-     * @param int $numberOfItems
+     * @param int $num
      */
-    private function runPerformanceTestForBigCollection($numberOfItems)
+    private function runPerformanceTestForBigCollection($num)
     {
-        $sites = [];
-        for ($index = 0; $index < $numberOfItems; ++$index) {
-            $rand = rand();
-
-            $author   = Author::instance('123', 'John' . $rand, 'Dow' . $rand);
-            $comments = [
-                Comment::instance('456', 'Included objects work as easy as basic ones' . $rand, $author),
-                Comment::instance('789', 'Let\'s try!' . $rand, $author),
-            ];
-            $post = Post::instance('321', 'Included objects' . $rand, 'Yes, it is supported', $author, $comments);
-            $site = Site::instance('1', 'JSON API Samples' . $rand, [$post]);
-
-            $sites[] = $site;
-        }
-
-        $options = new EncodingParameters(
-            ['posts.author', 'posts.comments'],
-            ['sites' => ['name'], 'people' => ['first_name']]
-        );
-        $encoder = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class
-        ]);
-
-        $encoder->encodeData($sites, $options);
-    }
-
-    /**
-     * @param Closure $closure
-     * @param float  &$time
-     *
-     * @return mixed
-     */
-    private function getTime(\Closure $closure, &$time)
-    {
-        $time_start = microtime(true);
-        try {
-            return $closure();
-        } finally {
-            $time_end   = microtime(true);
-            $time = $time_end - $time_start;
-        }
+        echo "Neomerx JSON API performance test (1 iteration for $num resources)... ";
+        $time = $this->samples->runPerformanceTestForBigCollection($num);
+        echo $time . ' seconds' . PHP_EOL;
     }
 
     /**
@@ -262,19 +132,8 @@ class Application
             $inv = empty($num) === true || is_numeric($num) === false || ctype_digit($num) == false || (int)$num <= 0;
             $num = $inv === true ? 1000 : (int)$num;
 
-            $time = 0;
-
-            echo "Neomerx JSON API performance test ($num iterations for small resources)... ";
-            $this->getTime(function () use ($num) {
-                $this->runPerformanceTestForSmallNestedResources($num);
-            }, $time);
-            echo $time . ' seconds'  . PHP_EOL;
-
-            echo "Neomerx JSON API performance test (1 iteration for $num resources)... ";
-            $this->getTime(function () use ($num) {
-                $this->runPerformanceTestForBigCollection($num);
-            }, $time);
-            echo $time . ' seconds'  . PHP_EOL;
+            $this->runPerformanceTestForSmallNestedResources($num);
+            $this->runPerformanceTestForBigCollection($num);
         }
     }
 }

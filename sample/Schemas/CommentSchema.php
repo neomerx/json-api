@@ -1,4 +1,4 @@
-<?php
+<?php namespace Neomerx\Samples\JsonApi\Schemas;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -21,23 +21,32 @@ use \Neomerx\JsonApi\Schema\SchemaProvider;
 /**
  * @package Neomerx\Samples\JsonApi
  */
-class AuthorSchema extends SchemaProvider
+class CommentSchema extends SchemaProvider
 {
-    protected $resourceType = 'people';
-    protected $selfSubUrl  = '/people/';
+    protected $resourceType = 'comments';
+    protected $selfSubUrl  = '/comments/';
 
-    public function getId($author)
+    protected $isShowSelfInIncluded = true;
+
+    public function getId($comment)
     {
-        /** @var Author $author */
-        return $author->authorId;
+        /** @var Comment $comment */
+        return $comment->commentId;
     }
 
-    public function getAttributes($author)
+    public function getAttributes($comment)
     {
-        /** @var Author $author */
+        /** @var Comment $comment */
         return [
-            'first_name' => $author->firstName,
-            'last_name'  => $author->lastName,
+            'body' => $comment->body,
+        ];
+    }
+
+    public function getRelationships($comment, array $includeList = [])
+    {
+        /** @var Comment $comment */
+        return [
+            'author' => [self::DATA => $comment->author],
         ];
     }
 }

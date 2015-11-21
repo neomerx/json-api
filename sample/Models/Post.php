@@ -1,4 +1,4 @@
-<?php
+<?php namespace Neomerx\Samples\JsonApi\Models;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -25,7 +25,7 @@
  * @property Author    author
  * @property Comment[] comments
  */
-class Post extends stdClass
+class Post extends \stdClass
 {
     /**
      * @param string    $postId

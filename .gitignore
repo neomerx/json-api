@@ -1,4 +1,4 @@
 vendor/
-/build/
+build/
 .idea/
 composer.lock

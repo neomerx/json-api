@@ -1,4 +1,4 @@
-<?php
+<?php namespace Neomerx\Samples\JsonApi\Schemas;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
