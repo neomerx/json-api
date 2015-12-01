@@ -36,10 +36,3 @@ or with execution time measurement and specified number of iterations
 ```
 $ time php sample.php -t=10000
 ```
-
-If your system has debug assertions enabled it is recommended to turn them off. Just to give you an idea that debug assert are not free here is the execution time comparison
-
-|Debug asserts mode   |Command                                           |Execution time|
-|---------------------|--------------------------------------------------|--------------|
-|Enabled              |```$ php -d assert.active=1 sample.php -t=10000```|7.589s        |
-|Disabled             |```$ php -d assert.active=0 sample.php -t=10000```|2.884s        |
