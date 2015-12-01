@@ -1,4 +1,4 @@
-<?php
+<?php namespace Neomerx\Samples\JsonApi\Schemas;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -46,7 +46,7 @@ class SiteSchema extends SchemaProvider
         ];
     }
 
-    public function getRelationships($site, array $includeList)
+    public function getRelationships($site, array $includeList = [])
     {
         /** @var Site $site */
 

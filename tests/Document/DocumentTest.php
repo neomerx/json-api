@@ -1148,6 +1148,68 @@ EOL;
     }
 
     /**
+     * Test relationship with invalid name.
+     *
+     * @expectedException \InvalidArgumentException
+     */
+    public function testAddRelationshipWithInvalidName()
+    {
+        $this->document->addToData($parent = $this->schemaFactory->createResourceObject($this->getSchema(
+            'people',
+            '123',
+            ['firstName' => 'John', 'lastName' => 'Dow'],
+            new Link('peopleSelfUrl/'), // self url
+            [], // links for resource
+            null   // meta
+        ), new stdClass(), false));
+
+        $link = $this->schemaFactory->createRelationshipObject(
+            'self', // <-- 'self' is a reserved word and cannot be used as a name
+            new stdClass(),
+            [], //    links
+            ['some' => 'relationship meta'], //  relationship meta
+            true, // show data
+            false // is root
+        );
+
+        $this->document->addEmptyRelationshipToData($parent, $link);
+    }
+
+    /**
+     * Test invalid name for resource attributes.
+     *
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidNamesForResourceAttributesId()
+    {
+        $this->document->addToData($resource = $this->schemaFactory->createResourceObject($this->getSchema(
+            'people',
+            '123',
+            ['firstName' => 'John', 'id' => 'whatever'], // <-- 'id' is a reserved word and cannot be used
+            new Link('selfUrl'),
+            [LinkInterface::SELF => new Link('selfUrl')], // links for resource
+            ['some' => 'meta']
+        ), new stdClass(), true));
+    }
+
+    /**
+     * Test invalid name for resource attributes.
+     *
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidNamesForResourceAttributesType()
+    {
+        $this->document->addToData($resource = $this->schemaFactory->createResourceObject($this->getSchema(
+            'people',
+            '123',
+            ['firstName' => 'John', 'type' => 'whatever'], // <-- 'type' is a reserved word and cannot be used
+            new Link('selfUrl'),
+            [LinkInterface::SELF => new Link('selfUrl')], // links for resource
+            ['some' => 'meta']
+        ), new stdClass(), true));
+    }
+
+    /**
      * @param string $subHref
      *
      * @return LinkInterface

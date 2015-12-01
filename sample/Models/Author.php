@@ -1,4 +1,4 @@
-<?php
+<?php namespace Neomerx\Samples\JsonApi\Models;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -19,33 +19,27 @@
 /**
  * @package Neomerx\Samples\JsonApi
  *
- * @property int       postId
- * @property string    title
- * @property string    body
- * @property Author    author
- * @property Comment[] comments
+ * @property int    authorId
+ * @property string firstName
+ * @property string lastName
  */
-class Post extends stdClass
+class Author extends \stdClass
 {
     /**
-     * @param string    $postId
-     * @param string    $title
-     * @param string    $body
-     * @param Author    $author
-     * @param Comment[] $comments
+     * @param string $authorId
+     * @param string $firstName
+     * @param string $lastName
      *
-     * @return Post
+     * @return Author
      */
-    public static function instance($postId, $title, $body, Author $author, array $comments)
+    public static function instance($authorId, $firstName, $lastName)
     {
-        $post = new self();
+        $author = new self();
 
-        $post->postId   = $postId;
-        $post->title    = $title;
-        $post->body     = $body;
-        $post->author   = $author;
-        $post->comments = $comments;
+        $author->authorId  = $authorId;
+        $author->firstName = $firstName;
+        $author->lastName  = $lastName;
 
-        return $post;
+        return $author;
     }
 }

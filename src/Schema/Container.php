@@ -17,7 +17,9 @@
  */
 
 use \Closure;
+use \InvalidArgumentException;
 use \Neomerx\JsonApi\Factories\Exceptions;
+use \Neomerx\JsonApi\I18n\Translator as T;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
@@ -60,26 +62,35 @@ class Container implements ContainerInterface
     /**
      * Register provider for resource type.
      *
-     * @param string         $resourceType
+     * @param string         $type
      * @param string|Closure $schema
      *
      * @return void
      */
-    public function register($resourceType, $schema)
+    public function register($type, $schema)
     {
-        // Resource type must be non-empty string
-        $isOk = (is_string($resourceType) === true && empty($resourceType) === false);
-        $isOk ?: Exceptions::throwInvalidArgument('resourceType', $resourceType);
+        // Type must be non-empty string
+        $isOk = (is_string($type) === true && empty($type) === false);
+        if ($isOk === false) {
+            throw new InvalidArgumentException(T::t('Type must be non-empty string.'));
+        }
 
-        // Schema must be non-empty string or Closure
         $isOk = ((is_string($schema) === true && empty($schema) === false) || $schema instanceof Closure);
-        $isOk ?: Exceptions::throwInvalidArgument('schema', $schema);
+        if ($isOk === false) {
+            throw new InvalidArgumentException(T::t(
+                'Schema for type \'%s\' must be non-empty string or Closure.',
+                [$type]
+            ));
+        }
 
-        // Resource type should not be used more than once to register a schema
-        $isOk = isset($this->providerMapping[$resourceType]) === false;
-        $isOk ?: Exceptions::throwInvalidArgument('resourceType', $resourceType);
+        if (isset($this->providerMapping[$type]) === true) {
+            throw new InvalidArgumentException(T::t(
+                'Type should not be used more than once to register a schema (\'%s\').',
+                [$type]
+            ));
+        }
 
-        $this->providerMapping[$resourceType] = $schema;
+        $this->providerMapping[$type] = $schema;
     }
 
     /**
@@ -117,8 +128,9 @@ class Container implements ContainerInterface
             return $this->createdProviders[$type];
         }
 
-        // Schema is not registered for type $type
-        isset($this->providerMapping[$type]) === true ?: Exceptions::throwInvalidArgument('type', $type);
+        if (isset($this->providerMapping[$type]) === false) {
+            throw new InvalidArgumentException(T::t('Schema is not registered for type \'%s\'.', [$type]));
+        }
 
         $classNameOrClosure = $this->providerMapping[$type];
         if ($classNameOrClosure instanceof Closure) {
@@ -139,9 +151,29 @@ class Container implements ContainerInterface
      */
     public function getSchemaByResourceType($resourceType)
     {
-        // Schema is not registered for resource type $resourceType
+        // Schema is not found among instantiated schemas for resource type $resourceType
         $isOk = (is_string($resourceType) === true && isset($this->resourceType2Type[$resourceType]) === true);
-        $isOk ?: Exceptions::throwInvalidArgument('resourceType', $resourceType);
+
+        // Schema might not be found if it hasn't been searched by type (not resource type) before.
+        // We instantiate all schemas and then find one.
+        if ($isOk === false) {
+            foreach ($this->providerMapping as $type => $schema) {
+                if (isset($this->createdProviders[$type]) === false) {
+                    // it will instantiate the schema
+                    $this->getSchemaByType($type);
+                }
+            }
+        }
+
+        // search one more time
+        $isOk = (is_string($resourceType) === true && isset($this->resourceType2Type[$resourceType]) === true);
+
+        if ($isOk === false) {
+            throw new InvalidArgumentException(T::t(
+                'Schema is not registered for resource type \'%s\'.',
+                [$resourceType]
+            ));
+        }
 
         return $this->getSchemaByType($this->resourceType2Type[$resourceType]);
     }

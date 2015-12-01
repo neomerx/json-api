@@ -1,4 +1,4 @@
-<?php
+<?php namespace Neomerx\JsonApi\I18n;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -17,29 +17,31 @@
  */
 
 /**
- * @package Neomerx\Samples\JsonApi
- *
- * @property int    authorId
- * @property string firstName
- * @property string lastName
+ * @package Neomerx\JsonApi
  */
-class Author extends stdClass
+class Translator
 {
     /**
-     * @param string $authorId
-     * @param string $firstName
-     * @param string $lastName
+     * @param string $format
+     * @param array  $parameters
      *
-     * @return Author
+     * @return string
      */
-    public static function instance($authorId, $firstName, $lastName)
+    public static function translate($format, array $parameters = [])
     {
-        $author = new self();
+        $result = empty($parameters) === false ? vsprintf($format, $parameters) : $format;
 
-        $author->authorId  = $authorId;
-        $author->firstName = $firstName;
-        $author->lastName  = $lastName;
+        return $result;
+    }
 
-        return $author;
+    /**
+     * @param string $format
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    public static function t($format, array $parameters = [])
+    {
+        return static::translate($format, $parameters);
     }
 }

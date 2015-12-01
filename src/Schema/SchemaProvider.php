@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Factories\Exceptions;
+use \InvalidArgumentException;
+use \Neomerx\JsonApi\I18n\Translator as T;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
@@ -78,13 +79,15 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
     {
-        // Check resource type is set for the Schema
         $isOk = (is_string($this->resourceType) === true && empty($this->resourceType) === false);
-        $isOk ?: Exceptions::throwInvalidArgument('resourceType', $this->resourceType);
+        if ($isOk === false) {
+            throw new InvalidArgumentException(T::t('Resource type is not set for Schema \'%s\'.', [static::class]));
+        }
 
-        // Check 'self' sub-URL is set for the Schema
         $isOk = (is_string($this->selfSubUrl) === true && empty($this->selfSubUrl) === false);
-        $isOk ?: Exceptions::throwInvalidArgument('selfSubUrl', $this->selfSubUrl);
+        if ($isOk === false) {
+            throw new InvalidArgumentException(T::t('\'Self\' sub-url is not set for Schema \'%s\'.', [static::class]));
+        }
 
         $this->factory   = $factory;
         $this->container = $container;

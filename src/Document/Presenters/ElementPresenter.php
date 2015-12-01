@@ -16,8 +16,10 @@
  * limitations under the License.
  */
 
+use \InvalidArgumentException;
 use \Neomerx\JsonApi\Document\Document;
 use \Neomerx\JsonApi\Factories\Exceptions;
+use \Neomerx\JsonApi\I18n\Translator as T;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
@@ -250,9 +252,13 @@ class ElementPresenter
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relation
     ) {
-        // "self" is a reserved keyword and cannot be used as a related resource link name
         $isOk = ($relation->getName() !== Document::KEYWORD_SELF);
-        $isOk ?: Exceptions::throwInvalidArgument('relation.name', $relation->getName());
+        if ($isOk === false) {
+            throw new InvalidArgumentException(T::t(
+                '\'%s\' is a reserved keyword and cannot be used as a relationship name in type \'%s\'',
+                [Document::KEYWORD_SELF, $parent->getType()]
+            ));
+        }
 
         $representation = [];
 
@@ -294,9 +300,19 @@ class ElementPresenter
 
         // "type" and "id" are reserved keywords and cannot be used as resource object attributes
         $isOk = (isset($attributes[Document::KEYWORD_TYPE]) === false);
-        $isOk ?: Exceptions::throwInvalidArgument('attributes', Document::KEYWORD_TYPE);
+        if ($isOk === false) {
+            throw new InvalidArgumentException(T::t(
+                '\'%s\' is a reserved keyword and cannot be used as attribute name in type \'%s\'',
+                [Document::KEYWORD_TYPE, $resource->getType()]
+            ));
+        }
         $isOk = (isset($attributes[Document::KEYWORD_ID]) === false);
-        $isOk ?: Exceptions::throwInvalidArgument('attributes', Document::KEYWORD_ID);
+        if ($isOk === false) {
+            throw new InvalidArgumentException(T::t(
+                '\'%s\' is a reserved keyword and cannot be used as attribute name in type \'%s\'',
+                [Document::KEYWORD_ID, $resource->getType()]
+            ));
+        }
 
         if ($isShowAttributes === true && empty($attributes) === false) {
             $representation[Document::KEYWORD_ATTRIBUTES] = $attributes;

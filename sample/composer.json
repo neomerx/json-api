@@ -9,10 +9,9 @@
         }
     ],
     "autoload": {
-        "classmap": [
-            "models",
-            "schemas"
-        ]
+        "psr-4": {
+            "Neomerx\\Samples\\JsonApi\\": "./"
+        }
     },
     "minimum-stability": "dev",
     "repositories": [
