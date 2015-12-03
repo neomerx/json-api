@@ -194,6 +194,7 @@ EOL;
             null,
             // include only these attributes and links
             [
+                // note: no filter for 'comments'
                 'people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME],
                 'posts'  => [Post::LINK_COMMENTS, Post::LINK_AUTHOR],
                 'sites'  => [Site::LINK_POSTS],
@@ -227,12 +228,31 @@ EOL;
             }, {
                 "type"  : "comments",
                 "id"    : "5",
+                "attributes" : {
+                    "body" : "First!"
+                },
+                "relationships" : {
+                    "author" : {
+                        "data" : { "type" : "people", "id" : "9" }
+                    }
+                },
                 "links" : {
                     "self" : "http://example.com/comments/5"
                 }
             }, {
                 "type"  : "comments",
                 "id"    : "12",
+                "attributes" : {
+                    "body" : "I like XML better"
+                },
+                "relationships" : {
+                    "author" : {
+                        "data" : {
+                            "type" : "people",
+                            "id"   : "9"
+                        }
+                    }
+                },
                 "links" : {
                     "self" : "http://example.com/comments/12"
                 }
@@ -249,6 +269,66 @@ EOL;
                             { "type" : "comments", "id" : "12" }
                         ]
                     }
+                }
+            }]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test that include and fieldset parameters work without having to
+     * explicitly add the values from include in the field set as well
+     *
+     * @access public
+     * @return void
+     */
+    public function testIncludeAndSparseFieldSets()
+    {
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => PostSchema::class,
+            Site::class    => SiteSchema::class,
+        ], $this->encoderOptions)->encodeData($this->site, new EncodingParameters(
+            [
+                Site::LINK_POSTS
+            ],
+            // include only these attributes and links
+            [
+                'posts' => [Post::ATTRIBUTE_TITLE, Post::ATTRIBUTE_BODY],
+            ]
+        ));
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "sites",
+                "id"   : "2",
+                "attributes": {
+                    "name": "site name"
+                },
+                "relationships" : {
+                    "posts" : {
+                        "data" : [
+                            { "type" : "posts", "id" : "1" }
+                        ]
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/sites/2"
+                }
+            },
+            "included" : [
+            {
+                "type" : "posts",
+                "id"   : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
                 }
             }]
         }
