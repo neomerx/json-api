@@ -50,7 +50,7 @@ class EncodingParametersTest extends BaseTestCase
 
         $this->assertEquals($fieldsets, $parameters->getFieldSets());
         $this->assertEquals($paths, $parameters->getIncludePaths());
-        $this->assertEquals([], $parameters->getFieldSet('typeNotInSet'));
+        $this->assertEquals(null, $parameters->getFieldSet('typeNotInSet'));
         $this->assertEquals($fieldsets[$type], $parameters->getFieldSet($type));
     }
 }
