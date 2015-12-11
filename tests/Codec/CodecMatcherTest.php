@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Codec\CodecMatcher;
 use \Neomerx\JsonApi\Parameters\Headers\Header;
 use \Neomerx\JsonApi\Parameters\Headers\MediaType;
 use \Neomerx\JsonApi\Parameters\Headers\AcceptHeader;
@@ -57,7 +57,7 @@ class CodecMatcherTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->codecMatcher = new CodecMatcher();
+        $this->codecMatcher = (new Factory())->createCodecMatcher();
 
         $fakeCodec = function ($name) {
             return function () use ($name) {
@@ -300,7 +300,7 @@ class CodecMatcherTest extends BaseTestCase
      */
     private function getTestCodecMatcher()
     {
-        $matcher = new CodecMatcher();
+        $matcher = (new Factory())->createCodecMatcher();
 
         $fakeEncoderClosure = function () {
         };

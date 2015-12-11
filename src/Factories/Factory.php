@@ -17,15 +17,16 @@
  */
 
 use \Closure;
-use Neomerx\JsonApi\Schema\IdentitySchema;
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\JsonApi\Schema\Container;
 use \Neomerx\JsonApi\Document\Document;
+use \Neomerx\JsonApi\Codec\CodecMatcher;
 use \Neomerx\JsonApi\Encoder\Stack\Stack;
 use \Neomerx\JsonApi\Encoder\Parser\Parser;
 use \Neomerx\JsonApi\Parameters\Parameters;
+use \Neomerx\JsonApi\Schema\IdentitySchema;
 use \Neomerx\JsonApi\Schema\ResourceObject;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Encoder\Stack\StackFrame;
@@ -370,5 +371,13 @@ class Factory implements FactoryInterface
     public function createIdentitySchema(ContainerInterface $container, $classType, Closure $identityClosure)
     {
         return new IdentitySchema($this, $container, $classType, $identityClosure);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createCodecMatcher()
+    {
+        return new CodecMatcher();
     }
 }

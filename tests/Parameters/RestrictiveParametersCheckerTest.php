@@ -19,7 +19,6 @@
 use \Mockery;
 use \Mockery\MockInterface;
 use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\JsonApi\Codec\CodecMatcher;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Parameters\Headers\MediaType;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
@@ -459,7 +458,7 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
      */
     private function prepareCodecMatcher(array $decoders, array $encoders)
     {
-        $matcher = new CodecMatcher();
+        $matcher = (new Factory())->createCodecMatcher();
         $codecClosure = function () {
             return 'Codec result';
         };

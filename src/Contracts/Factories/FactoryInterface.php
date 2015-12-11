@@ -19,6 +19,7 @@
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface as SchFI;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface as DFI;
@@ -41,4 +42,11 @@ interface FactoryInterface extends DFI, PrsFI, StkFI, HFI, PrmFI, SchFI
      * @return EncoderInterface
      */
     public function createEncoder(ContainerInterface $container, EncoderOptions $encoderOptions = null);
+
+    /**
+     * Create codec matcher.
+     *
+     * @return CodecMatcherInterface
+     */
+    public function createCodecMatcher();
 }
