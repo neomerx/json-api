@@ -47,5 +47,10 @@
     "ptest": "php ./vendor/phpunit/phpunit/phpunit",
     "htest": "hhvm ./vendor/phpunit/phpunit/phpunit",
     "phpcs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.6.x-dev"
+    }
   }
 }
