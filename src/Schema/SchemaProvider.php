@@ -84,9 +84,19 @@ abstract class SchemaProvider implements SchemaProviderInterface
             throw new InvalidArgumentException(T::t('Resource type is not set for Schema \'%s\'.', [static::class]));
         }
 
-        $isOk = (is_string($this->selfSubUrl) === true && empty($this->selfSubUrl) === false);
-        if ($isOk === false) {
-            throw new InvalidArgumentException(T::t('\'Self\' sub-url is not set for Schema \'%s\'.', [static::class]));
+        if ($this->selfSubUrl === null) {
+            $this->selfSubUrl = '/' . $this->resourceType . '/';
+        } else {
+            $isOk =
+                is_string($this->selfSubUrl) === true &&
+                empty($this->selfSubUrl) === false &&
+                $this->selfSubUrl[0] === '/' &&
+                $this->selfSubUrl[strlen($this->selfSubUrl) - 1] == '/';
+
+            if ($isOk === false) {
+                $message = T::t('\'Self\' sub-url set incorrectly for Schema \'%s\'.', [static::class]);
+                throw new InvalidArgumentException($message);
+            }
         }
 
         $this->factory   = $factory;

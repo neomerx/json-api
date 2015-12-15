@@ -31,11 +31,6 @@ class CommentSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    protected $selfSubUrl = '/comments/';
-
-    /**
-     * @inheritdoc
-     */
     public function getId($comment)
     {
         return $comment->{Comment::ATTRIBUTE_ID};
