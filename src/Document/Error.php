@@ -57,7 +57,7 @@ class Error implements ErrorInterface
     private $detail;
 
     /**
-     * @var mixed|null
+     * @var array|null
      */
     private $source;
 

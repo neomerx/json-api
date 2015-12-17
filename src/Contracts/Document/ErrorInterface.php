@@ -22,6 +22,16 @@
 interface ErrorInterface
 {
     /**
+     * Key for 'Source' field.
+     */
+    const SOURCE_POINTER = 'pointer';
+
+    /**
+     * Key for 'Source' field.
+     */
+    const SOURCE_PARAMETER = 'parameter';
+
+    /**
      * Get a unique identifier for this particular occurrence of the problem.
      *
      * @return int|string|null
@@ -71,7 +81,7 @@ interface ErrorInterface
      *                  [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].
      *    "parameter" - An optional string indicating which query parameter caused the error.
      *
-     * @return mixed|null
+     * @return array|null
      */
     public function getSource();
 
