@@ -17,6 +17,7 @@
  */
 
 use \ArrayIterator;
+use \InvalidArgumentException;
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Post;
@@ -733,6 +734,32 @@ EOL;
         $expected = json_encode(json_decode($expected));
 
         $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode unrecognized resource (no registered Schema).
+     */
+    public function testEncodeUnrecognizedResource()
+    {
+        $author = Author::instance(9, 'Dan', 'Gebhardt');
+        $post   = Post::instance(1, 'Title', 'Body', null, [Comment::instance(5, 'First!', $author)]);
+
+        /** @var InvalidArgumentException $catch */
+        $catch = null;
+        try {
+            Encoder::instance([
+                Comment::class => CommentSchema::class,
+                Post::class    => PostSchema::class,
+            ], $this->encoderOptions)->encodeData($post, new EncodingParameters([
+                Post::LINK_COMMENTS
+            ]));
+        } catch (InvalidArgumentException $exception) {
+            $catch = $exception;
+        }
+
+        $this->assertNotNull($catch);
+        $this->assertContains(Post::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR, $catch->getMessage());
+        $this->assertNotNull($catch->getPrevious());
     }
 
     /**

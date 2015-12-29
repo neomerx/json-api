@@ -17,7 +17,9 @@
  */
 
 use \Iterator;
+use \InvalidArgumentException;
 use \Neomerx\JsonApi\Factories\Exceptions;
+use \Neomerx\JsonApi\I18n\Translator as T;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
@@ -148,7 +150,7 @@ class Parser implements ParserInterface
             $isDupAllowed = $curFrame->getLevel() < 2;
 
             foreach ($traversableData as $resource) {
-                $schema         = $this->getSchema($resource);
+                $schema         = $this->getSchema($resource, $curFrame);
                 $fieldSet       = $this->getFieldSet($schema->getResourceType());
                 $resourceObject = $schema->createResourceObject($resource, $isOriginallyArrayed, $fieldSet);
                 $isCircular     = $this->checkCircular($resourceObject);
@@ -225,13 +227,21 @@ class Parser implements ParserInterface
     }
 
     /**
-     * @param mixed $resource
+     * @param mixed                       $resource
+     * @param StackFrameReadOnlyInterface $frame
      *
      * @return SchemaProviderInterface
      */
-    private function getSchema($resource)
+    private function getSchema($resource, StackFrameReadOnlyInterface $frame)
     {
-        return $this->container->getSchema($resource);
+        try {
+            $schema = $this->container->getSchema($resource);
+        } catch (InvalidArgumentException $exception) {
+            $message = T::t('Schema is not registered for a resource at path \'%s\'.', [$frame->getPath()]);
+            throw new InvalidArgumentException($message, 0, $exception);
+        }
+
+        return $schema;
     }
 
     /**
