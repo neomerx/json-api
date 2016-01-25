@@ -348,6 +348,8 @@ class ParameterParserTest extends BaseTestCase
 
     /**
      * Test miss field in sort params. Sample /posts/1?fields[posts]=
+     *
+     * @see https://github.com/neomerx/json-api/issues/107
      */
     public function testFieldSetWithEmptyField()
     {
@@ -359,8 +361,8 @@ class ParameterParserTest extends BaseTestCase
             $this->prepareExceptions()
         );
 
-        // note type2 was ignored
-        $this->assertEquals(['type1' => ['fields1', 'fields2']], $result->getFieldSets());
+        // note type2 has empty field set
+        $this->assertEquals(['type1' => ['fields1', 'fields2'], 'type2' => []], $result->getFieldSets());
     }
 
     /**
