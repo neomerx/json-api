@@ -68,6 +68,11 @@ class ParserTest extends BaseTestCase
     /**
      * @var array
      */
+    private $authorAttrNull;
+
+    /**
+     * @var array
+     */
     private $commAttr5;
 
     /**
@@ -130,6 +135,11 @@ class ParserTest extends BaseTestCase
         $this->authorAttr = [
             Author::ATTRIBUTE_FIRST_NAME => $this->author->{Author::ATTRIBUTE_FIRST_NAME},
             Author::ATTRIBUTE_LAST_NAME  => $this->author->{Author::ATTRIBUTE_LAST_NAME},
+        ];
+
+        $this->authorAttrNull = [
+            Author::ATTRIBUTE_FIRST_NAME => null,
+            Author::ATTRIBUTE_LAST_NAME  => null,
         ];
 
         $this->commAttr5 = [
@@ -204,15 +214,15 @@ class ParserTest extends BaseTestCase
         $start    = ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED;
         $complete = ParserReplyInterface::REPLY_TYPE_RESOURCE_COMPLETED;
         $expected = [
-            //          level link name   type        id  attributes         meta
-            [$start,    1,    '',         'people',   9,  $this->authorAttr, null],
-            [$start,    2,    'comments', 'comments', 5,  $this->commAttr5,  null],
-            [$start,    3,    'author',   'people',   9,  $this->authorAttr, null],
-            [$complete, 2,    'comments', 'comments', 5,  $this->commAttr5,  null],
-            [$start,    2,    'comments', 'comments', 12, $this->commAttr12, null],
-            [$start,    3,    'author',   'people',   9,  $this->authorAttr, null],
-            [$complete, 2,    'comments', 'comments', 12, $this->commAttr12, null],
-            [$complete, 1,    '',         'people',   9,  $this->authorAttr, null],
+            //          level link name   type        id  attributes             meta
+            [$start,    1,    '',         'people',   9,  $this->authorAttr,     null],
+            [$start,    2,    'comments', 'comments', 5,  $this->commAttr5,      null],
+            [$start,    3,    'author',   'people',   9,  $this->authorAttrNull, null],
+            [$complete, 2,    'comments', 'comments', 5,  $this->commAttr5,      null],
+            [$start,    2,    'comments', 'comments', 12, $this->commAttr12,     null],
+            [$start,    3,    'author',   'people',   9,  $this->authorAttrNull, null],
+            [$complete, 2,    'comments', 'comments', 12, $this->commAttr12,     null],
+            [$complete, 1,    '',         'people',   9,  $this->authorAttr,     null],
         ];
 
         $allReplies = [];

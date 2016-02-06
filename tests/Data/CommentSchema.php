@@ -53,7 +53,7 @@ class CommentSchema extends DevSchemaProvider
     {
         assert('$comment instanceof '.Comment::class);
 
-        if (isset($includeRelationships[Comment::LINK_AUTHOR]) === false) {
+        if (isset($includeRelationships[Comment::LINK_AUTHOR]) === true) {
             $data = $comment->{Comment::LINK_AUTHOR};
         } else {
             // issue #75 https://github.com/neomerx/json-api/issues/75
