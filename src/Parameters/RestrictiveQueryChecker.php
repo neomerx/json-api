@@ -16,21 +16,16 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Exceptions\JsonApiException as E;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\QueryCheckerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
 class RestrictiveQueryChecker implements QueryCheckerInterface
 {
-    /**
-     * @var ExceptionThrowerInterface
-     */
-    private $exceptionThrower;
-
     /**
      * @var bool
      */
@@ -62,16 +57,14 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     private $filteringParameters;
 
     /**
-     * @param ExceptionThrowerInterface $exceptionThrower
-     * @param bool                      $allowUnrecognized
-     * @param array|null                $includePaths
-     * @param array|null                $fieldSetTypes
-     * @param array|null                $sortParameters
-     * @param array|null                $pagingParameters
-     * @param array|null                $filteringParameters
+     * @param bool       $allowUnrecognized
+     * @param array|null $includePaths
+     * @param array|null $fieldSetTypes
+     * @param array|null $sortParameters
+     * @param array|null $pagingParameters
+     * @param array|null $filteringParameters
      */
     public function __construct(
-        ExceptionThrowerInterface $exceptionThrower,
         $allowUnrecognized = true,
         array $includePaths = null,
         array $fieldSetTypes = null,
@@ -79,7 +72,6 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
         array $pagingParameters = null,
         array $filteringParameters = null
     ) {
-        $this->exceptionThrower    = $exceptionThrower;
         $this->includePaths        = $includePaths;
         $this->allowUnrecognized   = $allowUnrecognized;
         $this->fieldSetTypes       = $fieldSetTypes;
@@ -107,7 +99,7 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     protected function checkIncludePaths(ParametersInterface $parameters)
     {
         $withinAllowed = $this->valuesWithinAllowed($parameters->getIncludePaths(), $this->includePaths);
-        $withinAllowed === true ?: $this->exceptionThrower->throwBadRequest();
+        $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
     }
 
     /**
@@ -116,7 +108,7 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     protected function checkFieldSets(ParametersInterface $parameters)
     {
         $withinAllowed = $this->isFieldsAllowed($parameters->getFieldSets());
-        $withinAllowed === true ?: $this->exceptionThrower->throwBadRequest();
+        $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
     }
 
     /**
@@ -125,7 +117,7 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     protected function checkFiltering(ParametersInterface $parameters)
     {
         $withinAllowed = $this->keysWithinAllowed($parameters->getFilteringParameters(), $this->filteringParameters);
-        $withinAllowed === true ?: $this->exceptionThrower->throwBadRequest();
+        $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
     }
 
     /**
@@ -137,7 +129,7 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
             foreach ($parameters->getSortParameters() as $sortParameter) {
                 /** @var SortParameterInterface $sortParameter */
                 if (array_key_exists($sortParameter->getField(), $this->sortParameters) === false) {
-                    $this->exceptionThrower->throwBadRequest();
+                    throw new E([], E::HTTP_CODE_BAD_REQUEST);
                 }
             }
         }
@@ -149,7 +141,7 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     protected function checkPaging(ParametersInterface $parameters)
     {
         $withinAllowed = $this->keysWithinAllowed($parameters->getPaginationParameters(), $this->pagingParameters);
-        $withinAllowed === true ?: $this->exceptionThrower->throwBadRequest();
+        $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
     }
 
     /**
@@ -158,7 +150,7 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     protected function checkUnrecognized(ParametersInterface $parameters)
     {
         $this->allowUnrecognized === true || empty($parameters->getUnrecognizedParameters()) === true ?:
-            $this->exceptionThrower->throwBadRequest();
+            E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
     }
 
     /**

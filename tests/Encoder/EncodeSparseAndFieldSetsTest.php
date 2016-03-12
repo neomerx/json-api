@@ -280,7 +280,7 @@ EOL;
     }
 
     /**
-     * Test that include and fieldset parameters work without having to
+     * Test that include and field-set parameters work without having to
      * explicitly add the values from include in the field set as well
      *
      * @access public

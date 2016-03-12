@@ -23,7 +23,6 @@ use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -44,11 +43,6 @@ class ParameterParserTest extends BaseTestCase
     private $mockRequest;
 
     /**
-     * @var MockInterface
-     */
-    private $mockThrower;
-
-    /**
      * Set up.
      */
     protected function setUp()
@@ -57,7 +51,6 @@ class ParameterParserTest extends BaseTestCase
 
         $this->parser      = (new Factory())->createParametersParser();
         $this->mockRequest = Mockery::mock(ServerRequestInterface::class);
-        $this->mockThrower = Mockery::mock(ExceptionThrowerInterface::class);
     }
 
     /**
@@ -65,10 +58,7 @@ class ParameterParserTest extends BaseTestCase
      */
     public function testHeadersWithNoExtensionsAndParameters()
     {
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE, []),
-            $this->prepareExceptions()
-        );
+        $parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, []));
 
         $this->assertCount(1, $parameters->getContentTypeHeader()->getMediaTypes());
         $this->assertNotNull($contentType = $parameters->getContentTypeHeader()->getMediaTypes()[0]);
@@ -105,10 +95,7 @@ class ParameterParserTest extends BaseTestCase
             'page'    => $paging,
         ];
 
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE, $input),
-            $this->prepareExceptions()
-        );
+        $parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input));
 
         $this->assertEquals(['type1' => ['fields1', 'fields2']], $parameters->getFieldSets());
         $this->assertEquals(['author' , 'comments', 'comments.author'], $parameters->getIncludePaths());
@@ -131,17 +118,14 @@ class ParameterParserTest extends BaseTestCase
     /**
      * Test miss field in sort params.
      *
-     * @expectedException \Exception
+     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testSendIncorrectSortParams()
     {
         $input = [
             'sort' => '-created,,name'
         ];
-        $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE, $input),
-            $this->prepareExceptions('throwBadRequest')
-        );
+        $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input));
     }
 
     /**
@@ -149,18 +133,14 @@ class ParameterParserTest extends BaseTestCase
      *
      * Issue #58 @see https://github.com/neomerx/json-api/issues/58
      *
-     * @expectedException \Exception
+     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testInvalidPageParams()
     {
         $input = [
             'page' => '2',
         ];
-        $this->assertNotNull($parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE, $input),
-            $this->prepareExceptions('throwBadRequest')
-        ));
-
+        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input)));
         $this->assertNull($parameters->getPaginationParameters());
     }
 
@@ -169,17 +149,14 @@ class ParameterParserTest extends BaseTestCase
      *
      * Issue #58 @see https://github.com/neomerx/json-api/issues/58
      *
-     * @expectedException \Exception
+     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testInvalidFilterParams()
     {
         $input = [
             'filter' => 'whatever',
         ];
-        $this->assertNotNull($parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE, $input),
-            $this->prepareExceptions('throwBadRequest')
-        ));
+        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input)));
 
         $this->assertNull($parameters->getSortParameters());
     }
@@ -189,17 +166,14 @@ class ParameterParserTest extends BaseTestCase
      *
      * Issue #58 @see https://github.com/neomerx/json-api/issues/58
      *
-     * @expectedException \Exception
+     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testInvalidIncludeParams()
     {
         $input = [
             'include' => ['whatever'],
         ];
-        $this->assertNotNull($parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE, $input),
-            $this->prepareExceptions('throwBadRequest')
-        ));
+        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input)));
 
         $this->assertNull($parameters->getIncludePaths());
     }
@@ -209,17 +183,14 @@ class ParameterParserTest extends BaseTestCase
      *
      * Issue #58 @see https://github.com/neomerx/json-api/issues/58
      *
-     * @expectedException \Exception
+     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testInvalidSortParams()
     {
         $input = [
             'sort' => ['whatever'],
         ];
-        $this->assertNotNull($parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE, $input),
-            $this->prepareExceptions('throwBadRequest')
-        ));
+        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input)));
 
         $this->assertNull($parameters->getIncludePaths());
     }
@@ -229,10 +200,7 @@ class ParameterParserTest extends BaseTestCase
      */
     public function testParseHeadersNoParams()
     {
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE . ';', []),
-            $this->prepareExceptions()
-        );
+        $parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE . ';', []));
 
         $this->assertEquals(self::TYPE, $parameters->getContentTypeHeader()->getMediaTypes()[0]->getMediaType());
         $this->assertEquals(self::TYPE, $parameters->getAcceptHeader()->getMediaTypes()[0]->getMediaType());
@@ -246,8 +214,7 @@ class ParameterParserTest extends BaseTestCase
     public function testParseHeadersWithParamsNoExtraParams()
     {
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE . ';ext="ext1,ext2"', self::TYPE . ';ext=ext1', []),
-            $this->prepareExceptions()
+            $this->prepareRequest(self::TYPE . ';ext="ext1,ext2"', self::TYPE . ';ext=ext1', [])
         );
 
         $contentType = $parameters->getContentTypeHeader();
@@ -264,14 +231,11 @@ class ParameterParserTest extends BaseTestCase
      */
     public function testParseHeadersWithParamsWithExtraParams()
     {
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(
-                self::TYPE . ' ;  boo = foo; ext="ext1,ext2";  foo = boo ',
-                self::TYPE . ' ; boo = foo; ext=ext1;  foo = boo',
-                []
-            ),
-            $this->prepareExceptions()
-        );
+        $parameters = $this->parser->parse($this->prepareRequest(
+            self::TYPE . ' ;  boo = foo; ext="ext1,ext2";  foo = boo ',
+            self::TYPE . ' ; boo = foo; ext=ext1;  foo = boo',
+            []
+        ));
 
         $contentType = $parameters->getContentTypeHeader();
         $accept = $parameters->getAcceptHeader();
@@ -298,8 +262,7 @@ class ParameterParserTest extends BaseTestCase
             'unrecognized' => ['parameters'],
         ];
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE . ';ext="ext1,ext2"', self::TYPE . ';ext=ext1', $input),
-            $this->prepareExceptions()
+            $this->prepareRequest(self::TYPE . ';ext="ext1,ext2"', self::TYPE . ';ext=ext1', $input)
         );
 
         $this->assertEquals(['unrecognized' => ['parameters']], $parameters->getUnrecognizedParameters());
@@ -310,10 +273,7 @@ class ParameterParserTest extends BaseTestCase
      */
     public function testParseWithEmptyAcceptHeader()
     {
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE, '', []),
-            $this->prepareExceptions()
-        );
+        $parameters = $this->parser->parse($this->prepareRequest(self::TYPE, '', []));
 
         $accept = $parameters->getAcceptHeader();
         $this->assertCount(1, $accept->getMediaTypes());
@@ -323,27 +283,21 @@ class ParameterParserTest extends BaseTestCase
     /**
      * Test parse invalid headers.
      *
-     * @expectedException \Exception
+     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testParseIvalidHeaders1()
     {
-        $this->parser->parse(
-            $this->prepareRequest(self::TYPE.';foo', self::TYPE, [], 1, 0, 0),
-            $this->prepareExceptions('throwBadRequest')
-        );
+        $this->parser->parse($this->prepareRequest(self::TYPE.';foo', self::TYPE, [], 1, 0, 0));
     }
 
     /**
      * Test parse invalid headers.
      *
-     * @expectedException \Exception
+     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testParseIvalidHeaders2()
     {
-        $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE.';foo', [], 1, 1, 0),
-            $this->prepareExceptions('throwBadRequest')
-        );
+        $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE.';foo', [], 1, 1, 0));
     }
 
     /**
@@ -356,10 +310,7 @@ class ParameterParserTest extends BaseTestCase
         $input = [
             'fields' => ['type1' => 'fields1,fields2', 'type2' => '']
         ];
-        $result = $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE, $input),
-            $this->prepareExceptions()
-        );
+        $result = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input));
 
         // note type2 has empty field set
         $this->assertEquals(['type1' => ['fields1', 'fields2'], 'type2' => []], $result->getFieldSets());
@@ -368,17 +319,14 @@ class ParameterParserTest extends BaseTestCase
     /**
      * Test miss field in sort params. Sample /posts/1?fields[posts][foo]=title
      *
-     * @expectedException \Exception
+     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testInvalidFieldSetWithMultiDimensionArray()
     {
         $input = [
             'fields' => ['type' => ['subtype' => 'fields1,fields2']]
         ];
-        $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE, $input),
-            $this->prepareExceptions('throwBadRequest')
-        );
+        $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input));
     }
 
     /**
@@ -392,10 +340,7 @@ class ParameterParserTest extends BaseTestCase
             'unrecognized' => 'foo',
         ];
 
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE, self::TYPE, $input),
-            $this->prepareExceptions()
-        );
+        $parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input));
 
         $this->assertTrue($parameters->isEmpty());
         $this->assertEquals(['unrecognized' => 'foo'], $parameters->getUnrecognizedParameters());
@@ -432,25 +377,5 @@ class ParameterParserTest extends BaseTestCase
         $request = $this->mockRequest;
 
         return $request;
-    }
-
-    /**
-     * @param string $exceptionMethod
-     * @param int    $times
-     *
-     * @return ExceptionThrowerInterface
-     */
-    private function prepareExceptions($exceptionMethod = null, $times = 1)
-    {
-        if ($exceptionMethod !== null) {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
-            $this->mockThrower->shouldReceive($exceptionMethod)
-                ->times($times)->withNoArgs()->andThrow(new \Exception());
-        }
-
-        /** @var ExceptionThrowerInterface $exceptions */
-        $exceptions = $this->mockThrower;
-
-        return $exceptions;
     }
 }

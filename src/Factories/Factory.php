@@ -56,7 +56,6 @@ use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 use \Neomerx\JsonApi\Schema\ResourceIdentifierContainerAdapter;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\EncodingParametersInterface;
@@ -256,18 +255,15 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createHeadersChecker(
-        ExceptionThrowerInterface $exceptionThrower,
-        CodecMatcherInterface $codecMatcher
-    ) {
-        return new RestrictiveHeadersChecker($exceptionThrower, $codecMatcher);
+    public function createHeadersChecker(CodecMatcherInterface $codecMatcher)
+    {
+        return new RestrictiveHeadersChecker($codecMatcher);
     }
 
     /**
      * @inheritdoc
      */
     public function createQueryChecker(
-        ExceptionThrowerInterface $exceptionThrower,
         $allowUnrecognized = true,
         array $includePaths = null,
         array $fieldSetTypes = null,
@@ -276,7 +272,6 @@ class Factory implements FactoryInterface
         array $filteringParameters = null
     ) {
         return new RestrictiveQueryChecker(
-            $exceptionThrower,
             $allowUnrecognized,
             $includePaths,
             $fieldSetTypes,
@@ -290,7 +285,6 @@ class Factory implements FactoryInterface
      * @inheritdoc
      */
     public function createParametersChecker(
-        ExceptionThrowerInterface $exceptionThrower,
         CodecMatcherInterface $codecMatcher,
         $allowUnrecognized = false,
         array $includePaths = null,
@@ -299,9 +293,8 @@ class Factory implements FactoryInterface
         array $pagingParameters = null,
         array $filteringParameters = null
     ) {
-        $headersChecker = $this->createHeadersChecker($exceptionThrower, $codecMatcher);
+        $headersChecker = $this->createHeadersChecker($codecMatcher);
         $queryChecker   = $this->createQueryChecker(
-            $exceptionThrower,
             $allowUnrecognized,
             $includePaths,
             $fieldSetTypes,

@@ -19,14 +19,13 @@
 use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Responses\ResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Integration\NativeResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class Responses implements ResponsesInterface
+abstract class Responses implements ResponsesInterface
 {
     /** Header name that contains format of input data from client */
     const HEADER_CONTENT_TYPE = HeaderInterface::HEADER_CONTENT_TYPE;
@@ -38,17 +37,15 @@ class Responses implements ResponsesInterface
     const HTTP_CREATED = 201;
 
     /**
-     * @var NativeResponsesInterface
+     * Create HTTP response.
+     *
+     * @param string|null $content
+     * @param int         $statusCode
+     * @param array       $headers
+     *
+     * @return mixed
      */
-    private $responses;
-
-    /**
-     * @param NativeResponsesInterface $responses
-     */
-    public function __construct(NativeResponsesInterface $responses)
-    {
-        $this->responses = $responses;
-    }
+    abstract public function createResponse($content, $statusCode, array $headers);
 
     /**
      * @inheritdoc
@@ -60,7 +57,7 @@ class Responses implements ResponsesInterface
         SupportedExtensionsInterface $supportedExtensions = null,
         array $headers = []
     ) {
-        return $this->createResponse($content, $statusCode, $mediaType, $supportedExtensions, $headers);
+        return $this->createResponseImpl($content, $statusCode, $mediaType, $supportedExtensions, $headers);
     }
 
     /**
@@ -75,7 +72,7 @@ class Responses implements ResponsesInterface
     ) {
         $headers = $this->setLocationHeader($location, $headers);
 
-        return $this->createResponse($content, self::HTTP_CREATED, $mediaType, $supportedExtensions, $headers);
+        return $this->createResponseImpl($content, self::HTTP_CREATED, $mediaType, $supportedExtensions, $headers);
     }
 
     /**
@@ -87,7 +84,7 @@ class Responses implements ResponsesInterface
      *
      * @return mixed
      */
-    private function createResponse(
+    private function createResponseImpl(
         $content,
         $statusCode,
         MediaTypeInterface $mediaType,
@@ -98,7 +95,7 @@ class Responses implements ResponsesInterface
 
         $headers[self::HEADER_CONTENT_TYPE] = $this->getContentTypeHeader($mediaType, $supportedExtensions);
 
-        return $this->responses->createResponse($content, $statusCode, $headers);
+        return $this->createResponse($content, $statusCode, $headers);
     }
 
     /**

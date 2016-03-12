@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \Mockery\MockInterface;
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Psr\Http\Message\ServerRequestInterface;
-use \Neomerx\JsonApi\Parameters\Headers\MediaType;
-use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
-use \Neomerx\JsonApi\Parameters\RestrictiveParametersChecker;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
+use Mockery;
+use Mockery\MockInterface;
+use Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
+use Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
+use Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
+use Neomerx\JsonApi\Exceptions\JsonApiException;
+use Neomerx\JsonApi\Factories\Factory;
+use Neomerx\JsonApi\Parameters\Headers\MediaType;
+use Neomerx\JsonApi\Parameters\RestrictiveParametersChecker;
+use Neomerx\Tests\JsonApi\BaseTestCase;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -64,11 +64,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     private $mockRequest;
 
     /**
-     * @var MockInterface
-     */
-    private $mockThrower;
-
-    /**
      * Set up.
      */
     protected function setUp()
@@ -77,7 +72,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
 
         $this->parser      = (new Factory())->createParametersParser();
         $this->mockRequest = Mockery::mock(ServerRequestInterface::class);
-        $this->mockThrower = Mockery::mock(ExceptionThrowerInterface::class);
     }
 
     /**
@@ -88,8 +82,7 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         $checker = $this->getCheckerWithExtensions();
 
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
-            $this->prepareExceptions()
+            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams)
         );
 
         $checker->check($parameters);
@@ -102,14 +95,11 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     {
         $checker = $this->getCheckerWithExtensions();
 
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(
-                self::JSON_API_TYPE.';ext=ext2',
-                self::JSON_API_TYPE.';ext="ext1,ext3"',
-                $this->requestParams
-            ),
-            $this->prepareExceptions()
-        );
+        $parameters = $this->parser->parse($this->prepareRequest(
+            self::JSON_API_TYPE.';ext=ext2',
+            self::JSON_API_TYPE.';ext="ext1,ext3"',
+            $this->requestParams
+        ));
 
         $checker->check($parameters);
     }
@@ -119,14 +109,19 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
      */
     public function testNotAllowedInputExtensions()
     {
-        $checker = $this->getCheckerWithExtensions('throwUnsupportedMediaType');
-
+        $checker    = $this->getCheckerWithExtensions();
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::JSON_API_TYPE.';ext=ext4', self::JSON_API_TYPE, $this->requestParams),
-            $this->prepareExceptions()
+            $this->prepareRequest(self::JSON_API_TYPE . ';ext=ext4', self::JSON_API_TYPE, $this->requestParams)
         );
 
-        $checker->check($parameters);
+        $exception  = null;
+        try {
+            $checker->check($parameters);
+        } catch (JsonApiException $exception) {
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertEquals(JsonApiException::HTTP_CODE_UNSUPPORTED_MEDIA_TYPE, $exception->getHttpCode());
     }
 
     /**
@@ -134,14 +129,21 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
      */
     public function testNotAllowedOutputExtensions()
     {
-        $checker = $this->getCheckerWithExtensions('throwNotAcceptable');
+        $checker    = $this->getCheckerWithExtensions();
+        $parameters = $this->parser->parse($this->prepareRequest(
+            self::JSON_API_TYPE,
+            self::JSON_API_TYPE . ';ext="ext2,ext3"',
+            $this->requestParams
+        ));
 
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE.';ext="ext2,ext3"', $this->requestParams),
-            $this->prepareExceptions()
-        );
+        $exception = null;
+        try {
+            $checker->check($parameters);
+        } catch (JsonApiException $exception) {
+        }
 
-        $checker->check($parameters);
+        $this->assertNotNull($exception);
+        $this->assertEquals(JsonApiException::HTTP_CODE_NOT_ACCEPTABLE, $exception->getHttpCode());
     }
 
     /**
@@ -150,7 +152,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     public function testAllowedInputPaths()
     {
         $checker = $this->getChecker(
-            $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
                 [[self::TYPE, self::SUB_TYPE, null]]
@@ -160,8 +161,7 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         );
 
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
-            $this->prepareExceptions()
+            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams)
         );
 
         $checker->check($parameters);
@@ -173,7 +173,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     public function testNotAllowedInputPaths()
     {
         $checker = $this->getChecker(
-            $this->prepareExceptions('throwBadRequest'),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
                 [[self::TYPE, self::SUB_TYPE, null]]
@@ -181,13 +180,18 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
             false,
             ['author', 'comments']
         );
-
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
-            $this->prepareExceptions()
+            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams)
         );
 
-        $checker->check($parameters);
+        $exception = null;
+        try {
+            $checker->check($parameters);
+        } catch (JsonApiException $exception) {
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertEquals(JsonApiException::HTTP_CODE_BAD_REQUEST, $exception->getHttpCode());
     }
 
     /**
@@ -196,7 +200,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     public function testAllowedFieldSets()
     {
         $checker = $this->getChecker(
-            $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
                 [[self::TYPE, self::SUB_TYPE, null]]
@@ -207,8 +210,7 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         );
 
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
-            $this->prepareExceptions()
+            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams)
         );
 
         $checker->check($parameters);
@@ -220,7 +222,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     public function testAllowedAllFieldSets()
     {
         $checker = $this->getChecker(
-            $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
                 [[self::TYPE, self::SUB_TYPE, null]]
@@ -231,8 +232,7 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         );
 
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
-            $this->prepareExceptions()
+            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams)
         );
 
         $checker->check($parameters);
@@ -244,7 +244,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     public function testNonEsistingFieldSets()
     {
         $checker = $this->getChecker(
-            $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
                 [[self::TYPE, self::SUB_TYPE, null]]
@@ -255,11 +254,17 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         );
 
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
-            $this->prepareExceptions('throwBadRequest')
+            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams)
         );
 
-        $checker->check($parameters);
+        $exception = null;
+        try {
+            $checker->check($parameters);
+        } catch (JsonApiException $exception) {
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertEquals(JsonApiException::HTTP_CODE_BAD_REQUEST, $exception->getHttpCode());
     }
 
     /**
@@ -268,7 +273,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     public function testNotAllowedFieldSets()
     {
         $checker = $this->getChecker(
-            $this->prepareExceptions('throwBadRequest'),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
                 [[self::TYPE, self::SUB_TYPE, null]]
@@ -279,11 +283,17 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         );
 
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
-            $this->prepareExceptions()
+            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams)
         );
 
-        $checker->check($parameters);
+        $exception = null;
+        try {
+            $checker->check($parameters);
+        } catch (JsonApiException $exception) {
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertEquals(JsonApiException::HTTP_CODE_BAD_REQUEST, $exception->getHttpCode());
     }
 
     /**
@@ -293,7 +303,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     {
         $allowedSortParams = ['created', 'title', 'name.with.dots', 'and-others'];
         $checker = $this->getChecker(
-            $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
                 [[self::TYPE, self::SUB_TYPE, null]]
@@ -305,8 +314,7 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         );
 
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
-            $this->prepareExceptions()
+            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams)
         );
 
         $checker->check($parameters);
@@ -319,7 +327,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     {
         $allowedSortParams = ['created', 'name']; // in input will be 'title' which is not on the list
         $checker = $this->getChecker(
-            $this->prepareExceptions('throwBadRequest', 2), // expect just at least one 'bad request'
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
                 [[self::TYPE, self::SUB_TYPE, null]]
@@ -331,11 +338,17 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         );
 
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams),
-            $this->prepareExceptions()
+            $this->prepareRequest(self::JSON_API_TYPE, self::JSON_API_TYPE, $this->requestParams)
         );
 
-        $checker->check($parameters);
+        $exception = null;
+        try {
+            $checker->check($parameters);
+        } catch (JsonApiException $exception) {
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertEquals(JsonApiException::HTTP_CODE_BAD_REQUEST, $exception->getHttpCode());
     }
 
     /**
@@ -344,7 +357,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     public function testAllowedUnrecognizedParameters()
     {
         $checker = $this->getChecker(
-            $this->prepareExceptions(),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
                 [[self::TYPE, self::SUB_TYPE, null]]
@@ -357,8 +369,7 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
                 self::JSON_API_TYPE,
                 self::JSON_API_TYPE,
                 array_merge($this->requestParams, ['some' => ['other', 'parameters']])
-            ),
-            $this->prepareExceptions()
+            )
         );
 
         $checker->check($parameters);
@@ -370,7 +381,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     public function testNotAllowedUnrecognizedParameters()
     {
         $checker = $this->getChecker(
-            $this->prepareExceptions('throwBadRequest'),
             $this->prepareCodecMatcher(
                 [[self::TYPE, self::SUB_TYPE, null]],
                 [[self::TYPE, self::SUB_TYPE, null]]
@@ -378,16 +388,20 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
             false
         );
 
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(
-                self::JSON_API_TYPE,
-                self::JSON_API_TYPE,
-                array_merge($this->requestParams, ['some' => ['other', 'parameters']])
-            ),
-            $this->prepareExceptions()
-        );
+        $parameters = $this->parser->parse($this->prepareRequest(
+            self::JSON_API_TYPE,
+            self::JSON_API_TYPE,
+            array_merge($this->requestParams, ['some' => ['other', 'parameters']])
+        ));
 
-        $checker->check($parameters);
+        $exception = null;
+        try {
+            $checker->check($parameters);
+        } catch (JsonApiException $exception) {
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertEquals(JsonApiException::HTTP_CODE_BAD_REQUEST, $exception->getHttpCode());
     }
 
     /**
@@ -396,17 +410,20 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     public function testTooManyMediaTypesInContentType()
     {
         $checker = $this->getCheckerWithExtensions();
+        $parameters = $this->parser->parse($this->prepareRequest(
+            self::JSON_API_TYPE.', one-more/media-type',
+            self::JSON_API_TYPE,
+            $this->requestParams
+        ));
 
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(
-                self::JSON_API_TYPE.', one-more/media-type',
-                self::JSON_API_TYPE,
-                $this->requestParams
-            ),
-            $this->prepareExceptions('throwBadRequest')
-        );
+        $exception = null;
+        try {
+            $checker->check($parameters);
+        } catch (JsonApiException $exception) {
+        }
 
-        $checker->check($parameters);
+        $this->assertNotNull($exception);
+        $this->assertEquals(JsonApiException::HTTP_CODE_BAD_REQUEST, $exception->getHttpCode());
     }
 
     /**
@@ -429,25 +446,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         $request = $this->mockRequest;
 
         return $request;
-    }
-
-    /**
-     * @param string $exceptionMethod
-     * @param int    $times
-     *
-     * @return ExceptionThrowerInterface
-     */
-    private function prepareExceptions($exceptionMethod = null, $times = 1)
-    {
-        if ($exceptionMethod !== null) {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
-            $this->mockThrower->shouldReceive($exceptionMethod)->times($times)->withNoArgs()->andReturnUndefined();
-        }
-
-        /** @var ExceptionThrowerInterface $exceptions */
-        $exceptions = $this->mockThrower;
-
-        return $exceptions;
     }
 
     /**
@@ -477,14 +475,11 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     }
 
     /**
-     * @param string|null $exceptionMethod
-     *
      * @return RestrictiveParametersChecker
      */
-    private function getCheckerWithExtensions($exceptionMethod = null)
+    private function getCheckerWithExtensions()
     {
         $checker = $this->getChecker(
-            $this->prepareExceptions($exceptionMethod),
             $this->prepareCodecMatcher(
                 [
                     [self::TYPE, self::SUB_TYPE, null],
@@ -501,7 +496,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
     }
 
     /**
-     * @param ExceptionThrowerInterface $exceptionThrower
      * @param CodecMatcherInterface     $codecMatcher
      * @param bool|false                $allowUnrecognized
      * @param array|null                $includePaths
@@ -513,7 +507,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
      * @return RestrictiveParametersChecker
      */
     private function getChecker(
-        ExceptionThrowerInterface $exceptionThrower,
         CodecMatcherInterface $codecMatcher,
         $allowUnrecognized = false,
         array $includePaths = null,
@@ -523,7 +516,6 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         array $filteringParameters = null
     ) {
         return (new Factory())->createParametersChecker(
-            $exceptionThrower,
             $codecMatcher,
             $allowUnrecognized,
             $includePaths,

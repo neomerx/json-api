@@ -20,10 +20,10 @@ use \InvalidArgumentException;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Neomerx\JsonApi\Parameters\Headers\Header;
 use \Neomerx\JsonApi\Parameters\Headers\AcceptHeader;
+use \Neomerx\JsonApi\Exceptions\JsonApiException as E;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
 
@@ -38,11 +38,6 @@ class ParametersParser implements ParametersParserInterface
     private $factory;
 
     /**
-     * @var ExceptionThrowerInterface
-     */
-    private $exceptionThrower;
-
-    /**
      * @param ParametersFactoryInterface $factory
      */
     public function __construct(ParametersFactoryInterface $factory)
@@ -53,10 +48,8 @@ class ParametersParser implements ParametersParserInterface
     /**
      * @inheritdoc
      */
-    public function parse(ServerRequestInterface $request, ExceptionThrowerInterface $exceptionThrower)
+    public function parse(ServerRequestInterface $request)
     {
-        $this->exceptionThrower = $exceptionThrower;
-
         $acceptHeader      = null;
         $contentTypeHeader = null;
 
@@ -67,7 +60,7 @@ class ParametersParser implements ParametersParserInterface
                 HeaderInterface::HEADER_CONTENT_TYPE
             );
         } catch (InvalidArgumentException $exception) {
-            $this->exceptionThrower->throwBadRequest();
+            E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST, $exception));
         }
 
         try {
@@ -83,7 +76,7 @@ class ParametersParser implements ParametersParserInterface
                 $acceptHeader = $this->factory->createAcceptHeader([$jsonMediaType]);
             }
         } catch (InvalidArgumentException $exception) {
-            $this->exceptionThrower->throwBadRequest();
+            E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST, $exception));
         }
 
         $parameters = $request->getQueryParams();
@@ -125,7 +118,7 @@ class ParametersParser implements ParametersParserInterface
         if (empty($fieldSets) === false && is_array($fieldSets)) {
             foreach ($fieldSets as $type => $fields) {
                 // We expect fields to be comma separated or empty strings. Multi-dimension arrays are not allowed.
-                is_string($fields) ?: $this->exceptionThrower->throwBadRequest();
+                is_string($fields) ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
                 $result[$type] = (empty($fields) === true ? [] : explode(',', $fields));
             }
         } else {
@@ -147,9 +140,10 @@ class ParametersParser implements ParametersParserInterface
         if ($sortParam !== null) {
             foreach (explode(',', $sortParam) as $param) {
                 $isDesc = false;
-                empty($param) === false ? $isDesc = ($param[0] === '-') : $this->exceptionThrower->throwBadRequest();
+                empty($param) === false ?
+                    $isDesc = ($param[0] === '-') : E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
                 $sortField = ltrim($param, '+-');
-                empty($sortField) === false ?: $this->exceptionThrower->throwBadRequest();
+                empty($sortField) === false ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
                 $sortParams[] = $this->factory->createSortParam($sortField, $isDesc === false);
             }
         }
@@ -205,7 +199,7 @@ class ParametersParser implements ParametersParserInterface
         $value = $this->getParamOrNull($parameters, $name);
 
         $isArrayOrNull = ($value === null || is_array($value) === true);
-        $isArrayOrNull === true ?: $this->exceptionThrower->throwBadRequest();
+        $isArrayOrNull === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
 
         return $value;
     }
@@ -221,7 +215,7 @@ class ParametersParser implements ParametersParserInterface
         $value = $this->getParamOrNull($parameters, $name);
 
         $isStringOrNull = ($value === null || is_string($value) === true);
-        $isStringOrNull === true ?: $this->exceptionThrower->throwBadRequest();
+        $isStringOrNull === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
 
         return $value;
     }

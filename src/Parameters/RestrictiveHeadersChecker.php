@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Exceptions\JsonApiException as E;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\HeadersCheckerInterface;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -27,25 +27,16 @@ use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 class RestrictiveHeadersChecker implements HeadersCheckerInterface
 {
     /**
-     * @var ExceptionThrowerInterface
-     */
-    private $exceptionThrower;
-
-    /**
      * @var CodecMatcherInterface
      */
     private $codecMatcher;
 
     /**
-     * @param ExceptionThrowerInterface $exceptionThrower
-     * @param CodecMatcherInterface     $codecMatcher
+     * @param CodecMatcherInterface $codecMatcher
      */
-    public function __construct(
-        ExceptionThrowerInterface $exceptionThrower,
-        CodecMatcherInterface $codecMatcher
-    ) {
-        $this->exceptionThrower = $exceptionThrower;
-        $this->codecMatcher     = $codecMatcher;
+    public function __construct(CodecMatcherInterface $codecMatcher)
+    {
+        $this->codecMatcher = $codecMatcher;
     }
 
     /**
@@ -76,7 +67,7 @@ class RestrictiveHeadersChecker implements HeadersCheckerInterface
         // We return 406 if no match found for encoder (media type with or wo parameters)
         // If no encoders were configured for media types with parameters we return 406 anyway
         if ($this->codecMatcher->getEncoderHeaderMatchedType() === null) {
-            $this->exceptionThrower->throwNotAcceptable();
+            throw new E([], E::HTTP_CODE_NOT_ACCEPTABLE);
         }
     }
 
@@ -89,7 +80,7 @@ class RestrictiveHeadersChecker implements HeadersCheckerInterface
     {
         // Do not allow specify more than 1 media type for input data. Otherwise which one is correct?
         if (count($parameters->getContentTypeHeader()->getMediaTypes()) > 1) {
-            $this->exceptionThrower->throwBadRequest();
+            throw new E([], E::HTTP_CODE_BAD_REQUEST);
         }
 
         $this->codecMatcher->findDecoder($parameters->getContentTypeHeader());
@@ -101,7 +92,7 @@ class RestrictiveHeadersChecker implements HeadersCheckerInterface
         // We return 415 if no match found for decoder (media type with or wo parameters)
         // If no decoders were configured for media types with parameters we return 415 anyway
         if ($this->codecMatcher->getDecoderHeaderMatchedType() === null) {
-            $this->exceptionThrower->throwUnsupportedMediaType();
+            throw new E([], E::HTTP_CODE_UNSUPPORTED_MEDIA_TYPE);
         }
     }
 }

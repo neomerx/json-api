@@ -27,7 +27,6 @@ use \Neomerx\JsonApi\Parameters\RestrictiveParametersChecker;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
 
 /**
@@ -176,23 +175,20 @@ class FactoryTest extends BaseTestCase
 
     public function testCreateParametersChecker()
     {
-        /** @var ExceptionThrowerInterface $thrower */
-        $thrower = Mockery::mock(ExceptionThrowerInterface::class);
         /** @var CodecMatcherInterface $matcher */
         $matcher = Mockery::mock(CodecMatcherInterface::class);
 
-        $headersChecker = $this->factory->createHeadersChecker($thrower, $matcher);
-        $this->assertEquals(new RestrictiveHeadersChecker($thrower, $matcher), $headersChecker);
+        $headersChecker = $this->factory->createHeadersChecker($matcher);
+        $this->assertEquals(new RestrictiveHeadersChecker($matcher), $headersChecker);
 
-        $allowUnrecognised = true;
-        $includePaths = ['foo', 'bar'];
-        $fieldSetTypes = ['baz', 'bat'];
-        $sortParameters = ['foobar', 'bazbat'];
-        $pagingParameters = ['bar', 'foo'];
+        $allowUnrecognised   = true;
+        $includePaths        = ['foo', 'bar'];
+        $fieldSetTypes       = ['baz', 'bat'];
+        $sortParameters      = ['foobar', 'bazbat'];
+        $pagingParameters    = ['bar', 'foo'];
         $filteringParameters = ['bat', 'baz'];
 
         $queryChecker = $this->factory->createQueryChecker(
-            $thrower,
             $allowUnrecognised,
             $includePaths,
             $fieldSetTypes,
@@ -202,7 +198,6 @@ class FactoryTest extends BaseTestCase
         );
 
         $this->assertEquals(new RestrictiveQueryChecker(
-            $thrower,
             $allowUnrecognised,
             $includePaths,
             $fieldSetTypes,
@@ -212,7 +207,6 @@ class FactoryTest extends BaseTestCase
         ), $queryChecker);
 
         $parametersChecker = $this->factory->createParametersChecker(
-            $thrower,
             $matcher,
             $allowUnrecognised,
             $includePaths,

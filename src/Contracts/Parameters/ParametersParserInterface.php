@@ -17,7 +17,6 @@
  */
 
 use \Psr\Http\Message\ServerRequestInterface;
-use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -42,10 +41,9 @@ interface ParametersParserInterface
     /**
      * Parse input parameters from request.
      *
-     * @param ServerRequestInterface    $request
-     * @param ExceptionThrowerInterface $exceptionThrower
+     * @param ServerRequestInterface $request
      *
      * @return ParametersInterface
      */
-    public function parse(ServerRequestInterface $request, ExceptionThrowerInterface $exceptionThrower);
+    public function parse(ServerRequestInterface $request);
 }

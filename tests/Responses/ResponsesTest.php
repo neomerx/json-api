@@ -24,7 +24,6 @@ use \Neomerx\JsonApi\Parameters\Headers\MediaType;
 use \Neomerx\JsonApi\Parameters\SupportedExtensions;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Responses\ResponsesInterface;
-use \Neomerx\JsonApi\Contracts\Integration\NativeResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 
@@ -36,12 +35,12 @@ class ResponsesTest extends BaseTestCase
     /**
      * @var MockInterface
      */
-    private $mockResponses;
+    private $mock;
 
     /**
      * @var ResponsesInterface
      */
-    private $factory;
+    private $responses;
 
     /**
      * Set up tests.
@@ -50,11 +49,8 @@ class ResponsesTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->mockResponses = Mockery::mock(NativeResponsesInterface::class);
-
-        /** @var NativeResponsesInterface $responses */
-        $responses = $this->mockResponses;
-        $this->factory = new Responses($responses);
+        $this->mock      = Mockery::mock(Responses::class)->makePartial();
+        $this->responses = $this->mock;
     }
 
     /**
@@ -63,11 +59,11 @@ class ResponsesTest extends BaseTestCase
     public function testGetCodeResponse1()
     {
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockResponses->shouldReceive('createResponse')->once()
+        $this->mock->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type']])->andReturn('something');
 
         $mediaType = new MediaType('some', 'type');
-        $this->assertEquals('something', $this->factory->getResponse(123, $mediaType));
+        $this->assertEquals('something', $this->responses->getResponse(123, $mediaType));
     }
 
     /**
@@ -76,11 +72,11 @@ class ResponsesTest extends BaseTestCase
     public function testGetCodeResponse2()
     {
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockResponses->shouldReceive('createResponse')->once()
+        $this->mock->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type;ext="ext1"']])->andReturn('something');
 
         $mediaType = new MediaType('some', 'type', [MediaTypeInterface::PARAM_EXT => 'ext1']);
-        $this->assertEquals('something', $this->factory->getResponse(123, $mediaType));
+        $this->assertEquals('something', $this->responses->getResponse(123, $mediaType));
     }
 
     /**
@@ -89,7 +85,7 @@ class ResponsesTest extends BaseTestCase
     public function testGetCodeResponse3()
     {
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockResponses->shouldReceive('createResponse')->once()
+        $this->mock->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type;ext="ext1",supported-ext="sup-ext1"']])
             ->andReturn('something');
 
@@ -99,7 +95,7 @@ class ResponsesTest extends BaseTestCase
         $mockSupportedExt->shouldReceive('getExtensions')->once()->withNoArgs()->andReturn('sup-ext1');
 
         /** @var SupportedExtensionsInterface $mockSupportedExt */
-        $this->assertEquals('something', $this->factory->getResponse(123, $mediaType, null, $mockSupportedExt));
+        $this->assertEquals('something', $this->responses->getResponse(123, $mediaType, null, $mockSupportedExt));
     }
 
     /**
@@ -108,7 +104,7 @@ class ResponsesTest extends BaseTestCase
     public function testGetCodeResponse4()
     {
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockResponses->shouldReceive('createResponse')->once()
+        $this->mock->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type;supported-ext="sup-ext1"']])
             ->andReturn('something');
 
@@ -118,7 +114,7 @@ class ResponsesTest extends BaseTestCase
         $mockSupportedExt->shouldReceive('getExtensions')->once()->withNoArgs()->andReturn('sup-ext1');
 
         /** @var SupportedExtensionsInterface $mockSupportedExt */
-        $this->assertEquals('something', $this->factory->getResponse(123, $mediaType, null, $mockSupportedExt));
+        $this->assertEquals('something', $this->responses->getResponse(123, $mediaType, null, $mockSupportedExt));
     }
 
     /**
@@ -127,14 +123,14 @@ class ResponsesTest extends BaseTestCase
     public function testGetCodeResponse5()
     {
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockResponses->shouldReceive('createResponse')->once()
+        $this->mock->shouldReceive('createResponse')->once()
             ->withArgs([null, 123, ['Content-Type' => 'some/type']])
             ->andReturn('something');
 
         $mediaType = new MediaType('some', 'type');
         $supportedExt = new SupportedExtensions();
 
-        $this->assertEquals('something', $this->factory->getResponse(123, $mediaType, null, $supportedExt));
+        $this->assertEquals('something', $this->responses->getResponse(123, $mediaType, null, $supportedExt));
     }
 
     /**
@@ -143,14 +139,14 @@ class ResponsesTest extends BaseTestCase
     public function testGetCreatedResponse()
     {
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockResponses->shouldReceive('createResponse')->once()
+        $this->mock->shouldReceive('createResponse')->once()
             ->withArgs(['content', 201, ['Location' => '/resource/123', 'Content-Type' => 'some/type']])
             ->andReturn('something');
 
         $mediaType = new MediaType('some', 'type');
 
         /** @var EncoderInterface $encoder */
-        $this->assertEquals('something', $this->factory->getCreatedResponse(
+        $this->assertEquals('something', $this->responses->getCreatedResponse(
             '/resource/123',
             $mediaType,
             'content'
@@ -163,13 +159,13 @@ class ResponsesTest extends BaseTestCase
     public function testGetResponse()
     {
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockResponses->shouldReceive('createResponse')->once()
+        $this->mock->shouldReceive('createResponse')->once()
             ->withArgs(['content', 456, ['Content-Type' => 'some/type']])
             ->andReturn('something');
 
         $mediaType = new MediaType('some', 'type');
 
         /** @var EncoderInterface $encoder */
-        $this->assertEquals('something', $this->factory->getResponse(456, $mediaType, 'content'));
+        $this->assertEquals('something', $this->responses->getResponse(456, $mediaType, 'content'));
     }
 }
