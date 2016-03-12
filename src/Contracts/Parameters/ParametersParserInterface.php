@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
+use \Psr\Http\Message\ServerRequestInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 
 /**
@@ -42,10 +42,10 @@ interface ParametersParserInterface
     /**
      * Parse input parameters from request.
      *
-     * @param CurrentRequestInterface   $request
+     * @param ServerRequestInterface    $request
      * @param ExceptionThrowerInterface $exceptionThrower
      *
      * @return ParametersInterface
      */
-    public function parse(CurrentRequestInterface $request, ExceptionThrowerInterface $exceptionThrower);
+    public function parse(ServerRequestInterface $request, ExceptionThrowerInterface $exceptionThrower);
 }

@@ -17,11 +17,11 @@
  */
 
 use \InvalidArgumentException;
+use \Psr\Http\Message\ServerRequestInterface;
 use \Neomerx\JsonApi\Parameters\Headers\Header;
 use \Neomerx\JsonApi\Parameters\Headers\AcceptHeader;
 use \Neomerx\JsonApi\Contracts\Parameters\SortParameterInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
@@ -53,7 +53,7 @@ class ParametersParser implements ParametersParserInterface
     /**
      * @inheritdoc
      */
-    public function parse(CurrentRequestInterface $request, ExceptionThrowerInterface $exceptionThrower)
+    public function parse(ServerRequestInterface $request, ExceptionThrowerInterface $exceptionThrower)
     {
         $this->exceptionThrower = $exceptionThrower;
 
@@ -86,7 +86,7 @@ class ParametersParser implements ParametersParserInterface
             $this->exceptionThrower->throwBadRequest();
         }
 
-        $parameters = $request->getQueryParameters();
+        $parameters = $request->getQueryParams();
 
         return $this->factory->createParameters(
             $contentTypeHeader,

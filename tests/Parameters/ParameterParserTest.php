@@ -20,7 +20,7 @@ use \Mockery;
 use \Mockery\MockInterface;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
+use \Psr\Http\Message\ServerRequestInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
@@ -56,7 +56,7 @@ class ParameterParserTest extends BaseTestCase
         parent::setUp();
 
         $this->parser      = (new Factory())->createParametersParser();
-        $this->mockRequest = Mockery::mock(CurrentRequestInterface::class);
+        $this->mockRequest = Mockery::mock(ServerRequestInterface::class);
         $this->mockThrower = Mockery::mock(ExceptionThrowerInterface::class);
     }
 
@@ -409,7 +409,7 @@ class ParameterParserTest extends BaseTestCase
      * @param int    $acceptTimes
      * @param int    $parametersTimes
      *
-     * @return CurrentRequestInterface
+     * @return ServerRequestInterface
      */
     private function prepareRequest(
         $contentType,
@@ -425,10 +425,10 @@ class ParameterParserTest extends BaseTestCase
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockRequest->shouldReceive('getHeader')->with('Accept')->times($acceptTimes)->andReturn($accept);
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockRequest->shouldReceive('getQueryParameters')
+        $this->mockRequest->shouldReceive('getQueryParams')
             ->withNoArgs()->times($parametersTimes)->andReturn($input);
 
-        /** @var CurrentRequestInterface $request */
+        /** @var ServerRequestInterface $request */
         $request = $this->mockRequest;
 
         return $request;

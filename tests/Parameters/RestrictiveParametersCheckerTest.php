@@ -20,10 +20,10 @@ use \Mockery;
 use \Mockery\MockInterface;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
+use \Psr\Http\Message\ServerRequestInterface;
 use \Neomerx\JsonApi\Parameters\Headers\MediaType;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Parameters\RestrictiveParametersChecker;
-use \Neomerx\JsonApi\Contracts\Integration\CurrentRequestInterface;
 use \Neomerx\JsonApi\Contracts\Integration\ExceptionThrowerInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Parameters\ParametersParserInterface;
@@ -76,7 +76,7 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         parent::setUp();
 
         $this->parser      = (new Factory())->createParametersParser();
-        $this->mockRequest = Mockery::mock(CurrentRequestInterface::class);
+        $this->mockRequest = Mockery::mock(ServerRequestInterface::class);
         $this->mockThrower = Mockery::mock(ExceptionThrowerInterface::class);
     }
 
@@ -414,7 +414,7 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
      * @param string $accept
      * @param array  $input
      *
-     * @return CurrentRequestInterface
+     * @return ServerRequestInterface
      */
     private function prepareRequest($contentType, $accept, array $input)
     {
@@ -423,9 +423,9 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockRequest->shouldReceive('getHeader')->with('Accept')->once()->andReturn($accept);
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockRequest->shouldReceive('getQueryParameters')->withNoArgs()->once()->andReturn($input);
+        $this->mockRequest->shouldReceive('getQueryParams')->withNoArgs()->once()->andReturn($input);
 
-        /** @var CurrentRequestInterface $request */
+        /** @var ServerRequestInterface $request */
         $request = $this->mockRequest;
 
         return $request;
