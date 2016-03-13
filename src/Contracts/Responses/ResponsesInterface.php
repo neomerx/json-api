@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
+use \Neomerx\JsonApi\Document\Error;
+use \Neomerx\JsonApi\Exceptions\ErrorCollection;
 
 /**
  * @package Neomerx\JsonApi
@@ -25,40 +25,70 @@ use \Neomerx\JsonApi\Contracts\Parameters\SupportedExtensionsInterface;
 interface ResponsesInterface
 {
     /**
-     * Get response with or without content.
-     *
-     * @param int                               $statusCode
-     * @param MediaTypeInterface                $mediaType
-     * @param string|null                       $content
-     * @param SupportedExtensionsInterface|null $supportedExtensions
-     * @param array                             $headers
-     *
-     * @return mixed
+     * HTTP code constant.
      */
-    public function getResponse(
-        $statusCode,
-        MediaTypeInterface $mediaType,
-        $content = null,
-        SupportedExtensionsInterface $supportedExtensions = null,
-        array $headers = []
-    );
+    const HTTP_OK = 200;
 
     /**
-     * Get 'created' response (HTTP code 201) with content.
+     * HTTP code constant.
+     */
+    const HTTP_CREATED = 201;
+
+    /**
+     * HTTP code constant.
+     */
+    const HTTP_BAD_REQUEST = 400;
+
+    /**
+     * Get response with regular JSON API Document in body.
      *
-     * @param string                            $location
-     * @param MediaTypeInterface                $mediaType
-     * @param string|null                       $content
-     * @param SupportedExtensionsInterface|null $supportedExtensions
-     * @param array                             $headers
+     * @param object|array $data
+     * @param int          $statusCode
+     * @param array|null   $links
+     * @param mixed        $meta
      *
      * @return mixed
      */
-    public function getCreatedResponse(
-        $location,
-        MediaTypeInterface $mediaType,
-        $content,
-        SupportedExtensionsInterface $supportedExtensions = null,
-        array $headers = []
-    );
+    public function getContentResponse($data, $statusCode = self::HTTP_OK, $links = null, $meta = null);
+
+    /**
+     * Get response for newly created resource with HTTP code 201 (adds 'location' header).
+     *
+     * @param object     $resource
+     * @param array|null $links
+     * @param mixed      $meta
+     *
+     * @return mixed
+     */
+    public function getCreatedResponse($resource, $links = null, $meta = null);
+
+
+    /**
+     * Get response with HTTP code only.
+     *
+     * @param $statusCode
+     *
+     * @return mixed
+     */
+    public function getCodeResponse($statusCode);
+
+    /**
+     * Get response with meta information only.
+     *
+     * @param array|object $meta       Meta information.
+     * @param int          $statusCode
+     *
+     * @return mixed
+     */
+    public function getMetaResponse($meta, $statusCode = self::HTTP_OK);
+
+    /**
+     * Get response with JSON API Error in body.
+     *
+     * @param Error|Error[]|ErrorCollection $errors
+     * @param int                           $statusCode
+     *
+     * @return mixed
+     */
+    public function getErrorResponse($errors, $statusCode = self::HTTP_BAD_REQUEST);
 }
