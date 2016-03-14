@@ -17,6 +17,7 @@
  */
 
 use \Closure;
+use \Psr\Log\LoggerInterface;
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Encoder\Encoder;
@@ -69,11 +70,36 @@ use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 class Factory implements FactoryInterface
 {
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->logger = new ProxyLogger();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger->setLogger($logger);
+    }
+
+    /**
      * @inheritdoc
      */
     public function createEncoder(ContainerInterface $container, EncoderOptions $encoderOptions = null)
     {
-        return new Encoder($this, $container, $encoderOptions);
+        $encoder = new Encoder($this, $container, $encoderOptions);
+
+        $encoder->setLogger($this->logger);
+
+        return $encoder;
     }
 
     /**
@@ -81,7 +107,11 @@ class Factory implements FactoryInterface
      */
     public function createDocument()
     {
-        return new Document();
+        $document = new Document();
+
+        $document->setLogger($this->logger);
+
+        return $document;
     }
 
     /**
@@ -122,7 +152,11 @@ class Factory implements FactoryInterface
      */
     public function createParser(ContainerInterface $container, ParserManagerInterface $manager)
     {
-        return new Parser($this, $this, $this, $container, $manager);
+        $parser = new Parser($this, $this, $this, $container, $manager);
+
+        $parser->setLogger($this->logger);
+
+        return $parser;
     }
 
     /**
@@ -130,7 +164,11 @@ class Factory implements FactoryInterface
      */
     public function createManager(ParametersAnalyzerInterface $parameterAnalyzer)
     {
-        return new ParserManager($parameterAnalyzer);
+        $manager = new ParserManager($parameterAnalyzer);
+
+        $manager->setLogger($this->logger);
+
+        return $manager;
     }
 
     /**
@@ -154,7 +192,11 @@ class Factory implements FactoryInterface
      */
     public function createReplyInterpreter(DocumentInterface $document, ParametersAnalyzerInterface $parameterAnalyzer)
     {
-        return new ReplyInterpreter($document, $parameterAnalyzer);
+        $interpreter = new ReplyInterpreter($document, $parameterAnalyzer);
+
+        $interpreter->setLogger($this->logger);
+
+        return $interpreter;
     }
 
     /**
@@ -170,7 +212,11 @@ class Factory implements FactoryInterface
      */
     public function createParametersAnalyzer(EncodingParametersInterface $parameters, ContainerInterface $container)
     {
-        return new ParametersAnalyzer($parameters, $container);
+        $analyzer = new ParametersAnalyzer($parameters, $container);
+
+        $analyzer->setLogger($this->logger);
+
+        return $analyzer;
     }
 
     /**
@@ -211,7 +257,11 @@ class Factory implements FactoryInterface
      */
     public function createParametersParser()
     {
-        return new ParametersParser($this);
+        $parser = new ParametersParser($this);
+
+        $parser->setLogger($this->logger);
+
+        return $parser;
     }
 
     /**
@@ -311,7 +361,11 @@ class Factory implements FactoryInterface
      */
     public function createContainer(array $providers = [])
     {
-        return new Container($this, $providers);
+        $container = new Container($this, $providers);
+
+        $container->setLogger($this->logger);
+
+        return $container;
     }
 
     /**

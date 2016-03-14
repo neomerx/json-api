@@ -17,7 +17,12 @@
  */
 
 use \Mockery;
+use \Monolog\Logger;
 use \PHPUnit_Framework_TestCase;
+use \Monolog\Handler\StreamHandler;
+use \Neomerx\JsonApi\Factories\Factory;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
+use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -31,5 +36,26 @@ abstract class BaseTestCase extends PHPUnit_Framework_TestCase
     {
         parent::tearDown();
         Mockery::close();
+    }
+
+    /**
+     * @param array               $schemas
+     * @param EncoderOptions|null $encodeOptions
+     *
+     * @return EncoderInterface
+     */
+    protected function createLoggedEncoder(array $schemas, EncoderOptions $encodeOptions = null)
+    {
+        $factory = new Factory();
+
+        $path = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'neomerx-json-api-tests.log';
+        $log = new Logger('json-api');
+        $log->pushHandler(new StreamHandler($path));
+        $factory->setLogger($log);
+
+        $container = $factory->createContainer($schemas);
+        $encoder   = $factory->createEncoder($container, $encodeOptions);
+
+        return $encoder;
     }
 }

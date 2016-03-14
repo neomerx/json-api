@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Psr\Log\LoggerAwareInterface as PSR3;
+
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
@@ -31,7 +33,7 @@ use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersFactoryInterface as Prm
 /**
  * @package Neomerx\JsonApi
  */
-interface FactoryInterface extends DFI, PrsFI, StkFI, HFI, PrmFI, SchFI
+interface FactoryInterface extends DFI, PrsFI, StkFI, HFI, PrmFI, SchFI, PSR3
 {
     /**
      * Create encoder.

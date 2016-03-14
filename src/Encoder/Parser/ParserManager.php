@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Psr\Log\LoggerAwareTrait;
+use \Psr\Log\LoggerAwareInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
@@ -23,8 +25,10 @@ use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 /**
  * @package Neomerx\JsonApi
  */
-class ParserManager implements ParserManagerInterface
+class ParserManager implements ParserManagerInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var ParametersAnalyzerInterface
      */

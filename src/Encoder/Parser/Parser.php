@@ -18,6 +18,8 @@
 
 use \Iterator;
 use \InvalidArgumentException;
+use \Psr\Log\LoggerAwareTrait;
+use \Psr\Log\LoggerAwareInterface;
 use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\I18n\Translator as T;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
@@ -60,8 +62,10 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
  *
  * @package Neomerx\JsonApi
  */
-class Parser implements ParserInterface
+class Parser implements ParserInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var ParserFactoryInterface
      */

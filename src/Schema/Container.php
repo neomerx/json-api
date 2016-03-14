@@ -18,6 +18,8 @@
 
 use \Closure;
 use \InvalidArgumentException;
+use \Psr\Log\LoggerAwareTrait;
+use \Psr\Log\LoggerAwareInterface;
 use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\I18n\Translator as T;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
@@ -27,8 +29,10 @@ use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 /**
  * @package Neomerx\JsonApi
  */
-class Container implements ContainerInterface
+class Container implements ContainerInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var array
      */

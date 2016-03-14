@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Psr\Log\LoggerAwareTrait;
+use \Psr\Log\LoggerAwareInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\ReplyInterpreterInterface;
@@ -25,8 +27,10 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface as Fram
 /**
  * @package Neomerx\JsonApi
  */
-class ReplyInterpreter implements ReplyInterpreterInterface
+class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var DocumentInterface
      */

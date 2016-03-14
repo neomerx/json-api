@@ -18,6 +18,8 @@
 
 use \Iterator;
 use \InvalidArgumentException;
+use \Psr\Log\LoggerAwareTrait;
+use \Psr\Log\LoggerAwareInterface;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
@@ -30,8 +32,10 @@ use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 /**
  * @package Neomerx\JsonApi
  */
-class Encoder implements EncoderInterface
+class Encoder implements EncoderInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var ContainerInterface
      */

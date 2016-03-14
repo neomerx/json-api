@@ -17,6 +17,8 @@
  */
 
 use \Closure;
+use \Psr\Log\LoggerAwareTrait;
+use \Psr\Log\LoggerAwareInterface;
 use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
@@ -27,8 +29,10 @@ use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 /**
  * @package Neomerx\JsonApi
  */
-class Document implements DocumentInterface
+class Document implements DocumentInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var array
      */

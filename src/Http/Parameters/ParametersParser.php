@@ -17,6 +17,8 @@
  */
 
 use \InvalidArgumentException;
+use \Psr\Log\LoggerAwareTrait;
+use \Psr\Log\LoggerAwareInterface;
 use \Neomerx\JsonApi\Http\Headers\Header;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Neomerx\JsonApi\Http\Headers\AcceptHeader;
@@ -30,8 +32,10 @@ use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersFactoryInterface;
 /**
  * @package Neomerx\JsonApi
  */
-class ParametersParser implements ParametersParserInterface
+class ParametersParser implements ParametersParserInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var ParametersFactoryInterface
      */

@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Psr\Log\LoggerAwareTrait;
+use \Psr\Log\LoggerAwareInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Http\Parameters\EncodingParametersInterface;
@@ -24,8 +26,10 @@ use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 /**
  * @package Neomerx\JsonApi
  */
-class ParametersAnalyzer implements ParametersAnalyzerInterface
+class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var EncodingParametersInterface
      */
