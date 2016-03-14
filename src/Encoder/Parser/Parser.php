@@ -173,7 +173,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
                         $nextFrame = $this->stack->push();
                         $nextFrame->setRelationship($relationship);
                         try {
-                            if ($this->isRelationshipInFieldSet() === true) {
+                            if ($this->isRelationshipIncludedOrInFieldSet() === true) {
                                 foreach ($this->parseData() as $parseResult) {
                                     yield $parseResult;
                                 }
@@ -298,9 +298,11 @@ class Parser implements ParserInterface, LoggerAwareInterface
     /**
      * @return bool
      */
-    private function isRelationshipInFieldSet()
+    private function isRelationshipIncludedOrInFieldSet()
     {
-        return $this->manager->isRelationshipInFieldSet($this->stack);
+        return
+            $this->manager->isRelationshipInFieldSet($this->stack) === true ||
+            $this->manager->isShouldParseRelationships($this->stack) === true;
     }
 
     /**

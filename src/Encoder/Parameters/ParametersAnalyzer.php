@@ -128,6 +128,16 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
     }
 
     /**
+     * @inheritdoc
+     */
+    public function hasSomeFields($type)
+    {
+        $hasSomeFields = $this->getParameters()->getFieldSet($type) !== [];
+
+        return $hasSomeFields;
+    }
+
+    /**
      * If path has exact match with one of the 'include' paths.
      *
      * @param string[] $paths

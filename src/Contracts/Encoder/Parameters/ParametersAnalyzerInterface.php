@@ -49,4 +49,13 @@ interface ParametersAnalyzerInterface
      * @return string[]
      */
     public function getIncludeRelationships($path, $type);
+
+    /**
+     * If field-sets allows any fields to be in output (field-set filter is not empty array).
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function hasSomeFields($type);
 }

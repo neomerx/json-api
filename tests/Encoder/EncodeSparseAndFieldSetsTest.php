@@ -383,4 +383,70 @@ EOL;
 
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * Test encoder in mode when parser continues to parse even if relationship
+     * are not in field-set (however child resources might be in 'include' paths).
+     *
+     * @see https://github.com/neomerx/json-api/issues/105
+     */
+    public function testIncludeAndSparseFieldSetsInGreedyMode()
+    {
+        $this->author->{Author::LINK_COMMENTS} = $this->comments;
+
+        $actual = $this->createLoggedEncoder([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => PostSchema::class,
+            Site::class    => SiteSchema::class,
+        ], $this->encoderOptions)->encodeData($this->site, new EncodingParameters(
+            [
+                Site::LINK_POSTS,
+                Site::LINK_POSTS . '.' . Post::LINK_AUTHOR,
+                Site::LINK_POSTS . '.' . Post::LINK_COMMENTS,
+                Site::LINK_POSTS . '.' . Post::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR,
+                Site::LINK_POSTS . '.' . Post::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR . '.' . Author::LINK_COMMENTS,
+            ],
+            // include only these attributes and links
+            [
+                'sites'    => [],
+                'posts'    => [],
+                'comments' => [],
+                'people'   => [Author::ATTRIBUTE_LAST_NAME, Author::LINK_COMMENTS],
+            ]
+        ));
+
+        $expected = <<<EOL
+        {
+            "data":{
+                "type" : "sites",
+                "id"   : "2",
+                "links" : {
+                    "self" : "http://example.com/sites/2"
+                }
+            },
+            "included" : [
+                {
+                    "type" : "people",
+                    "id"   : "9",
+                    "attributes" : {
+                        "last_name" : "Gebhardt"
+                    },
+                    "relationships" : {
+                        "comments" : {
+                            "data" : [
+                                { "type" : "comments", "id" : "5"  },
+                                { "type" : "comments", "id" : "12" }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
 }

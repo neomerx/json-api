@@ -225,8 +225,14 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
      */
     private function setResourceCompleted(Frame $current)
     {
-        $resourceObject = $current->getResource();
-        $this->document->setResourceCompleted($resourceObject);
+        // Add resource if it is a main resource (even if it has no fields) or
+        // if field set allows any fields for this type (filter out resources with no attributes and relationships)
+        if ($current->getLevel() === 1 ||
+            $this->parameterAnalyzer->hasSomeFields($current->getResource()->getType()) === true
+        ) {
+            $resourceObject = $current->getResource();
+            $this->document->setResourceCompleted($resourceObject);
+        }
     }
 
     /**
