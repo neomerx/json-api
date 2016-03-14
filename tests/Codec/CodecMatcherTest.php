@@ -18,12 +18,12 @@
 
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Parameters\Headers\Header;
-use \Neomerx\JsonApi\Parameters\Headers\MediaType;
-use \Neomerx\JsonApi\Parameters\Headers\AcceptHeader;
+use \Neomerx\JsonApi\Http\Headers\Header;
+use \Neomerx\JsonApi\Http\Headers\MediaType;
+use \Neomerx\JsonApi\Http\Headers\AcceptHeader;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi

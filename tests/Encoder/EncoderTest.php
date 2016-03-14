@@ -28,8 +28,8 @@ use \Neomerx\Tests\JsonApi\Data\PostSchema;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
-use \Neomerx\JsonApi\Parameters\EncodingParameters;
 use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use \Neomerx\JsonApi\Http\Parameters\EncodingParameters;
 
 /**
  * @package Neomerx\Tests\JsonApi

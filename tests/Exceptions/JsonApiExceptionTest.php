@@ -18,9 +18,9 @@
 
 use \Mockery;
 use \Neomerx\JsonApi\Document\Error;
-use Neomerx\JsonApi\Exceptions\JsonApiException;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Exceptions\ErrorCollection;
+use \Neomerx\JsonApi\Exceptions\JsonApiException;
 
 /**
  * @package Neomerx\Tests\JsonApi

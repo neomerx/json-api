@@ -19,8 +19,8 @@
 use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
-use \Neomerx\JsonApi\Parameters\EncodingParameters;
 use \Neomerx\Samples\JsonApi\Application\EncodeSamples;
+use \Neomerx\JsonApi\Http\Parameters\EncodingParameters;
 
 require './vendor/autoload.php';
 

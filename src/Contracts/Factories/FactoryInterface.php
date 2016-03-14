@@ -25,8 +25,8 @@ use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface as SchFI;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface as DFI;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface as StkFI;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface as PrsFI;
-use \Neomerx\JsonApi\Contracts\Parameters\ParametersFactoryInterface as PrmFI;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\HandlerFactoryInterface as HFI;
+use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersFactoryInterface as PrmFI;
 
 /**
  * @package Neomerx\JsonApi

@@ -20,7 +20,7 @@ use \Mockery;
 use \Mockery\MockInterface;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Parameters\EncodingParameters;
+use \Neomerx\JsonApi\Http\Parameters\EncodingParameters;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 

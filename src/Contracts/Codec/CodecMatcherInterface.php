@@ -19,10 +19,10 @@
 use \Closure;
 use \Neomerx\JsonApi\Contracts\Decoder\DecoderInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptHeaderInterface;
-use \Neomerx\JsonApi\Contracts\Parameters\Headers\AcceptMediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
 
 /**
  * @package Neomerx\JsonApi
