@@ -97,7 +97,7 @@ interface CodecMatcherInterface
      *
      * @return void
      */
-    public function findDecoder(HeaderInterface $contentTypeHeader);
+    public function matchDecoder(HeaderInterface $contentTypeHeader);
 
     /**
      * Get media type from 'Accept' header that matched to one of the registered encoder media types.

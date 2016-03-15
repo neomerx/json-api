@@ -86,7 +86,7 @@ class CodecMatcherTest extends BaseTestCase
         $contentTypeHeader = Header::parse('type1/subtype1', HeaderInterface::HEADER_CONTENT_TYPE);
 
         $this->codecMatcher->matchEncoder($acceptHeader);
-        $this->codecMatcher->findDecoder($contentTypeHeader);
+        $this->codecMatcher->matchDecoder($contentTypeHeader);
 
         $this->assertEquals('enc-type1-no-ext', $this->codecMatcher->getEncoder());
         $this->assertEquals('type1/subtype1', $this->codecMatcher->getEncoderHeaderMatchedType()->getMediaType());
@@ -110,7 +110,7 @@ class CodecMatcherTest extends BaseTestCase
         $contentTypeHeader = Header::parse('type1/subtype1;ext="ext1"', HeaderInterface::HEADER_CONTENT_TYPE);
 
         $this->codecMatcher->matchEncoder($acceptHeader);
-        $this->codecMatcher->findDecoder($contentTypeHeader);
+        $this->codecMatcher->matchDecoder($contentTypeHeader);
 
         $this->assertEquals('enc-type1-ext1', $this->codecMatcher->getEncoder());
         $this->assertEquals('type1/subtype1', $this->codecMatcher->getEncoderHeaderMatchedType()->getMediaType());
@@ -134,7 +134,7 @@ class CodecMatcherTest extends BaseTestCase
         $contentTypeHeader = Header::parse('type1-XXX/subtype1;ext="ext1"', HeaderInterface::HEADER_CONTENT_TYPE);
 
         $this->codecMatcher->matchEncoder($acceptHeader);
-        $this->codecMatcher->findDecoder($contentTypeHeader);
+        $this->codecMatcher->matchDecoder($contentTypeHeader);
 
         $this->assertEquals('enc-type1-no-ext', $this->codecMatcher->getEncoder());
         $this->assertEquals('*/*', $this->codecMatcher->getEncoderHeaderMatchedType()->getMediaType());
@@ -157,7 +157,7 @@ class CodecMatcherTest extends BaseTestCase
         $contentTypeHeader = Header::parse('type1-XXX/subtype1;ext="ext1"', HeaderInterface::HEADER_CONTENT_TYPE);
 
         $this->codecMatcher->matchEncoder($acceptHeader);
-        $this->codecMatcher->findDecoder($contentTypeHeader);
+        $this->codecMatcher->matchDecoder($contentTypeHeader);
 
         $this->assertNull($this->codecMatcher->getEncoder());
         $this->assertNull($this->codecMatcher->getEncoderHeaderMatchedType());

@@ -83,7 +83,7 @@ class RestrictiveHeadersChecker implements HeadersCheckerInterface
             throw new E([], E::HTTP_CODE_BAD_REQUEST);
         }
 
-        $this->codecMatcher->findDecoder($parameters->getContentTypeHeader());
+        $this->codecMatcher->matchDecoder($parameters->getContentTypeHeader());
 
         // From spec: Servers MUST respond with a 415 Unsupported Media Type status code
         // if a request specifies the header Content-Type: application/vnd.api+json with

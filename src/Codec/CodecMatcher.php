@@ -172,7 +172,7 @@ class CodecMatcher implements CodecMatcherInterface
      *
      * @return void
      */
-    public function findDecoder(HeaderInterface $contentTypeHeader)
+    public function matchDecoder(HeaderInterface $contentTypeHeader)
     {
         foreach ($contentTypeHeader->getMediaTypes() as $headerMediaType) {
             /** @var MediaTypeInterface $registeredType */
