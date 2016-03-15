@@ -30,7 +30,7 @@ class IssueTest extends BaseTestCase
      */
     public function testEnheritedEncoder()
     {
-        $childEncoder = CustomEncoder::instance([]);
+        $childEncoder = CustomEncoder::instance();
         $this->assertEquals(CustomEncoder::class, get_class($childEncoder));
     }
 }

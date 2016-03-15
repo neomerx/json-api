@@ -531,7 +531,7 @@ EOL;
      */
     public function testEncodeJsonApiVersion()
     {
-        $actual = Encoder::instance([])->withJsonApiVersion(['some' => 'meta'])->encodeData(null);
+        $actual = Encoder::instance()->withJsonApiVersion(['some' => 'meta'])->encodeData(null);
 
         $expected = <<<EOL
         {

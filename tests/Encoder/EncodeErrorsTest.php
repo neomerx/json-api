@@ -32,7 +32,7 @@ class EncodeErrorsTest extends BaseTestCase
     public function testEncodeError()
     {
         $error   = $this->getError();
-        $encoder = Encoder::instance([]);
+        $encoder = Encoder::instance();
 
         $actual = $encoder->encodeError($error);
 
@@ -62,7 +62,7 @@ EOL;
     public function testEncodeErrors()
     {
         $error   = $this->getError();
-        $encoder = Encoder::instance([]);
+        $encoder = Encoder::instance();
 
         $actual = $encoder->encodeErrors([$error]);
 
@@ -94,7 +94,7 @@ EOL;
     public function testEncodeEmptyError()
     {
         $error   = new Error();
-        $encoder = Encoder::instance([]);
+        $encoder = Encoder::instance();
         $actual  = $encoder->encodeError($error);
 
         $expected = <<<EOL

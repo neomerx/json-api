@@ -278,7 +278,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      *
      * @return EncoderInterface
      */
-    public static function instance(array $schemas, EncoderOptions $encodeOptions = null)
+    public static function instance(array $schemas = [], EncoderOptions $encodeOptions = null)
     {
         $factory   = static::getFactory();
         $container = $factory->createContainer($schemas);
