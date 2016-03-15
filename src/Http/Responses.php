@@ -129,10 +129,7 @@ abstract class Responses implements ResponsesInterface
      */
     public function getErrorResponse($errors, $statusCode = self::HTTP_BAD_REQUEST)
     {
-        if ($errors instanceof ErrorCollection) {
-            /** @var ErrorCollection $errors */
-            $content = $this->getEncoder()->encodeErrors($errors->getArrayCopy());
-        } elseif (is_array($errors) === true) {
+        if ($errors instanceof ErrorCollection || is_array($errors) === true) {
             /** @var Error[] $errors */
             $content = $this->getEncoder()->encodeErrors($errors);
         } else {

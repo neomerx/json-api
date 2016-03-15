@@ -20,6 +20,7 @@ use \Neomerx\JsonApi\Schema\Link;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
+use \Neomerx\JsonApi\Exceptions\ErrorCollection;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -59,12 +60,44 @@ EOL;
     /**
      * Test encode error array.
      */
-    public function testEncodeErrors()
+    public function testEncodeErrorsArray()
     {
         $error   = $this->getError();
         $encoder = Encoder::instance();
 
         $actual = $encoder->encodeErrors([$error]);
+
+        $expected = <<<EOL
+        {
+            "errors":[{
+                "id"     : "some-id",
+                "links"  : {"about" : "about-link"},
+                "status" : "some-status",
+                "code"   : "some-code",
+                "title"  : "some-title",
+                "detail" : "some-detail",
+                "source" : {"source" : "data"},
+                "meta"   : {"some" : "meta"}
+            }]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode error array.
+     */
+    public function testEncodeErrorsCollection()
+    {
+        $errors  = new ErrorCollection();
+        $errors->add($this->getError());
+
+        $encoder = Encoder::instance();
+
+        $actual = $encoder->encodeErrors($errors);
 
         $expected = <<<EOL
         {

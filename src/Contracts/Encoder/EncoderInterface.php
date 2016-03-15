@@ -17,6 +17,7 @@
  */
 
 use \Iterator;
+use \Neomerx\JsonApi\Exceptions\ErrorCollection;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Http\Parameters\EncodingParametersInterface;
 
@@ -117,7 +118,7 @@ interface EncoderInterface
     /**
      * Encode errors as JSON API string.
      *
-     * @param ErrorInterface[] $errors
+     * @param ErrorInterface[]|ErrorCollection $errors
      *
      * @return string
      */

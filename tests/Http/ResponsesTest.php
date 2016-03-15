@@ -197,7 +197,7 @@ class ResponsesTest extends BaseTestCase
         $errors->add(new Error());
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledGetSupportedExtensions(null);
-        $this->willBeCalledEncoderForErrors($errors->getArrayCopy(), 'some json api');
+        $this->willBeCalledEncoderForErrors($errors, 'some json api');
         $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getErrorResponse($errors, 321));
