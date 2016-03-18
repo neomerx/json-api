@@ -29,11 +29,6 @@ class AuthorSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    protected $selfSubUrl = '/people/';
-
-    /**
-     * @inheritdoc
-     */
     public function getId($author)
     {
         return $author->{Author::ATTRIBUTE_ID};

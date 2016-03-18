@@ -29,11 +29,6 @@ class PostSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    protected $selfSubUrl = '/posts/';
-
-    /**
-     * @inheritdoc
-     */
     public function getId($post)
     {
         return $post->{Post::ATTRIBUTE_ID};

@@ -25,7 +25,6 @@ use \Neomerx\JsonApi\Schema\SchemaProvider;
 class SiteSchema extends SchemaProvider
 {
     protected $resourceType = 'sites';
-    protected $selfSubUrl  = '/sites/';
 
     /**
      * @var bool

@@ -32,11 +32,6 @@ class AuthorSchema extends ParentSchema
     /**
      * @inheritdoc
      */
-    protected $selfSubUrl = '/people/';
-
-    /**
-     * @inheritdoc
-     */
     public function getId($author)
     {
         throw new LogicException('Should not be used');

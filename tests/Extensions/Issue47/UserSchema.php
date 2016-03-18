@@ -31,11 +31,6 @@ class UserSchema extends SchemaProvider
     /**
      * @inheritdoc
      */
-    protected $selfSubUrl = '/users/';
-
-    /**
-     * @inheritdoc
-     */
     public function getId($user)
     {
         /** @var User $user */

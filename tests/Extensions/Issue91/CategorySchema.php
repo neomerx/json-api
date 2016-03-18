@@ -31,11 +31,6 @@ class CategorySchema extends SchemaProvider
     /**
      * @inheritdoc
      */
-    protected $selfSubUrl = '/categories/';
-
-    /**
-     * @inheritdoc
-     */
     public function getId($resource)
     {
         /** @var Category $resource */

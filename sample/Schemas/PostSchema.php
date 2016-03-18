@@ -24,7 +24,6 @@ use \Neomerx\JsonApi\Schema\SchemaProvider;
 class PostSchema extends SchemaProvider
 {
     protected $resourceType = 'posts';
-    protected $selfSubUrl  = '/posts/';
 
     public function getId($post)
     {

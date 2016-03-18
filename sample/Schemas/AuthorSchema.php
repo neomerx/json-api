@@ -24,7 +24,6 @@ use \Neomerx\JsonApi\Schema\SchemaProvider;
 class AuthorSchema extends SchemaProvider
 {
     protected $resourceType = 'people';
-    protected $selfSubUrl  = '/people/';
 
     public function getId($author)
     {

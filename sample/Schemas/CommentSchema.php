@@ -24,7 +24,6 @@ use \Neomerx\JsonApi\Schema\SchemaProvider;
 class CommentSchema extends SchemaProvider
 {
     protected $resourceType = 'comments';
-    protected $selfSubUrl  = '/comments/';
 
     protected $isShowSelfInIncluded = true;
 

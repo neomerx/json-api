@@ -30,11 +30,6 @@ class SiteSchema extends DevSchemaProvider
     protected $resourceType = 'sites';
 
     /**
-     * @inheritdoc
-     */
-    protected $selfSubUrl = '/sites/';
-
-    /**
      * @param SchemaFactoryInterface $factory
      * @param ContainerInterface     $container
      */
