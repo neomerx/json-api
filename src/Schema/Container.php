@@ -54,6 +54,11 @@ class Container implements ContainerInterface, LoggerAwareInterface
     private $factory;
 
     /**
+     * @var string
+     */
+    const DOCTRINE_PROXY_CLASS_NAME = 'Doctrine\ORM\Proxy\Proxy';
+
+    /**
      * @param SchemaFactoryInterface $factory
      * @param array                  $schemas
      */
@@ -189,6 +194,11 @@ class Container implements ContainerInterface, LoggerAwareInterface
      */
     protected function getResourceType($resource)
     {
+
+        if(in_array(self::DOCTRINE_PROXY_CLASS_NAME, class_implements($resource))){
+            return get_parent_class($resource);
+        }
+
         return get_class($resource);
     }
 }
