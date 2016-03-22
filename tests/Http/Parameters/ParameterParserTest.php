@@ -396,8 +396,8 @@ class ParameterParserTest extends BaseTestCase
     ) {
         $request = new Request(function ($name) use ($accept, $contentType) {
             $headers = [
-                self::HEADER_ACCEPT       => $accept,
-                self::HEADER_CONTENT_TYPE => $contentType,
+                self::HEADER_ACCEPT       => empty($accept) === true ? [] : [$accept],
+                self::HEADER_CONTENT_TYPE => empty($contentType) === true ? [] : [$contentType],
             ];
 
             $this->actrualCalls[$name]++;

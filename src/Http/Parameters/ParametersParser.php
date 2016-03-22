@@ -60,7 +60,7 @@ class ParametersParser implements ParametersParserInterface, LoggerAwareInterfac
         try {
             $contentType = $request->getHeader(HeaderInterface::HEADER_CONTENT_TYPE);
             $contentTypeHeader = Header::parse(
-                empty($contentType) === true ? MediaTypeInterface::JSON_API_MEDIA_TYPE : $contentType,
+                empty($contentType) === true ? MediaTypeInterface::JSON_API_MEDIA_TYPE : $contentType[0],
                 HeaderInterface::HEADER_CONTENT_TYPE
             );
         } catch (InvalidArgumentException $exception) {
@@ -70,7 +70,7 @@ class ParametersParser implements ParametersParserInterface, LoggerAwareInterfac
         try {
             $headerString = $request->getHeader(HeaderInterface::HEADER_ACCEPT);
             if (empty($headerString) === false) {
-                $acceptHeader = AcceptHeader::parse($headerString);
+                $acceptHeader = AcceptHeader::parse($headerString[0]);
             } else {
                 $jsonMediaType = $this->factory->createAcceptMediaType(
                     0,

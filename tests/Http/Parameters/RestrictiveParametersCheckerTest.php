@@ -435,10 +435,13 @@ class RestrictiveParametersCheckerTest extends BaseTestCase
      */
     private function prepareRequest($contentType, $accept, array $input)
     {
+        $psr7Accept = empty($accept) === true ? [] : [$accept];
+        $psr7ContentType = empty($contentType) === true ? [] : [$contentType];
+
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockRequest->shouldReceive('getHeader')->with('Content-Type')->once()->andReturn($contentType);
+        $this->mockRequest->shouldReceive('getHeader')->with('Content-Type')->once()->andReturn($psr7ContentType);
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockRequest->shouldReceive('getHeader')->with('Accept')->once()->andReturn($accept);
+        $this->mockRequest->shouldReceive('getHeader')->with('Accept')->once()->andReturn($psr7Accept);
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockRequest->shouldReceive('getQueryParams')->withNoArgs()->once()->andReturn($input);
 
