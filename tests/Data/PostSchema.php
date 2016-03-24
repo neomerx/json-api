@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+
 /**
  * @package Neomerx\Tests\JsonApi
  */
@@ -50,14 +52,25 @@ class PostSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($post, array $includeRelationships = [])
+    public function getRelationships($post, $isPrimary, array $includeRelationships)
     {
         assert('$post instanceof '.Post::class);
 
-        $links = [
-            Post::LINK_AUTHOR   => [self::DATA => $post->{Post::LINK_AUTHOR}],
-            Post::LINK_COMMENTS => [self::DATA => $post->{Post::LINK_COMMENTS}],
-        ];
+        if (($isPrimary && $this->isIsLinksInPrimary()) || (!$isPrimary && $this->isIsLinksInIncluded())) {
+            $authorSelfLink   = $this->getRelationshipSelfLink($post, Post::LINK_AUTHOR);
+            $commentsSelfLink = $this->getRelationshipSelfLink($post, Post::LINK_COMMENTS);
+            $links    = [
+                Post::LINK_AUTHOR   =>
+                    [self::LINKS => [LinkInterface::SELF => $authorSelfLink], self::SHOW_DATA => false],
+                Post::LINK_COMMENTS =>
+                    [self::LINKS => [LinkInterface::SELF => $commentsSelfLink], self::SHOW_DATA => false],
+            ];
+        } else {
+            $links = [
+                Post::LINK_AUTHOR   => [self::DATA => $post->{Post::LINK_AUTHOR}],
+                Post::LINK_COMMENTS => [self::DATA => $post->{Post::LINK_COMMENTS}],
+            ];
+        }
 
         // NOTE: The line(s) below for testing purposes only. Not for production.
         $this->fixLinks($post, $links);

@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+
 /**
  * @package Neomerx\Tests\JsonApi
  */
@@ -48,18 +50,25 @@ class AuthorSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($author, array $includeRelationships = [])
+    public function getRelationships($author, $isPrimary, array $includeRelationships)
     {
         assert('$author instanceof '.Author::class);
 
-        $links = [
-            Author::LINK_COMMENTS => [
-                // closures for data are supported as well
-                self::DATA => function () use ($author) {
-                    return isset($author->{Author::LINK_COMMENTS}) ? $author->{Author::LINK_COMMENTS} : null;
-                },
-            ],
-        ];
+        if (($isPrimary && $this->isIsLinksInPrimary()) || (!$isPrimary && $this->isIsLinksInIncluded())) {
+            $selfLink = $this->getRelationshipSelfLink($author, Author::LINK_COMMENTS);
+            $links    = [
+                Author::LINK_COMMENTS => [self::LINKS => [LinkInterface::SELF => $selfLink], self::SHOW_DATA => false],
+            ];
+        } else {
+            $links = [
+                Author::LINK_COMMENTS => [
+                    // closures for data are supported as well
+                    self::DATA => function () use ($author) {
+                        return isset($author->{Author::LINK_COMMENTS}) ? $author->{Author::LINK_COMMENTS} : null;
+                    },
+                ],
+            ];
+        }
 
         // NOTE: The line(s) below for testing purposes only. Not for production.
         $this->fixLinks($author, $links);

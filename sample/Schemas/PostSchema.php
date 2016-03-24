@@ -40,7 +40,7 @@ class PostSchema extends SchemaProvider
         ];
     }
 
-    public function getRelationships($post, array $includeList = [])
+    public function getRelationships($post, $isPrimary, array $includeList)
     {
         /** @var Post $post */
         return [

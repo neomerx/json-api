@@ -800,4 +800,131 @@ EOL;
 
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * Test encode relationships as links. Encoder do not follow include paths when links instead of data.
+     *
+     * @see https://github.com/neomerx/json-api/issues/121
+     */
+    public function testEncodeRelationshipsAsLinksDoNotFollowLinksWhenIncludePathSet()
+    {
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->setIsLinksInPrimary(true);
+                $schema->setIncludePaths([Post::LINK_AUTHOR, Post::LINK_COMMENTS]);
+                return $schema;
+            },
+        ], $this->encoderOptions)->encodeData($this->post);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "posts",
+                "id"   : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
+                "relationships" : {
+                    "author" : {
+                        "links" : {
+                            "self" : "http://example.com/posts/1/relationships/author"
+                        }
+                    },
+                    "comments" : {
+                        "links" : {
+                            "self" : "http://example.com/posts/1/relationships/comments"
+                        }
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/posts/1"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode relationships as links.
+     *
+     * @see https://github.com/neomerx/json-api/issues/121
+     */
+    public function testEncodeRelationshipsAsLinks()
+    {
+        $this->author->{Author::LINK_COMMENTS} = $this->comments;
+
+        $actual = Encoder::instance([
+            Author::class  => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->setIsLinksInIncluded(true);
+                return $schema;
+            },
+            Comment::class => function ($factory, $container) {
+                $schema = new CommentSchema($factory, $container);
+                $schema->linkRemove(Comment::LINK_AUTHOR);
+                return $schema;
+            },
+            Post::class    => function ($factory, $container) {
+                $schema = new PostSchema($factory, $container);
+                $schema->setIncludePaths([Post::LINK_AUTHOR]);
+                return $schema;
+            },
+        ], $this->encoderOptions)->encodeData($this->post);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "posts",
+                "id"   : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
+                "relationships" : {
+                    "author" : {
+                        "data" : { "type" : "people", "id" : "9" }
+                    },
+                    "comments" : {
+                        "data" : [
+                            { "type" : "comments", "id" : "5" },
+                            { "type" : "comments", "id" : "12" }
+                        ]
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/posts/1"
+                }
+            },
+            "included": [
+                {
+                    "type" : "people",
+                    "id"   : "9",
+                    "attributes" : {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
+                    "relationships" : {
+                        "comments"  : {
+                            "links" : {
+                                "self" : "http://example.com/people/9/relationships/comments"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
 }

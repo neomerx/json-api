@@ -199,14 +199,14 @@ abstract class SchemaProvider implements SchemaProviderInterface
      * Get resource links.
      *
      * @param object $resource
+     * @param bool   $isPrimary
      * @param array  $includeRelationships A list of relationships that will be included as full resources.
      *
      * @return array
      */
-    public function getRelationships($resource, array $includeRelationships = [])
+    public function getRelationships($resource, $isPrimary, array $includeRelationships)
     {
-        $resource ?: null;
-        $includeRelationships ?: null;
+        $resource && $isPrimary && $includeRelationships ?: null;
 
         return [];
     }
@@ -222,9 +222,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getRelationshipObjectIterator($resource, array $includeRelationships)
+    public function getRelationshipObjectIterator($resource, $isPrimary, array $includeRelationships)
     {
-        foreach ($this->getRelationships($resource, $includeRelationships) as $name => $desc) {
+        foreach ($this->getRelationships($resource, $isPrimary, $includeRelationships) as $name => $desc) {
             yield $this->createRelationshipObject($resource, $name, $desc);
         }
     }
@@ -265,8 +265,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     protected function getRelationshipSelfUrl($resource, $name)
     {
-        $url = $this->getSelfSubUrl($resource) . '/' .
-            DocumentInterface::KEYWORD_RELATIONSHIPS . '/' . $name;
+        $url = $this->getSelfSubUrl($resource) . '/' . DocumentInterface::KEYWORD_RELATIONSHIPS . '/' . $name;
 
         return $url;
     }

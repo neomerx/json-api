@@ -68,7 +68,7 @@ class ResourceIdentifierSchemaAdapterTest extends BaseTestCase
         $this->assertFalse($adapter->isShowAttributesInIncluded());
         $this->assertFalse($adapter->isShowRelationshipsInIncluded());
         $this->assertNull($adapter->getInclusionMeta($resource));
-        $this->assertNotNull($adapter->getRelationshipObjectIterator($resource));
+        $this->assertNotNull($adapter->getRelationshipObjectIterator($resource, true, []));
         $this->assertNull($adapter->getRelationshipsPrimaryMeta($resource));
         $this->assertNull($adapter->getRelationshipsInclusionMeta($resource));
         $this->assertNotNull($adapter->getRelationshipSelfLink($resource, 'relationship'));

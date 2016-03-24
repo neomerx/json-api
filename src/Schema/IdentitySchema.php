@@ -75,7 +75,7 @@ class IdentitySchema extends SchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($resource, array $includeRelationships = [])
+    public function getRelationships($resource, $isPrimary, array $includeRelationships)
     {
         // this method should not be called
         throw new LogicException();

@@ -28,7 +28,7 @@ class CommentSchema extends ParentSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($comment, array $includeRelationships = [])
+    public function getRelationships($comment, $isPrimary, array $includeRelationships)
     {
         assert('$comment instanceof '.Comment::class);
 

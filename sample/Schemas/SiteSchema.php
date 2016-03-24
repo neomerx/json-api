@@ -45,7 +45,7 @@ class SiteSchema extends SchemaProvider
         ];
     }
 
-    public function getRelationships($site, array $includeList = [])
+    public function getRelationships($site, $isPrimary, array $includeList)
     {
         /** @var Site $site */
 

@@ -71,6 +71,6 @@ class IdentitySchemaTest extends BaseTestCase
      */
     public function testGetRelationships()
     {
-        $this->schema->getRelationships((object)[]);
+        $this->schema->getRelationships((object)[], true, []);
     }
 }

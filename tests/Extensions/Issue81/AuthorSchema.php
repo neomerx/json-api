@@ -48,7 +48,7 @@ class AuthorSchema extends ParentSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($author, array $includeRelationships = [])
+    public function getRelationships($author, $isPrimary, array $includeRelationships)
     {
         throw new LogicException('Should not be used');
     }

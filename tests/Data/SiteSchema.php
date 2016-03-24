@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 
@@ -67,12 +68,24 @@ class SiteSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($site, array $includeRelationships = [])
+    public function getRelationships($site, $isPrimary, array $includeRelationships)
     {
         assert('$site instanceof '.Site::class);
 
-        return [
-            Site::LINK_POSTS => [self::DATA => $site->{Site::LINK_POSTS}],
-        ];
+        if (($isPrimary && $this->isIsLinksInPrimary()) || (!$isPrimary && $this->isIsLinksInIncluded())) {
+            $selfLink = $this->getRelationshipSelfLink($site, Site::LINK_POSTS);
+            $links    = [
+                Site::LINK_POSTS => [self::LINKS => [LinkInterface::SELF => $selfLink], self::SHOW_DATA => false],
+            ];
+        } else {
+            $links = [
+                Site::LINK_POSTS => [self::DATA => $site->{Site::LINK_POSTS}],
+            ];
+        }
+
+        // NOTE: The line(s) below for testing purposes only. Not for production.
+        $this->fixLinks($site, $links);
+
+        return $links;
     }
 }

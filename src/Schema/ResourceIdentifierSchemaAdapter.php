@@ -97,7 +97,7 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getRelationshipObjectIterator($resource, array $includeRelationships = [])
+    public function getRelationshipObjectIterator($resource, $isPrimary, array $includeRelationships)
     {
         return new EmptyIterator();
     }

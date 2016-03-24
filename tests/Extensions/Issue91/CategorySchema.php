@@ -51,7 +51,7 @@ class CategorySchema extends SchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($resource, array $includeRelationships = [])
+    public function getRelationships($resource, $isPrimary, array $includeRelationships)
     {
         /** @var Category $resource */
         return [

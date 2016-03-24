@@ -150,8 +150,8 @@ class Parser implements ParserInterface, LoggerAwareInterface
         } else {
             $curFrame = $this->stack->end();
 
-            // duplicated are allowed in data however they shouldn't be in includes
-            $isDupAllowed = $curFrame->getLevel() < 2;
+            // if resource(s) is in primary data section (not in included)
+            $isPrimary = $curFrame->getLevel() < 2;
 
             foreach ($traversableData as $resource) {
                 $schema         = $this->getSchema($resource, $curFrame);
@@ -162,13 +162,15 @@ class Parser implements ParserInterface, LoggerAwareInterface
                 $this->stack->setCurrentResource($resourceObject);
                 yield $this->createReplyResourceStarted();
 
-                if ($isCircular === true && $isDupAllowed === false) {
+                // duplicated are allowed in data however they shouldn't be in includes
+                if ($isCircular === true && $isPrimary === false) {
                     continue;
                 }
 
                 if ($this->shouldParseRelationships() === true) {
-                    $relationships = $this->getIncludeRelationships();
-                    foreach ($schema->getRelationshipObjectIterator($resource, $relationships) as $relationship) {
+                    $relationships     = $this->getIncludeRelationships();
+                    $relObjectIterator = $schema->getRelationshipObjectIterator($resource, $isPrimary, $relationships);
+                    foreach ($relObjectIterator as $relationship) {
                         /** @var RelationshipObjectInterface $relationship */
                         $nextFrame = $this->stack->push();
                         $nextFrame->setRelationship($relationship);

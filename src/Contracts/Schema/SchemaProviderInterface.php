@@ -105,11 +105,12 @@ interface SchemaProviderInterface
      * Get resource's relationship objects.
      *
      * @param object $resource
+     * @param bool   $isPrimary
      * @param array  $includeRelationships
      *
      * @return Iterator RelationshipObjectInterface[]
      */
-    public function getRelationshipObjectIterator($resource, array $includeRelationships);
+    public function getRelationshipObjectIterator($resource, $isPrimary, array $includeRelationships);
 
     /**
      * Get links related to resource.

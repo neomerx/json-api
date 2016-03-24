@@ -49,7 +49,7 @@ class CommentSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($comment, array $includeRelationships = [])
+    public function getRelationships($comment, $isPrimary, array $includeRelationships)
     {
         assert('$comment instanceof '.Comment::class);
 
@@ -66,9 +66,16 @@ class CommentSchema extends DevSchemaProvider
             $data = $authorIdentity;
         }
 
-        $links = [
-            Comment::LINK_AUTHOR => [self::DATA => $data],
-        ];
+        if (($isPrimary && $this->isIsLinksInPrimary()) || (!$isPrimary && $this->isIsLinksInIncluded())) {
+            $selfLink = $this->getRelationshipSelfLink($comment, Comment::LINK_AUTHOR);
+            $links    = [
+                Comment::LINK_AUTHOR => [self::LINKS => [LinkInterface::SELF => $selfLink], self::SHOW_DATA => false],
+            ];
+        } else {
+            $links = [
+                Comment::LINK_AUTHOR => [self::DATA => $data],
+            ];
+        }
 
         // NOTE: The line(s) below for testing purposes only. Not for production.
         $this->fixLinks($comment, $links);

@@ -57,6 +57,20 @@ abstract class DevSchemaProvider extends SchemaProvider
     private $resourceLinksClosure = null;
 
     /**
+     * Return links in relationships instead of data when resource is primary.
+     *
+     * @var bool
+     */
+    private $isLinksInPrimary = false;
+
+    /**
+     * Return links in relationships instead of data when resource is included.
+     *
+     * @var bool
+     */
+    private $isLinksInIncluded = false;
+
+    /**
      * @inheritdoc
      */
     public function getRelationshipsPrimaryMeta($resource)
@@ -160,6 +174,38 @@ abstract class DevSchemaProvider extends SchemaProvider
     public function setIncludePaths($includePaths)
     {
         $this->includePaths = $includePaths;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isIsLinksInPrimary()
+    {
+        return $this->isLinksInPrimary;
+    }
+
+    /**
+     * @param boolean $isLinksInPrimary
+     */
+    public function setIsLinksInPrimary($isLinksInPrimary)
+    {
+        $this->isLinksInPrimary = $isLinksInPrimary;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isIsLinksInIncluded()
+    {
+        return $this->isLinksInIncluded;
+    }
+
+    /**
+     * @param boolean $isLinksInIncluded
+     */
+    public function setIsLinksInIncluded($isLinksInIncluded)
+    {
+        $this->isLinksInIncluded = $isLinksInIncluded;
     }
 
     /**
