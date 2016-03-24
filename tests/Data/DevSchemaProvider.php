@@ -165,12 +165,21 @@ abstract class DevSchemaProvider extends SchemaProvider
     /**
      * Add/remove values in input array.
      *
+     * @param object $resource
+     *
      * @param array $links
      */
-    protected function fixLinks(array &$links)
+    protected function fixLinks($resource, array &$links)
     {
         foreach ($this->linkAddTo as list($name, $key, $value)) {
-            $links[$name][$key] = $value;
+            if ($key === self::LINKS) {
+                foreach ($value as $linkKey => $linkOrClosure) {
+                    $link = $linkOrClosure instanceof Closure ? $linkOrClosure($this, $resource) : $linkOrClosure;
+                    $links[$name][$key][$linkKey] = $link;
+                }
+            } else {
+                $links[$name][$key] = $value;
+            }
         }
 
         foreach ($this->linkRemoveFrom as list($name, $key)) {

@@ -127,14 +127,12 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     public function withRelationshipSelfLink($resource, $relationshipName, $meta = null, $treatAsHref = false)
     {
-        return $this->getRelationshipLink(
-            $resource,
-            DocumentInterface::KEYWORD_SELF,
-            '/' . DocumentInterface::KEYWORD_RELATIONSHIPS,
-            $relationshipName,
-            $meta,
-            $treatAsHref
-        );
+        $link = $this->container->getSchema($resource)
+            ->getRelationshipSelfLink($resource, $relationshipName, $meta, $treatAsHref);
+
+        return $this->withLinks([
+            DocumentInterface::KEYWORD_SELF => $link,
+        ]);
     }
 
     /**
@@ -142,14 +140,12 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     public function withRelationshipRelatedLink($resource, $relationshipName, $meta = null, $treatAsHref = false)
     {
-        return $this->getRelationshipLink(
-            $resource,
-            DocumentInterface::KEYWORD_RELATED,
-            '',
-            $relationshipName,
-            $meta,
-            $treatAsHref
-        );
+        $link = $this->container->getSchema($resource)
+            ->getRelationshipRelatedLink($resource, $relationshipName, $meta, $treatAsHref);
+
+        return $this->withLinks([
+            DocumentInterface::KEYWORD_RELATED => $link,
+        ]);
     }
 
     /**
@@ -339,27 +335,5 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     {
         $this->encoderOptions !== null && $this->encoderOptions->getUrlPrefix() !== null ?
             $docWriter->setUrlPrefix($this->encoderOptions->getUrlPrefix()) : null;
-    }
-
-    /**
-     * @param object     $resource
-     * @param string     $key
-     * @param string     $prefix
-     * @param string     $name
-     * @param null|mixed $meta
-     * @param bool       $treatAsHref
-     *
-     * @return EncoderInterface
-     */
-    private function getRelationshipLink($resource, $key, $prefix, $name, $meta = null, $treatAsHref = false)
-    {
-        $parentSubLink = $this->container->getSchema($resource)->getSelfSubLink($resource);
-
-        $selfHref = $parentSubLink->getSubHref() . $prefix .'/'. $name;
-        $links    = [
-            $key => $this->factory->createLink($selfHref, $meta, $treatAsHref),
-        ];
-
-        return $this->withLinks($links);
     }
 }

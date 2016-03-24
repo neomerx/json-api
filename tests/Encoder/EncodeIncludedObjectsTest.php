@@ -432,7 +432,11 @@ EOL;
                 $schema->linkAddTo(
                     Post::LINK_COMMENTS,
                     PostSchema::LINKS,
-                    [Link::FIRST => new Link('comments/first')]
+                    [
+                        Link::FIRST => function (PostSchema $schema, Post $post) {
+                            return new Link($schema->getSelfSubUrl($post) . '/comments/first');
+                        }
+                    ]
                 );
                 return $schema;
             },

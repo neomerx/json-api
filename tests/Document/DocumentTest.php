@@ -272,8 +272,8 @@ EOL;
                         "data" : { "type" : "comments", "id" : "321", "meta" : { "some" : "comment meta" } },
                         "meta" : { "some" : "relationship meta" },
                         "links"   : {
-                            "self"    : "peopleSelfUrl/selfSubUrl",
-                            "related" : "peopleSelfUrl/relatedSubUrl",
+                            "self"    : "selfSubUrl",
+                            "related" : "relatedSubUrl",
                             "first"   : "/first"
                         }
                     }
@@ -693,8 +693,8 @@ EOL;
                         "data" : { "type" : "comments", "id" : "321", "meta" : {"some" : "comment meta"} },
                         "meta" : { "some" : "relationship meta" },
                         "links"   : {
-                            "self"    : "peopleSelfUrl/selfSubUrl",
-                            "related" : "peopleSelfUrl/relatedSubUrl"
+                            "self"    : "selfSubUrl",
+                            "related" : "relatedSubUrl"
                         }
                     }
                 },

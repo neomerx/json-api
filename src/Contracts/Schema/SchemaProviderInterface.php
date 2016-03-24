@@ -33,9 +33,11 @@ interface SchemaProviderInterface
     /**
      * Get resource sub URL.
      *
+     * @param object|null $resource
+     *
      * @return string
      */
-    public function getSelfSubUrl();
+    public function getSelfSubUrl($resource = null);
 
     /**
      * Get resource identity.
@@ -47,13 +49,37 @@ interface SchemaProviderInterface
     public function getId($resource);
 
     /**
-     * Get resource URL.
+     * Get resource URL link.
      *
      * @param object $resource
      *
      * @return LinkInterface
      */
     public function getSelfSubLink($resource);
+
+    /**
+     * Get 'self' URL link to resource relationship.
+     *
+     * @param object     $resource
+     * @param string     $name
+     * @param null|mixed $meta
+     * @param bool       $treatAsHref
+     *
+     * @return LinkInterface
+     */
+    public function getRelationshipSelfLink($resource, $name, $meta = null, $treatAsHref = false);
+
+    /**
+     * Get 'related' URL link to resource relationship.
+     *
+     * @param object     $resource
+     * @param string     $name
+     * @param null|mixed $meta
+     * @param bool       $treatAsHref
+     *
+     * @return LinkInterface
+     */
+    public function getRelationshipRelatedLink($resource, $name, $meta = null, $treatAsHref = false);
 
     /**
      * Get resource attributes.

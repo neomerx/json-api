@@ -45,6 +45,12 @@ class ResourceIdentifierSchemaAdapterTest extends BaseTestCase
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getPrimaryMeta')->once()->withAnyArgs()->andReturn(['some' => 'meta']);
 
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $schema->shouldReceive('getRelationshipSelfLink')->once()->withAnyArgs()->andReturn('whatever');
+
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $schema->shouldReceive('getRelationshipRelatedLink')->once()->withAnyArgs()->andReturn('whatever');
+
         /** @var FactoryInterface $factory */
         /** @var ContainerInterface $container */
         /** @var SchemaProviderInterface $schema */
@@ -65,6 +71,8 @@ class ResourceIdentifierSchemaAdapterTest extends BaseTestCase
         $this->assertNotNull($adapter->getRelationshipObjectIterator($resource));
         $this->assertNull($adapter->getRelationshipsPrimaryMeta($resource));
         $this->assertNull($adapter->getRelationshipsInclusionMeta($resource));
+        $this->assertNotNull($adapter->getRelationshipSelfLink($resource, 'relationship'));
+        $this->assertNotNull($adapter->getRelationshipRelatedLink($resource, 'relationship'));
         $adapter->getLinkageMeta($resource);
     }
 }

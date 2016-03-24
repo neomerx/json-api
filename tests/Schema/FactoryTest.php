@@ -60,6 +60,9 @@ class FactoryTest extends BaseTestCase
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $schema->shouldReceive('getResourceType')->once()->andReturn('some-type');
 
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $schema->shouldReceive('getSelfSubLink')->once()->andReturn('whatever');
+
         /** @var SchemaProviderInterface $schema */
 
         $this->assertNotNull($resource = $this->factory->createResourceObject(
@@ -71,6 +74,7 @@ class FactoryTest extends BaseTestCase
 
         $this->assertEquals($isInArray, $resource->isInArray());
         $this->assertSame('some-type', $resource->getType());
+        $this->assertEquals('whatever', $resource->getSelfSubLink());
     }
 
     /**

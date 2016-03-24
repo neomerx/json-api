@@ -47,7 +47,7 @@ class CommentSchema extends ParentSchema
         ];
 
         // NOTE: The line(s) below for testing purposes only. Not for production.
-        $this->fixLinks($links);
+        $this->fixLinks($comment, $links);
 
         return $links;
     }

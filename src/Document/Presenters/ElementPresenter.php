@@ -266,12 +266,7 @@ class ElementPresenter
             $representation[Document::KEYWORD_META] = $meta;
         }
 
-        $baseUrl = null;
-        if (($selfSubLink = $parent->getSelfSubLink()) !== null) {
-            $baseUrl = $selfSubLink->isTreatAsHref() === true ? $selfSubLink->getSubHref() . '/' :
-                $this->document->getUrlPrefix() . $selfSubLink->getSubHref() . '/';
-        }
-
+        $baseUrl = $this->document->getUrlPrefix();
         foreach ($relation->getLinks() as $name => $link) {
             $representation[Document::KEYWORD_LINKS][$name] = $this->getLinkRepresentation($baseUrl, $link);
         }

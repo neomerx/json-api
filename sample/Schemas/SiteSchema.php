@@ -50,7 +50,7 @@ class SiteSchema extends SchemaProvider
         /** @var Site $site */
 
         $links = static::$isShowCustomLinks === false ? [] : [
-            'some-sublink'  => new Link('resource-sublink'),
+            'some-sublink'  => new Link($this->getSelfSubUrl($site) . '/resource-sublink'),
             'external-link' => new Link('www.example.com', null, true),
         ];
 

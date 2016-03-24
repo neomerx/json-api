@@ -392,7 +392,14 @@ EOL;
                 $schema->linkAddTo(
                     Author::LINK_COMMENTS,
                     AuthorSchema::LINKS,
-                    [LinkInterface::SELF => new Link('relationships/comments', ['some' => 'meta'])]
+                    [
+                        LinkInterface::SELF => function (AuthorSchema $schema, Author $author) {
+                            return new Link(
+                                $schema->getSelfSubUrl($author) . '/relationships/comments',
+                                ['some' => 'meta']
+                            );
+                        }
+                    ]
                 );
                 return $schema;
             },
@@ -500,7 +507,11 @@ EOL;
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::LINKS, ['foo' => new Link('/your/link', null, true)]);
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, []);
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_DATA, false);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::LINKS, ['boo' => new Link('another/link')]);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::LINKS, [
+                    'boo' => function (PostSchema $schema, Post $post) {
+                        return new Link($schema->getSelfSubUrl($post) . '/another/link');
+                    }
+                ]);
                 return $schema;
             },
         ], $this->encoderOptions)->encodeData($this->getStandardPost());
@@ -554,7 +565,11 @@ EOL;
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::LINKS, ['foo' => new Link('/your/link', null, true)]);
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, $throwExClosure);
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_DATA, false);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::LINKS, ['boo' => new Link('another/link')]);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::LINKS, [
+                    'boo' => function (PostSchema $schema, Post $post) {
+                        return new Link($schema->getSelfSubUrl($post) . '/another/link');
+                    }
+                ]);
                 return $schema;
             },
         ], $this->encoderOptions)->encodeData($this->getStandardPost());

@@ -60,7 +60,7 @@ class PostSchema extends DevSchemaProvider
         ];
 
         // NOTE: The line(s) below for testing purposes only. Not for production.
-        $this->fixLinks($links);
+        $this->fixLinks($post, $links);
 
         return $links;
     }

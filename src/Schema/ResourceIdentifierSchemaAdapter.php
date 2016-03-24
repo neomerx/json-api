@@ -56,9 +56,9 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getSelfSubUrl()
+    public function getSelfSubUrl($resource = null)
     {
-        return $this->schema->getSelfSubUrl();
+        return $this->schema->getSelfSubUrl($resource);
     }
 
     /**
@@ -180,5 +180,21 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     public function getLinkageMeta($resource)
     {
         return $this->schema->getLinkageMeta($resource);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipSelfLink($resource, $name, $meta = null, $treatAsHref = false)
+    {
+        return $this->schema->getRelationshipSelfLink($resource, $name, $meta, $treatAsHref);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipRelatedLink($resource, $name, $meta = null, $treatAsHref = false)
+    {
+        return $this->schema->getRelationshipRelatedLink($resource, $name, $meta, $treatAsHref);
     }
 }
