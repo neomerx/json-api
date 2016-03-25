@@ -21,7 +21,7 @@
 # Performance test
 # $ cd /app/sample/ && time php sample.php -t=10000
 
-fpm:
+cli:
   image: php:cli
   container_name: cli_json_api
   volumes:
