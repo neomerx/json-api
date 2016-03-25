@@ -26,10 +26,10 @@
     "psr/log": "^1.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "~4.6 || ^5.0",
+    "phpunit/phpunit": "^4.6 || ^5.0",
     "mockery/mockery": "~0.9.4",
-    "scrutinizer/ocular": "~1.1",
-    "squizlabs/php_codesniffer": "2.*",
+    "scrutinizer/ocular": "^1.3",
+    "squizlabs/php_codesniffer": "^2.5",
     "monolog/monolog": "^1.18"
   },
   "minimum-stability": "stable",
@@ -45,7 +45,7 @@
     }
   },
   "scripts": {
-    "test": "composer ptest && composer phpcs",
+    "test": ["@ptest", "@phpcs"],
     "ptest": "php ./vendor/phpunit/phpunit/phpunit",
     "htest": "hhvm ./vendor/phpunit/phpunit/phpunit",
     "phpcs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests"
