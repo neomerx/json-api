@@ -64,4 +64,17 @@ class SchemaProviderTest extends BaseTestCase
 
         new EmptySchema($this->factory, $this->factory->createContainer([]));
     }
+
+    /**
+     * Test schema provider.
+     */
+    public function testNoTrailingSlashInGetSelfSubUrl()
+    {
+        EmptySchema::$type   = 'some-type';
+        EmptySchema::$subUrl = null;
+
+        $schema = new EmptySchema($this->factory, $this->factory->createContainer([]));
+
+        $this->assertEquals('/some-type', $schema->getSelfSubUrl());
+    }
 }

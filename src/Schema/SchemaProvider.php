@@ -54,7 +54,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
     protected $resourceType;
 
     /**
-     * @var string Must end with '/'
+     * @var string Must start with '/' e.g. '/sub-url'
      */
     protected $selfSubUrl;
 
@@ -85,13 +85,13 @@ abstract class SchemaProvider implements SchemaProviderInterface
         }
 
         if ($this->selfSubUrl === null) {
-            $this->selfSubUrl = '/' . $this->resourceType . '/';
+            $this->selfSubUrl = '/' . $this->resourceType;
         } else {
             $isOk =
                 is_string($this->selfSubUrl) === true &&
                 empty($this->selfSubUrl) === false &&
                 $this->selfSubUrl[0] === '/' &&
-                $this->selfSubUrl[strlen($this->selfSubUrl) - 1] == '/';
+                $this->selfSubUrl[strlen($this->selfSubUrl) - 1] != '/';
 
             if ($isOk === false) {
                 $message = T::t('\'Self\' sub-url set incorrectly for Schema \'%s\'.', [static::class]);
@@ -116,7 +116,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function getSelfSubUrl($resource = null)
     {
-        return $resource === null ? $this->selfSubUrl : $this->selfSubUrl . $this->getId($resource);
+        return $resource === null ? $this->selfSubUrl : $this->selfSubUrl . '/' . $this->getId($resource);
     }
 
     /**

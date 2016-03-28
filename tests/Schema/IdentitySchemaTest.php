@@ -49,7 +49,7 @@ class IdentitySchemaTest extends BaseTestCase
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $container->shouldReceive('getResourceType')->once()->withAnyArgs()->andReturn('fake-type');
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $container->shouldReceive('getSelfSubUrl')->once()->withAnyArgs()->andReturn('/fake-sub-url/');
+        $container->shouldReceive('getSelfSubUrl')->once()->withAnyArgs()->andReturn('/fake-sub-url');
 
         /** @var ContainerInterface $container */
 
