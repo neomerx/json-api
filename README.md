@@ -35,12 +35,12 @@ High code quality and **100% test coverage** with **200+ tests**. Production rea
 
 This package is framework agnostic and if you are looking for practical usage sample you might be interested in
 - Quick start JSON API application [Limoncello Collins](https://github.com/neomerx/limoncello-collins) or [Limoncello Shot](https://github.com/neomerx/limoncello-shot).
-- A single-page JavaScript Application [Limoncello Ember](https://github.com/neomerx/limoncello-ember) that works with those API Servers.
 
-The server and client support
+The servers support
 - CRUD operations for a few sample data models and Users.
 - Cross-origin requests (CORS) to API server.
-- Server login (Basic Auth) and API authentication (JWT Bearer).
+- Authentication (Bearer token) and authorizations for CRUD operations.
+- Support for such JSON API features as resource inclusion, pagination and etc.
 
 ## Sample usage
 
