@@ -24,7 +24,7 @@ use \Neomerx\Tests\JsonApi\Data\Comment;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
-use \Neomerx\JsonApi\Http\Parameters\EncodingParameters;
+use \Neomerx\JsonApi\Encoder\EncodingParameters;
 
 /**
  * @package Neomerx\Tests\JsonApi

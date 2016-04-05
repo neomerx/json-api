@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Schema\Link;
+use \Neomerx\JsonApi\Document\Link;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\BaseTestCase;

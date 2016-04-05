@@ -17,7 +17,7 @@
  */
 
 use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Http\Parameters\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi

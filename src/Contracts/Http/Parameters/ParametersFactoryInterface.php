@@ -21,6 +21,7 @@ use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 

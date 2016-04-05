@@ -18,7 +18,7 @@
 
 use \Closure;
 use \Psr\Log\LoggerInterface;
-use \Neomerx\JsonApi\Schema\Link;
+use \Neomerx\JsonApi\Document\Link;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\JsonApi\Schema\Container;
@@ -33,16 +33,16 @@ use \Neomerx\JsonApi\Http\Headers\MediaType;
 use \Neomerx\JsonApi\Encoder\Stack\StackFrame;
 use \Neomerx\JsonApi\Http\Headers\AcceptHeader;
 use \Neomerx\JsonApi\Schema\RelationshipObject;
+use \Neomerx\JsonApi\Encoder\EncodingParameters;
 use \Neomerx\JsonApi\Encoder\Parser\ParserReply;
 use \Neomerx\JsonApi\Http\Parameters\Parameters;
 use \Neomerx\JsonApi\Encoder\Parser\ParserManager;
 use \Neomerx\JsonApi\Http\Headers\AcceptMediaType;
 use \Neomerx\JsonApi\Http\Parameters\SortParameter;
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use \Neomerx\JsonApi\Encoder\Parser\ParserEmptyReply;
+use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 use \Neomerx\JsonApi\Http\Parameters\ParametersParser;
 use \Neomerx\JsonApi\Encoder\Handlers\ReplyInterpreter;
-use \Neomerx\JsonApi\Http\Parameters\EncodingParameters;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Http\Parameters\SupportedExtensions;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
@@ -58,10 +58,10 @@ use \Neomerx\JsonApi\Http\Parameters\RestrictiveHeadersChecker;
 use \Neomerx\JsonApi\Schema\ResourceIdentifierContainerAdapter;
 use \Neomerx\JsonApi\Http\Parameters\RestrictiveParametersChecker;
 use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**

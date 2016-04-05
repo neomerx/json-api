@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Schema\Link;
+use \Neomerx\JsonApi\Document\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Post;
 use \Neomerx\Tests\JsonApi\Data\Site;
@@ -28,7 +28,7 @@ use \Neomerx\Tests\JsonApi\Data\SiteSchema;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
-use \Neomerx\JsonApi\Http\Parameters\EncodingParameters;
+use \Neomerx\JsonApi\Encoder\EncodingParameters;
 
 /**
  * @package Neomerx\Tests\JsonApi

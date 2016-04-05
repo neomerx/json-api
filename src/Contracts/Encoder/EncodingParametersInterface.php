@@ -1,6 +1,6 @@
-<?php namespace Neomerx\JsonApi\Contracts\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Contracts\Encoder;
 
-/**
+    /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

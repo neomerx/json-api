@@ -22,7 +22,7 @@ use \ArrayObject;
 use \Serializable;
 use \IteratorAggregate;
 use \Neomerx\JsonApi\Document\Error;
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 
 /**

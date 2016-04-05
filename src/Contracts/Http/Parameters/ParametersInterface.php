@@ -18,6 +18,7 @@
 
 use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi

@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Encoder\EncodingParameters;
 use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
 use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersInterface;

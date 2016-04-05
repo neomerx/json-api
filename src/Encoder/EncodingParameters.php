@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Encoder;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -17,7 +17,7 @@
  */
 
 use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi

@@ -29,7 +29,7 @@ use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Http\Parameters\SupportedExtensions;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Http\Parameters\SupportedExtensionsInterface;
 
 /**

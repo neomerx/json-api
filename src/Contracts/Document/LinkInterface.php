@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Schema;
+<?php namespace Neomerx\JsonApi\Contracts\Document;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -15,8 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 
 /**
  * @package Neomerx\JsonApi

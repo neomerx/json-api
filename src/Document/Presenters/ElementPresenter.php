@@ -20,7 +20,7 @@ use \InvalidArgumentException;
 use \Neomerx\JsonApi\Document\Document;
 use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\I18n\Translator as T;
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 

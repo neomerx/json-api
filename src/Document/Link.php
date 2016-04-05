@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Schema;
+<?php namespace Neomerx\JsonApi\Document;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -17,7 +17,7 @@
  */
 
 use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 
 /**
  * @package Neomerx\JsonApi

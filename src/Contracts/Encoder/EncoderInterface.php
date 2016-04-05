@@ -19,7 +19,6 @@
 use \Iterator;
 use \Neomerx\JsonApi\Exceptions\ErrorCollection;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi

@@ -17,18 +17,18 @@
  */
 
 use \Closure;
-use \Neomerx\JsonApi\Schema\Link;
+use \Neomerx\JsonApi\Document\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Samples\JsonApi\Models\Post;
 use \Neomerx\Samples\JsonApi\Models\Site;
 use \Neomerx\Samples\JsonApi\Models\Author;
 use \Neomerx\Samples\JsonApi\Models\Comment;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
+use \Neomerx\JsonApi\Encoder\EncodingParameters;
 use \Neomerx\Samples\JsonApi\Schemas\PostSchema;
 use \Neomerx\Samples\JsonApi\Schemas\SiteSchema;
 use \Neomerx\Samples\JsonApi\Schemas\AuthorSchema;
 use \Neomerx\Samples\JsonApi\Schemas\CommentSchema;
-use \Neomerx\JsonApi\Http\Parameters\EncodingParameters;
 
 /**
  * @package Neomerx\Samples\JsonApi

@@ -17,6 +17,7 @@
  */
 
 use \Iterator;
+use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 
 /**
  * @package Neomerx\JsonApi

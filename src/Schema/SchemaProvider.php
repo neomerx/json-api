@@ -18,7 +18,7 @@
 
 use \InvalidArgumentException;
 use \Neomerx\JsonApi\I18n\Translator as T;
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;

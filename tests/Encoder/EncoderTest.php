@@ -18,7 +18,7 @@
 
 use \ArrayIterator;
 use \InvalidArgumentException;
-use \Neomerx\JsonApi\Schema\Link;
+use \Neomerx\JsonApi\Document\Link;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Post;
 use \Neomerx\Tests\JsonApi\Data\Author;
@@ -28,8 +28,8 @@ use \Neomerx\Tests\JsonApi\Data\PostSchema;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use \Neomerx\Tests\JsonApi\Data\CommentSchema;
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
-use \Neomerx\JsonApi\Http\Parameters\EncodingParameters;
+use \Neomerx\JsonApi\Encoder\EncodingParameters;
+use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi

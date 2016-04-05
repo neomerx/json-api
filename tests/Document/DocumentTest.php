@@ -18,10 +18,10 @@
 
 use \Mockery;
 use \stdClass;
-use \Neomerx\JsonApi\Schema\Link;
+use \Neomerx\JsonApi\Document\Link;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
