@@ -17,6 +17,7 @@
  */
 
 use \Iterator;
+use \ArrayAccess;
 use \InvalidArgumentException;
 use \Psr\Log\LoggerAwareTrait;
 use \Psr\Log\LoggerAwareInterface;
@@ -206,7 +207,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
         $isOk = (is_array($data) === true || is_object($data) === true || $data === null || $data instanceof Iterator);
         $isOk ?: Exceptions::throwInvalidArgument('data', $data);
 
-        if (is_array($data) === true) {
+        if (is_array($data) === true || $data instanceof ArrayAccess) {
             /** @var array $data */
             $isEmpty = empty($data);
             $traversableData = $data;
