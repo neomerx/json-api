@@ -21,6 +21,7 @@ use \Neomerx\Tests\JsonApi\Data\Site;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
+use \Neomerx\Tests\JsonApi\Data\Collection;
 use \Neomerx\Tests\JsonApi\Data\SiteSchema;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
@@ -596,6 +597,46 @@ EOL;
                     }
                 }
             ]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode simple object with attributes only in ArrayAccess collection.
+     */
+    public function testEncodeObjectWithAttributesOnlyInArrayAccessCollection()
+    {
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
+            Author::class => function ($factory, $container) {
+                $schema = new AuthorSchema($factory, $container);
+                $schema->linkRemove(Author::LINK_COMMENTS);
+                return $schema;
+            }
+        ], $this->encoderOptions);
+
+        $collection = new Collection();
+        $collection[] = $author;
+
+        $actual = $encoder->encodeData($collection);
+
+        $expected = <<<EOL
+        {
+            "data" : [{
+                "type"       : "people",
+                "id"         : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "links" : {
+                    "self" : "http://example.com/people/9"
+                }
+            }]
         }
 EOL;
         // remove formatting from 'expected'
