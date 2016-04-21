@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Http\Query;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -17,9 +17,9 @@
  */
 
 use \Neomerx\JsonApi\Exceptions\JsonApiException as E;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\QueryCheckerInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\SortParameterInterface;
+use \Neomerx\JsonApi\Contracts\Http\Query\QueryCheckerInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\SortParameterInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -83,7 +83,7 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     /**
      * @inheritdoc
      */
-    public function checkQuery(ParametersInterface $parameters)
+    public function checkQuery(EncodingParametersInterface $parameters)
     {
         $this->checkIncludePaths($parameters);
         $this->checkFieldSets($parameters);
@@ -94,36 +94,36 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     }
 
     /**
-     * @param ParametersInterface $parameters
+     * @param EncodingParametersInterface $parameters
      */
-    protected function checkIncludePaths(ParametersInterface $parameters)
+    protected function checkIncludePaths(EncodingParametersInterface $parameters)
     {
         $withinAllowed = $this->valuesWithinAllowed($parameters->getIncludePaths(), $this->includePaths);
         $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
     }
 
     /**
-     * @param ParametersInterface $parameters
+     * @param EncodingParametersInterface $parameters
      */
-    protected function checkFieldSets(ParametersInterface $parameters)
+    protected function checkFieldSets(EncodingParametersInterface $parameters)
     {
         $withinAllowed = $this->isFieldsAllowed($parameters->getFieldSets());
         $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
     }
 
     /**
-     * @param ParametersInterface $parameters
+     * @param EncodingParametersInterface $parameters
      */
-    protected function checkFiltering(ParametersInterface $parameters)
+    protected function checkFiltering(EncodingParametersInterface $parameters)
     {
         $withinAllowed = $this->keysWithinAllowed($parameters->getFilteringParameters(), $this->filteringParameters);
         $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
     }
 
     /**
-     * @param ParametersInterface $parameters
+     * @param EncodingParametersInterface $parameters
      */
-    protected function checkSorting(ParametersInterface $parameters)
+    protected function checkSorting(EncodingParametersInterface $parameters)
     {
         if ($parameters->getSortParameters() !== null && $this->sortParameters !== null) {
             foreach ($parameters->getSortParameters() as $sortParameter) {
@@ -136,18 +136,18 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     }
 
     /**
-     * @param ParametersInterface $parameters
+     * @param EncodingParametersInterface $parameters
      */
-    protected function checkPaging(ParametersInterface $parameters)
+    protected function checkPaging(EncodingParametersInterface $parameters)
     {
         $withinAllowed = $this->keysWithinAllowed($parameters->getPaginationParameters(), $this->pagingParameters);
         $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
     }
 
     /**
-     * @param ParametersInterface $parameters
+     * @param EncodingParametersInterface $parameters
      */
-    protected function checkUnrecognized(ParametersInterface $parameters)
+    protected function checkUnrecognized(EncodingParametersInterface $parameters)
     {
         $this->allowUnrecognized === true || empty($parameters->getUnrecognizedParameters()) === true ?:
             E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));

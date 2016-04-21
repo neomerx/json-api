@@ -1,4 +1,4 @@
-<?php namespace Neomerx\Tests\JsonApi\Http\Parameters;
+<?php namespace Neomerx\Tests\JsonApi\Http\Query;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -17,33 +17,23 @@
  */
 
 use \Mockery;
+use \LogicException;
 use \Neomerx\JsonApi\Http\Request;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Psr\Http\Message\ServerRequestInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersParserInterface;
+use \Neomerx\JsonApi\Contracts\Http\Query\QueryParametersParserInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
  */
 class ParameterParserTest extends BaseTestCase
 {
-    /** JSON API type */
-    const TYPE = MediaTypeInterface::JSON_API_MEDIA_TYPE;
-
-    /** Header name */
-    const HEADER_ACCEPT = HeaderInterface::HEADER_ACCEPT;
-
-    /** Header name */
-    const HEADER_CONTENT_TYPE = HeaderInterface::HEADER_CONTENT_TYPE;
-
     /** Query params */
     const QUERY_PARAMS = 'query_params';
 
     /**
-     * @var ParametersParserInterface
+     * @var QueryParametersParserInterface
      */
     private $parser;
 
@@ -64,12 +54,10 @@ class ParameterParserTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->parser = (new Factory())->createParametersParser();
+        $this->parser = (new Factory())->createQueryParametersParser();
 
         $this->expectedCalls = $this->actrualCalls = [
-            self::HEADER_ACCEPT       => 0,
-            self::HEADER_CONTENT_TYPE => 0,
-            self::QUERY_PARAMS        => 0,
+            self::QUERY_PARAMS => 0,
         ];
     }
 
@@ -86,25 +74,15 @@ class ParameterParserTest extends BaseTestCase
     /**
      * Test parse parameters.
      */
-    public function testHeadersWithNoExtensionsAndParameters()
+    public function testHeadersWithNoParameters()
     {
-        $parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, []));
-
-        $this->assertCount(1, $parameters->getContentTypeHeader()->getMediaTypes());
-        $this->assertNotNull($contentType = $parameters->getContentTypeHeader()->getMediaTypes()[0]);
-        $this->assertEquals(self::TYPE, $contentType->getMediaType());
-        $this->assertCount(1, $parameters->getAcceptHeader()->getMediaTypes());
-        $this->assertNotNull($accept = $parameters->getAcceptHeader()->getMediaTypes()[0]);
-        $this->assertEquals(self::TYPE, $accept->getMediaType());
-        $this->assertNull($contentType->getParameters());
-        $this->assertNull($accept->getParameters());
+        $parameters = $this->parser->parse($this->prepareRequest([]));
 
         $this->assertNull($parameters->getFieldSets());
         $this->assertNull($parameters->getIncludePaths());
         $this->assertNull($parameters->getSortParameters());
         $this->assertNull($parameters->getFilteringParameters());
         $this->assertNull($parameters->getPaginationParameters());
-
         $this->assertTrue($parameters->isEmpty());
     }
 
@@ -125,7 +103,7 @@ class ParameterParserTest extends BaseTestCase
             'page'    => $paging,
         ];
 
-        $parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input));
+        $parameters = $this->parser->parse($this->prepareRequest($input));
 
         $this->assertEquals(['type1' => ['fields1', 'fields2']], $parameters->getFieldSets());
         $this->assertEquals(['author' , 'comments', 'comments.author'], $parameters->getIncludePaths());
@@ -155,7 +133,7 @@ class ParameterParserTest extends BaseTestCase
         $input = [
             'sort' => '-created,,name'
         ];
-        $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input));
+        $this->parser->parse($this->prepareRequest($input));
     }
 
     /**
@@ -170,7 +148,7 @@ class ParameterParserTest extends BaseTestCase
         $input = [
             'page' => '2',
         ];
-        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input)));
+        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest($input)));
         $this->assertNull($parameters->getPaginationParameters());
     }
 
@@ -186,7 +164,7 @@ class ParameterParserTest extends BaseTestCase
         $input = [
             'filter' => 'whatever',
         ];
-        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input)));
+        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest($input)));
 
         $this->assertNull($parameters->getSortParameters());
     }
@@ -203,7 +181,7 @@ class ParameterParserTest extends BaseTestCase
         $input = [
             'include' => ['whatever'],
         ];
-        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input)));
+        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest($input)));
 
         $this->assertNull($parameters->getIncludePaths());
     }
@@ -220,66 +198,9 @@ class ParameterParserTest extends BaseTestCase
         $input = [
             'sort' => ['whatever'],
         ];
-        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input)));
+        $this->assertNotNull($parameters = $this->parser->parse($this->prepareRequest($input)));
 
         $this->assertNull($parameters->getIncludePaths());
-    }
-
-    /**
-     * Test parse headers.
-     */
-    public function testParseHeadersNoParams()
-    {
-        $parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE . ';', []));
-
-        $this->assertEquals(self::TYPE, $parameters->getContentTypeHeader()->getMediaTypes()[0]->getMediaType());
-        $this->assertEquals(self::TYPE, $parameters->getAcceptHeader()->getMediaTypes()[0]->getMediaType());
-        $this->assertNull($parameters->getContentTypeHeader()->getMediaTypes()[0]->getParameters());
-        $this->assertNull($parameters->getAcceptHeader()->getMediaTypes()[0]->getParameters());
-    }
-
-    /**
-     * Test parse headers.
-     */
-    public function testParseHeadersWithParamsNoExtraParams()
-    {
-        $parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE . ';ext="ext1,ext2"', self::TYPE . ';ext=ext1', [])
-        );
-
-        $contentType = $parameters->getContentTypeHeader();
-        $accept = $parameters->getAcceptHeader();
-
-        $this->assertEquals(self::TYPE, $contentType->getMediaTypes()[0]->getMediaType());
-        $this->assertEquals(self::TYPE, $accept->getMediaTypes()[0]->getMediaType());
-        $this->assertEquals(['ext' => 'ext1,ext2'], $contentType->getMediaTypes()[0]->getParameters());
-        $this->assertEquals(['ext' => 'ext1'], $accept->getMediaTypes()[0]->getParameters());
-    }
-
-    /**
-     * Test parse headers.
-     */
-    public function testParseHeadersWithParamsWithExtraParams()
-    {
-        $parameters = $this->parser->parse($this->prepareRequest(
-            self::TYPE . ' ;  boo = foo; ext="ext1,ext2";  foo = boo ',
-            self::TYPE . ' ; boo = foo; ext=ext1;  foo = boo',
-            []
-        ));
-
-        $contentType = $parameters->getContentTypeHeader();
-        $accept = $parameters->getAcceptHeader();
-
-        $this->assertEquals(self::TYPE, $contentType->getMediaTypes()[0]->getMediaType());
-        $this->assertEquals(self::TYPE, $accept->getMediaTypes()[0]->getMediaType());
-        $this->assertEquals(
-            ['boo' => 'foo', 'ext' => 'ext1,ext2', 'foo' => 'boo'],
-            $contentType->getMediaTypes()[0]->getParameters()
-        );
-        $this->assertEquals(
-            ['boo' => 'foo', 'ext' => 'ext1', 'foo' => 'boo'],
-            $accept->getMediaTypes()[0]->getParameters()
-        );
     }
 
     /**
@@ -292,42 +213,10 @@ class ParameterParserTest extends BaseTestCase
             'unrecognized' => ['parameters'],
         ];
         $parameters = $this->parser->parse(
-            $this->prepareRequest(self::TYPE . ';ext="ext1,ext2"', self::TYPE . ';ext=ext1', $input)
+            $this->prepareRequest($input)
         );
 
         $this->assertEquals(['unrecognized' => ['parameters']], $parameters->getUnrecognizedParameters());
-    }
-
-    /**
-     * Test parse headers when 'Accept' header is not given.
-     */
-    public function testParseWithEmptyAcceptHeader()
-    {
-        $parameters = $this->parser->parse($this->prepareRequest(self::TYPE, '', []));
-
-        $accept = $parameters->getAcceptHeader();
-        $this->assertCount(1, $accept->getMediaTypes());
-        $this->assertEquals(self::TYPE, $accept->getMediaTypes()[0]->getMediaType());
-    }
-
-    /**
-     * Test parse invalid headers.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
-     */
-    public function testParseIvalidHeaders1()
-    {
-        $this->parser->parse($this->prepareRequest(self::TYPE.';foo', self::TYPE, [], 1, 0, 0));
-    }
-
-    /**
-     * Test parse invalid headers.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
-     */
-    public function testParseIvalidHeaders2()
-    {
-        $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE.';foo', [], 1, 1, 0));
     }
 
     /**
@@ -340,7 +229,7 @@ class ParameterParserTest extends BaseTestCase
         $input = [
             'fields' => ['type1' => 'fields1,fields2', 'type2' => '']
         ];
-        $result = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input));
+        $result = $this->parser->parse($this->prepareRequest($input));
 
         // note type2 has empty field set
         $this->assertEquals(['type1' => ['fields1', 'fields2'], 'type2' => []], $result->getFieldSets());
@@ -356,7 +245,7 @@ class ParameterParserTest extends BaseTestCase
         $input = [
             'fields' => ['type' => ['subtype' => 'fields1,fields2']]
         ];
-        $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input));
+        $this->parser->parse($this->prepareRequest($input));
     }
 
     /**
@@ -370,47 +259,30 @@ class ParameterParserTest extends BaseTestCase
             'unrecognized' => 'foo',
         ];
 
-        $parameters = $this->parser->parse($this->prepareRequest(self::TYPE, self::TYPE, $input));
+        $parameters = $this->parser->parse($this->prepareRequest($input));
 
         $this->assertTrue($parameters->isEmpty());
         $this->assertEquals(['unrecognized' => 'foo'], $parameters->getUnrecognizedParameters());
     }
 
     /**
-     * @param string $contentType
-     * @param string $accept
-     * @param array  $input
-     * @param int    $contentTypeTimes
-     * @param int    $acceptTimes
-     * @param int    $parametersTimes
+     * @param array $input
+     * @param int   $parametersTimes
      *
      * @return ServerRequestInterface
      */
-    private function prepareRequest(
-        $contentType,
-        $accept,
-        array $input,
-        $contentTypeTimes = 1,
-        $acceptTimes = 1,
-        $parametersTimes = 1
-    ) {
-        $request = new Request(function ($name) use ($accept, $contentType) {
-            $headers = [
-                self::HEADER_ACCEPT       => empty($accept) === true ? [] : [$accept],
-                self::HEADER_CONTENT_TYPE => empty($contentType) === true ? [] : [$contentType],
-            ];
-
-            $this->actrualCalls[$name]++;
-
-            return $headers[$name];
+    private function prepareRequest(array $input, $parametersTimes = 1)
+    {
+        $request = new Request(function () {
+            throw new LogicException();
+        }, function () {
+            throw new LogicException();
         }, function () use ($input) {
             $this->actrualCalls[self::QUERY_PARAMS]++;
             return $input;
         });
 
-        $this->expectedCalls[self::HEADER_ACCEPT]       = $acceptTimes;
-        $this->expectedCalls[self::HEADER_CONTENT_TYPE] = $contentTypeTimes;
-        $this->expectedCalls[self::QUERY_PARAMS]        = $parametersTimes;
+        $this->expectedCalls[self::QUERY_PARAMS] = $parametersTimes;
 
         return $request;
     }

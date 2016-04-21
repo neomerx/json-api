@@ -24,11 +24,11 @@ use \Neomerx\Samples\JsonApi\Models\Site;
 use \Neomerx\Samples\JsonApi\Models\Author;
 use \Neomerx\Samples\JsonApi\Models\Comment;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
-use \Neomerx\JsonApi\Encoder\EncodingParameters;
 use \Neomerx\Samples\JsonApi\Schemas\PostSchema;
 use \Neomerx\Samples\JsonApi\Schemas\SiteSchema;
 use \Neomerx\Samples\JsonApi\Schemas\AuthorSchema;
 use \Neomerx\Samples\JsonApi\Schemas\CommentSchema;
+use \Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 
 /**
  * @package Neomerx\Samples\JsonApi

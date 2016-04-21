@@ -37,6 +37,8 @@ class RequestTest extends BaseTestCase
             return null;
         }, function () {
             return null;
+        }, function () {
+            return null;
         });
 
         $methodsAndParams = [
@@ -46,7 +48,6 @@ class RequestTest extends BaseTestCase
             'getCookieParams'     => [],
             'getHeaderLine'       => ['name'],
             'getHeaders'          => [],
-            'getMethod'           => [],
             'getParsedBody'       => [],
             'getProtocolVersion'  => [],
             'getRequestTarget'    => [],
@@ -78,7 +79,7 @@ class RequestTest extends BaseTestCase
             } catch (LogicException $exception) {
                 $gotException = true;
             }
-            $this->assertTrue($gotException);
+            $this->assertTrue($gotException, 'No exception for method \'' . $method . '\'');
         }
     }
 }

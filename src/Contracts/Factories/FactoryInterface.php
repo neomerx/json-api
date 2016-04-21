@@ -23,17 +23,17 @@ use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 
+use \Neomerx\JsonApi\Contracts\Http\HttpFactoryInterface as HttpFI;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface as SchFI;
 use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface as DFI;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface as StkFI;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface as PrsFI;
 use \Neomerx\JsonApi\Contracts\Encoder\Handlers\HandlerFactoryInterface as HFI;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersFactoryInterface as PrmFI;
 
 /**
  * @package Neomerx\JsonApi
  */
-interface FactoryInterface extends DFI, PrsFI, StkFI, HFI, PrmFI, SchFI, PSR3
+interface FactoryInterface extends DFI, PrsFI, StkFI, HFI, HttpFI, SchFI, PSR3
 {
     /**
      * Create encoder.

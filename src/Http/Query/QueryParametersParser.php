@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Http\Query;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,35 +16,30 @@
  * limitations under the License.
  */
 
-use \InvalidArgumentException;
 use \Psr\Log\LoggerAwareTrait;
 use \Psr\Log\LoggerAwareInterface;
-use \Neomerx\JsonApi\Http\Headers\Header;
 use \Psr\Http\Message\ServerRequestInterface;
-use \Neomerx\JsonApi\Http\Headers\AcceptHeader;
 use \Neomerx\JsonApi\Exceptions\JsonApiException as E;
-use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\SortParameterInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersParserInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Http\HttpFactoryInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\SortParameterInterface;
+use \Neomerx\JsonApi\Contracts\Http\Query\QueryParametersParserInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class ParametersParser implements ParametersParserInterface, LoggerAwareInterface
+class QueryParametersParser implements QueryParametersParserInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
     /**
-     * @var ParametersFactoryInterface
+     * @var HttpFactoryInterface
      */
     private $factory;
 
     /**
-     * @param ParametersFactoryInterface $factory
+     * @param HttpFactoryInterface $factory
      */
-    public function __construct(ParametersFactoryInterface $factory)
+    public function __construct(HttpFactoryInterface $factory)
     {
         $this->factory = $factory;
     }
@@ -54,40 +49,9 @@ class ParametersParser implements ParametersParserInterface, LoggerAwareInterfac
      */
     public function parse(ServerRequestInterface $request)
     {
-        $acceptHeader      = null;
-        $contentTypeHeader = null;
-
-        try {
-            $contentType = $request->getHeader(HeaderInterface::HEADER_CONTENT_TYPE);
-            $contentTypeHeader = Header::parse(
-                empty($contentType) === true ? MediaTypeInterface::JSON_API_MEDIA_TYPE : $contentType[0],
-                HeaderInterface::HEADER_CONTENT_TYPE
-            );
-        } catch (InvalidArgumentException $exception) {
-            E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST, $exception));
-        }
-
-        try {
-            $headerString = $request->getHeader(HeaderInterface::HEADER_ACCEPT);
-            if (empty($headerString) === false) {
-                $acceptHeader = AcceptHeader::parse($headerString[0]);
-            } else {
-                $jsonMediaType = $this->factory->createAcceptMediaType(
-                    0,
-                    MediaTypeInterface::JSON_API_TYPE,
-                    MediaTypeInterface::JSON_API_SUB_TYPE
-                );
-                $acceptHeader = $this->factory->createAcceptHeader([$jsonMediaType]);
-            }
-        } catch (InvalidArgumentException $exception) {
-            E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST, $exception));
-        }
-
         $parameters = $request->getQueryParams();
 
-        return $this->factory->createParameters(
-            $contentTypeHeader,
-            $acceptHeader,
+        return $this->factory->createQueryParameters(
             $this->getIncludePaths($parameters),
             $this->getFieldSets($parameters),
             $this->getSortParameters($parameters),

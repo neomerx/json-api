@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Contracts\Http\Headers;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -19,12 +19,26 @@
 /**
  * @package Neomerx\JsonApi
  */
-interface QueryCheckerInterface
+interface HeaderParametersInterface
 {
     /**
-     * @param ParametersInterface $parameters
+     * Get HTTP request method (e.g. GET, POST, etc)
      *
-     * @return void
+     * @return string
      */
-    public function checkQuery(ParametersInterface $parameters);
+    public function getMethod();
+
+    /**
+     * Get get 'Content-Type' header.
+     *
+     * @return HeaderInterface
+     */
+    public function getContentTypeHeader();
+
+    /**
+     * Get 'Accept' header.
+     *
+     * @return AcceptHeaderInterface
+     */
+    public function getAcceptHeader();
 }

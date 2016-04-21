@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Http\Headers;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -18,7 +18,7 @@
 
 use \Neomerx\JsonApi\Factories\Exceptions;
 use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\SupportedExtensionsInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\SupportedExtensionsInterface;
 
 /**
  * @package Neomerx\JsonApi

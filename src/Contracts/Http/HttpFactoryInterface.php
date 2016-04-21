@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Contracts\Http;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -20,26 +20,23 @@ use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Http\Query\QueryCheckerInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\HeadersCheckerInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\SortParameterInterface;
+use \Neomerx\JsonApi\Contracts\Http\Query\QueryParametersParserInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\SupportedExtensionsInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-interface ParametersFactoryInterface
+interface HttpFactoryInterface
 {
-    /**
-     * Create encoding parameters.
-     *
-     * @param string[]|null $includePaths
-     * @param array|null    $fieldSets
-     *
-     * @return EncodingParametersInterface
-     */
-    public function createEncodingParameters($includePaths = null, array $fieldSets = null);
-
     /**
      * Create parameter analyzer.
      *
@@ -64,8 +61,6 @@ interface ParametersFactoryInterface
     /**
      * Create parameters.
      *
-     * @param HeaderInterface               $contentType
-     * @param AcceptHeaderInterface         $accept
      * @param string[]|null                 $includePaths
      * @param array|null                    $fieldSets
      * @param SortParameterInterface[]|null $sortParameters
@@ -73,11 +68,9 @@ interface ParametersFactoryInterface
      * @param array|null                    $filteringParameters
      * @param array|null                    $unrecognizedParams
      *
-     * @return ParametersInterface
+     * @return EncodingParametersInterface
      */
-    public function createParameters(
-        HeaderInterface $contentType,
-        AcceptHeaderInterface $accept,
+    public function createQueryParameters(
         $includePaths = null,
         array $fieldSets = null,
         $sortParameters = null,
@@ -87,11 +80,27 @@ interface ParametersFactoryInterface
     );
 
     /**
+     * @param string                $method
+     * @param AcceptHeaderInterface $accept
+     * @param HeaderInterface       $contentType
+     *
+     * @return HeaderParametersInterface
+     */
+    public function createHeaderParameters($method, AcceptHeaderInterface $accept, HeaderInterface $contentType);
+
+    /**
      * Create parameters parser.
      *
-     * @return ParametersParserInterface
+     * @return QueryParametersParserInterface
      */
-    public function createParametersParser();
+    public function createQueryParametersParser();
+
+    /**
+     * Create parameters parser.
+     *
+     * @return HeaderParametersParserInterface
+     */
+    public function createHeaderParametersParser();
 
     /**
      * Create sort parameter.
@@ -165,29 +174,6 @@ interface ParametersFactoryInterface
      */
     public function createQueryChecker(
         $allowUnrecognized = false,
-        array $includePaths = null,
-        array $fieldSetTypes = null,
-        array $sortParameters = null,
-        array $pagingParameters = null,
-        array $filteringParameters = null
-    );
-
-    /**
-     * Create parameters checker for headers and query.
-     *
-     * @param CodecMatcherInterface $codecMatcher
-     * @param bool|false            $allowUnrecognized
-     * @param array|null            $includePaths
-     * @param array|null            $fieldSetTypes
-     * @param array|null            $sortParameters
-     * @param array|null            $pagingParameters
-     * @param array|null            $filteringParameters
-     *
-     * @return ParametersCheckerInterface
-     */
-    public function createParametersChecker(
-        CodecMatcherInterface $codecMatcher,
-        $allowUnrecognized = true,
         array $includePaths = null,
         array $fieldSetTypes = null,
         array $sortParameters = null,

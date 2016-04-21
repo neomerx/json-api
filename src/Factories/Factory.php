@@ -33,35 +33,35 @@ use \Neomerx\JsonApi\Http\Headers\MediaType;
 use \Neomerx\JsonApi\Encoder\Stack\StackFrame;
 use \Neomerx\JsonApi\Http\Headers\AcceptHeader;
 use \Neomerx\JsonApi\Schema\RelationshipObject;
-use \Neomerx\JsonApi\Encoder\EncodingParameters;
 use \Neomerx\JsonApi\Encoder\Parser\ParserReply;
-use \Neomerx\JsonApi\Http\Parameters\Parameters;
 use \Neomerx\JsonApi\Encoder\Parser\ParserManager;
 use \Neomerx\JsonApi\Http\Headers\AcceptMediaType;
-use \Neomerx\JsonApi\Http\Parameters\SortParameter;
+use \Neomerx\JsonApi\Http\Headers\HeaderParameters;
 use \Neomerx\JsonApi\Encoder\Parser\ParserEmptyReply;
 use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use \Neomerx\JsonApi\Http\Parameters\ParametersParser;
+use \Neomerx\JsonApi\Encoder\Parameters\SortParameter;
+use \Neomerx\JsonApi\Http\Headers\SupportedExtensions;
+use \Neomerx\JsonApi\Http\Query\QueryParametersParser;
 use \Neomerx\JsonApi\Encoder\Handlers\ReplyInterpreter;
+use \Neomerx\JsonApi\Http\Query\RestrictiveQueryChecker;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Http\Parameters\SupportedExtensions;
+use \Neomerx\JsonApi\Http\Headers\HeaderParametersParser;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
+use \Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 use \Neomerx\JsonApi\Encoder\Parameters\ParametersAnalyzer;
+use \Neomerx\JsonApi\Http\Headers\RestrictiveHeadersChecker;
 use \Neomerx\JsonApi\Schema\ResourceIdentifierSchemaAdapter;
 use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Http\Parameters\RestrictiveQueryChecker;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Http\Parameters\RestrictiveHeadersChecker;
 use \Neomerx\JsonApi\Schema\ResourceIdentifierContainerAdapter;
-use \Neomerx\JsonApi\Http\Parameters\RestrictiveParametersChecker;
 use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
@@ -202,14 +202,6 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createEncodingParameters($includePaths = null, array $fieldSets = null)
-    {
-        return new EncodingParameters($includePaths, $fieldSets);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function createParametersAnalyzer(EncodingParametersInterface $parameters, ContainerInterface $container)
     {
         $analyzer = new ParametersAnalyzer($parameters, $container);
@@ -230,9 +222,7 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createParameters(
-        HeaderInterface $contentType,
-        AcceptHeaderInterface $accept,
+    public function createQueryParameters(
         $includePaths = null,
         array $fieldSets = null,
         $sortParameters = null,
@@ -240,9 +230,7 @@ class Factory implements FactoryInterface
         array $filteringParameters = null,
         array $unrecognizedParams = null
     ) {
-        return new Parameters(
-            $contentType,
-            $accept,
+        return new EncodingParameters(
             $includePaths,
             $fieldSets,
             $sortParameters,
@@ -255,9 +243,29 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createParametersParser()
+    public function createHeaderParameters($method, AcceptHeaderInterface $accept, HeaderInterface $contentType)
     {
-        $parser = new ParametersParser($this);
+        return new HeaderParameters($method, $accept, $contentType);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createQueryParametersParser()
+    {
+        $parser = new QueryParametersParser($this);
+
+        $parser->setLogger($this->logger);
+
+        return $parser;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createHeaderParametersParser()
+    {
+        $parser = new HeaderParametersParser($this);
 
         $parser->setLogger($this->logger);
 
@@ -329,31 +337,6 @@ class Factory implements FactoryInterface
             $pagingParameters,
             $filteringParameters
         );
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createParametersChecker(
-        CodecMatcherInterface $codecMatcher,
-        $allowUnrecognized = false,
-        array $includePaths = null,
-        array $fieldSetTypes = null,
-        array $sortParameters = null,
-        array $pagingParameters = null,
-        array $filteringParameters = null
-    ) {
-        $headersChecker = $this->createHeadersChecker($codecMatcher);
-        $queryChecker   = $this->createQueryChecker(
-            $allowUnrecognized,
-            $includePaths,
-            $fieldSetTypes,
-            $sortParameters,
-            $pagingParameters,
-            $filteringParameters
-        );
-
-        return new RestrictiveParametersChecker($headersChecker, $queryChecker);
     }
 
     /**

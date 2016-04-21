@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Contracts\Http\Headers;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,17 +16,19 @@
  * limitations under the License.
  */
 
+use \Psr\Http\Message\ServerRequestInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
-interface ParametersCheckerInterface extends HeadersCheckerInterface, QueryCheckerInterface
+interface HeaderParametersParserInterface
 {
     /**
-     * Check parameters from headers and query at once.
+     * Parse input parameters from request.
      *
-     * @param ParametersInterface $parameters
+     * @param ServerRequestInterface $request
      *
-     * @return void
+     * @return HeaderParametersInterface
      */
-    public function check(ParametersInterface $parameters);
+    public function parse(ServerRequestInterface $request);
 }

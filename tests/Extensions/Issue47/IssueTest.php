@@ -17,7 +17,7 @@
  */
 
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Encoder\EncodingParameters;
+use \Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 
 /**
  * @package Neomerx\Tests\JsonApi

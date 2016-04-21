@@ -24,13 +24,13 @@ use \Neomerx\JsonApi\Http\Responses;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Http\Headers\MediaType;
 use \Neomerx\JsonApi\Exceptions\ErrorCollection;
+use \Neomerx\JsonApi\Http\Headers\SupportedExtensions;
 use \Neomerx\JsonApi\Contracts\Http\ResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use \Neomerx\JsonApi\Http\Parameters\SupportedExtensions;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\SupportedExtensionsInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\SupportedExtensionsInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi

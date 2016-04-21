@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Http\Headers;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -18,8 +18,8 @@
 
 use \Neomerx\JsonApi\Exceptions\JsonApiException as E;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\HeadersCheckerInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\HeadersCheckerInterface;
+use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -40,11 +40,11 @@ class RestrictiveHeadersChecker implements HeadersCheckerInterface
     }
 
     /**
-     * @param ParametersInterface $parameters
+     * @param HeaderParametersInterface $parameters
      *
      * @return void
      */
-    public function checkHeaders(ParametersInterface $parameters)
+    public function checkHeaders(HeaderParametersInterface $parameters)
     {
         // Note: for these checks the order is specified by spec. See details inside.
         $this->checkAcceptHeader($parameters);
@@ -52,11 +52,11 @@ class RestrictiveHeadersChecker implements HeadersCheckerInterface
     }
 
     /**
-     * @param ParametersInterface $parameters
+     * @param HeaderParametersInterface $parameters
      *
      * @return void
      */
-    protected function checkAcceptHeader(ParametersInterface $parameters)
+    protected function checkAcceptHeader(HeaderParametersInterface $parameters)
     {
         $this->codecMatcher->matchEncoder($parameters->getAcceptHeader());
 
@@ -72,11 +72,11 @@ class RestrictiveHeadersChecker implements HeadersCheckerInterface
     }
 
     /**
-     * @param ParametersInterface $parameters
+     * @param HeaderParametersInterface $parameters
      *
      * @return void
      */
-    protected function checkContentTypeHeader(ParametersInterface $parameters)
+    protected function checkContentTypeHeader(HeaderParametersInterface $parameters)
     {
         // Do not allow specify more than 1 media type for input data. Otherwise which one is correct?
         if (count($parameters->getContentTypeHeader()->getMediaTypes()) > 1) {

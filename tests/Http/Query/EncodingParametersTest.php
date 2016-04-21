@@ -1,4 +1,4 @@
-<?php namespace Neomerx\Tests\JsonApi\Http\Parameters;
+<?php namespace Neomerx\Tests\JsonApi\Http\Query;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -18,7 +18,7 @@
 
 use \Mockery;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Encoder\EncodingParameters;
+use \Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 
 /**
  * @package Neomerx\Tests\JsonApi

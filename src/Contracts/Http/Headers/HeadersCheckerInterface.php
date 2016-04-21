@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Contracts\Http\Headers;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -22,9 +22,9 @@
 interface HeadersCheckerInterface
 {
     /**
-     * @param ParametersInterface $parameters
+     * @param HeaderParametersInterface $parameters
      *
      * @return void
      */
-    public function checkHeaders(ParametersInterface $parameters);
+    public function checkHeaders(HeaderParametersInterface $parameters);
 }

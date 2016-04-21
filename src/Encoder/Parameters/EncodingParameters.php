@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Encoder\Parameters;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,26 +16,24 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Encoder\EncodingParameters;
-use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\SortParameterInterface;
+use \Neomerx\JsonApi\Factories\Exceptions;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\SortParameterInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class Parameters extends EncodingParameters implements ParametersInterface
+class EncodingParameters implements EncodingParametersInterface
 {
     /**
-     * @var HeaderInterface
+     * @var array|null
      */
-    private $contentType;
+    private $includePaths;
 
     /**
-     * @var AcceptHeaderInterface
+     * @var array|null
      */
-    private $accept;
+    private $fieldSets;
 
     /**
      * @var SortParameterInterface[]|null
@@ -58,8 +56,6 @@ class Parameters extends EncodingParameters implements ParametersInterface
     private $unrecognizedParams;
 
     /**
-     * @param HeaderInterface               $contentType
-     * @param AcceptHeaderInterface         $accept
      * @param string[]|null                 $includePaths
      * @param array|null                    $fieldSets
      * @param SortParameterInterface[]|null $sortParameters
@@ -68,8 +64,6 @@ class Parameters extends EncodingParameters implements ParametersInterface
      * @param array|null                    $unrecognizedParams
      */
     public function __construct(
-        HeaderInterface $contentType,
-        AcceptHeaderInterface $accept,
         $includePaths = null,
         array $fieldSets = null,
         $sortParameters = null,
@@ -77,10 +71,8 @@ class Parameters extends EncodingParameters implements ParametersInterface
         array $filteringParameters = null,
         array $unrecognizedParams = null
     ) {
-        parent::__construct($includePaths, $fieldSets);
-
-        $this->contentType         = $contentType;
-        $this->accept              = $accept;
+        $this->fieldSets           = $fieldSets;
+        $this->includePaths        = $includePaths;
         $this->sortParameters      = $sortParameters;
         $this->pagingParameters    = $pagingParameters;
         $this->unrecognizedParams  = $unrecognizedParams;
@@ -90,17 +82,27 @@ class Parameters extends EncodingParameters implements ParametersInterface
     /**
      * @inheritdoc
      */
-    public function getContentTypeHeader()
+    public function getIncludePaths()
     {
-        return $this->contentType;
+        return $this->includePaths;
     }
 
     /**
      * @inheritdoc
      */
-    public function getAcceptHeader()
+    public function getFieldSets()
     {
-        return $this->accept;
+        return $this->fieldSets;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFieldSet($type)
+    {
+        is_string($type) === true ?: Exceptions::throwInvalidArgument('type', $type);
+
+        return (isset($this->fieldSets[$type]) === true ? $this->fieldSets[$type] : null);
     }
 
     /**

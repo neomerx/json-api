@@ -26,7 +26,7 @@ use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
@@ -312,7 +312,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
         EncodingParametersInterface $parameters = null
     ) {
         return $this->factory->createParametersAnalyzer(
-            $parameters === null ? $this->factory->createEncodingParameters() : $parameters,
+            $parameters === null ? $this->factory->createQueryParameters() : $parameters,
             $container
         );
     }

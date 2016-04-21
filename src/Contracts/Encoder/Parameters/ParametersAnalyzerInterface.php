@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
-
 /**
  * @package Neomerx\JsonApi
  */

@@ -1,4 +1,4 @@
-<?php namespace Neomerx\Tests\JsonApi\Http\Parameters;
+<?php namespace Neomerx\Tests\JsonApi\Http\Query;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -20,14 +20,11 @@ use \Mockery;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Http\Headers\MediaType;
+use \Neomerx\JsonApi\Http\Query\RestrictiveQueryChecker;
+use \Neomerx\JsonApi\Contracts\Http\HttpFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Http\Parameters\RestrictiveQueryChecker;
-use \Neomerx\JsonApi\Http\Parameters\RestrictiveHeadersChecker;
-use \Neomerx\JsonApi\Http\Parameters\RestrictiveParametersChecker;
-use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\SortParameterInterface;
-use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersFactoryInterface;
+use \Neomerx\JsonApi\Http\Headers\RestrictiveHeadersChecker;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\SortParameterInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -35,7 +32,7 @@ use \Neomerx\JsonApi\Contracts\Http\Parameters\ParametersFactoryInterface;
 class FactoryTest extends BaseTestCase
 {
     /**
-     * @var ParametersFactoryInterface
+     * @var HttpFactoryInterface
      */
     private $factory;
 
@@ -68,15 +65,9 @@ class FactoryTest extends BaseTestCase
      */
     public function testCreateParameters()
     {
-        /** @var HeaderInterface $contentTypeHeader */
-        $contentTypeHeader = Mockery::mock(HeaderInterface::class);
-        /** @var AcceptHeaderInterface $acceptHeader */
-        $acceptHeader = Mockery::mock(AcceptHeaderInterface::class);
         /** @var SortParameterInterface $sortParam */
         $sortParam = Mockery::mock(SortParameterInterface::class);
-        $this->assertNotNull($parameters = $this->factory->createParameters(
-            $contentTypeHeader,
-            $acceptHeader,
+        $this->assertNotNull($parameters = $this->factory->createQueryParameters(
             $includePaths = ['some-type' => ['p1', 'p2']],
             $fieldSets = ['s1' => ['value11', 'value12']],
             $sortParameters = [$sortParam],
@@ -84,8 +75,6 @@ class FactoryTest extends BaseTestCase
             $filteringParameters = ['some' => 'filter']
         ));
 
-        $this->assertSame($contentTypeHeader, $parameters->getContentTypeHeader());
-        $this->assertSame($acceptHeader, $parameters->getAcceptHeader());
         $this->assertEquals($includePaths, $parameters->getIncludePaths());
         $this->assertEquals($fieldSets, $parameters->getFieldSets());
         $this->assertEquals($sortParameters, $parameters->getSortParameters());
@@ -98,7 +87,7 @@ class FactoryTest extends BaseTestCase
      */
     public function testCreateEncodingParameters()
     {
-        $this->assertNotNull($parameters = $this->factory->createEncodingParameters(
+        $this->assertNotNull($parameters = $this->factory->createQueryParameters(
             $includePaths = ['some-type' => ['p1', 'p2']],
             $fieldSets    = ['s1' => ['value11', 'value12']]
         ));
@@ -112,7 +101,7 @@ class FactoryTest extends BaseTestCase
      */
     public function testCreateParametersParser()
     {
-        $this->assertNotNull($this->factory->createParametersParser());
+        $this->assertNotNull($this->factory->createQueryParametersParser());
     }
 
     /**
@@ -205,17 +194,5 @@ class FactoryTest extends BaseTestCase
             $pagingParameters,
             $filteringParameters
         ), $queryChecker);
-
-        $parametersChecker = $this->factory->createParametersChecker(
-            $matcher,
-            $allowUnrecognised,
-            $includePaths,
-            $fieldSetTypes,
-            $sortParameters,
-            $pagingParameters,
-            $filteringParameters
-        );
-
-        $this->assertEquals(new RestrictiveParametersChecker($headersChecker, $queryChecker), $parametersChecker);
     }
 }

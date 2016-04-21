@@ -1,4 +1,4 @@
-<?php namespace Neomerx\JsonApi\Contracts\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Contracts\Http\Query;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,34 +16,17 @@
  * limitations under the License.
  */
 
-use \Psr\Http\Message\ServerRequestInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-interface ParametersParserInterface
+interface QueryCheckerInterface
 {
-    /** Parameter name */
-    const PARAM_INCLUDE = 'include';
-
-    /** Parameter name */
-    const PARAM_FIELDS = 'fields';
-
-    /** Parameter name */
-    const PARAM_PAGE = 'page';
-
-    /** Parameter name */
-    const PARAM_FILTER = 'filter';
-
-    /** Parameter name */
-    const PARAM_SORT = 'sort';
-
     /**
-     * Parse input parameters from request.
+     * @param EncodingParametersInterface $parameters
      *
-     * @param ServerRequestInterface $request
-     *
-     * @return ParametersInterface
+     * @return void
      */
-    public function parse(ServerRequestInterface $request);
+    public function checkQuery(EncodingParametersInterface $parameters);
 }

@@ -1,6 +1,6 @@
-<?php namespace Neomerx\JsonApi\Contracts\Http\Parameters;
+<?php namespace Neomerx\JsonApi\Contracts\Encoder\Parameters;
 
-/**
+    /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,28 +16,33 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\EncodingParametersInterface;
-
 /**
  * @package Neomerx\JsonApi
  */
-interface ParametersInterface extends EncodingParametersInterface
+interface EncodingParametersInterface
 {
     /**
-     * Get get 'Content-Type' header.
+     * Get requested include paths.
      *
-     * @return HeaderInterface
+     * @return array|null
      */
-    public function getContentTypeHeader();
+    public function getIncludePaths();
 
     /**
-     * Get 'Accept' header.
+     * Get filed names that should be in result.
      *
-     * @return AcceptHeaderInterface
+     * @return array|null
      */
-    public function getAcceptHeader();
+    public function getFieldSets();
+
+    /**
+     * Get filed names that should be in result.
+     *
+     * @param string $type
+     *
+     * @return string[]|null
+     */
+    public function getFieldSet($type);
 
     /**
      * Get sort parameters.

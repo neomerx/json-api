@@ -1,6 +1,6 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder;
+<?php namespace Neomerx\JsonApi\Contracts\Http\Headers;
 
-    /**
+/**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,28 +19,21 @@
 /**
  * @package Neomerx\JsonApi
  */
-interface EncodingParametersInterface
+interface SupportedExtensionsInterface
 {
     /**
-     * Get requested include paths.
+     * Set supported extensions.
      *
-     * @return array|null
+     * @param string $extensions Not empty comma-separated list of extensions.
+     *
+     * @return void
      */
-    public function getIncludePaths();
+    public function setExtensions($extensions);
 
     /**
-     * Get filed names that should be in result.
+     * Get supported extensions.
      *
-     * @return array|null
+     * @return string
      */
-    public function getFieldSets();
-
-    /**
-     * Get filed names that should be in result.
-     *
-     * @param string $type
-     *
-     * @return string[]|null
-     */
-    public function getFieldSet($type);
+    public function getExtensions();
 }
