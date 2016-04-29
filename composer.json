@@ -45,14 +45,10 @@
     }
   },
   "scripts": {
-    "test": ["@ptest", "@phpcs"],
-    "ptest": "php ./vendor/phpunit/phpunit/phpunit",
-    "htest": "hhvm ./vendor/phpunit/phpunit/phpunit",
-    "phpcs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests"
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-develop": "0.7.x-dev"
-    }
+    "test": ["@phpunit", "@phpcs"],
+    "phpunit": "./vendor/phpunit/phpunit/phpunit",
+    "phpcs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests",
+    "perf-php": "docker-compose run --rm cli_php php /app/sample/sample.php -t=10000",
+    "perf-hhvm": "docker-compose run --rm cli_hhvm hhvm /app/sample/sample.php -t=10000"
   }
 }
