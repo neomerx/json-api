@@ -46,10 +46,17 @@ interface ResponsesInterface
      * @param int          $statusCode
      * @param array|null   $links
      * @param mixed        $meta
+     * @param array        $headers
      *
      * @return mixed
      */
-    public function getContentResponse($data, $statusCode = self::HTTP_OK, $links = null, $meta = null);
+    public function getContentResponse(
+        $data,
+        $statusCode = self::HTTP_OK,
+        $links = null,
+        $meta = null,
+        array $headers = []
+    );
 
     /**
      * Get response for newly created resource with HTTP code 201 (adds 'location' header).
@@ -57,38 +64,41 @@ interface ResponsesInterface
      * @param object     $resource
      * @param array|null $links
      * @param mixed      $meta
+     * @param array      $headers
      *
      * @return mixed
      */
-    public function getCreatedResponse($resource, $links = null, $meta = null);
-
+    public function getCreatedResponse($resource, $links = null, $meta = null, array $headers = []);
 
     /**
      * Get response with HTTP code only.
      *
-     * @param $statusCode
+     * @param int   $statusCode
+     * @param array $headers
      *
      * @return mixed
      */
-    public function getCodeResponse($statusCode);
+    public function getCodeResponse($statusCode, array $headers = []);
 
     /**
      * Get response with meta information only.
      *
      * @param array|object $meta       Meta information.
      * @param int          $statusCode
+     * @param array        $headers
      *
      * @return mixed
      */
-    public function getMetaResponse($meta, $statusCode = self::HTTP_OK);
+    public function getMetaResponse($meta, $statusCode = self::HTTP_OK, array $headers = []);
 
     /**
      * Get response with JSON API Error in body.
      *
      * @param Error|Error[]|ErrorCollection $errors
      * @param int                           $statusCode
+     * @param array                         $headers
      *
      * @return mixed
      */
-    public function getErrorResponse($errors, $statusCode = self::HTTP_BAD_REQUEST);
+    public function getErrorResponse($errors, $statusCode = self::HTTP_BAD_REQUEST, array $headers = []);
 }
