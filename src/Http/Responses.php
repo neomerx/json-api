@@ -81,26 +81,31 @@ abstract class Responses implements ResponsesInterface
     /**
      * @inheritdoc
      */
-    public function getContentResponse($data, $statusCode = self::HTTP_OK, $links = null, $meta = null)
-    {
+    public function getContentResponse(
+        $data,
+        $statusCode = self::HTTP_OK,
+        $links = null,
+        $meta = null,
+        array $headers = []
+    ) {
         $encoder = $this->getEncoder();
         $links === null ?: $encoder->withLinks($links);
         $meta === null ?: $encoder->withMeta($meta);
         $content = $encoder->encodeData($data, $this->getEncodingParameters());
 
-        return $this->createJsonApiResponse($content, $statusCode);
+        return $this->createJsonApiResponse($content, $statusCode, $headers);
     }
 
     /**
      * @inheritdoc
      */
-    public function getCreatedResponse($resource, $links = null, $meta = null)
+    public function getCreatedResponse($resource, $links = null, $meta = null, array $headers = [])
     {
         $encoder = $this->getEncoder();
         $links === null ?: $encoder->withLinks($links);
         $meta === null ?: $encoder->withMeta($meta);
         $content = $encoder->encodeData($resource, $this->getEncodingParameters());
-        $headers = [self::HEADER_LOCATION => $this->getResourceLocationUrl($resource)];
+        $headers[self::HEADER_LOCATION] = $this->getResourceLocationUrl($resource);
 
         return $this->createJsonApiResponse($content, self::HTTP_CREATED, $headers);
     }
@@ -108,26 +113,26 @@ abstract class Responses implements ResponsesInterface
     /**
      * @inheritdoc
      */
-    public function getCodeResponse($statusCode)
+    public function getCodeResponse($statusCode, array $headers = [])
     {
-        return $this->createJsonApiResponse(null, $statusCode);
+        return $this->createJsonApiResponse(null, $statusCode, $headers);
     }
 
     /**
      * @inheritdoc
      */
-    public function getMetaResponse($meta, $statusCode = self::HTTP_OK)
+    public function getMetaResponse($meta, $statusCode = self::HTTP_OK, array $headers = [])
     {
         $encoder = $this->getEncoder();
         $content = $encoder->encodeMeta($meta);
 
-        return $this->createJsonApiResponse($content, $statusCode);
+        return $this->createJsonApiResponse($content, $statusCode, $headers);
     }
 
     /**
      * @inheritdoc
      */
-    public function getErrorResponse($errors, $statusCode = self::HTTP_BAD_REQUEST)
+    public function getErrorResponse($errors, $statusCode = self::HTTP_BAD_REQUEST, array $headers = [])
     {
         if ($errors instanceof ErrorCollection || is_array($errors) === true) {
             /** @var Error[] $errors */
@@ -137,7 +142,7 @@ abstract class Responses implements ResponsesInterface
             $content = $this->getEncoder()->encodeError($errors);
         }
 
-        return $this->createJsonApiResponse($content, $statusCode);
+        return $this->createJsonApiResponse($content, $statusCode, $headers);
     }
 
     /**
