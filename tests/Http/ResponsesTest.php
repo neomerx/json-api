@@ -139,7 +139,7 @@ class ResponsesTest extends BaseTestCase
     }
 
     /**
-     * Test content response, with customer headers.
+     * Test content response, with custom headers.
      */
     public function testContentResponse2()
     {
