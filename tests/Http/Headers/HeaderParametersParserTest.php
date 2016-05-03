@@ -112,6 +112,21 @@ class HeaderParametersParserTest extends BaseTestCase
     }
 
     /**
+     * Test parse headers. Issue #135
+     *
+     * @see https://github.com/neomerx/json-api/issues/135
+     */
+    public function testParseEmptyContentTypeHeader()
+    {
+        $parameters = $this->parser->parse($this->prepareRequest('POST', '', self::TYPE));
+
+        $this->assertEquals(self::TYPE, $parameters->getContentTypeHeader()->getMediaTypes()[0]->getMediaType());
+        $this->assertEquals(self::TYPE, $parameters->getAcceptHeader()->getMediaTypes()[0]->getMediaType());
+        $this->assertNull($parameters->getContentTypeHeader()->getMediaTypes()[0]->getParameters());
+        $this->assertNull($parameters->getAcceptHeader()->getMediaTypes()[0]->getParameters());
+    }
+
+    /**
      * Test parse headers.
      */
     public function testParseHeadersWithParamsNoExtraParams()
@@ -207,8 +222,8 @@ class HeaderParametersParserTest extends BaseTestCase
             return $method;
         }, function ($name) use ($accept, $contentType) {
             $headers = [
-                self::HEADER_ACCEPT       => empty($accept) === true ? [] : [$accept],
-                self::HEADER_CONTENT_TYPE => empty($contentType) === true ? [] : [$contentType],
+                self::HEADER_ACCEPT       => $accept === null ? [] : [$accept],
+                self::HEADER_CONTENT_TYPE => $contentType === null ? [] : [$contentType],
             ];
 
             $this->actrualCalls[$name]++;

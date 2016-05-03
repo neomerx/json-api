@@ -57,31 +57,38 @@ class HeaderParametersParser implements HeaderParametersParserInterface, LoggerA
         $method = $request->getMethod();
 
         try {
-            $contentType = $request->getHeader(HeaderInterface::HEADER_CONTENT_TYPE);
-            $contentTypeHeader = Header::parse(
-                empty($contentType) === true ? MediaTypeInterface::JSON_API_MEDIA_TYPE : $contentType[0],
-                HeaderInterface::HEADER_CONTENT_TYPE
-            );
+            $header            = $this->getHeader($request, HeaderInterface::HEADER_CONTENT_TYPE);
+            $contentTypeHeader = Header::parse($header, HeaderInterface::HEADER_CONTENT_TYPE);
         } catch (InvalidArgumentException $exception) {
             E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST, $exception));
         }
 
         try {
-            $headerString = $request->getHeader(HeaderInterface::HEADER_ACCEPT);
-            if (empty($headerString) === false) {
-                $acceptHeader = AcceptHeader::parse($headerString[0]);
-            } else {
-                $jsonMediaType = $this->factory->createAcceptMediaType(
-                    0,
-                    MediaTypeInterface::JSON_API_TYPE,
-                    MediaTypeInterface::JSON_API_SUB_TYPE
-                );
-                $acceptHeader = $this->factory->createAcceptHeader([$jsonMediaType]);
-            }
+            $header       = $this->getHeader($request, HeaderInterface::HEADER_ACCEPT);
+            $acceptHeader = AcceptHeader::parse($header);
         } catch (InvalidArgumentException $exception) {
             E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST, $exception));
         }
 
         return $this->factory->createHeaderParameters($method, $acceptHeader, $contentTypeHeader);
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @param string                 $name
+     *
+     * @return string
+     */
+    private function getHeader(ServerRequestInterface $request, $name)
+    {
+        $value = $request->getHeader($name);
+        if (empty($value) === false) {
+            $value = $value[0];
+            if (empty($value) === false) {
+                return $value;
+            }
+        }
+
+        return MediaTypeInterface::JSON_API_MEDIA_TYPE;
     }
 }
