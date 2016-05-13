@@ -16,10 +16,13 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\I18n\Translator as T;
+use \Neomerx\JsonApi\Exceptions\ErrorCollection;
 use \Neomerx\JsonApi\Exceptions\JsonApiException as E;
 use \Neomerx\JsonApi\Contracts\Http\Query\QueryCheckerInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parameters\SortParameterInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Http\Query\QueryParametersParserInterface as QP;
 
 /**
  * @package Neomerx\JsonApi
@@ -85,72 +88,96 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
      */
     public function checkQuery(EncodingParametersInterface $parameters)
     {
-        $this->checkIncludePaths($parameters);
-        $this->checkFieldSets($parameters);
-        $this->checkFiltering($parameters);
-        $this->checkSorting($parameters);
-        $this->checkPaging($parameters);
-        $this->checkUnrecognized($parameters);
+        $errors = new ErrorCollection();
+
+        $this->checkIncludePaths($errors, $parameters);
+        $this->checkFieldSets($errors, $parameters);
+        $this->checkFiltering($errors, $parameters);
+        $this->checkSorting($errors, $parameters);
+        $this->checkPaging($errors, $parameters);
+        $this->checkUnrecognized($errors, $parameters);
+
+        $errors->count() <= 0 ?: E::throwException(new E($errors, E::HTTP_CODE_BAD_REQUEST));
     }
 
     /**
+     * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
      */
-    protected function checkIncludePaths(EncodingParametersInterface $parameters)
+    protected function checkIncludePaths(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {
         $withinAllowed = $this->valuesWithinAllowed($parameters->getIncludePaths(), $this->includePaths);
-        $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
+        $withinAllowed === true ?: $errors->addQueryParameterError(QP::PARAM_INCLUDE, T::t(
+            'Include paths should contain only allowed ones.'
+        ));
     }
 
     /**
+     * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
      */
-    protected function checkFieldSets(EncodingParametersInterface $parameters)
+    protected function checkFieldSets(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {
         $withinAllowed = $this->isFieldsAllowed($parameters->getFieldSets());
-        $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
+        $withinAllowed === true ?: $errors->addQueryParameterError(QP::PARAM_FIELDS, T::t(
+            'Field sets should contain only allowed ones.'
+        ));
     }
 
     /**
+     * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
      */
-    protected function checkFiltering(EncodingParametersInterface $parameters)
+    protected function checkFiltering(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {
         $withinAllowed = $this->keysWithinAllowed($parameters->getFilteringParameters(), $this->filteringParameters);
-        $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
+        $withinAllowed === true ?: $errors->addQueryParameterError(QP::PARAM_FILTER, T::t(
+            'Filter should contain only allowed values.'
+        ));
     }
 
     /**
+     * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
      */
-    protected function checkSorting(EncodingParametersInterface $parameters)
+    protected function checkSorting(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {
         if ($parameters->getSortParameters() !== null && $this->sortParameters !== null) {
             foreach ($parameters->getSortParameters() as $sortParameter) {
                 /** @var SortParameterInterface $sortParameter */
                 if (array_key_exists($sortParameter->getField(), $this->sortParameters) === false) {
-                    throw new E([], E::HTTP_CODE_BAD_REQUEST);
+                    $errors->addQueryParameterError(QP::PARAM_SORT, T::t(
+                        'Sort parameter %s is not allowed.',
+                        [$sortParameter->getField()]
+                    ));
                 }
             }
         }
     }
 
     /**
+     * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
      */
-    protected function checkPaging(EncodingParametersInterface $parameters)
+    protected function checkPaging(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {
         $withinAllowed = $this->keysWithinAllowed($parameters->getPaginationParameters(), $this->pagingParameters);
-        $withinAllowed === true ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
+        $withinAllowed === true ?: $errors->addQueryParameterError(QP::PARAM_PAGE, T::t(
+            'Page parameter should contain only allowed values.'
+        ));
     }
 
     /**
+     * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
      */
-    protected function checkUnrecognized(EncodingParametersInterface $parameters)
+    protected function checkUnrecognized(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {
-        $this->allowUnrecognized === true || empty($parameters->getUnrecognizedParameters()) === true ?:
-            E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
+        if ($this->allowUnrecognized === false && empty($parameters->getUnrecognizedParameters()) === false) {
+            foreach ($parameters->getUnrecognizedParameters() as $name => $value) {
+                $errors->addQueryParameterError($name, T::t('Parameter is not allowed.'));
+            }
+        }
     }
 
     /**

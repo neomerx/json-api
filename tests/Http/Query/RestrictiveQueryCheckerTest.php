@@ -22,6 +22,7 @@ use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Neomerx\JsonApi\Exceptions\JsonApiException;
+use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Http\Query\QueryCheckerInterface;
 use \Neomerx\JsonApi\Contracts\Http\Query\QueryParametersParserInterface;
 
@@ -110,6 +111,7 @@ class RestrictiveQueryCheckerTest extends BaseTestCase
         try {
             $checker->checkQuery($parameters);
         } catch (JsonApiException $exception) {
+            $this->assertContains('Include', $exception->getErrors()[0]->getTitle());
         }
 
         $this->assertNotNull($exception);
@@ -150,6 +152,63 @@ class RestrictiveQueryCheckerTest extends BaseTestCase
         );
 
         $checker->checkQuery($parameters);
+    }
+
+    /**
+     * Test checker with allowed filters.
+     */
+    public function testNotAllowedFilters()
+    {
+        $checker = $this->getChecker(
+            false,
+            null,
+            null,
+            null,
+            null,
+            ['another' => 'filter']
+        );
+
+        $parameters = $this->parser->parse(
+            $this->prepareRequest($this->requestParams)
+        );
+
+        $exception = null;
+        try {
+            $checker->checkQuery($parameters);
+        } catch (JsonApiException $exception) {
+            $this->assertContains('Filter', $exception->getErrors()[0]->getTitle());
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertEquals(JsonApiException::HTTP_CODE_BAD_REQUEST, $exception->getHttpCode());
+    }
+
+    /**
+     * Test checker with allowed paging params.
+     */
+    public function testNotAllowedPaging()
+    {
+        $checker = $this->getChecker(
+            false,
+            null,
+            null,
+            null,
+            ['another' => 'paging-param']
+        );
+
+        $parameters = $this->parser->parse(
+            $this->prepareRequest($this->requestParams)
+        );
+
+        $exception = null;
+        try {
+            $checker->checkQuery($parameters);
+        } catch (JsonApiException $exception) {
+            $this->assertContains('Page', $exception->getErrors()[0]->getTitle());
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertEquals(JsonApiException::HTTP_CODE_BAD_REQUEST, $exception->getHttpCode());
     }
 
     /**
@@ -223,9 +282,9 @@ class RestrictiveQueryCheckerTest extends BaseTestCase
     }
 
     /**
-     * Test checker with not allowed search params.
+     * Test checker with not allowed sort params.
      */
-    public function testNotAllowedSearchParams()
+    public function testNotAllowedSortParams()
     {
         $allowedSortParams = ['created', 'name']; // in input will be 'title' which is not on the list
         $checker = $this->getChecker(
@@ -243,6 +302,7 @@ class RestrictiveQueryCheckerTest extends BaseTestCase
         try {
             $checker->checkQuery($parameters);
         } catch (JsonApiException $exception) {
+            $this->assertContains('Sort', $exception->getErrors()[0]->getTitle());
         }
 
         $this->assertNotNull($exception);
@@ -284,6 +344,7 @@ class RestrictiveQueryCheckerTest extends BaseTestCase
         try {
             $checker->checkQuery($parameters);
         } catch (JsonApiException $exception) {
+            $this->assertEquals([ErrorInterface::SOURCE_PARAMETER => 'some'], $exception->getErrors()[0]->getSource());
         }
 
         $this->assertNotNull($exception);
