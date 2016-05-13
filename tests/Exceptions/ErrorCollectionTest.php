@@ -143,6 +143,18 @@ class ErrorCollectionTest extends BaseTestCase
     /**
      * Test adding error.
      */
+    public function testAddRelationshipsError()
+    {
+        $this->collection->addRelationshipsError('some title');
+        $this->assertNotEmpty($this->collection);
+        $this->assertEquals([
+            Error::SOURCE_POINTER => self::RELS_PATH
+        ], $this->collection[0]->getSource());
+    }
+
+    /**
+     * Test adding error.
+     */
     public function testAddRelationshipError()
     {
         $this->collection->addRelationshipError('name', 'some title');

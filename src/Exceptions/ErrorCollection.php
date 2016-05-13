@@ -232,6 +232,31 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     }
 
     /**
+     * @param string             $title
+     * @param string|null        $detail
+     * @param int|string|null    $status
+     * @param int|string|null    $idx
+     * @param LinkInterface|null $aboutLink
+     * @param int|string|null    $code
+     * @param mixed|null         $meta
+     *
+     * @return $this
+     */
+    public function addRelationshipsError(
+        $title,
+        $detail = null,
+        $status = null,
+        $idx = null,
+        LinkInterface $aboutLink = null,
+        $code = null,
+        $meta = null
+    ) {
+        $pointer = $this->getPathToRelationships();
+
+        return $this->addResourceError($title, $pointer, $detail, $status, $idx, $aboutLink, $code, $meta);
+    }
+
+    /**
      * @param string             $name
      * @param string             $title
      * @param string|null        $detail
@@ -407,13 +432,21 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     }
 
     /**
+     * @return string
+     */
+    protected function getPathToRelationships()
+    {
+        return $this->getPathToData() . '/' . DocumentInterface::KEYWORD_RELATIONSHIPS;
+    }
+
+    /**
      * @param string $name
      *
      * @return string
      */
     protected function getPathToRelationship($name)
     {
-        return $this->getPathToData() . '/' . DocumentInterface::KEYWORD_RELATIONSHIPS . '/' . $name;
+        return $this->getPathToRelationships() . '/' . $name;
     }
 
     /**
