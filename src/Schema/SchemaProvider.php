@@ -79,7 +79,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
      */
     public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
     {
-        $isOk = (is_string($this->resourceType) === true && empty($this->resourceType) === false);
+        $isOk = (is_string($this->getResourceType()) === true && empty($this->getResourceType()) === false);
         if ($isOk === false) {
             throw new InvalidArgumentException(T::t('Resource type is not set for Schema \'%s\'.', [static::class]));
         }
