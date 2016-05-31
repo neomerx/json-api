@@ -18,8 +18,8 @@
 
 use \Exception;
 use \RuntimeException;
-use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\I18n\Translator as T;
+use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -58,8 +58,8 @@ class JsonApiException extends RuntimeException
      * Constructor.
      *
      * @param ErrorInterface|ErrorInterface[]|ErrorCollection $errors
-     * @param int                           $httpCode
-     * @param Exception|null                $previous
+     * @param int                                             $httpCode
+     * @param Exception|null                                  $previous
      */
     public function __construct($errors, $httpCode = self::DEFAULT_HTTP_CODE, Exception $previous = null)
     {

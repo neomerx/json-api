@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Exceptions\ErrorCollection;
 use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use \Neomerx\JsonApi\Contracts\Http\ResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\SupportedExtensionsInterface;
-use \Neomerx\JsonApi\Contracts\Http\ResponsesInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Exceptions\ErrorCollection;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 
 /**
  * @package Neomerx\JsonApi

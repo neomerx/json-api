@@ -21,10 +21,10 @@ use \ArrayAccess;
 use \ArrayObject;
 use \Serializable;
 use \IteratorAggregate;
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 use \Neomerx\JsonApi\Document\Error;
+use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 
 /**
  * @package Neomerx\JsonApi
