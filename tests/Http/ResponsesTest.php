@@ -230,6 +230,40 @@ class ResponsesTest extends BaseTestCase
     }
 
     /**
+     * Test identifiers response.
+     */
+    public function testIdentifiersResponse1()
+    {
+        $data = new stdClass();
+        $links = ['some' => 'links'];
+        $meta  = ['some' => 'meta'];
+        $this->willBeCalledGetMediaType('some', 'type');
+        $this->willBeCalledGetSupportedExtensions(null);
+        $this->willBeCalledEncoderForIdentifiers($data, 'some json api', $links, $meta);
+        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type'];
+        $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
+        $this->assertEquals('some response', $this->responses->getIdentifiersResponse($data, 321, $links, $meta));
+    }
+
+    /**
+     * Test identifiers response, with custom headers.
+     */
+    public function testIdentifiersResponse2()
+    {
+        $data = new stdClass();
+        $links = ['some' => 'links'];
+        $meta  = ['some' => 'meta'];
+        $this->willBeCalledGetMediaType('some', 'type');
+        $this->willBeCalledGetSupportedExtensions(null);
+        $this->willBeCalledEncoderForIdentifiers($data, 'some json api', $links, $meta);
+        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
+        $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
+        $this->assertEquals('some response', $this->responses->getIdentifiersResponse($data, 321, $links, $meta, [
+            'X-Custom' => 'Custom-Header',
+        ]));
+    }
+
+    /**
      * Test response.
      */
     public function testErrorResponse1()
@@ -414,6 +448,35 @@ class ResponsesTest extends BaseTestCase
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $encoderMock->shouldReceive('encodeMeta')->once()->with($meta)->andReturn($result);
+    }
+
+    /**
+     * @param mixed      $data
+     * @param string     $result
+     * @param array|null $links
+     * @param mixed      $meta
+     *
+     * @return void
+     */
+    private function willBeCalledEncoderForIdentifiers($data, $result, array $links = null, $meta = null)
+    {
+        $encoderMock = $this->willBeCalledGetEncoder(true);
+
+        if ($links !== null) {
+            /** @noinspection PhpMethodParametersCountMismatchInspection */
+            $encoderMock->shouldReceive('withLinks')->once()->with($links)->andReturnSelf();
+        }
+
+        if ($meta !== null) {
+            /** @noinspection PhpMethodParametersCountMismatchInspection */
+            $encoderMock->shouldReceive('withMeta')->once()->with($meta)->andReturnSelf();
+        }
+
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $encoderMock->shouldReceive('encodeIdentifiers')
+            ->once()
+            ->withArgs([$data, $this->encodingencodingParameters])
+            ->andReturn($result);
     }
 
     /**
