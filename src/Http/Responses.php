@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Exceptions\ErrorCollection;
+use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Http\ResponsesInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
@@ -135,10 +135,10 @@ abstract class Responses implements ResponsesInterface
     public function getErrorResponse($errors, $statusCode = self::HTTP_BAD_REQUEST, array $headers = [])
     {
         if ($errors instanceof ErrorCollection || is_array($errors) === true) {
-            /** @var Error[] $errors */
+            /** @var ErrorInterface[] $errors */
             $content = $this->getEncoder()->encodeErrors($errors);
         } else {
-            /** @var Error $errors */
+            /** @var ErrorInterface $errors */
             $content = $this->getEncoder()->encodeError($errors);
         }
 

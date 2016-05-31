@@ -23,6 +23,7 @@ use \Serializable;
 use \IteratorAggregate;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 
 /**
@@ -86,7 +87,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     /**
      * @inheritdoc
      *
-     * @return Error
+     * @return ErrorInterface
      */
     public function offsetGet($offset)
     {
@@ -110,7 +111,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     }
 
     /**
-     * @return Error[]
+     * @return ErrorInterface[]
      */
     public function getArrayCopy()
     {
@@ -118,11 +119,11 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     }
 
     /**
-     * @param Error $error
+     * @param ErrorInterface $error
      *
      * @return $this
      */
-    public function add(Error $error)
+    public function add(ErrorInterface $error)
     {
         $this->items->append($error);
 
