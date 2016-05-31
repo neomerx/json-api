@@ -16,18 +16,45 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Contracts\I18n\TranslatorInterface;
+
 /**
  * @package Neomerx\JsonApi
  */
-class Translator
+class Translator implements TranslatorInterface
 {
+    /**
+     * @var TranslatorInterface
+     */
+    private static $translator = null;
+
+    /**
+     * @return TranslatorInterface
+     */
+    public static function getTranslator()
+    {
+        if (self::$translator === null) {
+            self::$translator = new static;
+        }
+
+        return self::$translator;
+    }
+
+    /**
+     * @param TranslatorInterface $translator
+     */
+    public static function setTranslator(TranslatorInterface $translator)
+    {
+        self::$translator = $translator;
+    }
+
     /**
      * @param string $format
      * @param array  $parameters
      *
      * @return string
      */
-    public static function translate($format, array $parameters = [])
+    public function translate($format, array $parameters = [])
     {
         $result = empty($parameters) === false ? vsprintf($format, $parameters) : $format;
 
@@ -42,6 +69,6 @@ class Translator
      */
     public static function t($format, array $parameters = [])
     {
-        return static::translate($format, $parameters);
+        return static::getTranslator()->translate($format, $parameters);
     }
 }
