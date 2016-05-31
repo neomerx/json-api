@@ -144,7 +144,7 @@ abstract class Responses implements ResponsesInterface
         $meta === null ?: $encoder->withMeta($meta);
         $content = $encoder->encodeIdentifiers($data, $this->getEncodingParameters());
 
-        return $this->createJsonApiResponse($content, $statusCode, $headers); 
+        return $this->createJsonApiResponse($content, $statusCode, $headers);
     }
 
     /**

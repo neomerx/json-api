@@ -99,7 +99,7 @@ interface ResponsesInterface
      * @param array|null   $links
      * @param mixed        $meta
      * @param array        $headers
-     * 
+     *
      * @return mixed
      */
     public function getIdentifiersResponse(
