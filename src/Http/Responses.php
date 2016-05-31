@@ -130,6 +130,24 @@ abstract class Responses implements ResponsesInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getIdentifiersResponse(
+        $data,
+        $statusCode = self::HTTP_OK,
+        $links = null,
+        $meta = null,
+        array $headers = []
+    ) {
+        $encoder = $this->getEncoder();
+        $links === null ?: $encoder->withLinks($links);
+        $meta === null ?: $encoder->withMeta($meta);
+        $content = $encoder->encodeIdentifiers($data, $this->getEncodingParameters());
+
+        return $this->createJsonApiResponse($content, $statusCode, $headers); 
+    }
+
+    /**
      * @inheritdoc
      */
     public function getErrorResponse($errors, $statusCode = self::HTTP_BAD_REQUEST, array $headers = [])

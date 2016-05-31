@@ -92,6 +92,25 @@ interface ResponsesInterface
     public function getMetaResponse($meta, $statusCode = self::HTTP_OK, array $headers = []);
 
     /**
+     * Get response with only resource identifiers.
+     *
+     * @param object|array $data
+     * @param int          $statusCode
+     * @param array|null   $links
+     * @param mixed        $meta
+     * @param array        $headers
+     * 
+     * @return mixed
+     */
+    public function getIdentifiersResponse(
+        $data,
+        $statusCode = self::HTTP_OK,
+        $links = null,
+        $meta = null,
+        array $headers = []
+    );
+
+    /**
      * Get response with JSON API Error in body.
      *
      * @param Error|Error[]|ErrorCollection $errors
