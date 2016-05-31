@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Document\Error;
+use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Exceptions\ErrorCollection;
 
 /**
@@ -94,7 +94,7 @@ interface ResponsesInterface
     /**
      * Get response with JSON API Error in body.
      *
-     * @param Error|Error[]|ErrorCollection $errors
+     * @param ErrorInterface|ErrorInterface[]|ErrorCollection $errors
      * @param int                           $statusCode
      * @param array                         $headers
      *

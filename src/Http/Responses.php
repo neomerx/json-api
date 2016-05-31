@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Document\Error;
-use \Neomerx\JsonApi\Exceptions\ErrorCollection;
-use \Neomerx\JsonApi\Contracts\Http\ResponsesInterface;
+use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\SupportedExtensionsInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use \Neomerx\JsonApi\Contracts\Http\ResponsesInterface;
+use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use \Neomerx\JsonApi\Exceptions\ErrorCollection;
 
 /**
  * @package Neomerx\JsonApi
@@ -135,10 +135,10 @@ abstract class Responses implements ResponsesInterface
     public function getErrorResponse($errors, $statusCode = self::HTTP_BAD_REQUEST, array $headers = [])
     {
         if ($errors instanceof ErrorCollection || is_array($errors) === true) {
-            /** @var Error[] $errors */
+            /** @var ErrorInterface[] $errors */
             $content = $this->getEncoder()->encodeErrors($errors);
         } else {
-            /** @var Error $errors */
+            /** @var ErrorInterface $errors */
             $content = $this->getEncoder()->encodeError($errors);
         }
 

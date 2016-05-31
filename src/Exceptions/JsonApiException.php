@@ -18,7 +18,7 @@
 
 use \Exception;
 use \RuntimeException;
-use \Neomerx\JsonApi\Document\Error;
+use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use \Neomerx\JsonApi\I18n\Translator as T;
 
 /**
@@ -57,7 +57,7 @@ class JsonApiException extends RuntimeException
     /**
      * Constructor.
      *
-     * @param Error|Error[]|ErrorCollection $errors
+     * @param ErrorInterface|ErrorInterface[]|ErrorCollection $errors
      * @param int                           $httpCode
      * @param Exception|null                $previous
      */
@@ -72,7 +72,7 @@ class JsonApiException extends RuntimeException
         } elseif (is_array($errors) === true) {
             $this->addErrorsFromArray($errors);
         } else {
-            // should be Error
+            // should be ErrorInterface
             $this->addError($errors);
         }
 
@@ -80,9 +80,9 @@ class JsonApiException extends RuntimeException
     }
 
     /**
-     * @param Error $error
+     * @param ErrorInterface $error
      */
-    public function addError(Error $error)
+    public function addError(ErrorInterface $error)
     {
         $this->errors[] = $error;
     }
@@ -100,7 +100,7 @@ class JsonApiException extends RuntimeException
     }
 
     /**
-     * @param Error[] $errors
+     * @param ErrorInterface[] $errors
      *
      * @return void
      */
