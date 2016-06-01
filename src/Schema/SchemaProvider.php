@@ -330,7 +330,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
         $meta          = $this->getValue($desc, self::META, null);
         $isShowSelf    = ($this->getValue($desc, self::SHOW_SELF, false) === true);
         $isShowRelated = ($this->getValue($desc, self::SHOW_RELATED, false) === true);
-        $isShowData    = ($this->getValue($desc, self::SHOW_DATA, true) === true);
+        $isShowData    = ($this->getValue($desc, self::SHOW_DATA, array_key_exists(self::DATA, $desc)) === true);
         $links         = $this->readLinks($resource, $name, $desc, $isShowSelf, $isShowRelated);
 
         return $this->factory->createRelationshipObject($name, $data, $links, $meta, $isShowData, false);
