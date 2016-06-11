@@ -138,9 +138,9 @@ class Container implements ContainerInterface, LoggerAwareInterface
 
         $classNameOrClosure = $this->providerMapping[$type];
         if ($classNameOrClosure instanceof Closure) {
-            $this->createdProviders[$type] = ($schema = $classNameOrClosure($this->factory, $this));
+            $this->createdProviders[$type] = ($schema = $this->createSchemaFromClosure($classNameOrClosure));
         } else {
-            $this->createdProviders[$type] = ($schema = new $classNameOrClosure($this->factory, $this));
+            $this->createdProviders[$type] = ($schema = $this->createSchemaFromClassName($classNameOrClosure));
         }
 
         /** @var SchemaProviderInterface $schema */
@@ -183,6 +183,14 @@ class Container implements ContainerInterface, LoggerAwareInterface
     }
 
     /**
+     * @return SchemaFactoryInterface
+     */
+    protected function getFactory()
+    {
+        return $this->factory;
+    }
+
+    /**
      * @param object $resource
      *
      * @return string
@@ -190,5 +198,29 @@ class Container implements ContainerInterface, LoggerAwareInterface
     protected function getResourceType($resource)
     {
         return get_class($resource);
+    }
+
+    /**
+     * @param Closure $closure
+     *
+     * @return SchemaProviderInterface
+     */
+    protected function createSchemaFromClosure(Closure $closure)
+    {
+        $schema = $closure($this->getFactory(), $this);
+
+        return $schema;
+    }
+
+    /**
+     * @param string $className
+     *
+     * @return SchemaProviderInterface
+     */
+    protected function createSchemaFromClassName($className)
+    {
+        $schema = new $className($this->getFactory(), $this);
+
+        return $schema;
     }
 }
