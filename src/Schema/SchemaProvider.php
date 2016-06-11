@@ -19,7 +19,6 @@
 use \InvalidArgumentException;
 use \Neomerx\JsonApi\I18n\Translator as T;
 use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
@@ -69,15 +68,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
     private $factory;
 
     /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
      * @param SchemaFactoryInterface $factory
-     * @param ContainerInterface     $container
      */
-    public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
+    public function __construct(SchemaFactoryInterface $factory)
     {
         $isOk = (is_string($this->getResourceType()) === true && empty($this->getResourceType()) === false);
         if ($isOk === false) {
@@ -99,8 +92,7 @@ abstract class SchemaProvider implements SchemaProviderInterface
             }
         }
 
-        $this->factory   = $factory;
-        $this->container = $container;
+        $this->factory = $factory;
     }
 
     /**

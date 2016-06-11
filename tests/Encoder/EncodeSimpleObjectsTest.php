@@ -144,8 +144,8 @@ EOL;
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
@@ -183,8 +183,8 @@ EOL;
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 $schema->setResourceLinksClosure(function ($resource) {
                     $this->assertNotNull($resource);
@@ -278,8 +278,8 @@ EOL;
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
@@ -315,8 +315,8 @@ EOL;
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
@@ -352,8 +352,8 @@ EOL;
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
@@ -388,8 +388,8 @@ EOL;
         $author1 = Author::instance(7, 'First', 'Last');
         $author2 = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
@@ -448,8 +448,8 @@ EOL;
         ];
 
         $actual = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
@@ -612,8 +612,8 @@ EOL;
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }

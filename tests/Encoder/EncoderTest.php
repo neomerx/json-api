@@ -70,8 +70,8 @@ class EncoderTest extends BaseTestCase
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }
@@ -125,8 +125,8 @@ EOL;
         $author->{Author::LINK_COMMENTS} = $author;
 
         $encoder = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->setIncludePaths([]);
                 return $schema;
             },
@@ -284,8 +284,8 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
+            Post::class    => function ($factory) {
+                $schema = new PostSchema($factory);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, null);
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, []);
                 return $schema;
@@ -325,8 +325,8 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
+            Post::class    => function ($factory) {
+                $schema = new PostSchema($factory);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_SELF, true);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_RELATED, true);
                 $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_SELF, true);
@@ -386,8 +386,8 @@ EOL;
         ];
         $author   = Author::instance(9, 'Dan', 'Gebhardt', $comments);
         $actual = Encoder::instance([
-            Author::class  => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class  => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::SHOW_SELF, true);
                 $schema->linkAddTo(
                     Author::LINK_COMMENTS,
@@ -449,8 +449,8 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
+            Post::class    => function ($factory) {
+                $schema = new PostSchema($factory);
                 $schema->setRelationshipsMeta(['some' => 'meta']);
                 return $schema;
             },
@@ -499,8 +499,8 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
+            Post::class    => function ($factory) {
+                $schema = new PostSchema($factory);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, null);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_DATA, false);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_RELATED, true);
@@ -553,8 +553,8 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
+            Post::class    => function ($factory) {
+                $schema = new PostSchema($factory);
                 $schema->linkRemoveFrom(Post::LINK_AUTHOR, PostSchema::DATA);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_RELATED, true);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::LINKS, ['foo' => new Link('/your/link', null, true)]);
@@ -609,8 +609,8 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) use ($throwExClosure) {
-                $schema = new PostSchema($factory, $container);
+            Post::class    => function ($factory) use ($throwExClosure) {
+                $schema = new PostSchema($factory);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, $throwExClosure);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_DATA, false);
                 $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_RELATED, true);
@@ -662,8 +662,8 @@ EOL;
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 //$schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             },
@@ -720,8 +720,8 @@ EOL;
 
         $actual = Encoder::instance([
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
+            Post::class    => function ($factory) {
+                $schema = new PostSchema($factory);
                 $schema->linkRemove(Post::LINK_AUTHOR);
                 return $schema;
             },

@@ -90,13 +90,13 @@ class EncodeIncludedObjectsTest extends BaseTestCase
     {
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
-            Comment::class => function ($factory, $container) {
-                $schema = new CommentSchema($factory, $container);
+            Comment::class => function ($factory) {
+                $schema = new CommentSchema($factory);
                 $schema->linkRemove(Comment::LINK_AUTHOR);
                 return $schema;
             },
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
+            Post::class    => function ($factory) {
+                $schema = new PostSchema($factory);
                 $schema->setIncludePaths([Post::LINK_COMMENTS]);
                 return $schema;
             },
@@ -365,8 +365,8 @@ EOL;
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
-            Site::class    => function ($factory, $container) {
-                $schema = new SiteSchema($factory, $container);
+            Site::class    => function ($factory) {
+                $schema = new SiteSchema($factory);
                 $schema->setIncludePaths([Site::LINK_POSTS]);
                 return $schema;
             },
@@ -427,8 +427,8 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
+            Post::class    => function ($factory) {
+                $schema = new PostSchema($factory);
                 $schema->linkAddTo(
                     Post::LINK_COMMENTS,
                     PostSchema::LINKS,
@@ -811,8 +811,8 @@ EOL;
         $actual = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
+            Post::class    => function ($factory) {
+                $schema = new PostSchema($factory);
                 $schema->setIsLinksInPrimary(true);
                 $schema->setIncludePaths([Post::LINK_AUTHOR, Post::LINK_COMMENTS]);
                 return $schema;
@@ -862,18 +862,18 @@ EOL;
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 
         $actual = Encoder::instance([
-            Author::class  => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class  => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->setIsLinksInIncluded(true);
                 return $schema;
             },
-            Comment::class => function ($factory, $container) {
-                $schema = new CommentSchema($factory, $container);
+            Comment::class => function ($factory) {
+                $schema = new CommentSchema($factory);
                 $schema->linkRemove(Comment::LINK_AUTHOR);
                 return $schema;
             },
-            Post::class    => function ($factory, $container) {
-                $schema = new PostSchema($factory, $container);
+            Post::class    => function ($factory) {
+                $schema = new PostSchema($factory);
                 $schema->setIncludePaths([Post::LINK_AUTHOR]);
                 return $schema;
             },

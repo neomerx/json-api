@@ -47,7 +47,7 @@ class IdentitySchema extends SchemaProvider
         $this->resourceType = $schemaForRealType->getResourceType();
         $this->selfSubUrl   = $schemaForRealType->getSelfSubUrl();
 
-        parent::__construct($factory, $container);
+        parent::__construct($factory);
 
         $this->identityClosure = $identityClosure;
     }

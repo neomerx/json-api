@@ -17,7 +17,6 @@
  */
 
 use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 
 /**
@@ -32,11 +31,10 @@ class SiteSchema extends DevSchemaProvider
 
     /**
      * @param SchemaFactoryInterface $factory
-     * @param ContainerInterface     $container
      */
-    public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
+    public function __construct(SchemaFactoryInterface $factory)
     {
-        parent::__construct($factory, $container);
+        parent::__construct($factory);
 
         $this->setIncludePaths([
             Site::LINK_POSTS,

@@ -1,4 +1,4 @@
-<?php namespace Neomerx\Tests\JsonApi\Encoder;
+<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue81;
 
 /**
  * Copyright 2015 info@neomerx.com (www.neomerx.com)
@@ -16,33 +16,31 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\Tests\JsonApi\Data\DummySchema;
+use Closure;
+use Neomerx\JsonApi\Schema\Container;
 
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class SchemaTest extends BaseTestCase
+class SchemaContainer extends Container
 {
     /**
-     * @var DummySchema
+     * @inheritdoc
      */
-    private $schema;
-
-    /**
-     * Set up.
-     */
-    protected function setUp()
+    protected function createSchemaFromClosure(Closure $closure)
     {
-        parent::setUp();
+        $schema = $closure($this->getFactory(), $this);
 
-        $schemaFactory = new Factory();
-        $this->schema  = new DummySchema($schemaFactory);
+        return $schema;
     }
 
-    public function testGetLinks()
+    /**
+     * @inheritdoc
+     */
+    protected function createSchemaFromClassName($className)
     {
-        $this->assertEmpty($this->schema->getRelationships(null, true, []));
+        $schema = new $className($this->getFactory(), $this);
+
+        return $schema;
     }
 }

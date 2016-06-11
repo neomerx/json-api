@@ -207,7 +207,7 @@ class Container implements ContainerInterface, LoggerAwareInterface
      */
     protected function createSchemaFromClosure(Closure $closure)
     {
-        $schema = $closure($this->getFactory(), $this);
+        $schema = $closure($this->getFactory());
 
         return $schema;
     }
@@ -219,7 +219,7 @@ class Container implements ContainerInterface, LoggerAwareInterface
      */
     protected function createSchemaFromClassName($className)
     {
-        $schema = new $className($this->getFactory(), $this);
+        $schema = new $className($this->getFactory());
 
         return $schema;
     }

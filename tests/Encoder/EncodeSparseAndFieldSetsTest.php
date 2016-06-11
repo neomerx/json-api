@@ -349,8 +349,8 @@ EOL;
         };
 
         $actual = Encoder::instance([
-            Author::class  => function ($factory, $container) use ($throwExClosure) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class  => function ($factory) use ($throwExClosure) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::DATA, $throwExClosure);
                 return $schema;
             },

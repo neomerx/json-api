@@ -87,8 +87,8 @@ class IssueTest extends BaseTestCase
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 
         $actual = CustomEncoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::META, ['tip' => 'could be included']);
                 $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::SHOW_DATA, false);
                 return $schema;

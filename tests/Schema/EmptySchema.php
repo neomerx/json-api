@@ -18,7 +18,6 @@
 
 use \LogicException;
 use \Neomerx\JsonApi\Schema\SchemaProvider;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 
 /**
@@ -38,14 +37,13 @@ class EmptySchema extends SchemaProvider
 
     /**
      * @param SchemaFactoryInterface $factory
-     * @param ContainerInterface     $container
      */
-    public function __construct(SchemaFactoryInterface $factory, ContainerInterface $container)
+    public function __construct(SchemaFactoryInterface $factory)
     {
         $this->selfSubUrl   = static::$subUrl;
         $this->resourceType = static::$type;
 
-        parent::__construct($factory, $container);
+        parent::__construct($factory);
     }
 
     /**

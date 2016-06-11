@@ -17,7 +17,7 @@
  */
 
 use \Closure;
-use \Neomerx\JsonApi\Encoder\Encoder;
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\Tests\JsonApi\Data\Comment;
@@ -63,14 +63,17 @@ class IssueTest extends BaseTestCase
         $comment = Comment::instance('123', 'Comment body', $author);
         $author->{Author::LINK_COMMENTS} = [$comment];
 
+        $factory = new Factory();
+
         // AuthorSchema is will provide JSON-API type however anything else from it won't be used
-        $encoder = Encoder::instance([
+        $container = new SchemaContainer($factory, [
             Author::class         => AuthorSchema::class,
             Comment::class        => CommentSchema::class,
             AuthorIdentity::class => $this->createIdentitySchema(Author::class, function (AuthorIdentity $identity) {
                 return $identity->idx;
             }),
         ]);
+        $encoder   = $factory->createEncoder($container);
 
         $actual = $encoder->encodeData($comment);
 

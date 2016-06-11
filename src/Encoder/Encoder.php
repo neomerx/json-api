@@ -153,8 +153,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     public function encodeData($data, EncodingParametersInterface $parameters = null)
     {
-        $container = $this->container;
-        $result    = $this->encodeDataInternal($container, $data, $parameters);
+        $result = $this->encodeDataInternal($this->container, $data, $parameters);
 
         return $result;
     }

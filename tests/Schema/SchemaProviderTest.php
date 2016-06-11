@@ -49,7 +49,7 @@ class SchemaProviderTest extends BaseTestCase
         EmptySchema::$type   = '';
         EmptySchema::$subUrl = '/some-sub-url/';
 
-        new EmptySchema($this->factory, $this->factory->createContainer([]));
+        new EmptySchema($this->factory);
     }
 
     /**
@@ -62,7 +62,7 @@ class SchemaProviderTest extends BaseTestCase
         EmptySchema::$type   = 'someTypes';
         EmptySchema::$subUrl = '';
 
-        new EmptySchema($this->factory, $this->factory->createContainer([]));
+        new EmptySchema($this->factory);
     }
 
     /**
@@ -73,7 +73,7 @@ class SchemaProviderTest extends BaseTestCase
         EmptySchema::$type   = 'some-type';
         EmptySchema::$subUrl = null;
 
-        $schema = new EmptySchema($this->factory, $this->factory->createContainer([]));
+        $schema = new EmptySchema($this->factory);
 
         $this->assertEquals('/some-type', $schema->getSelfSubUrl());
     }
