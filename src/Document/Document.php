@@ -378,6 +378,18 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
+    public function addErrors($errors)
+    {
+        empty($this->errors) === false ?: $this->errors = [];
+
+        foreach ($errors as $error) {
+            $this->addError($error);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function setUrlPrefix($prefix)
     {
         $this->urlPrefix = (string)$prefix;

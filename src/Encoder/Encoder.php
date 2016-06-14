@@ -187,9 +187,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     public function encodeErrors($errors)
     {
         $docWriter = $this->factory->createDocument();
-        foreach ($errors as $error) {
-            $docWriter->addError($error);
-        }
+        $docWriter->addErrors($errors);
 
         return $this->encodeToJson($docWriter->getDocument());
     }

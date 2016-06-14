@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use \Neomerx\JsonApi\Exceptions\ErrorCollection;
 use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
@@ -235,6 +236,17 @@ interface DocumentInterface
      * @return void
      */
     public function addError(ErrorInterface $error);
+
+    /**
+     * Add information to 'errors' top-level section.
+     *
+     * If you add errors information no other elements will be in output document.
+     *
+     * @param ErrorInterface[]|ErrorCollection $errors
+     *
+     * @return void
+     */
+    public function addErrors($errors);
 
     /**
      * Add JSON API version information.

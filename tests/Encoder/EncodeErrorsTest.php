@@ -144,6 +144,26 @@ EOL;
     }
 
     /**
+     * Test encode empty error array.
+     *
+     * @see https://github.com/neomerx/json-api/issues/151
+     */
+    public function testEncodeEmptyErrorArray()
+    {
+        $actual  = Encoder::instance()->encodeErrors([]);
+
+        $expected = <<<EOL
+        {
+            "errors" : []
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * @return Error
      */
     private function getError()
