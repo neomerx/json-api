@@ -41,7 +41,7 @@ class RelationshipObject implements RelationshipObjectInterface
     private $links;
 
     /**
-     * @var mixed
+     * @var object|array|null|Closure
      */
     private $meta;
 
@@ -64,7 +64,7 @@ class RelationshipObject implements RelationshipObjectInterface
      * @param string                                                        $name
      * @param object|array|null|Closure                                     $data
      * @param array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface> $links
-     * @param mixed                                                         $meta
+     * @param object|array|null|Closure                                     $meta
      * @param bool                                                          $isShowData
      * @param bool                                                          $isRoot
      */
@@ -128,6 +128,11 @@ class RelationshipObject implements RelationshipObjectInterface
      */
     public function getMeta()
     {
+        if ($this->meta instanceof Closure) {
+            $meta = $this->meta;
+            $this->meta = $meta();
+        }
+
         return $this->meta;
     }
 

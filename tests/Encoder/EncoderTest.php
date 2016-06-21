@@ -546,6 +546,57 @@ EOL;
     }
 
     /**
+     * Test add meta to empty relationship.
+     */
+    public function testAddMetaToEmptyRelationship()
+    {
+        $actual = Encoder::instance([
+            Author::class  => AuthorSchema::class,
+            Comment::class => CommentSchema::class,
+            Post::class    => function ($factory) {
+                $schema = new PostSchema($factory);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, null);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_DATA, false);
+                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::META, ['author' => 'meta']);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, []);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_DATA, false);
+                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::META, function () {
+                    return ['comments' => 'meta'];
+                });
+                return $schema;
+            },
+        ], $this->encoderOptions)->encodeData($this->getStandardPost());
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"  : "posts",
+                "id"    : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
+                "relationships" : {
+                    "author" : {
+                       "meta": { "author": "meta" }
+                    },
+                    "comments" : {
+                        "meta": { "comments": "meta" }
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/posts/1"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * Test hide data section if it is omitted in Schema.
      */
     public function testHideDataSectionIfOmittedInSchema()

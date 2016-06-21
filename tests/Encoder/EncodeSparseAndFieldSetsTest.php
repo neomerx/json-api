@@ -385,6 +385,51 @@ EOL;
     }
 
     /**
+     * Test meta closures are not executed in lazy relationships.
+     */
+    public function testMetaNotLoadedInLazyRelationships()
+    {
+        $throwExClosure = function () {
+            throw new \Exception();
+        };
+
+        $actual = Encoder::instance([
+            Author::class  => function ($factory) use ($throwExClosure) {
+                $schema = new AuthorSchema($factory);
+                $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::META, $throwExClosure);
+                return $schema;
+            },
+        ], $this->encoderOptions)->encodeData($this->author, new EncodingParameters(
+            // do not include any relationships
+            [],
+            // include only these attributes (thus relationship that throws exception should not be invoked)
+            [
+                'people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME],
+            ]
+        ));
+
+        $expected = <<<EOL
+        {
+            "data":{
+                "type" : "people",
+                "id"   : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "links":{
+                    "self":"http://example.com/people/9"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * Test encoder in mode when parser continues to parse even if relationship
      * are not in field-set (however child resources might be in 'include' paths).
      *
