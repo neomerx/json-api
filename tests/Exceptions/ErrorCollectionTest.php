@@ -62,7 +62,9 @@ class ErrorCollectionTest extends BaseTestCase
         $title1 = 'some title 1';
         $title2 = 'some title 2';
         $this->collection->addDataError($title1);
+        $this->assertCount(1, $copy = $this->collection->getArrayCopy());
         $this->collection->addDataError($title2);
+        $this->assertCount(1, $copy);
         $this->assertCount(2, $this->collection);
         $this->assertCount(2, $this->collection->getArrayCopy());
 
@@ -82,7 +84,7 @@ class ErrorCollectionTest extends BaseTestCase
         }
 
         $serialized        = $this->collection->serialize();
-        $anotherCollection = new  ErrorCollection();
+        $anotherCollection = new ErrorCollection();
         $anotherCollection->unserialize($serialized);
         $this->assertEquals($this->collection, $anotherCollection);
 

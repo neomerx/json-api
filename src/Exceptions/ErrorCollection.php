@@ -18,8 +18,8 @@
 
 use \Countable;
 use \ArrayAccess;
-use \ArrayObject;
 use \Serializable;
+use \ArrayIterator;
 use \IteratorAggregate;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
@@ -32,24 +32,16 @@ use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, Countable
 {
     /**
-     * @var ArrayObject
+     * @var array
      */
-    private $items;
-
-    /**
-     * ErrorCollection constructor.
-     */
-    public function __construct()
-    {
-        $this->items = new ArrayObject();
-    }
+    private $items = [];
 
     /**
      * @inheritdoc
      */
     public function getIterator()
     {
-        return $this->items->getIterator();
+        return new ArrayIterator($this->items);
     }
 
     /**
@@ -57,7 +49,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function count()
     {
-        return $this->items->count();
+        return count($this->items);
     }
 
     /**
@@ -65,7 +57,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function serialize()
     {
-        return $this->items->serialize();
+        return serialize($this->items);
     }
 
     /**
@@ -73,7 +65,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function unserialize($serialized)
     {
-        $this->items->unserialize($serialized);
+        $this->items = unserialize($serialized);
     }
 
     /**
@@ -81,7 +73,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function offsetExists($offset)
     {
-        return $this->items->offsetExists($offset);
+        return array_key_exists($offset, $this->items);
     }
 
     /**
@@ -91,7 +83,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function offsetGet($offset)
     {
-        return $this->items->offsetGet($offset);
+        return $this->items[$offset];
     }
 
     /**
@@ -99,7 +91,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function offsetSet($offset, $value)
     {
-        $this->items->offsetSet($offset, $value);
+        $offset === null ? $this->add($value) : $this->items[$offset] = $value;
     }
 
     /**
@@ -107,7 +99,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function offsetUnset($offset)
     {
-        $this->items->offsetUnset($offset);
+        unset($this->items[$offset]);
     }
 
     /**
@@ -115,7 +107,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function getArrayCopy()
     {
-        return $this->items->getArrayCopy();
+        return $this->items;
     }
 
     /**
@@ -125,7 +117,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function add(ErrorInterface $error)
     {
-        $this->items->append($error);
+        $this->items[] =$error;
 
         return $this;
     }
