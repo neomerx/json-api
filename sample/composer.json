@@ -21,6 +21,6 @@
         }
     ],
     "require": {
-        "neomerx/json-api": "dev-develop"
+        "neomerx/json-api": "^0.8.8"
     }
 }
