@@ -33,14 +33,17 @@ High code quality and **100% test coverage** with **200+ tests**. Production rea
 
 ## Full-stack Integration
 
-This package is framework agnostic and if you are looking for practical usage sample you might be interested in
-- Quick start JSON API application [Limoncello Collins](https://github.com/neomerx/limoncello-collins) or [Limoncello Shot](https://github.com/neomerx/limoncello-shot).
+This package is framework agnostic and if you are looking for practical usage sample you might be interested in Quick start JSON API server application [Limoncello Flute](https://github.com/neomerx/limoncello-flute).
 
-The servers support
+The server supports
 - CRUD operations for a few sample data models and Users.
 - Cross-origin requests (CORS) to API server.
 - Authentication (Bearer token) and authorizations for CRUD operations.
 - Support for such JSON API features as resource inclusion, pagination and etc.
+
+<p align="center">
+<a href="https://github.com/neomerx/limoncello-flute" target="_blank"><img src="https://github.com/neomerx/limoncello-flute/blob/master/resources/img/screen-shot.png" alt="Demo app screen-shot" title="Limoncello Flute" align="middle" width="330" height="252" /></a>
+</p>
 
 ## Sample usage
 
