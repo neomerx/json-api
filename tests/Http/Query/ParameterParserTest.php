@@ -45,7 +45,7 @@ class ParameterParserTest extends BaseTestCase
     /**
      * @var array
      */
-    private $actrualCalls = [];
+    private $actualCalls = [];
 
     /**
      * @inheritdoc
@@ -56,7 +56,7 @@ class ParameterParserTest extends BaseTestCase
 
         $this->parser = (new Factory())->createQueryParametersParser();
 
-        $this->expectedCalls = $this->actrualCalls = [
+        $this->expectedCalls = $this->actualCalls = [
             self::QUERY_PARAMS => 0,
         ];
     }
@@ -68,7 +68,7 @@ class ParameterParserTest extends BaseTestCase
     {
         parent::tearDown();
 
-        $this->assertEquals($this->expectedCalls, $this->actrualCalls);
+        $this->assertEquals($this->expectedCalls, $this->actualCalls);
     }
 
     /**
@@ -121,6 +121,22 @@ class ParameterParserTest extends BaseTestCase
 
         $this->assertEquals($filter, $parameters->getFilteringParameters());
         $this->assertEquals($paging, $parameters->getPaginationParameters());
+    }
+
+    /**
+     * Test that sort parameters can be cast back to a string.
+     */
+    public function testSortParamsStringConversion()
+    {
+        $expected = '-created,title,name';
+        $input = ['sort' => $expected];
+        $parameters = $this->parser->parse($this->prepareRequest($input));
+
+        $actual = implode(',', array_map(function ($param) {
+            return (string) $param;
+        }, $parameters->getSortParameters()));
+
+        $this->assertEquals($expected, $actual);
     }
 
     /**
@@ -278,7 +294,7 @@ class ParameterParserTest extends BaseTestCase
         }, function () {
             throw new LogicException();
         }, function () use ($input) {
-            $this->actrualCalls[self::QUERY_PARAMS]++;
+            $this->actualCalls[self::QUERY_PARAMS]++;
             return $input;
         });
 

@@ -48,6 +48,16 @@ class SortParameter implements SortParameterInterface
     }
 
     /**
+     * @return string
+     */
+    public function __toString()
+    {
+        $prefix = $this->isAscending() ? '' : '-';
+
+        return $prefix . $this->getField();
+    }
+
+    /**
      * @inheritdoc
      */
     public function getField()
