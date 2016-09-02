@@ -17,6 +17,9 @@
  */
 
 use \InvalidArgumentException;
+use \Neomerx\Samples\JsonApi\Models\ApprovedComment;
+use \Neomerx\Samples\JsonApi\Models\Comment;
+use \Neomerx\Tests\JsonApi\Data\CommentSchema;
 use \Neomerx\Tests\JsonApi\Data\Post;
 use \Neomerx\JsonApi\Schema\Container;
 use \Neomerx\Tests\JsonApi\Data\Author;
@@ -63,6 +66,18 @@ class ContainerTest extends BaseTestCase
         }
 
         $this->assertTrue($gotException);
+    }
+
+    /**
+     * Test container.
+     */
+    public function testGetSchemaByChildType()
+    {
+        $container = $this->factory->createContainer([
+            Comment::class => CommentSchema::class,
+        ]);
+
+        $this->assertNotNull($container->getSchemaByType(ApprovedComment::class));
     }
 
     /**

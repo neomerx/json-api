@@ -133,7 +133,12 @@ class Container implements ContainerInterface, LoggerAwareInterface
         }
 
         if (isset($this->providerMapping[$type]) === false) {
-            throw new InvalidArgumentException(T::t('Schema is not registered for type \'%s\'.', [$type]));
+            $parentClass = get_parent_class($type);
+            if (!$parentClass) {
+                throw new InvalidArgumentException(T::t('Schema is not registered for type \'%s\'.', [$type]));
+            }
+
+            return $this->getSchemaByType($parentClass);
         }
 
         $classNameOrClosure = $this->providerMapping[$type];
