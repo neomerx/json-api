@@ -39,14 +39,14 @@ class Container implements ContainerInterface, LoggerAwareInterface
     private $providerMapping = [];
 
     /**
-     * @var array
+     * @var SchemaProviderInterface[]
      */
     private $createdProviders = [];
 
     /**
      * @var array
      */
-    private $resourceType2Type = [];
+    private $resType2JsonType = [];
 
     /**
      * @var SchemaFactoryInterface
@@ -87,14 +87,14 @@ class Container implements ContainerInterface, LoggerAwareInterface
             ));
         }
 
-        if (isset($this->providerMapping[$type]) === true) {
+        if ($this->hasProviderMapping($type) === true) {
             throw new InvalidArgumentException(T::t(
                 'Type should not be used more than once to register a schema (\'%s\').',
                 [$type]
             ));
         }
 
-        $this->providerMapping[$type] = $schema;
+        $this->setProviderMapping($type, $schema);
     }
 
     /**
@@ -128,24 +128,25 @@ class Container implements ContainerInterface, LoggerAwareInterface
     {
         is_string($type) === true ?: Exceptions::throwInvalidArgument('type', $type);
 
-        if (isset($this->createdProviders[$type])) {
-            return $this->createdProviders[$type];
+        if ($this->hasCreatedProvider($type) === true) {
+            return $this->getCreatedProvider($type);
         }
 
-        if (isset($this->providerMapping[$type]) === false) {
+        if ($this->hasProviderMapping($type) === false) {
             throw new InvalidArgumentException(T::t('Schema is not registered for type \'%s\'.', [$type]));
         }
 
-        $classNameOrClosure = $this->providerMapping[$type];
+        $classNameOrClosure = $this->getProviderMapping($type);
         if ($classNameOrClosure instanceof Closure) {
-            $this->createdProviders[$type] = ($schema = $this->createSchemaFromClosure($classNameOrClosure));
+            $schema = $this->createSchemaFromClosure($classNameOrClosure);
         } else {
-            $this->createdProviders[$type] = ($schema = $this->createSchemaFromClassName($classNameOrClosure));
+            $schema = $this->createSchemaFromClassName($classNameOrClosure);
         }
+        $this->setCreatedProvider($type, $schema);
 
         /** @var SchemaProviderInterface $schema */
 
-        $this->resourceType2Type[$schema->getResourceType()] = $type;
+        $this->setResourceToJsonTypeMapping($schema->getResourceType(), $type);
 
         return $schema;
     }
@@ -156,13 +157,13 @@ class Container implements ContainerInterface, LoggerAwareInterface
     public function getSchemaByResourceType($resourceType)
     {
         // Schema is not found among instantiated schemas for resource type $resourceType
-        $isOk = (is_string($resourceType) === true && isset($this->resourceType2Type[$resourceType]) === true);
+        $isOk = (is_string($resourceType) === true && $this->hasResourceToJsonTypeMapping($resourceType) === true);
 
         // Schema might not be found if it hasn't been searched by type (not resource type) before.
         // We instantiate all schemas and then find one.
         if ($isOk === false) {
-            foreach ($this->providerMapping as $type => $schema) {
-                if (isset($this->createdProviders[$type]) === false) {
+            foreach ($this->getProviderMappings() as $type => $schema) {
+                if ($this->hasCreatedProvider($type) === false) {
                     // it will instantiate the schema
                     $this->getSchemaByType($type);
                 }
@@ -170,7 +171,7 @@ class Container implements ContainerInterface, LoggerAwareInterface
         }
 
         // search one more time
-        $isOk = (is_string($resourceType) === true && isset($this->resourceType2Type[$resourceType]) === true);
+        $isOk = (is_string($resourceType) === true && $this->hasResourceToJsonTypeMapping($resourceType) === true);
 
         if ($isOk === false) {
             throw new InvalidArgumentException(T::t(
@@ -179,7 +180,7 @@ class Container implements ContainerInterface, LoggerAwareInterface
             ));
         }
 
-        return $this->getSchemaByType($this->resourceType2Type[$resourceType]);
+        return $this->getSchemaByType($this->getJsonType($resourceType));
     }
 
     /**
@@ -188,6 +189,107 @@ class Container implements ContainerInterface, LoggerAwareInterface
     protected function getFactory()
     {
         return $this->factory;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getProviderMappings()
+    {
+        return $this->providerMapping;
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return bool
+     */
+    protected function hasProviderMapping($type)
+    {
+        return array_key_exists($type, $this->providerMapping);
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return mixed
+     */
+    protected function getProviderMapping($type)
+    {
+        return $this->providerMapping[$type];
+    }
+
+    /**
+     * @param string         $type
+     * @param string|Closure $schema
+     *
+     * @return void
+     */
+    protected function setProviderMapping($type, $schema)
+    {
+        $this->providerMapping[$type] = $schema;
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return bool
+     */
+    protected function hasCreatedProvider($type)
+    {
+        return array_key_exists($type, $this->createdProviders);
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return SchemaProviderInterface
+     */
+    protected function getCreatedProvider($type)
+    {
+        return $this->createdProviders[$type];
+    }
+
+    /**
+     * @param string                  $type
+     * @param SchemaProviderInterface $provider
+     *
+     * @return void
+     */
+    protected function setCreatedProvider($type, SchemaProviderInterface $provider)
+    {
+        $this->createdProviders[$type] = $provider;
+    }
+
+    /**
+     * @param string $resourceType
+     *
+     * @return bool
+     */
+    protected function hasResourceToJsonTypeMapping($resourceType)
+    {
+        return array_key_exists($resourceType, $this->resType2JsonType);
+    }
+
+    /**
+     * @param string $resourceType
+     *
+     * @return string
+     */
+    protected function getJsonType($resourceType)
+    {
+        return $this->resType2JsonType[$resourceType];
+    }
+
+    /**
+     * @param string $resourceType
+     * @param string $jsonType
+     *
+     * @return void
+     */
+    protected function setResourceToJsonTypeMapping($resourceType, $jsonType)
+    {
+        $this->resType2JsonType[$resourceType] = $jsonType;
     }
 
     /**
