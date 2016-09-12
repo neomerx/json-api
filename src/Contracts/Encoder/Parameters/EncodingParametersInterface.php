@@ -29,14 +29,14 @@ interface EncodingParametersInterface
     public function getIncludePaths();
 
     /**
-     * Get filed names that should be in result.
+     * Get field names that should be in result.
      *
      * @return array|null
      */
     public function getFieldSets();
 
     /**
-     * Get filed names that should be in result.
+     * Get field names that should be in result.
      *
      * @param string $type
      *
