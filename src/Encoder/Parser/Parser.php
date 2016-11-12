@@ -197,9 +197,30 @@ class Parser implements ParserInterface, LoggerAwareInterface
      */
     protected function analyzeCurrentData()
     {
-        $relationship = $this->stack->end()->getRelationship();
-        $data = $relationship->isShowData() === true ? $relationship->getData() : null;
+        $data   = $this->getCurrentData();
+        $result = $this->analyzeData($data);
 
+        return $result;
+    }
+
+    /**
+     * @return array|null|object
+     */
+    protected function getCurrentData()
+    {
+        $relationship = $this->stack->end()->getRelationship();
+        $data         = $relationship->isShowData() === true ? $relationship->getData() : null;
+
+        return $data;
+    }
+
+    /**
+     * @param array|null|object $data
+     *
+     * @return array
+     */
+    protected function analyzeData($data)
+    {
         $isCollection    = true;
         $isEmpty         = true;
         $traversableData = null;
