@@ -123,4 +123,19 @@ class ContainerTest extends BaseTestCase
 
         $container->register(Author::class, AuthorSchema::class);
     }
+
+    /**
+     * Test container.
+     *
+     * @link https://github.com/neomerx/json-api/issues/168
+     */
+    public function testRegisterSchemaInstance()
+    {
+        $authorSchema = new AuthorSchema($this->factory);
+        $container    = new Container($this->factory, [
+            Author::class => $authorSchema,
+        ]);
+
+        $this->assertSame($authorSchema, $container->getSchema(new Author()));
+    }
 }

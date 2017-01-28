@@ -45,9 +45,10 @@
     }
   },
   "scripts": {
-    "test": ["@phpunit", "@phpcs"],
-    "phpunit": "./vendor/phpunit/phpunit/phpunit",
-    "phpcs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests",
+    "test": ["@test-phpunit", "@test-phpcs"],
+    "test-phpunit": "./vendor/phpunit/phpunit/phpunit",
+    "test-phpcs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests",
+
     "perf-php": "docker-compose run --rm cli_php php /app/sample/sample.php -t=10000",
     "perf-hhvm": "docker-compose run --rm cli_hhvm hhvm /app/sample/sample.php -t=10000"
   }

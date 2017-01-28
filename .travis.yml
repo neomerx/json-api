@@ -9,14 +9,14 @@ matrix:
   include:
     - php: 5.5
       script:
-      - phpunit --coverage-text --coverage-clover=coverage.clover
+      - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
       after_script:
       - php vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover
 before_script:
 - travis_retry composer self-update
 - travis_retry composer install --no-interaction --prefer-dist
 script:
-- phpunit
+- vendor/bin/phpunit
 - cd sample/ && composer update && php sample.php > /dev/null
 notifications:
   webhooks:

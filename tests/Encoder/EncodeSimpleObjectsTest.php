@@ -19,6 +19,7 @@
 use \Neomerx\JsonApi\Document\Link;
 use \Neomerx\Tests\JsonApi\Data\Site;
 use \Neomerx\JsonApi\Encoder\Encoder;
+use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\Data\Author;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\Tests\JsonApi\Data\Collection;
@@ -637,6 +638,44 @@ EOL;
                     "self" : "http://example.com/people/9"
                 }
             }]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode with Schema instance.
+     *
+     * @link https://github.com/neomerx/json-api/issues/168
+     */
+    public function testEncodeWithSchmaInstance()
+    {
+        $authorSchema = new AuthorSchema(new Factory());
+        $authorSchema->linkRemove(Author::LINK_COMMENTS);
+
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
+            Author::class => $authorSchema
+        ], $this->encoderOptions);
+
+        $actual = $encoder->encodeData($author);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"       : "people",
+                "id"         : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "links" : {
+                    "self" : "http://example.com/people/9"
+                }
+            }
         }
 EOL;
         // remove formatting from 'expected'

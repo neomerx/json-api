@@ -79,10 +79,14 @@ class Container implements ContainerInterface, LoggerAwareInterface
             throw new InvalidArgumentException(T::t('Type must be non-empty string.'));
         }
 
-        $isOk = ((is_string($schema) === true && empty($schema) === false) || $schema instanceof Closure);
+        $isOk = (
+            (is_string($schema) === true && empty($schema) === false) ||
+            $schema instanceof Closure ||
+            $schema instanceof SchemaProviderInterface
+        );
         if ($isOk === false) {
             throw new InvalidArgumentException(T::t(
-                'Schema for type \'%s\' must be non-empty string or Closure.',
+                'Schema for type \'%s\' must be non-empty string, Closure or SchemaProviderInterface instance.',
                 [$type]
             ));
         }
@@ -94,7 +98,13 @@ class Container implements ContainerInterface, LoggerAwareInterface
             ));
         }
 
-        $this->setProviderMapping($type, $schema);
+        if ($schema instanceof SchemaProviderInterface) {
+            $this->setProviderMapping($type, $jsonType = get_class($schema));
+            $this->setResourceToJsonTypeMapping($schema->getResourceType(), $type);
+            $this->setCreatedProvider($type, $schema);
+        } else {
+            $this->setProviderMapping($type, $schema);
+        }
     }
 
     /**

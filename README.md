@@ -22,7 +22,7 @@ This framework agnostic package implements [JSON API](http://jsonapi.org/) speci
 * Sparse fieldsets and customized included paths
 * Errors
 
-High code quality and **100% test coverage** with **200+ tests**. Production ready.
+High code quality and **100% test coverage** with **250+ tests**. Production ready.
 
 **To find out more, please check out the [Wiki](https://github.com/neomerx/json-api/wiki) and [Sample App](/sample)**.
 
