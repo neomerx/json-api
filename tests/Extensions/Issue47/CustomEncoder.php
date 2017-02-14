@@ -27,7 +27,7 @@ class CustomEncoder extends Encoder
     /**
      * @return FactoryInterface
      */
-    protected static function getFactory()
+    protected static function createFactory()
     {
         return new CustomFactory();
     }

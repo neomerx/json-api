@@ -372,7 +372,9 @@ class Document implements DocumentInterface, LoggerAwareInterface
             return $value !== null;
         });
 
-        $this->errors[] = (object)$representation;
+        // There is a special case when error representation is an empty array
+        // Due to further json transform it must be an object otherwise it will be an empty array in json
+        $this->errors[] = empty($representation) === false ? $representation : (object)$representation;
     }
 
     /**

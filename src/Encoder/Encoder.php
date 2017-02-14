@@ -39,34 +39,34 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @var ContainerInterface
      */
-    protected $container;
+    private $container;
 
     /**
      * @var FactoryInterface
      */
-    protected $factory;
+    private $factory;
 
     /**
      * @var EncoderOptions|null
      */
-    protected $encoderOptions;
+    private $encoderOptions;
 
     /**
      * Links in array<string,LinkInterface> format.
      *
      * @var array|null
      */
-    protected $links;
+    private $links;
 
     /**
      * @var array|object|null
      */
-    protected $meta;
+    private $meta;
 
     /**
      * @var bool
      */
-    protected $isAddJsonApiVersion;
+    private $isAddJsonApiVersion;
 
     /**
      * @var mixed|null
@@ -127,7 +127,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     public function withRelationshipSelfLink($resource, $relationshipName, $meta = null, $treatAsHref = false)
     {
-        $link = $this->container->getSchema($resource)
+        $link = $this->getContainer()->getSchema($resource)
             ->getRelationshipSelfLink($resource, $relationshipName, $meta, $treatAsHref);
 
         return $this->withLinks([
@@ -140,7 +140,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     public function withRelationshipRelatedLink($resource, $relationshipName, $meta = null, $treatAsHref = false)
     {
-        $link = $this->container->getSchema($resource)
+        $link = $this->getContainer()->getSchema($resource)
             ->getRelationshipRelatedLink($resource, $relationshipName, $meta, $treatAsHref);
 
         return $this->withLinks([
@@ -153,7 +153,8 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     public function encodeData($data, EncodingParametersInterface $parameters = null)
     {
-        $result = $this->encodeDataInternal($this->container, $data, $parameters);
+        $array  = $this->encodeDataToArray($this->getContainer(), $data, $parameters);
+        $result = $this->encodeToJson($array);
 
         return $result;
     }
@@ -163,8 +164,8 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     public function encodeIdentifiers($data, EncodingParametersInterface $parameters = null)
     {
-        $container = $this->factory->createResourceIdentifierContainerAdapter($this->container);
-        $result    = $this->encodeDataInternal($container, $data, $parameters);
+        $array  = $this->encodeIdentifiersToArray($data, $parameters);
+        $result = $this->encodeToJson($array);
 
         return $result;
     }
@@ -174,11 +175,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     public function encodeError(ErrorInterface $error)
     {
-        $docWriter = $this->factory->createDocument();
-
-        $docWriter->addError($error);
-
-        return $this->encodeToJson($docWriter->getDocument());
+        return $this->encodeToJson($this->encodeErrorToArray($error));
     }
 
     /**
@@ -186,10 +183,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     public function encodeErrors($errors)
     {
-        $docWriter = $this->factory->createDocument();
-        $docWriter->addErrors($errors);
-
-        return $this->encodeToJson($docWriter->getDocument());
+        return $this->encodeToJson($this->encodeErrorsToArray($errors));
     }
 
     /**
@@ -197,12 +191,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     public function encodeMeta($meta)
     {
-        $docWriter = $this->factory->createDocument();
-
-        $docWriter->setMetaToDocument($meta);
-        $docWriter->unsetData();
-
-        return $this->encodeToJson($docWriter->getDocument());
+        return $this->encodeToJson($this->encodeMetaToArray($meta));
     }
 
     /**
@@ -210,20 +199,20 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      * @param object|array|Iterator|null       $data
      * @param EncodingParametersInterface|null $parameters
      *
-     * @return string
+     * @return array
      */
-    protected function encodeDataInternal(
+    protected function encodeDataToArray(
         ContainerInterface $container,
         $data,
         EncodingParametersInterface $parameters = null
     ) {
         $this->checkInputData($data);
 
-        $docWriter     = $this->factory->createDocument();
+        $docWriter     = $this->getFactory()->createDocument();
         $paramAnalyzer = $this->createParametersAnalyzer($container, $parameters);
-        $parserManager = $this->factory->createManager($paramAnalyzer);
-        $interpreter   = $this->factory->createReplyInterpreter($docWriter, $paramAnalyzer);
-        $parser        = $this->factory->createParser($container, $parserManager);
+        $parserManager = $this->getFactory()->createManager($paramAnalyzer);
+        $interpreter   = $this->getFactory()->createReplyInterpreter($docWriter, $paramAnalyzer);
+        $parser        = $this->getFactory()->createParser($container, $parserManager);
 
         $this->configureUrlPrefix($docWriter);
 
@@ -231,19 +220,19 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
             $interpreter->handle($reply);
         }
 
-        if ($this->meta !== null) {
-            $docWriter->setMetaToDocument($this->meta);
+        if ($this->getMeta() !== null) {
+            $docWriter->setMetaToDocument($this->getMeta());
         }
 
-        if (empty($this->links) === false) {
-            $docWriter->setDocumentLinks($this->links);
+        if (empty($this->getLinks()) === false) {
+            $docWriter->setDocumentLinks($this->getLinks());
         }
 
-        if ($this->isAddJsonApiVersion === true) {
-            $docWriter->addJsonApiVersion(self::JSON_API_VERSION, $this->jsonApiVersionMeta);
+        if ($this->isWithJsonApiVersion() === true) {
+            $docWriter->addJsonApiVersion(self::JSON_API_VERSION, $this->getJsonApiVersionMeta());
         }
 
-        $result = $this->encodeToJson($docWriter->getDocument());
+        $result = $docWriter->getDocument();
         $this->resetEncodeParameters();
 
         return $result;
@@ -258,9 +247,9 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     protected function encodeToJson(array $document)
     {
-        return $this->encoderOptions === null ?
+        return $this->getEncoderOptions() === null ?
             json_encode($document) :
-            json_encode($document, $this->encoderOptions->getOptions(), $this->encoderOptions->getDepth());
+            json_encode($document, $this->getEncoderOptions()->getOptions(), $this->getEncoderOptions()->getDepth());
     }
 
     /**
@@ -273,7 +262,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     public static function instance(array $schemas = [], EncoderOptions $encodeOptions = null)
     {
-        $factory   = static::getFactory();
+        $factory   = static::createFactory();
         $container = $factory->createContainer($schemas);
         $encoder   = $factory->createEncoder($container, $encodeOptions);
 
@@ -283,7 +272,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @return FactoryInterface
      */
-    protected static function getFactory()
+    protected static function createFactory()
     {
         return new Factory();
     }
@@ -299,6 +288,120 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     }
 
     /**
+     * @param object|array|Iterator|null       $data
+     * @param EncodingParametersInterface|null $parameters
+     *
+     * @return array
+     */
+    protected function encodeIdentifiersToArray($data, EncodingParametersInterface $parameters = null)
+    {
+        $container = $this->getFactory()->createResourceIdentifierContainerAdapter($this->getContainer());
+        $result    = $this->encodeDataToArray($container, $data, $parameters);
+
+        return $result;
+    }
+
+    /**
+     * @param ErrorInterface $error
+     *
+     * @return array
+     */
+    protected function encodeErrorToArray(ErrorInterface $error)
+    {
+        $docWriter = $this->getFactory()->createDocument();
+        $docWriter->addError($error);
+        $array = $docWriter->getDocument();
+
+        return $array;
+    }
+
+    /**
+     * @param $errors
+     *
+     * @return array
+     */
+    protected function encodeErrorsToArray($errors)
+    {
+        $docWriter = $this->getFactory()->createDocument();
+        $docWriter->addErrors($errors);
+        $array = $docWriter->getDocument();
+
+        return $array;
+    }
+
+    /**
+     * @param $meta
+     *
+     * @return array
+     */
+    protected function encodeMetaToArray($meta)
+    {
+        $docWriter = $this->getFactory()->createDocument();
+
+        $docWriter->setMetaToDocument($meta);
+        $docWriter->unsetData();
+        $array = $docWriter->getDocument();
+
+        return $array;
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    protected function getContainer()
+    {
+        return $this->container;
+    }
+
+    /**
+     * @return FactoryInterface
+     */
+    protected function getFactory()
+    {
+        return $this->factory;
+    }
+
+    /**
+     * @return EncoderOptions|null
+     */
+    protected function getEncoderOptions()
+    {
+        return $this->encoderOptions;
+    }
+
+    /**
+     * @return array|null
+     */
+    protected function getLinks()
+    {
+        return $this->links;
+    }
+
+    /**
+     * @return array|null|object
+     */
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isWithJsonApiVersion()
+    {
+        return $this->isAddJsonApiVersion;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    protected function getJsonApiVersionMeta()
+    {
+        return $this->jsonApiVersionMeta;
+    }
+
+    /**
      * @param ContainerInterface               $container
      * @param EncodingParametersInterface|null $parameters
      *
@@ -308,8 +411,8 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
         ContainerInterface $container,
         EncodingParametersInterface $parameters = null
     ) {
-        return $this->factory->createParametersAnalyzer(
-            $parameters === null ? $this->factory->createQueryParameters() : $parameters,
+        return $this->getFactory()->createParametersAnalyzer(
+            $parameters === null ? $this->getFactory()->createQueryParameters() : $parameters,
             $container
         );
     }
@@ -330,7 +433,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      */
     private function configureUrlPrefix(DocumentInterface $docWriter)
     {
-        $this->encoderOptions !== null && $this->encoderOptions->getUrlPrefix() !== null ?
-            $docWriter->setUrlPrefix($this->encoderOptions->getUrlPrefix()) : null;
+        $this->getEncoderOptions() !== null && $this->getEncoderOptions()->getUrlPrefix() !== null ?
+            $docWriter->setUrlPrefix($this->getEncoderOptions()->getUrlPrefix()) : null;
     }
 }

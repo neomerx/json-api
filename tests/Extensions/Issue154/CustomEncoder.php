@@ -46,7 +46,7 @@ class CustomEncoder extends Encoder implements CustomEncoderInterface
     /**
      * @return FactoryInterface
      */
-    protected static function getFactory()
+    protected static function createFactory()
     {
         return new CustomFactory();
     }
@@ -54,8 +54,8 @@ class CustomEncoder extends Encoder implements CustomEncoderInterface
     /**
      * @return CustomContainerInterface
      */
-    private function getContainer()
+    protected function getContainer()
     {
-        return $this->container;
+        return parent::getContainer();
     }
 }
