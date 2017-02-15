@@ -6,7 +6,7 @@ use Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Encoder\Serialize\ArraySerializerTrait;
 
 /**
- * Copyright 2015 info@neomerx.com (www.neomerx.com)
+ * Copyright 2015-2017 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

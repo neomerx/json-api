@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue154;
 
 /**
- * Copyright 2015 info@neomerx.com (www.neomerx.com)
+ * Copyright 2015-2017 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,10 @@ use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 class CustomEncoder extends Encoder implements CustomEncoderInterface
 {
     /**
-     * @inheritdoc
+     * @param array               $schemas
+     * @param EncoderOptions|null $encodeOptions
+     *
+     * @return CustomEncoderInterface
      */
     public static function instance(array $schemas = [], EncoderOptions $encodeOptions = null)
     {
