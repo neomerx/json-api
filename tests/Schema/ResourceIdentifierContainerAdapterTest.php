@@ -49,8 +49,8 @@ class ResourceIdentifierContainerAdapterTest extends BaseTestCase
         $adapter = new ResourceIdentifierContainerAdapter($factory, $container);
 
         $resource = (object)['whatever'];
-        $adapter->getSchema($resource);
-        $adapter->getSchemaByType($resource);
-        $adapter->getSchemaByResourceType('does not matter');
+        $this->assertNotNull($adapter->getSchema($resource));
+        $this->assertNotNull($adapter->getSchemaByType($resource));
+        $this->assertNotNull($adapter->getSchemaByResourceType('does not matter'));
     }
 }

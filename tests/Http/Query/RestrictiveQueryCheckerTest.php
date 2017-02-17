@@ -68,7 +68,7 @@ class RestrictiveQueryCheckerTest extends BaseTestCase
      */
     public function testDefaultNotReallyRestrictiveSettings()
     {
-        $checker = $this->getChecker();
+        $this->assertNotNull($checker = $this->getChecker());
 
         $parameters = $this->parser->parse(
             $this->prepareRequest($this->requestParams)
@@ -82,10 +82,10 @@ class RestrictiveQueryCheckerTest extends BaseTestCase
      */
     public function testAllowedInputPaths()
     {
-        $checker = $this->getChecker(
+        $this->assertNotNull($checker = $this->getChecker(
             false,
             ['author', 'comments', 'comments.author', 'and.one.more.path']
-        );
+        ));
 
         $parameters = $this->parser->parse(
             $this->prepareRequest($this->requestParams)
@@ -123,11 +123,11 @@ class RestrictiveQueryCheckerTest extends BaseTestCase
      */
     public function testAllowedFieldSets()
     {
-        $checker = $this->getChecker(
+        $this->assertNotNull($checker = $this->getChecker(
             false,
             null,
             ['type1' => ['fields1', 'fields2', 'fields3'],]
-        );
+        ));
 
         $parameters = $this->parser->parse(
             $this->prepareRequest($this->requestParams)
@@ -141,11 +141,11 @@ class RestrictiveQueryCheckerTest extends BaseTestCase
      */
     public function testAllowedAllFieldSets()
     {
-        $checker = $this->getChecker(
+        $this->assertNotNull($checker = $this->getChecker(
             false,
             null,
             ['type1' => null] // all fields are allowed for type1
-        );
+        ));
 
         $parameters = $this->parser->parse(
             $this->prepareRequest($this->requestParams)
@@ -267,12 +267,12 @@ class RestrictiveQueryCheckerTest extends BaseTestCase
     public function testAllowedSearchParams()
     {
         $allowedSortParams = ['created', 'title', 'name.with.dots', 'and-others'];
-        $checker = $this->getChecker(
+        $this->assertNotNull($checker = $this->getChecker(
             false,
             null,
             null,
             $allowedSortParams
-        );
+        ));
 
         $parameters = $this->parser->parse(
             $this->prepareRequest($this->requestParams)
@@ -314,9 +314,9 @@ class RestrictiveQueryCheckerTest extends BaseTestCase
      */
     public function testAllowedUnrecognizedParameters()
     {
-        $checker = $this->getChecker(
+        $this->assertNotNull($checker = $this->getChecker(
             true
-        );
+        ));
 
         $parameters = $this->parser->parse(
             $this->prepareRequest(

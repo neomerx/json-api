@@ -18,7 +18,7 @@
 
 use \Mockery;
 use \Monolog\Logger;
-use \PHPUnit_Framework_TestCase;
+use \PHPUnit\Framework\TestCase;
 use \Monolog\Handler\StreamHandler;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
@@ -27,7 +27,7 @@ use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 /**
  * @package Neomerx\JsonApi
  */
-abstract class BaseTestCase extends PHPUnit_Framework_TestCase
+abstract class BaseTestCase extends TestCase
 {
     /**
      * Tear down test.

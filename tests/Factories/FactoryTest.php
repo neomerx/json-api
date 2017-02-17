@@ -33,7 +33,7 @@ class FactoryTest extends BaseTestCase
     {
         $factory = new Factory();
 
-        $logMock = Mockery::mock(LoggerInterface::class);
+        $this->assertNotNull($logMock = Mockery::mock(LoggerInterface::class));
 
         /** @var LoggerInterface $logMock */
 

@@ -311,7 +311,13 @@ class Document implements DocumentInterface, LoggerAwareInterface
     public function getDocument()
     {
         if ($this->errors !== null) {
-            return [self::KEYWORD_ERRORS => $this->errors];
+            return array_filter([
+                self::KEYWORD_JSON_API => $this->version,
+                self::KEYWORD_META     => $this->meta,
+                self::KEYWORD_ERRORS   => $this->errors,
+            ], function ($value) {
+                return $value !== null;
+            });
         }
 
         $document = array_filter([

@@ -164,6 +164,48 @@ EOL;
     }
 
     /**
+     * Test encode error.
+     *
+     * @see https://github.com/neomerx/json-api/issues/171
+     */
+    public function testEncodeErrorWithMetaAndJsonApi()
+    {
+        $error   = $this->getError();
+        $encoder = Encoder::instance();
+
+        $actual = $encoder
+            ->withJsonApiVersion(['some' => 'meta'])
+            ->withMeta(["copyright" => "Copyright 2015 Example Corp."])
+            ->encodeError($error);
+
+        $expected = <<<EOL
+        {
+            "jsonapi" : {
+                "version" : "1.0",
+                "meta"    : { "some" : "meta" }
+            },
+            "meta" : {
+                "copyright" : "Copyright 2015 Example Corp."
+            },
+            "errors":[{
+                "id"     : "some-id",
+                "links"  : {"about" : "about-link"},
+                "status" : "some-status",
+                "code"   : "some-code",
+                "title"  : "some-title",
+                "detail" : "some-detail",
+                "source" : {"source" : "data"},
+                "meta"   : {"some" : "meta"}
+            }]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * @return Error
      */
     private function getError()

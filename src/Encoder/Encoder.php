@@ -220,17 +220,9 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
             $interpreter->handle($reply);
         }
 
-        if ($this->getMeta() !== null) {
-            $docWriter->setMetaToDocument($this->getMeta());
-        }
-
-        if (empty($this->getLinks()) === false) {
-            $docWriter->setDocumentLinks($this->getLinks());
-        }
-
-        if ($this->isWithJsonApiVersion() === true) {
-            $docWriter->addJsonApiVersion(self::JSON_API_VERSION, $this->getJsonApiVersionMeta());
-        }
+        $this->addTopLevelMeta($docWriter);
+        $this->addTopLevelLinks($docWriter);
+        $this->addTopLevelJsonApiVersion($docWriter);
 
         $result = $docWriter->getDocument();
         $this->resetEncodeParameters();
@@ -310,6 +302,10 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     {
         $docWriter = $this->getFactory()->createDocument();
         $docWriter->addError($error);
+
+        $this->addTopLevelMeta($docWriter);
+        $this->addTopLevelJsonApiVersion($docWriter);
+
         $array = $docWriter->getDocument();
 
         return $array;
@@ -324,6 +320,10 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     {
         $docWriter = $this->getFactory()->createDocument();
         $docWriter->addErrors($errors);
+
+        $this->addTopLevelMeta($docWriter);
+        $this->addTopLevelJsonApiVersion($docWriter);
+
         $array = $docWriter->getDocument();
 
         return $array;
@@ -343,6 +343,36 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
         $array = $docWriter->getDocument();
 
         return $array;
+    }
+
+    /**
+     * @param DocumentInterface $docWriter
+     */
+    protected function addTopLevelMeta(DocumentInterface $docWriter)
+    {
+        if ($this->getMeta() !== null) {
+            $docWriter->setMetaToDocument($this->getMeta());
+        }
+    }
+
+    /**
+     * @param DocumentInterface $docWriter
+     */
+    protected function addTopLevelLinks(DocumentInterface $docWriter)
+    {
+        if (empty($this->getLinks()) === false) {
+            $docWriter->setDocumentLinks($this->getLinks());
+        }
+    }
+
+    /**
+     * @param DocumentInterface $docWriter
+     */
+    protected function addTopLevelJsonApiVersion(DocumentInterface $docWriter)
+    {
+        if ($this->isWithJsonApiVersion() === true) {
+            $docWriter->addJsonApiVersion(self::JSON_API_VERSION, $this->getJsonApiVersionMeta());
+        }
     }
 
     /**

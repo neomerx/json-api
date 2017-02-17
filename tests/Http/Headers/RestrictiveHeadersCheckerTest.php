@@ -68,7 +68,7 @@ class RestrictiveHeadersCheckerTest extends BaseTestCase
      */
     public function testDefaultNotReallyRestrictiveSettings()
     {
-        $checker = $this->getCheckerWithExtensions();
+        $this->assertNotNull($checker = $this->getCheckerWithExtensions());
 
         $parameters = $this->parser->parse(
             $this->prepareRequest('POST', self::JSON_API_TYPE, self::JSON_API_TYPE)
@@ -82,7 +82,7 @@ class RestrictiveHeadersCheckerTest extends BaseTestCase
      */
     public function testAllowedExtensions()
     {
-        $checker = $this->getCheckerWithExtensions();
+        $this->assertNotNull($checker = $this->getCheckerWithExtensions());
 
         $parameters = $this->parser->parse($this->prepareRequest(
             'POST',

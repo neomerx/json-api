@@ -33,7 +33,7 @@ class ProxyLoggerTest extends BaseTestCase
     {
         $logger = new ProxyLogger();
 
-        $logMock = Mockery::mock(LoggerInterface::class);
+        $this->assertNotNull($logMock = Mockery::mock(LoggerInterface::class));
 
         $logger->debug('Nothing hapens. Should not fail.');
 
