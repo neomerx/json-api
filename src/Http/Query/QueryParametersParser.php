@@ -104,15 +104,26 @@ class QueryParametersParser implements QueryParametersParserInterface, LoggerAwa
     protected function getSortParameters(array $parameters)
     {
         $sortParams = null;
-        $sortParam  = $this->getStringParamOrNull($parameters, self::PARAM_SORT);
+        $sortParam = $this->getStringParamOrNull($parameters, self::PARAM_SORT);
         if ($sortParam !== null) {
             foreach (explode(',', $sortParam) as $param) {
-                $isDesc = false;
-                empty($param) === false ?
-                    $isDesc = ($param[0] === '-') : E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
-                $sortField = ltrim($param, '+-');
-                empty($sortField) === false ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
-                $sortParams[] = $this->factory->createSortParam($sortField, $isDesc === false);
+                if (strpos($param, '.') === false) {
+                    $isDesc = false;
+                    empty($param) === false ?
+                        $isDesc = ($param[0] === '-') : E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
+                    $sortField = ltrim($param, '+-');
+                    empty($sortField) === false ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
+                    $sortParams[] = $this->factory->createSortParam($sortField, $isDesc === false);
+                } else {
+                    $isDesc = false;
+                    list($relationship, $relationshipAttribute) = explode('.', $param);
+                    empty($relationship) === false ?
+                        $isDesc = ($relationship[0] === '-') : E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
+                    $sortField = ltrim($relationship, '+-');
+                    $sortRelationshipAttribute = $relationshipAttribute;
+                    empty($sortField === false) ?: E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST));
+                    $sortParams[] = $this->factory->createSortParam($sortField, $isDesc === false, $sortRelationshipAttribute);
+                }
             }
         }
         return $sortParams;

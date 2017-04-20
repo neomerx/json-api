@@ -30,20 +30,29 @@ class SortParameter implements SortParameterInterface
     private $sortField;
 
     /**
+     * @var null || string
+     */
+    private $sortRelationshipAttribute;
+    
+    /**
      * @var bool
      */
     private $isAscending;
 
+
     /**
-     * @param string $sortField
-     * @param bool   $isAscending
+     * @param $sortField
+     * @param $isAscending
+     * @param null $sortRelationAttribute
      */
-    public function __construct($sortField, $isAscending)
+    public function __construct($sortField, $isAscending, $sortRelationshipAttribute=null)
     {
         is_string($sortField) === true ?: Exceptions::throwInvalidArgument('sortField', $sortField);
+        is_string($sortRelationshipAttribute) === true || is_null($sortRelationshipAttribute) === true ?: Exceptions::throwInvalidArgument('sortRelationshipAttribute', $sortRelationshipAttribute);
         is_bool($isAscending) === true ?: Exceptions::throwInvalidArgument('isAscending', $isAscending);
 
         $this->sortField   = $sortField;
+        $this->sortRelationshipAttribute = $sortRelationshipAttribute;
         $this->isAscending = $isAscending;
     }
 
@@ -63,6 +72,15 @@ class SortParameter implements SortParameterInterface
     public function getField()
     {
         return $this->sortField;
+    }
+
+
+    /**
+     * @return null || string
+     */
+    public function getRelationshipAttribute()
+    {
+        return $this->sortRelationshipAttribute;
     }
 
     /**

@@ -29,6 +29,13 @@ interface SortParameterInterface
     public function getField();
 
     /**
+     * Get sort relationship attribute
+     *
+     * @return mixed
+     */
+    public function getRelationshipAttribute();
+
+    /**
      * Get true if parameter is ascending.
      *
      * @return bool
