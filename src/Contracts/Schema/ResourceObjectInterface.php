@@ -33,7 +33,7 @@ interface ResourceObjectInterface
     /**
      * Get resource ID.
      *
-     * @return string
+     * @return string|null
      */
     public function getId();
 

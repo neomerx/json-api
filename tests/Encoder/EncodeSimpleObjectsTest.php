@@ -176,6 +176,43 @@ EOL;
     }
 
     /**
+     * Test encode simple object without ID and attributes only.
+     */
+    public function testEncodeObjectWithAttributesOnlyAndNoId()
+    {
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $author->{Author::ATTRIBUTE_ID} = null;
+        $encoder = Encoder::instance([
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
+                $schema->linkRemove(Author::LINK_COMMENTS);
+                $schema->setResourceLinksClosure(function () {
+                    return []; // no `self` link and others
+                });
+                return $schema;
+            }
+        ], $this->encoderOptions);
+
+        $actual = $encoder->encodeData($author);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type"       : "people",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * Test encode simple object with attributes and custom links.
      *
      * @see https://github.com/neomerx/json-api/issues/64

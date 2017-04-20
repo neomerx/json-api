@@ -288,8 +288,10 @@ class ElementPresenter
     {
         $representation = [
             Document::KEYWORD_TYPE => $resource->getType(),
-            Document::KEYWORD_ID   => $resource->getId(),
         ];
+        if (($resourceId = $resource->getId()) !== null) {
+            $representation[Document::KEYWORD_ID] = $resourceId;
+        }
 
         $attributes = $resource->getAttributes();
 

@@ -27,9 +27,9 @@ use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 class ResourceObject implements ResourceObjectInterface
 {
     /**
-     * @var string
+     * @var string|false
      */
-    private $idx;
+    private $idx = false;
 
     /**
      * @var array
@@ -149,7 +149,12 @@ class ResourceObject implements ResourceObjectInterface
      */
     public function getId()
     {
-        return $this->idx === null ? $this->idx = (string)$this->schema->getId($this->resource) : $this->idx;
+        if ($this->idx === false) {
+            $index = $this->schema->getId($this->resource);
+            $this->idx = $index === null ? $index : (string)$index;
+        }
+
+        return $this->idx;
     }
 
     /**

@@ -52,7 +52,7 @@ class AuthorSchema extends DevSchemaProvider
      */
     public function getRelationships($author, $isPrimary, array $includeRelationships)
     {
-        assert('$author instanceof '.Author::class);
+        assert('$author instanceof '. Author::class);
 
         if (($isPrimary && $this->isIsLinksInPrimary()) || (!$isPrimary && $this->isIsLinksInIncluded())) {
             $selfLink = $this->getRelationshipSelfLink($author, Author::LINK_COMMENTS);
