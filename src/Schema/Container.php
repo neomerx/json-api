@@ -81,12 +81,12 @@ class Container implements ContainerInterface, LoggerAwareInterface
 
         $isOk = (
             (is_string($schema) === true && empty($schema) === false) ||
-            $schema instanceof Closure ||
+            is_callable($schema) ||
             $schema instanceof SchemaProviderInterface
         );
         if ($isOk === false) {
             throw new InvalidArgumentException(T::t(
-                'Schema for type \'%s\' must be non-empty string, Closure or SchemaProviderInterface instance.',
+                'Schema for type \'%s\' must be non-empty string, callable or SchemaProviderInterface instance.',
                 [$type]
             ));
         }
@@ -146,11 +146,12 @@ class Container implements ContainerInterface, LoggerAwareInterface
             throw new InvalidArgumentException(T::t('Schema is not registered for type \'%s\'.', [$type]));
         }
 
-        $classNameOrClosure = $this->getProviderMapping($type);
-        if ($classNameOrClosure instanceof Closure) {
-            $schema = $this->createSchemaFromClosure($classNameOrClosure);
+        $classNameOrCallable = $this->getProviderMapping($type);
+        if (is_string($classNameOrCallable) === true) {
+            $schema = $this->createSchemaFromClassName($classNameOrCallable);
         } else {
-            $schema = $this->createSchemaFromClassName($classNameOrClosure);
+            assert('is_callable($classNameOrCallable) === true');
+            $schema = $this->createSchemaFromCallable($classNameOrCallable);
         }
         $this->setCreatedProvider($type, $schema);
 
@@ -313,6 +314,7 @@ class Container implements ContainerInterface, LoggerAwareInterface
     }
 
     /**
+     * @deprecated Use `createSchemaFromCallable` method instead.
      * @param Closure $closure
      *
      * @return SchemaProviderInterface
@@ -320,6 +322,19 @@ class Container implements ContainerInterface, LoggerAwareInterface
     protected function createSchemaFromClosure(Closure $closure)
     {
         $schema = $closure($this->getFactory());
+
+        return $schema;
+    }
+
+    /**
+     * @param callable $callable
+     *
+     * @return SchemaProviderInterface
+     */
+    protected function createSchemaFromCallable(callable $callable)
+    {
+        $schema = $callable instanceof Closure ?
+            $this->createSchemaFromClosure($callable) : call_user_func($callable, $this->getFactory());
 
         return $schema;
     }

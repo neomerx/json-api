@@ -138,4 +138,28 @@ class ContainerTest extends BaseTestCase
 
         $this->assertSame($authorSchema, $container->getSchema(new Author()));
     }
+
+    /**
+     * Test container.
+     *
+     * @link https://github.com/neomerx/json-api/issues/177
+     */
+    public function testRegisterCallableSchemeFactory()
+    {
+        $container = new Container($this->factory, [
+            Author::class => [static::class, 'AuthorShemeFactory'],
+        ]);
+
+        $this->assertNotNull($container->getSchema(new Author()));
+    }
+
+    /**
+     * @param SchemaFactoryInterface $factory
+     *
+     * @return AuthorSchema
+     */
+    public static function AuthorShemeFactory(SchemaFactoryInterface $factory)
+    {
+        return new AuthorSchema($factory);
+    }
 }
