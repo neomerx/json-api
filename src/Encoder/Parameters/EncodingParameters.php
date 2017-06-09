@@ -97,6 +97,8 @@ class EncodingParameters implements EncodingParametersInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function getFieldSet($type)
     {

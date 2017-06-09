@@ -40,6 +40,8 @@ class SupportedExtensions implements SupportedExtensionsInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function setExtensions($extensions)
     {

@@ -48,6 +48,7 @@
   "scripts": {
     "test": ["@test-unit", "@test-cs", "@test-md"],
     "test-unit": "./vendor/phpunit/phpunit/phpunit --coverage-text",
+    "test-unit-with-coverage": "phpdbg -qrr ./vendor/bin/phpunit --coverage-text",
     "test-cs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests",
     "test-md": "./vendor/bin/phpmd ./src text codesize,controversial,cleancode,design,unusedcode,naming",
 

@@ -37,6 +37,8 @@ class SortParameter implements SortParameterInterface
     /**
      * @param string $sortField
      * @param bool   $isAscending
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function __construct($sortField, $isAscending)
     {

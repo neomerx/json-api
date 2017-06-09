@@ -17,7 +17,7 @@
  */
 
 use \Mockery;
-use \Mockery\MockInterface;
+use \Mockery\Mock;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Http\Headers\MediaType;
@@ -48,7 +48,7 @@ class RestrictiveHeadersCheckerTest extends BaseTestCase
     private $parser;
 
     /**
-     * @var MockInterface
+     * @var Mock
      */
     private $mockRequest;
 
@@ -71,10 +71,46 @@ class RestrictiveHeadersCheckerTest extends BaseTestCase
         $this->assertNotNull($checker = $this->getCheckerWithExtensions());
 
         $parameters = $this->parser->parse(
-            $this->prepareRequest('POST', self::JSON_API_TYPE, self::JSON_API_TYPE)
+            $this->prepareRequest('POST', self::JSON_API_TYPE, self::JSON_API_TYPE, [])
         );
 
         $checker->checkHeaders($parameters);
+    }
+
+    /**
+     * Test no body content does not reject content type header (issue #178).
+     */
+    public function testContentTypeHeaderNotCheckedIfNoBodyContent()
+    {
+        $this->assertNotNull($checker = $this->getCheckerWithExtensions());
+
+        $parameters = $this->parser->parse(
+            $this->prepareRequest('DELETE', 'text/plain', self::JSON_API_TYPE, null),
+            false
+        );
+
+        $checker->checkHeaders($parameters);
+    }
+
+    /**
+     * Test body content with unsupported Content-Type is rejected.
+     */
+    public function testUnsupportedContentTypeHeaderRejectedWithBodyContent()
+    {
+        $this->assertNotNull($checker = $this->getCheckerWithExtensions());
+
+        $parameters = $this->parser->parse(
+            $this->prepareRequest('DELETE', 'application/json', self::JSON_API_TYPE, [])
+        );
+
+        $exception  = null;
+        try {
+            $checker->checkHeaders($parameters);
+        } catch (JsonApiException $exception) {
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertEquals(JsonApiException::HTTP_CODE_UNSUPPORTED_MEDIA_TYPE, $exception->getHttpCode());
     }
 
     /**
@@ -87,7 +123,8 @@ class RestrictiveHeadersCheckerTest extends BaseTestCase
         $parameters = $this->parser->parse($this->prepareRequest(
             'POST',
             self::JSON_API_TYPE.';ext=ext2',
-            self::JSON_API_TYPE.';ext="ext1,ext3"'
+            self::JSON_API_TYPE.';ext="ext1,ext3"',
+            []
         ));
 
         $checker->checkHeaders($parameters);
@@ -100,7 +137,7 @@ class RestrictiveHeadersCheckerTest extends BaseTestCase
     {
         $checker    = $this->getCheckerWithExtensions();
         $parameters = $this->parser->parse(
-            $this->prepareRequest('POST', self::JSON_API_TYPE . ';ext=ext4', self::JSON_API_TYPE)
+            $this->prepareRequest('POST', self::JSON_API_TYPE . ';ext=ext4', self::JSON_API_TYPE, [])
         );
 
         $exception  = null;
@@ -122,7 +159,8 @@ class RestrictiveHeadersCheckerTest extends BaseTestCase
         $parameters = $this->parser->parse($this->prepareRequest(
             'POST',
             self::JSON_API_TYPE,
-            self::JSON_API_TYPE . ';ext="ext2,ext3"'
+            self::JSON_API_TYPE . ';ext="ext2,ext3"',
+            []
         ));
 
         $exception = null;
@@ -144,7 +182,8 @@ class RestrictiveHeadersCheckerTest extends BaseTestCase
         $parameters = $this->parser->parse($this->prepareRequest(
             'POST',
             self::JSON_API_TYPE.', one-more/media-type',
-            self::JSON_API_TYPE
+            self::JSON_API_TYPE,
+            []
         ));
 
         $exception = null;
@@ -158,22 +197,26 @@ class RestrictiveHeadersCheckerTest extends BaseTestCase
     }
 
     /**
-     * @param string $method
-     * @param string $contentType
-     * @param string $accept
+     * @param string     $method
+     * @param string     $contentType
+     * @param string     $accept
+     * @param array|null $body
      *
      * @return ServerRequestInterface
      */
-    private function prepareRequest($method, $contentType, $accept)
+    private function prepareRequest($method, $contentType, $accept, array $body = null)
     {
         $psr7Accept = empty($accept) === true ? [] : [$accept];
         $psr7ContentType = empty($contentType) === true ? [] : [$contentType];
 
-        /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mockRequest->shouldReceive('getHeader')->with('Content-Type')->once()->andReturn($psr7ContentType);
-        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $mockContentType = $this->mockRequest
+            ->shouldReceive('getHeader')->with('Content-Type')->andReturn($psr7ContentType);
+
+        if (!is_null($body)) {
+            $mockContentType->once();
+        }
+
         $this->mockRequest->shouldReceive('getHeader')->with('Accept')->once()->andReturn($psr7Accept);
-        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mockRequest->shouldReceive('getMethod')->withNoArgs()->once()->andReturn($method);
 
         /** @var ServerRequestInterface $request */

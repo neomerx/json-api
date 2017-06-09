@@ -28,6 +28,8 @@ use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
  * This is an auxiliary class for Document that help presenting elements.
  *
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 class ElementPresenter
 {
@@ -90,6 +92,8 @@ class ElementPresenter
      * @param ResourceObjectInterface     $resource
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     public function addRelationshipTo(
         array &$target,
@@ -203,12 +207,12 @@ class ElementPresenter
     {
         if ($meta === null) {
             return $url;
-        } else {
-            return [
-                Document::KEYWORD_HREF => $url,
-                Document::KEYWORD_META => $meta,
-            ];
         }
+
+        return [
+            Document::KEYWORD_HREF => $url,
+            Document::KEYWORD_META => $meta,
+        ];
     }
 
     /**

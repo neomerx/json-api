@@ -70,6 +70,9 @@ class Container implements ContainerInterface, LoggerAwareInterface
      * @param string|Closure $schema
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     public function register($type, $schema)
     {
@@ -99,7 +102,7 @@ class Container implements ContainerInterface, LoggerAwareInterface
         }
 
         if ($schema instanceof SchemaProviderInterface) {
-            $this->setProviderMapping($type, $jsonType = get_class($schema));
+            $this->setProviderMapping($type, get_class($schema));
             $this->setResourceToJsonTypeMapping($schema->getResourceType(), $type);
             $this->setCreatedProvider($type, $schema);
         } else {
@@ -133,6 +136,9 @@ class Container implements ContainerInterface, LoggerAwareInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     public function getSchemaByType($type)
     {
@@ -164,6 +170,9 @@ class Container implements ContainerInterface, LoggerAwareInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function getSchemaByResourceType($resourceType)
     {

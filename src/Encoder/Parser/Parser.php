@@ -62,6 +62,9 @@ use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
  *   - When all data are parsed the document converts collected data to json.
  *
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class Parser implements ParserInterface, LoggerAwareInterface
 {
@@ -138,6 +141,8 @@ class Parser implements ParserInterface, LoggerAwareInterface
 
     /**
      * @return Iterator
+     *
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     private function parseData()
     {
@@ -218,6 +223,10 @@ class Parser implements ParserInterface, LoggerAwareInterface
      * @param array|null|object $data
      *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.ElseExpression)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function analyzeData($data)
     {
@@ -261,6 +270,8 @@ class Parser implements ParserInterface, LoggerAwareInterface
      * @param StackFrameReadOnlyInterface $frame
      *
      * @return SchemaProviderInterface
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     private function getSchema($resource, StackFrameReadOnlyInterface $frame)
     {
@@ -278,6 +289,8 @@ class Parser implements ParserInterface, LoggerAwareInterface
      * @param array|null $data
      *
      * @return ParserReplyInterface
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     private function createReplyForEmptyData($data)
     {

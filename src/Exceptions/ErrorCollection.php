@@ -28,6 +28,8 @@ use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, Countable
 {

@@ -55,11 +55,12 @@ class JsonApiException extends RuntimeException
     private $httpCode;
 
     /**
-     * Constructor.
-     *
      * @param ErrorInterface|ErrorInterface[]|ErrorCollection $errors
      * @param int                                             $httpCode
      * @param Exception|null                                  $previous
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     public function __construct($errors, $httpCode = self::DEFAULT_HTTP_CODE, Exception $previous = null)
     {

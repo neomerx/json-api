@@ -31,6 +31,9 @@ use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class Encoder implements EncoderInterface, LoggerAwareInterface
 {
@@ -124,6 +127,8 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function withRelationshipSelfLink($resource, $relationshipName, $meta = null, $treatAsHref = false)
     {
@@ -137,6 +142,8 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function withRelationshipRelatedLink($resource, $relationshipName, $meta = null, $treatAsHref = false)
     {

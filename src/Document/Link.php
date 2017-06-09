@@ -21,6 +21,8 @@ use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 class Link implements LinkInterface
 {
@@ -43,6 +45,8 @@ class Link implements LinkInterface
      * @param string $subHref
      * @param mixed  $meta
      * @param bool   $treatAsHref If $subHref is a full URL and must not be concatenated with other URLs.
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function __construct($subHref, $meta = null, $treatAsHref = false)
     {

@@ -66,6 +66,10 @@ use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Factory implements FactoryInterface
 {
@@ -251,6 +255,14 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
+    public function createNoContentHeaderParameters($method, AcceptHeaderInterface $accept)
+    {
+        return new HeaderParameters($method, $accept, null);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function createQueryParametersParser()
     {
         $parser = new QueryParametersParser($this);
@@ -320,6 +332,8 @@ class Factory implements FactoryInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function createQueryChecker(
         $allowUnrecognized = true,
@@ -373,6 +387,8 @@ class Factory implements FactoryInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function createLink($subHref, $meta = null, $treatAsHref = false)
     {

@@ -23,6 +23,8 @@ use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 class Error implements ErrorInterface
 {

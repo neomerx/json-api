@@ -77,6 +77,8 @@ class Header implements HeaderInterface
      * @param string $name
      *
      * @return HeaderInterface
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public static function parse($header, $name)
     {
@@ -99,6 +101,8 @@ class Header implements HeaderInterface
      * @param string $mediaType
      *
      * @return MediaTypeInterface
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     protected static function parseMediaType($position, $mediaType)
     {

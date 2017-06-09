@@ -23,6 +23,8 @@ use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 class AcceptHeader extends Header implements AcceptHeaderInterface
 {
@@ -48,7 +50,10 @@ class AcceptHeader extends Header implements AcceptHeaderInterface
      */
     public static function parse($header, $accept = self::HEADER_ACCEPT)
     {
-        return parent::parse($header, self::HEADER_ACCEPT);
+        /** @var AcceptHeaderInterface $result */
+        $result = parent::parse($header, self::HEADER_ACCEPT);
+
+        return $result;
     }
 
     /**
@@ -107,6 +112,8 @@ class AcceptHeader extends Header implements AcceptHeaderInterface
      * @param float $rhs
      *
      * @return int
+     *
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     private function compareQuality($lhs, $rhs)
     {

@@ -47,8 +47,14 @@ class RestrictiveHeadersChecker implements HeadersCheckerInterface
     public function checkHeaders(HeaderParametersInterface $parameters)
     {
         // Note: for these checks the order is specified by spec. See details inside.
+
         $this->checkAcceptHeader($parameters);
-        $this->checkContentTypeHeader($parameters);
+
+        // clients must send content type only if the request has body so there is no point in checking
+        // `Content-Type` header if the original request is bodiless.
+        if ($parameters->getContentTypeHeader() !== null) {
+            $this->checkContentTypeHeader($parameters);
+        }
     }
 
     /**

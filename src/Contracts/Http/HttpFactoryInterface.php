@@ -89,6 +89,14 @@ interface HttpFactoryInterface
     public function createHeaderParameters($method, AcceptHeaderInterface $accept, HeaderInterface $contentType);
 
     /**
+     * @param string                $method
+     * @param AcceptHeaderInterface $accept
+     *
+     * @return HeaderParametersInterface
+     */
+    public function createNoContentHeaderParameters($method, AcceptHeaderInterface $accept);
+
+    /**
      * Create parameters parser.
      *
      * @return QueryParametersParserInterface
@@ -171,6 +179,8 @@ interface HttpFactoryInterface
      * @param array|null $filteringParameters
      *
      * @return QueryCheckerInterface
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function createQueryChecker(
         $allowUnrecognized = false,

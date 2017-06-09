@@ -66,6 +66,8 @@ class Translator implements TranslatorInterface
      * @param array  $parameters
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.ShortMethodName)
      */
     public static function t($format, array $parameters = [])
     {

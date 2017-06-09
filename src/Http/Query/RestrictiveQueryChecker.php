@@ -66,6 +66,8 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
      * @param array|null $sortParameters
      * @param array|null $pagingParameters
      * @param array|null $filteringParameters
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function __construct(
         $allowUnrecognized = true,
@@ -85,6 +87,8 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function checkQuery(EncodingParametersInterface $parameters)
     {
@@ -103,6 +107,8 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     /**
      * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     protected function checkIncludePaths(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {
@@ -115,6 +121,8 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     /**
      * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     protected function checkFieldSets(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {
@@ -127,6 +135,8 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     /**
      * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     protected function checkFiltering(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {
@@ -139,6 +149,8 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     /**
      * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     protected function checkSorting(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {
@@ -158,6 +170,8 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     /**
      * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     protected function checkPaging(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {
@@ -170,6 +184,9 @@ class RestrictiveQueryChecker implements QueryCheckerInterface
     /**
      * @param ErrorCollection             $errors
      * @param EncodingParametersInterface $parameters
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     protected function checkUnrecognized(ErrorCollection $errors, EncodingParametersInterface $parameters)
     {

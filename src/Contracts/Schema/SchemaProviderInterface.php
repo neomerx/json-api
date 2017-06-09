@@ -67,6 +67,8 @@ interface SchemaProviderInterface
      * @param bool       $treatAsHref
      *
      * @return LinkInterface
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function getRelationshipSelfLink($resource, $name, $meta = null, $treatAsHref = false);
 
@@ -79,6 +81,8 @@ interface SchemaProviderInterface
      * @param bool       $treatAsHref
      *
      * @return LinkInterface
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function getRelationshipRelatedLink($resource, $name, $meta = null, $treatAsHref = false);
 

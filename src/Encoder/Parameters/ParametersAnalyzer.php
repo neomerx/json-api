@@ -94,6 +94,8 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     public function getIncludeRelationships($path, $type)
     {
@@ -180,6 +182,8 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
      * @param string $type
      *
      * @return string[]
+     *
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     private function getIncludePathsByType($type)
     {

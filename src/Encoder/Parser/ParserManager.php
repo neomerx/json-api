@@ -55,14 +55,14 @@ class ParserManager implements ParserManagerInterface, LoggerAwareInterface
     {
         if ($stack->count() < 2) {
             // top level, no resources ware started to parse yet
-            $shouldContinue = true;
-        } else {
-            // on the way to included paths
-            $currentPath     = $stack->end()->getPath();
-            $currentRootType = $stack->root()->getResource()->getType();
-
-            $shouldContinue = $this->parameterAnalyzer->isPathIncluded($currentPath, $currentRootType);
+            return true;
         }
+
+        // on the way to included paths
+        $currentPath     = $stack->end()->getPath();
+        $currentRootType = $stack->root()->getResource()->getType();
+
+        $shouldContinue = $this->parameterAnalyzer->isPathIncluded($currentPath, $currentRootType);
 
         return $shouldContinue;
     }

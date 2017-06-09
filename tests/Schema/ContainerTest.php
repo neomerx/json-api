@@ -147,7 +147,7 @@ class ContainerTest extends BaseTestCase
     public function testRegisterCallableSchemeFactory()
     {
         $container = new Container($this->factory, [
-            Author::class => [static::class, 'AuthorShemeFactory'],
+            Author::class => [static::class, 'authorShemeFactory'],
         ]);
 
         $this->assertNotNull($container->getSchema(new Author()));
@@ -158,7 +158,7 @@ class ContainerTest extends BaseTestCase
      *
      * @return AuthorSchema
      */
-    public static function AuthorShemeFactory(SchemaFactoryInterface $factory)
+    public static function authorShemeFactory(SchemaFactoryInterface $factory)
     {
         return new AuthorSchema($factory);
     }

@@ -55,6 +55,8 @@ class StackFrame implements StackFrameInterface
 
     /**
      * @param StackFrameReadOnlyInterface|null $previous
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function __construct(StackFrameReadOnlyInterface $previous = null)
     {
@@ -122,6 +124,8 @@ class StackFrame implements StackFrameInterface
 
     /**
      * Set path to current frame.
+     *
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     private function setCurrentPath()
     {

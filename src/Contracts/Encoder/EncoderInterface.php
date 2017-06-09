@@ -69,6 +69,8 @@ interface EncoderInterface
      * @see http://jsonapi.org/format/#fetching-relationships
      *
      * @return EncoderInterface
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function withRelationshipSelfLink($resource, $relationshipName, $meta = null, $treatAsHref = false);
 
@@ -83,6 +85,8 @@ interface EncoderInterface
      * @see http://jsonapi.org/format/#fetching-relationships
      *
      * @return EncoderInterface
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function withRelationshipRelatedLink($resource, $relationshipName, $meta = null, $treatAsHref = false);
 

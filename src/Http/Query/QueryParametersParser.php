@@ -78,6 +78,9 @@ class QueryParametersParser implements QueryParametersParserInterface, LoggerAwa
      * @param array $parameters
      *
      * @return array|null
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     private function getFieldSets(array $parameters)
     {
@@ -100,6 +103,8 @@ class QueryParametersParser implements QueryParametersParserInterface, LoggerAwa
      * @param array $parameters
      *
      * @return SortParameterInterface[]|null
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     protected function getSortParameters(array $parameters)
     {
@@ -161,6 +166,8 @@ class QueryParametersParser implements QueryParametersParserInterface, LoggerAwa
      * @param string $name
      *
      * @return array|null
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     private function getArrayParamOrNull(array $parameters, $name)
     {
@@ -177,6 +184,8 @@ class QueryParametersParser implements QueryParametersParserInterface, LoggerAwa
      * @param string $name
      *
      * @return string|null
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     private function getStringParamOrNull(array $parameters, $name)
     {

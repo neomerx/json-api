@@ -23,6 +23,8 @@ use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class ResourceObject implements ResourceObjectInterface
 {
@@ -286,6 +288,8 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @param object $resource
      * @param bool   $isInArray
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     private function checkInput($resource, $isInArray)
     {

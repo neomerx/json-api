@@ -33,7 +33,7 @@ High code quality and **100% test coverage** with **250+ tests**. Production rea
 
 ## Full-stack Integration
 
-This package is framework agnostic and if you are looking for practical usage sample you might be interested in Quick start JSON API server application [Limoncello Flute](https://github.com/neomerx/limoncello-flute).
+This package is framework agnostic and if you are looking for practical usage sample you might be interested in Quick start JSON API server application [Limoncello App](https://github.com/limoncello-php/app).
 
 The server supports
 - CRUD operations for a few sample data models and Users.
@@ -42,7 +42,7 @@ The server supports
 - Support for such JSON API features as resource inclusion, pagination and etc.
 
 <p align="center">
-<a href="https://github.com/neomerx/limoncello-flute" target="_blank"><img src="https://github.com/neomerx/limoncello-flute/blob/master/resources/img/screen-shot.png" alt="Demo app screen-shot" title="Limoncello Flute" align="middle" width="330" height="252" /></a>
+<a href="https://github.com/limoncello-php/app" target="_blank"><img src="https://github.com/limoncello-php/app/raw/master/resources/img/screen-shot.png" alt="Demo app screen-shot" title="Limoncello App" align="middle" width="330" height="252" /></a>
 </p>
 
 ## Sample usage
@@ -107,7 +107,7 @@ The second ```EncoderOptions``` parameter ```http://example.com/api/v1``` is a U
 
 ## Questions?
 
-Do not hesitate to contact us on [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/neomerx/json-api) or post an [issue](https://github.com/neomerx/json-api/issues).
+Do not hesitate to check [issues](https://github.com/neomerx/json-api/issues) or post a new one.
 
 ## Need help?
 

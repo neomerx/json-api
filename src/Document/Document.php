@@ -28,6 +28,9 @@ use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class Document implements DocumentInterface, LoggerAwareInterface
 {
@@ -259,6 +262,8 @@ class Document implements DocumentInterface, LoggerAwareInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     public function setResourceCompleted(ResourceObjectInterface $resource)
     {
@@ -274,6 +279,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
                 unset($representation[self::KEYWORD_RELATIONSHIPS]);
             } else {
                 // relationship might have meta
+                /** @noinspection PhpParamsInspection */
                 $relShipsMeta = $getMetaClosure();
                 if (empty($relShipsMeta) === false) {
                     $representation[self::KEYWORD_RELATIONSHIPS][self::KEYWORD_META] = $relShipsMeta;
@@ -307,6 +313,8 @@ class Document implements DocumentInterface, LoggerAwareInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     public function getDocument()
     {

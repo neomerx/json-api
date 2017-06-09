@@ -26,6 +26,8 @@ use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.LongVariable)
  */
 abstract class SchemaProvider implements SchemaProviderInterface
 {
@@ -69,6 +71,9 @@ abstract class SchemaProvider implements SchemaProviderInterface
 
     /**
      * @param SchemaFactoryInterface $factory
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     public function __construct(SchemaFactoryInterface $factory)
     {
@@ -121,6 +126,8 @@ abstract class SchemaProvider implements SchemaProviderInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function getRelationshipSelfLink($resource, $name, $meta = null, $treatAsHref = false)
     {
@@ -131,6 +138,8 @@ abstract class SchemaProvider implements SchemaProviderInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function getRelationshipRelatedLink($resource, $name, $meta = null, $treatAsHref = false)
     {
@@ -281,6 +290,8 @@ abstract class SchemaProvider implements SchemaProviderInterface
      * @param bool       $treatAsHref
      *
      * @return LinkInterface
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     protected function createLink($subHref, $meta = null, $treatAsHref = false)
     {

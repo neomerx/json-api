@@ -27,6 +27,8 @@ class ParserReply extends BaseReply
     /**
      * @param int                    $replyType
      * @param StackReadOnlyInterface $stack
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function __construct($replyType, StackReadOnlyInterface $stack)
     {

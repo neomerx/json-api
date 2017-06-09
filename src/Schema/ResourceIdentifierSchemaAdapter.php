@@ -184,6 +184,8 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function getRelationshipSelfLink($resource, $name, $meta = null, $treatAsHref = false)
     {
@@ -192,6 +194,8 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function getRelationshipRelatedLink($resource, $name, $meta = null, $treatAsHref = false)
     {

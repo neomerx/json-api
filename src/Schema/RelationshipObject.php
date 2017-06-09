@@ -67,6 +67,8 @@ class RelationshipObject implements RelationshipObjectInterface
      * @param object|array|null|Closure                                     $meta
      * @param bool                                                          $isShowData
      * @param bool                                                          $isRoot
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function __construct(
         $name,

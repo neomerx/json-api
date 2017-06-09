@@ -42,6 +42,8 @@ class EncoderOptions
      * @param int         $options
      * @param string|null $urlPrefix
      * @param int         $depth
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function __construct(
         $options = 0,

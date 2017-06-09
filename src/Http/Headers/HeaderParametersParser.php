@@ -48,19 +48,22 @@ class HeaderParametersParser implements HeaderParametersParserInterface, LoggerA
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function parse(ServerRequestInterface $request)
+    public function parse(ServerRequestInterface $request, $checkContentType = true)
     {
         $acceptHeader      = null;
         $contentTypeHeader = null;
 
-        $method = $request->getMethod();
-
-        try {
-            $header            = $this->getHeader($request, HeaderInterface::HEADER_CONTENT_TYPE);
-            $contentTypeHeader = Header::parse($header, HeaderInterface::HEADER_CONTENT_TYPE);
-        } catch (InvalidArgumentException $exception) {
-            E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST, $exception));
+        if ($checkContentType === true) {
+            try {
+                $header            = $this->getHeader($request, HeaderInterface::HEADER_CONTENT_TYPE);
+                $contentTypeHeader = Header::parse($header, HeaderInterface::HEADER_CONTENT_TYPE);
+            } catch (InvalidArgumentException $exception) {
+                E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST, $exception));
+            }
         }
 
         try {
@@ -70,7 +73,11 @@ class HeaderParametersParser implements HeaderParametersParserInterface, LoggerA
             E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST, $exception));
         }
 
-        return $this->factory->createHeaderParameters($method, $acceptHeader, $contentTypeHeader);
+        $method = $request->getMethod();
+
+        return $checkContentType === true ?
+            $this->factory->createHeaderParameters($method, $acceptHeader, $contentTypeHeader):
+            $this->factory->createNoContentHeaderParameters($method, $acceptHeader);
     }
 
     /**

@@ -31,7 +31,7 @@ class HeaderParameters implements HeaderParametersInterface
     private $method;
 
     /**
-     * @var HeaderInterface
+     * @var HeaderInterface|null
      */
     private $contentType;
 
@@ -43,9 +43,9 @@ class HeaderParameters implements HeaderParametersInterface
     /**
      * @param string                $method
      * @param AcceptHeaderInterface $accept
-     * @param HeaderInterface       $contentType
+     * @param HeaderInterface|null  $contentType
      */
-    public function __construct($method, AcceptHeaderInterface $accept, HeaderInterface $contentType)
+    public function __construct($method, AcceptHeaderInterface $accept, HeaderInterface $contentType = null)
     {
         $this->accept      = $accept;
         $this->contentType = $contentType;

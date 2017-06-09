@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \Mockery;
 use \LogicException;
 use \Neomerx\JsonApi\Http\Request;
 use \Neomerx\JsonApi\Factories\Factory;

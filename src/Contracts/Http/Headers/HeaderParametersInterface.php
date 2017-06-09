@@ -29,9 +29,9 @@ interface HeaderParametersInterface
     public function getMethod();
 
     /**
-     * Get get 'Content-Type' header.
+     * Get get 'Content-Type' header if request has body and `null` otherwise.
      *
-     * @return HeaderInterface
+     * @return HeaderInterface|null
      */
     public function getContentTypeHeader();
 

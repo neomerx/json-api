@@ -70,6 +70,8 @@ interface SchemaFactoryInterface
      * @param bool                                                          $isRoot
      *
      * @return RelationshipObjectInterface
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function createRelationshipObject($name, $data, $links, $meta, $isShowData, $isRoot);
 
@@ -81,6 +83,8 @@ interface SchemaFactoryInterface
      * @param bool              $treatAsHref If $subHref is a full URL and must not be concatenated with other URLs.
      *
      * @return LinkInterface
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function createLink($subHref, $meta = null, $treatAsHref = false);
 

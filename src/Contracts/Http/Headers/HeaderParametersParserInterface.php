@@ -27,8 +27,11 @@ interface HeaderParametersParserInterface
      * Parse input parameters from request.
      *
      * @param ServerRequestInterface $request
+     * @param bool                   $checkContentType
      *
      * @return HeaderParametersInterface
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function parse(ServerRequestInterface $request);
+    public function parse(ServerRequestInterface $request, $checkContentType = true);
 }

@@ -24,6 +24,8 @@ use \Psr\Http\Message\ServerRequestInterface;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class Request implements ServerRequestInterface
 {
@@ -46,9 +48,14 @@ class Request implements ServerRequestInterface
      * @param Closure $getMethodClosure
      * @param Closure $getHeaderClosure
      * @param Closure $getQueryParamsClosure
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
-    public function __construct(Closure $getMethodClosure, Closure $getHeaderClosure, Closure $getQueryParamsClosure)
-    {
+    public function __construct(
+        Closure $getMethodClosure,
+        Closure $getHeaderClosure,
+        Closure $getQueryParamsClosure
+    ) {
         $this->getMethodClosure      = $getMethodClosure;
         $this->getHeaderClosure      = $getHeaderClosure;
         $this->getQueryParamsClosure = $getQueryParamsClosure;
@@ -85,6 +92,15 @@ class Request implements ServerRequestInterface
         $result  = $closure();
 
         return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getParsedBody()
+    {
+        // Method is not used.
+        throw new LogicException();
     }
 
     /**
@@ -215,6 +231,8 @@ class Request implements ServerRequestInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
@@ -271,15 +289,6 @@ class Request implements ServerRequestInterface
      * @inheritdoc
      */
     public function withUploadedFiles(array $uploadedFiles)
-    {
-        // Method is not used.
-        throw new LogicException();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getParsedBody()
     {
         // Method is not used.
         throw new LogicException();
