@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \Mockery;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Exceptions\ErrorCollection;
@@ -127,6 +126,18 @@ class ErrorCollectionTest extends BaseTestCase
         $this->assertNotEmpty($this->collection);
         $this->assertEquals([
             Error::SOURCE_POINTER => self::DATA_ID_PATH
+        ], $this->collection[0]->getSource());
+    }
+
+    /**
+     * Test adding error.
+     */
+    public function testAddAttributesError()
+    {
+        $this->collection->addAttributesError('some title');
+        $this->assertNotEmpty($this->collection);
+        $this->assertEquals([
+            Error::SOURCE_POINTER => self::ATTR_PATH
         ], $this->collection[0]->getSource());
     }
 

@@ -60,6 +60,7 @@ class EncoderTest extends BaseTestCase
             Author::class => AuthorSchema::class
         ], $this->encoderOptions);
 
+        /** @noinspection PhpParamsInspection */
         $encoder->encodeData('input must be an object or array of objects or iterator over objects');
     }
 

@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \Mockery;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 

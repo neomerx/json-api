@@ -36,7 +36,10 @@ class CustomEncoder extends Encoder
      */
     public static function instance(array $schemas = [], EncoderOptions $encodeOptions = null)
     {
-        return parent::instance($schemas, $encodeOptions);
+        /** @var CustomEncoder $encoder */
+        $encoder = parent::instance($schemas, $encodeOptions);
+
+        return $encoder;
     }
 
     /**

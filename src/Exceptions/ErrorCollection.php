@@ -200,6 +200,31 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     }
 
     /**
+     * @param string             $title
+     * @param string|null        $detail
+     * @param int|string|null    $status
+     * @param int|string|null    $idx
+     * @param LinkInterface|null $aboutLink
+     * @param int|string|null    $code
+     * @param mixed|null         $meta
+     *
+     * @return $this
+     */
+    public function addAttributesError(
+        $title,
+        $detail = null,
+        $status = null,
+        $idx = null,
+        LinkInterface $aboutLink = null,
+        $code = null,
+        $meta = null
+    ) {
+        $pointer = $this->getPathToAttributes();
+
+        return $this->addResourceError($title, $pointer, $detail, $status, $idx, $aboutLink, $code, $meta);
+    }
+
+    /**
      * @param string             $name
      * @param string             $title
      * @param string|null        $detail
@@ -414,6 +439,14 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     protected function getPathToId()
     {
         return $this->getPathToData() . '/' . DocumentInterface::KEYWORD_ID;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getPathToAttributes()
+    {
+        return $this->getPathToData() . '/' . DocumentInterface::KEYWORD_ATTRIBUTES;
     }
 
     /**

@@ -33,7 +33,10 @@ class CustomEncoder extends Encoder implements CustomEncoderInterface
      */
     public static function instance(array $schemas = [], EncoderOptions $encodeOptions = null)
     {
-        return parent::instance($schemas, $encodeOptions);
+        /** @var CustomEncoderInterface $encoder */
+        $encoder = parent::instance($schemas, $encodeOptions);
+
+        return $encoder;
     }
 
     /**
@@ -59,6 +62,9 @@ class CustomEncoder extends Encoder implements CustomEncoderInterface
      */
     protected function getContainer()
     {
-        return parent::getContainer();
+        /** @var CustomContainerInterface $container */
+        $container = parent::getContainer();
+
+        return $container;
     }
 }

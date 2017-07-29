@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use \Mockery;
 use \Neomerx\JsonApi\Document\Error;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Neomerx\JsonApi\Exceptions\ErrorCollection;
