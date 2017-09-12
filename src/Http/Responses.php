@@ -93,7 +93,7 @@ abstract class Responses implements ResponsesInterface
         $meta === null ?: $encoder->withMeta($meta);
         $content = $encoder->encodeData($data, $this->getEncodingParameters());
 
-        return $this->createJsonApiResponse($content, $statusCode, $headers);
+        return $this->createJsonApiResponse($content, $statusCode, $headers, true);
     }
 
     /**
@@ -107,7 +107,7 @@ abstract class Responses implements ResponsesInterface
         $content = $encoder->encodeData($resource, $this->getEncodingParameters());
         $headers[self::HEADER_LOCATION] = $this->getResourceLocationUrl($resource);
 
-        return $this->createJsonApiResponse($content, self::HTTP_CREATED, $headers);
+        return $this->createJsonApiResponse($content, self::HTTP_CREATED, $headers, true);
     }
 
     /**
@@ -115,7 +115,7 @@ abstract class Responses implements ResponsesInterface
      */
     public function getCodeResponse($statusCode, array $headers = [])
     {
-        return $this->createJsonApiResponse(null, $statusCode, $headers);
+        return $this->createJsonApiResponse(null, $statusCode, $headers, false);
     }
 
     /**
@@ -126,7 +126,7 @@ abstract class Responses implements ResponsesInterface
         $encoder = $this->getEncoder();
         $content = $encoder->encodeMeta($meta);
 
-        return $this->createJsonApiResponse($content, $statusCode, $headers);
+        return $this->createJsonApiResponse($content, $statusCode, $headers, true);
     }
 
     /**
@@ -144,7 +144,7 @@ abstract class Responses implements ResponsesInterface
         $meta === null ?: $encoder->withMeta($meta);
         $content = $encoder->encodeIdentifiers($data, $this->getEncodingParameters());
 
-        return $this->createJsonApiResponse($content, $statusCode, $headers);
+        return $this->createJsonApiResponse($content, $statusCode, $headers, true);
     }
 
     /**
@@ -162,7 +162,7 @@ abstract class Responses implements ResponsesInterface
             $content = $this->getEncoder()->encodeError($errors);
         }
 
-        return $this->createJsonApiResponse($content, $statusCode, $headers);
+        return $this->createJsonApiResponse($content, $statusCode, $headers, true);
     }
 
     /**
@@ -183,30 +183,35 @@ abstract class Responses implements ResponsesInterface
      * @param string|null $content
      * @param int         $statusCode
      * @param array       $headers
+     * @param bool        $addContentType
      *
      * @return mixed
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    protected function createJsonApiResponse($content, $statusCode, array $headers = [])
+    protected function createJsonApiResponse($content, $statusCode, array $headers = [], $addContentType = true)
     {
-        $mediaType   = $this->getMediaType();
-        $contentType = $mediaType->getMediaType();
-        $params      = $mediaType->getParameters();
+        if ($addContentType === true) {
+            $mediaType   = $this->getMediaType();
+            $contentType = $mediaType->getMediaType();
+            $params      = $mediaType->getParameters();
 
-        $separator = ';';
-        if (isset($params[MediaTypeInterface::PARAM_EXT])) {
-            $ext = $params[MediaTypeInterface::PARAM_EXT];
-            if (empty($ext) === false) {
-                $contentType .= $separator . MediaTypeInterface::PARAM_EXT . '="' . $ext . '"';
-                $separator = ',';
+            $separator = ';';
+            if (isset($params[MediaTypeInterface::PARAM_EXT])) {
+                $ext = $params[MediaTypeInterface::PARAM_EXT];
+                if (empty($ext) === false) {
+                    $contentType .= $separator . MediaTypeInterface::PARAM_EXT . '="' . $ext . '"';
+                    $separator   = ',';
+                }
             }
-        }
 
-        $extensions = $this->getSupportedExtensions();
-        if ($extensions !== null && ($list = $extensions->getExtensions()) !== null && empty($list) === false) {
-            $contentType .= $separator . MediaTypeInterface::PARAM_SUPPORTED_EXT . '="' . $list . '"';
-        }
+            $extensions = $this->getSupportedExtensions();
+            if ($extensions !== null && ($list = $extensions->getExtensions()) !== null && empty($list) === false) {
+                $contentType .= $separator . MediaTypeInterface::PARAM_SUPPORTED_EXT . '="' . $list . '"';
+            }
 
-        $headers[self::HEADER_CONTENT_TYPE] = $contentType;
+            $headers[self::HEADER_CONTENT_TYPE] = $contentType;
+        }
 
         return $this->createResponse($content, $statusCode, $headers);
     }

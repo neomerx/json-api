@@ -64,62 +64,27 @@ class ResponsesTest extends BaseTestCase
     }
 
     /**
-     * Test get status code only response.
+     * Test filling content type header for media type extentions.
      */
-    public function testGetCodeResponse1()
+    public function testFillingContentTypeHeaderForExtentions()
     {
-        $this->willBeCalledGetMediaType('some', 'type');
-        $this->willBeCalledGetSupportedExtensions(null);
-        $this->willBeCalledCreateResponse(null, 123, [Responses::HEADER_CONTENT_TYPE => 'some/type'], 'some response');
-        $this->assertEquals('some response', $this->responses->getCodeResponse(123));
-    }
-
-    /**
-     * Test get status code only response.
-     */
-    public function testGetCodeResponse2()
-    {
-        $this->willBeCalledGetMediaType('some', 'type', [MediaTypeInterface::PARAM_EXT => 'ext1']);
-        $this->willBeCalledGetSupportedExtensions(null);
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type;ext="ext1"'];
-        $this->willBeCalledCreateResponse(null, 123, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getCodeResponse(123));
-    }
-
-    /**
-     * Test get status code only response.
-     */
-    public function testGetCodeResponse3()
-    {
+        $data = [];
         $this->willBeCalledGetMediaType('some', 'type', [MediaTypeInterface::PARAM_EXT => 'ext1']);
         $this->willBeCalledGetSupportedExtensions(new SupportedExtensions('sup-ext1'));
+        $this->willBeCalledEncoderForData($data, 'some json api');
         $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type;ext="ext1",supported-ext="sup-ext1"'];
-        $this->willBeCalledCreateResponse(null, 123, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getCodeResponse(123));
+        $this->willBeCalledCreateResponse('some json api', 200, $headers, 'some response');
+        $this->assertEquals('some response', $this->responses->getContentResponse($data));
     }
 
     /**
-     * Test get status code only response.
+     * Test code response has no content-type header.
      */
-    public function testGetCodeResponse4()
+    public function testCodeResponseHasNoContentTypeHeader()
     {
-        $this->willBeCalledGetMediaType('some', 'type');
-        $this->willBeCalledGetSupportedExtensions(new SupportedExtensions('sup-ext1'));
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type;supported-ext="sup-ext1"'];
-        $this->willBeCalledCreateResponse(null, 123, $headers, 'some response');
+        $expectedHeaders = [];
+        $this->willBeCalledCreateResponse(null, 123, $expectedHeaders, 'some response');
         $this->assertEquals('some response', $this->responses->getCodeResponse(123));
-    }
-
-    /**
-     * Test get status code only response, with custom headers.
-     */
-    public function testGetCodeResponse5()
-    {
-        $this->willBeCalledGetMediaType('some', 'type');
-        $this->willBeCalledGetSupportedExtensions(null);
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
-        $this->willBeCalledCreateResponse(null, 123, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getCodeResponse(123, ['X-Custom' => 'Custom-Header']));
     }
 
     /**
