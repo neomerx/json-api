@@ -21,6 +21,7 @@ use \Neomerx\JsonApi\Http\Request;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Psr\Http\Message\ServerRequestInterface;
+use \Neomerx\JsonApi\Exceptions\JsonApiException;
 use \Neomerx\JsonApi\Contracts\Http\Query\QueryParametersParserInterface;
 
 /**
@@ -140,15 +141,40 @@ class ParameterParserTest extends BaseTestCase
 
     /**
      * Test miss field in sort params.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
-    public function testSendIncorrectSortParams()
+    public function testSendIncorrectSortParams1()
     {
         $input = [
             'sort' => '-created,,name'
         ];
-        $this->parser->parse($this->prepareRequest($input));
+
+        $exception = null;
+        try {
+            $this->parser->parse($this->prepareRequest($input));
+        } catch (JsonApiException $exception) {
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertNotEmpty($exception->getErrors());
+    }
+
+    /**
+     * Test miss field in sort params.
+     */
+    public function testSendIncorrectSortParams2()
+    {
+        $input = [
+            'sort' => '-created,+,name'
+        ];
+
+        $exception = null;
+        try {
+            $this->parser->parse($this->prepareRequest($input));
+        } catch (JsonApiException $exception) {
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertNotEmpty($exception->getErrors());
     }
 
     /**

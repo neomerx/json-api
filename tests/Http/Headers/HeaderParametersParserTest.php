@@ -21,6 +21,7 @@ use \Neomerx\JsonApi\Http\Request;
 use \Neomerx\JsonApi\Factories\Factory;
 use \Neomerx\Tests\JsonApi\BaseTestCase;
 use \Psr\Http\Message\ServerRequestInterface;
+use \Neomerx\JsonApi\Exceptions\JsonApiException;
 use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
 use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
@@ -183,22 +184,32 @@ class HeaderParametersParserTest extends BaseTestCase
 
     /**
      * Test parse invalid headers.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testParseIvalidHeaders1()
     {
-        $this->parser->parse($this->prepareRequest('POST', self::TYPE.';foo', self::TYPE, 1, 0));
+        $exception = null;
+        try {
+            $this->parser->parse($this->prepareRequest('POST', self::TYPE . ';foo', self::TYPE, 1, 0));
+        } catch (JsonApiException $exception) {
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertNotEmpty($exception->getErrors());
     }
 
     /**
      * Test parse invalid headers.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testParseIvalidHeaders2()
     {
-        $this->parser->parse($this->prepareRequest('POST', self::TYPE, self::TYPE.';foo', 1, 1));
+        $exception = null;
+        try {
+            $this->parser->parse($this->prepareRequest('POST', self::TYPE, self::TYPE.';foo', 1, 1));
+        } catch (JsonApiException $exception) {
+        }
+
+        $this->assertNotNull($exception);
+        $this->assertNotEmpty($exception->getErrors());
     }
 
     /**

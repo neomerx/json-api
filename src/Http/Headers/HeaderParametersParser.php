@@ -19,6 +19,8 @@
 use \InvalidArgumentException;
 use \Psr\Log\LoggerAwareTrait;
 use \Psr\Log\LoggerAwareInterface;
+use \Neomerx\JsonApi\Document\Error;
+use \Neomerx\JsonApi\I18n\Translator as T;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Neomerx\JsonApi\Exceptions\JsonApiException as E;
 use \Neomerx\JsonApi\Contracts\Http\HttpFactoryInterface;
@@ -62,7 +64,9 @@ class HeaderParametersParser implements HeaderParametersParserInterface, LoggerA
                 $header            = $this->getHeader($request, HeaderInterface::HEADER_CONTENT_TYPE);
                 $contentTypeHeader = Header::parse($header, HeaderInterface::HEADER_CONTENT_TYPE);
             } catch (InvalidArgumentException $exception) {
-                E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST, $exception));
+                $title  = T::t('Invalid ' . HeaderInterface::HEADER_CONTENT_TYPE . ' header.');
+                $error  = new Error(null, null, null, null, $title);
+                E::throwException(new E([$error], E::HTTP_CODE_BAD_REQUEST, $exception));
             }
         }
 
@@ -70,7 +74,9 @@ class HeaderParametersParser implements HeaderParametersParserInterface, LoggerA
             $header       = $this->getHeader($request, HeaderInterface::HEADER_ACCEPT);
             $acceptHeader = AcceptHeader::parse($header);
         } catch (InvalidArgumentException $exception) {
-            E::throwException(new E([], E::HTTP_CODE_BAD_REQUEST, $exception));
+            $title  = T::t('Invalid ' . HeaderInterface::HEADER_ACCEPT . ' header.');
+            $error  = new Error(null, null, null, null, $title);
+            E::throwException(new E([$error], E::HTTP_CODE_BAD_REQUEST, $exception));
         }
 
         $method = $request->getMethod();
