@@ -82,11 +82,10 @@ class QueryParametersParser implements QueryParametersParserInterface, LoggerAwa
      * @return array|null
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
-     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     private function getFieldSets(array $parameters)
     {
-        $result    = [];
+        $result = null;
         $fieldSets = $this->getParamOrNull($parameters, self::PARAM_FIELDS);
         if (empty($fieldSets) === false && is_array($fieldSets)) {
             foreach ($fieldSets as $type => $fields) {
@@ -97,8 +96,6 @@ class QueryParametersParser implements QueryParametersParserInterface, LoggerAwa
                 }
                 $result[$type] = (empty($fields) === true ? [] : explode(',', $fields));
             }
-        } else {
-            $result = null;
         }
 
         return $result;
