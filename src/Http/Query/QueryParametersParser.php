@@ -51,8 +51,14 @@ class QueryParametersParser implements QueryParametersParserInterface, LoggerAwa
      */
     public function parse(ServerRequestInterface $request)
     {
-        $parameters = $request->getQueryParams();
+        return $this->parseQueryParameters($request->getQueryParams());
+    }
 
+    /**
+     * @inheritdoc
+     */
+    public function parseQueryParameters(array $parameters)
+    {
         return $this->factory->createQueryParameters(
             $this->getIncludePaths($parameters),
             $this->getFieldSets($parameters),

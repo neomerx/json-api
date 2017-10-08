@@ -39,7 +39,7 @@ interface QueryParametersParserInterface
     /** Parameter name */
     const PARAM_SORT = 'sort';
 
-    /**
+    /** @deprecated Use `parseQueryParameters($request->getQueryParams())` instead.
      * Parse input parameters from request.
      *
      * @param ServerRequestInterface $request
@@ -47,4 +47,13 @@ interface QueryParametersParserInterface
      * @return EncodingParametersInterface
      */
     public function parse(ServerRequestInterface $request);
+
+    /**
+     * Parse input parameters from request.
+     *
+     * @param array $parameters
+     *
+     * @return EncodingParametersInterface
+     */
+    public function parseQueryParameters(array $parameters);
 }
