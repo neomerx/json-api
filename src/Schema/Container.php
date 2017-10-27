@@ -129,6 +129,10 @@ class Container implements ContainerInterface, LoggerAwareInterface
      */
     public function getSchema($resource)
     {
+        if ($resource === null) {
+            return null;
+        }
+
         $resourceType = $this->getResourceType($resource);
 
         return $this->getSchemaByType($resourceType);

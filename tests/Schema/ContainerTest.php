@@ -154,6 +154,20 @@ class ContainerTest extends BaseTestCase
     }
 
     /**
+     * Test container.
+     *
+     * @link https://github.com/neomerx/json-api/issues/188
+     */
+    public function testForNullResourceShouldReturnNull()
+    {
+        $container = new Container($this->factory, [
+            Author::class => [static::class, 'authorShemeFactory'],
+        ]);
+
+        $this->assertNull($container->getSchema(null));
+    }
+
+    /**
      * @param SchemaFactoryInterface $factory
      *
      * @return AuthorSchema
