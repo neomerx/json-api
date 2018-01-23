@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Encoder\Parser;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,25 @@
  * limitations under the License.
  */
 
-use \Iterator;
-use \IteratorAggregate;
-use \InvalidArgumentException;
-use \Psr\Log\LoggerAwareTrait;
-use \Psr\Log\LoggerAwareInterface;
-use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\I18n\Translator as T;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
-use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use InvalidArgumentException;
+use Iterator;
+use IteratorAggregate;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
+use Neomerx\JsonApi\Factories\Exceptions;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use function Neomerx\JsonApi\I18n\translate as _;
 
 /**
  * The main purpose of the parser is to reach **every resource** that is targeted for inclusion and its
@@ -71,6 +71,18 @@ class Parser implements ParserInterface, LoggerAwareInterface
     use LoggerAwareTrait;
 
     /**
+     * Message code.
+     */
+    const MSG_SCHEME_NOT_REGISTERED = 0;
+
+    /**
+     * Default messages.
+     */
+    const MESSAGES = [
+        self::MSG_SCHEME_NOT_REGISTERED => 'Schema is not registered for a resource at path \'%s\'.',
+    ];
+
+    /**
      * @var ParserFactoryInterface
      */
     protected $parserFactory;
@@ -101,30 +113,38 @@ class Parser implements ParserInterface, LoggerAwareInterface
     protected $container;
 
     /**
+     * @var array
+     */
+    private $messages;
+
+    /**
      * @param ParserFactoryInterface $parserFactory
      * @param StackFactoryInterface  $stackFactory
      * @param SchemaFactoryInterface $schemaFactory
      * @param ContainerInterface     $container
      * @param ParserManagerInterface $manager
+     * @param array                  $messages
      */
     public function __construct(
         ParserFactoryInterface $parserFactory,
         StackFactoryInterface $stackFactory,
         SchemaFactoryInterface $schemaFactory,
         ContainerInterface $container,
-        ParserManagerInterface $manager
+        ParserManagerInterface $manager,
+        $messages = self::MESSAGES
     ) {
         $this->manager       = $manager;
         $this->container     = $container;
         $this->stackFactory  = $stackFactory;
         $this->parserFactory = $parserFactory;
         $this->schemaFactory = $schemaFactory;
+        $this->messages      = $messages;
     }
 
     /**
      * @inheritdoc
      */
-    public function parse($data)
+    public function parse($data): iterable
     {
         $this->stack = $this->stackFactory->createStack();
         $rootFrame   = $this->stack->push();
@@ -144,7 +164,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
      *
      * @SuppressWarnings(PHPMD.ElseExpression)
      */
-    private function parseData()
+    private function parseData(): iterable
     {
         list($isEmpty, $isOriginallyArrayed, $traversableData) = $this->analyzeCurrentData();
 
@@ -200,7 +220,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
     /**
      * @return array
      */
-    protected function analyzeCurrentData()
+    protected function analyzeCurrentData(): array
     {
         $data   = $this->getCurrentData();
         $result = $this->analyzeData($data);
@@ -228,7 +248,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
      * @SuppressWarnings(PHPMD.ElseExpression)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    protected function analyzeData($data)
+    protected function analyzeData($data): array
     {
         $isCollection    = true;
         $isEmpty         = true;
@@ -239,7 +259,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
 
         if (is_array($data) === true) {
             /** @var array $data */
-            $isEmpty = empty($data);
+            $isEmpty         = empty($data);
             $traversableData = $data;
         } elseif (($data instanceof Iterator && ($iterator = $data) !== null) ||
             ($data instanceof IteratorAggregate && ($iterator = $data->getIterator()) !== null)
@@ -269,16 +289,16 @@ class Parser implements ParserInterface, LoggerAwareInterface
      * @param mixed                       $resource
      * @param StackFrameReadOnlyInterface $frame
      *
-     * @return SchemaProviderInterface
+     * @return SchemaInterface
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      */
-    private function getSchema($resource, StackFrameReadOnlyInterface $frame)
+    private function getSchema($resource, StackFrameReadOnlyInterface $frame): SchemaInterface
     {
         try {
             $schema = $this->container->getSchema($resource);
         } catch (InvalidArgumentException $exception) {
-            $message = T::t('Schema is not registered for a resource at path \'%s\'.', [$frame->getPath()]);
+            $message = _($this->messages[self::MSG_SCHEME_NOT_REGISTERED], $frame->getPath());
             throw new InvalidArgumentException($message, 0, $exception);
         }
 
@@ -292,7 +312,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      */
-    private function createReplyForEmptyData($data)
+    private function createReplyForEmptyData(?array $data): ParserReplyInterface
     {
         ($data === null || (is_array($data) === true && empty($data) === true)) ?: Exceptions::throwLogicException();
 
@@ -305,7 +325,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
     /**
      * @return ParserReplyInterface
      */
-    private function createReplyResourceStarted()
+    private function createReplyResourceStarted(): ParserReplyInterface
     {
         return $this->parserFactory->createReply(ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED, $this->stack);
     }
@@ -313,7 +333,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
     /**
      * @return ParserReplyInterface
      */
-    private function createReplyResourceCompleted()
+    private function createReplyResourceCompleted(): ParserReplyInterface
     {
         return $this->parserFactory->createReply(ParserReplyInterface::REPLY_TYPE_RESOURCE_COMPLETED, $this->stack);
     }
@@ -321,7 +341,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
     /**
      * @return bool
      */
-    private function shouldParseRelationships()
+    private function shouldParseRelationships(): bool
     {
         return $this->manager->isShouldParseRelationships($this->stack);
     }
@@ -329,7 +349,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
     /**
      * @return string[]
      */
-    private function getIncludeRelationships()
+    private function getIncludeRelationships(): array
     {
         return $this->manager->getIncludeRelationships($this->stack);
     }
@@ -337,7 +357,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
     /**
      * @return bool
      */
-    private function isRelationshipIncludedOrInFieldSet()
+    private function isRelationshipIncludedOrInFieldSet(): bool
     {
         return
             $this->manager->isRelationshipInFieldSet($this->stack) === true ||
@@ -349,7 +369,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
      *
      * @return bool
      */
-    private function checkCircular(ResourceObjectInterface $resourceObject)
+    private function checkCircular(ResourceObjectInterface $resourceObject): bool
     {
         foreach ($this->stack as $frame) {
             /** @var StackFrameReadOnlyInterface $frame */
@@ -359,6 +379,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
                 return true;
             }
         }
+
         return false;
     }
 
@@ -367,7 +388,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
      *
      * @return array <string, int>|null
      */
-    private function getFieldSet($resourceType)
+    private function getFieldSet(string $resourceType): ?array
     {
         return $this->manager->getFieldSet($resourceType);
     }

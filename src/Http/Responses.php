@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Http;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,14 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Exceptions\ErrorCollection;
-use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use \Neomerx\JsonApi\Contracts\Http\ResponsesInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\SupportedExtensionsInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use Neomerx\JsonApi\Contracts\Http\ResponsesInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use Neomerx\JsonApi\Exceptions\ErrorCollection;
 
 /**
  * @package Neomerx\JsonApi
@@ -46,45 +45,40 @@ abstract class Responses implements ResponsesInterface
      *
      * @return mixed
      */
-    abstract protected function createResponse($content, $statusCode, array $headers);
+    abstract protected function createResponse(?string $content, int $statusCode, array $headers);
 
     /**
      * @return EncoderInterface
      */
-    abstract protected function getEncoder();
+    abstract protected function getEncoder(): EncoderInterface;
 
     /**
      * @return string|null
      */
-    abstract protected function getUrlPrefix();
+    abstract protected function getUrlPrefix(): ?string;
 
     /**
      * @return EncodingParametersInterface|null
      */
-    abstract protected function getEncodingParameters();
+    abstract protected function getEncodingParameters(): ?EncodingParametersInterface;
 
     /**
      * @return ContainerInterface
      */
-    abstract protected function getSchemaContainer();
-
-    /**
-     * @return SupportedExtensionsInterface|null
-     */
-    abstract protected function getSupportedExtensions();
+    abstract protected function getSchemaContainer(): ?ContainerInterface;
 
     /**
      * @return MediaTypeInterface
      */
-    abstract protected function getMediaType();
+    abstract protected function getMediaType(): MediaTypeInterface;
 
     /**
      * @inheritdoc
      */
     public function getContentResponse(
         $data,
-        $statusCode = self::HTTP_OK,
-        $links = null,
+        int $statusCode = self::HTTP_OK,
+        array $links = null,
         $meta = null,
         array $headers = []
     ) {
@@ -99,7 +93,7 @@ abstract class Responses implements ResponsesInterface
     /**
      * @inheritdoc
      */
-    public function getCreatedResponse($resource, $links = null, $meta = null, array $headers = [])
+    public function getCreatedResponse($resource, array $links = null, $meta = null, array $headers = [])
     {
         $encoder = $this->getEncoder();
         $links === null ?: $encoder->withLinks($links);
@@ -113,7 +107,7 @@ abstract class Responses implements ResponsesInterface
     /**
      * @inheritdoc
      */
-    public function getCodeResponse($statusCode, array $headers = [])
+    public function getCodeResponse(int $statusCode, array $headers = [])
     {
         return $this->createJsonApiResponse(null, $statusCode, $headers, false);
     }
@@ -121,7 +115,7 @@ abstract class Responses implements ResponsesInterface
     /**
      * @inheritdoc
      */
-    public function getMetaResponse($meta, $statusCode = self::HTTP_OK, array $headers = [])
+    public function getMetaResponse($meta, int $statusCode = self::HTTP_OK, array $headers = [])
     {
         $encoder = $this->getEncoder();
         $content = $encoder->encodeMeta($meta);
@@ -134,8 +128,8 @@ abstract class Responses implements ResponsesInterface
      */
     public function getIdentifiersResponse(
         $data,
-        $statusCode = self::HTTP_OK,
-        $links = null,
+        int $statusCode = self::HTTP_OK,
+        array $links = null,
         $meta = null,
         array $headers = []
     ) {
@@ -152,7 +146,7 @@ abstract class Responses implements ResponsesInterface
      *
      * @SuppressWarnings(PHPMD.ElseExpression)
      */
-    public function getErrorResponse($errors, $statusCode = self::HTTP_BAD_REQUEST, array $headers = [])
+    public function getErrorResponse($errors, int $statusCode = self::HTTP_BAD_REQUEST, array $headers = [])
     {
         if ($errors instanceof ErrorCollection || is_array($errors) === true) {
             /** @var ErrorInterface[] $errors */
@@ -170,7 +164,7 @@ abstract class Responses implements ResponsesInterface
      *
      * @return string
      */
-    protected function getResourceLocationUrl($resource)
+    protected function getResourceLocationUrl($resource): string
     {
         $resSubUrl = $this->getSchemaContainer()->getSchema($resource)->getSelfSubLink($resource)->getSubHref();
         $urlPrefix = $this->getUrlPrefix();
@@ -189,28 +183,14 @@ abstract class Responses implements ResponsesInterface
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    protected function createJsonApiResponse($content, $statusCode, array $headers = [], $addContentType = true)
-    {
+    protected function createJsonApiResponse(
+        ?string $content,
+        int $statusCode,
+        array $headers = [],
+        $addContentType = true
+    ) {
         if ($addContentType === true) {
-            $mediaType   = $this->getMediaType();
-            $contentType = $mediaType->getMediaType();
-            $params      = $mediaType->getParameters();
-
-            $separator = ';';
-            if (isset($params[MediaTypeInterface::PARAM_EXT])) {
-                $ext = $params[MediaTypeInterface::PARAM_EXT];
-                if (empty($ext) === false) {
-                    $contentType .= $separator . MediaTypeInterface::PARAM_EXT . '="' . $ext . '"';
-                    $separator   = ',';
-                }
-            }
-
-            $extensions = $this->getSupportedExtensions();
-            if ($extensions !== null && ($list = $extensions->getExtensions()) !== null && empty($list) === false) {
-                $contentType .= $separator . MediaTypeInterface::PARAM_SUPPORTED_EXT . '="' . $list . '"';
-            }
-
-            $headers[self::HEADER_CONTENT_TYPE] = $contentType;
+            $headers[self::HEADER_CONTENT_TYPE] = $this->getMediaType()->getMediaType();
         }
 
         return $this->createResponse($content, $statusCode, $headers);

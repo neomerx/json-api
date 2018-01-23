@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Encoder\Serialize;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-use \Iterator;
-use \Neomerx\JsonApi\Exceptions\ErrorCollection;
-use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface as CI;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Iterator;
+use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContainerInterface as CI;
+use Neomerx\JsonApi\Exceptions\ErrorCollection;
 
 /**
  * @method CI getContainer()
@@ -40,7 +40,7 @@ trait ArraySerializerTrait
      *
      * @return array
      */
-    public function serializeData($data, EncodingParametersInterface $parameters = null)
+    public function serializeData($data, EncodingParametersInterface $parameters = null): array
     {
         return $this->encodeDataToArray($this->getContainer(), $data, $parameters);
     }
@@ -51,7 +51,7 @@ trait ArraySerializerTrait
      *
      * @return array
      */
-    public function serializeIdentifiers($data, EncodingParametersInterface $parameters = null)
+    public function serializeIdentifiers($data, EncodingParametersInterface $parameters = null): array
     {
         return $this->encodeIdentifiersToArray($data, $parameters);
     }
@@ -61,7 +61,7 @@ trait ArraySerializerTrait
      *
      * @return array
      */
-    public function serializeError(ErrorInterface $error)
+    public function serializeError(ErrorInterface $error): array
     {
         return $this->encodeErrorToArray($error);
     }
@@ -71,7 +71,7 @@ trait ArraySerializerTrait
      *
      * @return array
      */
-    public function serializeErrors($errors)
+    public function serializeErrors($errors): array
     {
         return $this->encodeErrorsToArray($errors);
     }
@@ -81,7 +81,7 @@ trait ArraySerializerTrait
      *
      * @return array
      */
-    public function serializeMeta($meta)
+    public function serializeMeta($meta): array
     {
         return $this->encodeMetaToArray($meta);
     }

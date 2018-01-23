@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Document\Presenters;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-use \InvalidArgumentException;
-use \Neomerx\JsonApi\Document\Document;
-use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\I18n\Translator as T;
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use InvalidArgumentException;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use Neomerx\JsonApi\Document\Document;
+use Neomerx\JsonApi\Factories\Exceptions;
+use function Neomerx\JsonApi\I18n\translate as _;
 
 /**
  * This is an auxiliary class for Document that help presenting elements.
@@ -39,11 +39,38 @@ class ElementPresenter
     private $document;
 
     /**
-     * @param Document $document
+     * Message code.
      */
-    public function __construct(Document $document)
+    const MSG_INVALID_RELATIONSHIP = 0;
+
+    /**
+     * Message code.
+     */
+    const MSG_INVALID_ATTRIBUTE = self::MSG_INVALID_RELATIONSHIP + 1;
+
+    /**
+     * Default messages.
+     */
+    const MESSAGES = [
+        self::MSG_INVALID_RELATIONSHIP =>
+            '\'%s\' is a reserved keyword and cannot be used as a relationship name in type \'%s\'',
+        self::MSG_INVALID_ATTRIBUTE    =>
+            '\'%s\' is a reserved keyword and cannot be used as attribute name in type \'%s\'',
+    ];
+
+    /**
+     * @var array
+     */
+    private $messages;
+
+    /**
+     * @param Document $document
+     * @param array    $messages
+     */
+    public function __construct(Document $document, $messages = self::MESSAGES)
     {
         $this->document = $document;
+        $this->messages = $messages;
     }
 
     /**
@@ -59,7 +86,7 @@ class ElementPresenter
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relation,
         $value
-    ) {
+    ): void {
         $parentId     = $parent->getId();
         $parentType   = $parent->getType();
         $name         = $relation->getName();
@@ -100,7 +127,7 @@ class ElementPresenter
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relation,
         ResourceObjectInterface $resource
-    ) {
+    ): void {
         $parentId     = $parent->getId();
         $parentType   = $parent->getType();
         $parentExists = isset($target[$parentType][$parentId]);
@@ -109,7 +136,7 @@ class ElementPresenter
         if ($parentExists === true) {
             $parentAlias = &$target[$parentType][$parentId];
 
-            $name = $relation->getName();
+            $name               = $relation->getName();
             $alreadyGotRelation = isset($parentAlias[Document::KEYWORD_RELATIONSHIPS][$name]);
 
             $linkage = null;
@@ -151,7 +178,7 @@ class ElementPresenter
      *
      * @return array
      */
-    public function convertDataResourceToArray(ResourceObjectInterface $resource, $isShowAttributes)
+    public function convertDataResourceToArray(ResourceObjectInterface $resource, bool $isShowAttributes): array
     {
         return $this->convertResourceToArray(
             $resource,
@@ -168,7 +195,7 @@ class ElementPresenter
      *
      * @return array
      */
-    public function convertIncludedResourceToArray(ResourceObjectInterface $resource)
+    public function convertIncludedResourceToArray(ResourceObjectInterface $resource): array
     {
         return $this->convertResourceToArray(
             $resource,
@@ -179,12 +206,12 @@ class ElementPresenter
     }
 
     /**
-     * @param string|null                                                        $prefix
+     * @param string|null $prefix
      * @param array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface>|null $links
      *
-     * @return array|null|string
+     * @return array|null
      */
-    public function getLinksRepresentation($prefix = null, $links = null)
+    public function getLinksRepresentation(string $prefix = null, array $links = null): ?array
     {
         $result = null;
         if (empty($links) === false) {
@@ -198,29 +225,11 @@ class ElementPresenter
     }
 
     /**
-     * @param string            $url
-     * @param null|object|array $meta
-     *
-     * @return string|array
-     */
-    private function getUrlRepresentation($url, $meta = null)
-    {
-        if ($meta === null) {
-            return $url;
-        }
-
-        return [
-            Document::KEYWORD_HREF => $url,
-            Document::KEYWORD_META => $meta,
-        ];
-    }
-
-    /**
      * @param ResourceObjectInterface $resource
      *
      * @return array<string,string>
      */
-    private function getLinkageRepresentation(ResourceObjectInterface $resource)
+    private function getLinkageRepresentation(ResourceObjectInterface $resource): array
     {
         $representation = [
             Document::KEYWORD_TYPE => $resource->getType(),
@@ -229,21 +238,19 @@ class ElementPresenter
         if (($meta = $resource->getLinkageMeta()) !== null) {
             $representation[Document::KEYWORD_META] = $meta;
         }
+
         return $representation;
     }
 
     /**
      * @param string|null        $prefix
-     * @param LinkInterface|null $link
+     * @param LinkInterface $link
      *
      * @return array|null|string
      */
-    private function getLinkRepresentation($prefix = null, LinkInterface $link = null)
+    private function getLinkRepresentation(?string $prefix, LinkInterface $link)
     {
-        return $link === null ? null : $this->getUrlRepresentation(
-            $link->isTreatAsHref() === true ? $link->getSubHref() : $prefix . $link->getSubHref(),
-            $link->getMeta()
-        );
+        return $link->hasMeta() === true ? $link->getHrefWithMeta($prefix) : $link->getHref($prefix);
     }
 
     /**
@@ -255,13 +262,11 @@ class ElementPresenter
     private function getRelationRepresentation(
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relation
-    ) {
+    ): array {
         $isOk = ($relation->getName() !== Document::KEYWORD_SELF);
         if ($isOk === false) {
-            throw new InvalidArgumentException(T::t(
-                '\'%s\' is a reserved keyword and cannot be used as a relationship name in type \'%s\'',
-                [Document::KEYWORD_SELF, $parent->getType()]
-            ));
+            $message = $this->messages[self::MSG_INVALID_RELATIONSHIP];
+            throw new InvalidArgumentException(_($message, Document::KEYWORD_SELF, $parent->getType()));
         }
 
         $representation = [];
@@ -288,8 +293,12 @@ class ElementPresenter
      *
      * @return array
      */
-    private function convertResourceToArray(ResourceObjectInterface $resource, $resourceLinks, $meta, $isShowAttributes)
-    {
+    private function convertResourceToArray(
+        ResourceObjectInterface $resource,
+        array $resourceLinks,
+        $meta,
+        bool $isShowAttributes
+    ): array {
         $representation = [
             Document::KEYWORD_TYPE => $resource->getType(),
         ];
@@ -302,17 +311,13 @@ class ElementPresenter
         // "type" and "id" are reserved keywords and cannot be used as resource object attributes
         $isOk = (isset($attributes[Document::KEYWORD_TYPE]) === false);
         if ($isOk === false) {
-            throw new InvalidArgumentException(T::t(
-                '\'%s\' is a reserved keyword and cannot be used as attribute name in type \'%s\'',
-                [Document::KEYWORD_TYPE, $resource->getType()]
-            ));
+            $message = $this->messages[self::MSG_INVALID_ATTRIBUTE];
+            throw new InvalidArgumentException(_($message, Document::KEYWORD_TYPE, $resource->getType()));
         }
         $isOk = (isset($attributes[Document::KEYWORD_ID]) === false);
         if ($isOk === false) {
-            throw new InvalidArgumentException(T::t(
-                '\'%s\' is a reserved keyword and cannot be used as attribute name in type \'%s\'',
-                [Document::KEYWORD_ID, $resource->getType()]
-            ));
+            $message = $this->messages[self::MSG_INVALID_ATTRIBUTE];
+            throw new InvalidArgumentException(_($message, Document::KEYWORD_ID, $resource->getType()));
         }
 
         if ($isShowAttributes === true && empty($attributes) === false) {

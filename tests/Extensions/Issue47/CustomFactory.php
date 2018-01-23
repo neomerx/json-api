@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue47;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
+use Neomerx\JsonApi\Factories\Factory;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -28,11 +29,11 @@ class CustomFactory extends Factory
      * @inheritdoc
      */
     public function createResourceObject(
-        SchemaProviderInterface $schema,
+        SchemaInterface $schema,
         $resource,
-        $isInArray,
-        $attributeKeysFilter = null
-    ) {
-        return new CustomResourceObject($schema, $resource, $isInArray, $attributeKeysFilter);
+        bool $isInArray,
+        array $fieldKeysFilter = null
+    ): ResourceObjectInterface {
+        return new CustomResourceObject($schema, $resource, $isInArray, $fieldKeysFilter);
     }
 }

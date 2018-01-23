@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Document;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \Psr\Log\LoggerAwareTrait;
-use \Psr\Log\LoggerAwareInterface;
-use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Document\Presenters\ElementPresenter;
-use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Closure;
+use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use Neomerx\JsonApi\Document\Presenters\ElementPresenter;
+use Neomerx\JsonApi\Factories\Exceptions;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * @package Neomerx\JsonApi
@@ -124,7 +124,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function setDocumentLinks($links)
+    public function setDocumentLinks(array $links): void
     {
         $this->links = $this->presenter->getLinksRepresentation($this->urlPrefix, $links);
     }
@@ -132,7 +132,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function setMetaToDocument($meta)
+    public function setMetaToDocument($meta): void
     {
         (is_object($meta) === true || is_array($meta) === true) ?: Exceptions::throwInvalidArgument('meta', $meta);
         $this->meta = $meta;
@@ -141,7 +141,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function addToIncluded(ResourceObjectInterface $resource)
+    public function addToIncluded(ResourceObjectInterface $resource): void
     {
         $idx  = $resource->getId();
         $type = $resource->getType();
@@ -154,7 +154,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function addToData(ResourceObjectInterface $resource)
+    public function addToData(ResourceObjectInterface $resource): void
     {
         // check if 'not-arrayed' data were added you cannot add to 'non-array' data section anymore
         ($this->isDataArrayed === true || $this->isDataArrayed === null) ?: Exceptions::throwLogicException();
@@ -169,7 +169,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
 
         isset($this->bufferForData[$type][$idx]) === false ?: Exceptions::throwLogicException();
 
-        $this->bufferForData[$type][$idx] = $this->presenter->convertDataResourceToArray($resource, true);
+        $this->bufferForData[$type][$idx]     = $this->presenter->convertDataResourceToArray($resource, true);
         $this->hasBeenMetAlready[$type][$idx] = true;
 
         // check if resource has already been added to included
@@ -185,7 +185,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function setEmptyData()
+    public function setEmptyData(): void
     {
         $this->data = [];
     }
@@ -193,7 +193,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function setNullData()
+    public function setNullData(): void
     {
         $this->data = null;
     }
@@ -205,7 +205,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship,
         ResourceObjectInterface $resource
-    ) {
+    ): void {
         $this->presenter->addRelationshipTo($this->bufferForData, $parent, $relationship, $resource);
     }
 
@@ -216,7 +216,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship,
         ResourceObjectInterface $resource
-    ) {
+    ): void {
         $this->presenter->addRelationshipTo($this->bufferForIncluded, $parent, $relationship, $resource);
     }
 
@@ -226,7 +226,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     public function addEmptyRelationshipToData(
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship
-    ) {
+    ): void {
         $this->presenter->setRelationshipTo($this->bufferForData, $parent, $relationship, []);
     }
 
@@ -236,7 +236,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     public function addNullRelationshipToData(
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship
-    ) {
+    ): void {
         $this->presenter->setRelationshipTo($this->bufferForData, $parent, $relationship, null);
     }
 
@@ -246,7 +246,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     public function addEmptyRelationshipToIncluded(
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship
-    ) {
+    ): void {
         $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $relationship, []);
     }
 
@@ -256,7 +256,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     public function addNullRelationshipToIncluded(
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship
-    ) {
+    ): void {
         $this->presenter->setRelationshipTo($this->bufferForIncluded, $parent, $relationship, null);
     }
 
@@ -265,7 +265,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
      *
      * @SuppressWarnings(PHPMD.ElseExpression)
      */
-    public function setResourceCompleted(ResourceObjectInterface $resource)
+    public function setResourceCompleted(ResourceObjectInterface $resource): void
     {
         $idx  = $resource->getId();
         $type = $resource->getType();
@@ -316,7 +316,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
      *
      * @SuppressWarnings(PHPMD.ElseExpression)
      */
-    public function getDocument()
+    public function getDocument(): array
     {
         if ($this->errors !== null) {
             return array_filter([
@@ -351,7 +351,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function addJsonApiVersion($version, $meta = null)
+    public function addJsonApiVersion(string $version, $meta = null)
     {
         $this->version = $meta === null ?
             [self::KEYWORD_VERSION => $version] : [self::KEYWORD_VERSION => $version, self::KEYWORD_META => $meta];
@@ -360,7 +360,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function unsetData()
+    public function unsetData(): void
     {
         $this->showData = false;
     }
@@ -368,7 +368,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function addError(ErrorInterface $error)
+    public function addError(ErrorInterface $error): void
     {
         $errorId = (($errorId = $error->getId()) === null ? null : (string)$errorId);
 
@@ -394,7 +394,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function addErrors($errors)
+    public function addErrors($errors): void
     {
         empty($this->errors) === false ?: $this->errors = [];
 
@@ -406,9 +406,9 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function setUrlPrefix($prefix)
+    public function setUrlPrefix(string $prefix): void
     {
-        $this->urlPrefix = (string)$prefix;
+        $this->urlPrefix = $prefix;
     }
 
     /**
@@ -416,7 +416,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
      *
      * @return null|string
      */
-    public function getUrlPrefix()
+    public function getUrlPrefix(): ?string
     {
         return $this->urlPrefix;
     }

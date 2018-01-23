@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Document;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Exceptions\ErrorCollection;
-use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use Neomerx\JsonApi\Exceptions\ErrorCollection;
 
 /**
  * @package Neomerx\JsonApi
@@ -26,64 +26,64 @@ use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
 interface DocumentInterface
 {
     /** Reserved keyword */
-    const KEYWORD_LINKS         = 'links';
+    const KEYWORD_LINKS = 'links';
     /** Reserved keyword */
-    const KEYWORD_HREF          = 'href';
+    const KEYWORD_HREF = 'href';
     /** Reserved keyword */
     const KEYWORD_RELATIONSHIPS = 'relationships';
     /** Reserved keyword */
-    const KEYWORD_SELF          = 'self';
+    const KEYWORD_SELF = 'self';
     /** Reserved keyword */
-    const KEYWORD_FIRST         = 'first';
+    const KEYWORD_FIRST = 'first';
     /** Reserved keyword */
-    const KEYWORD_LAST          = 'last';
+    const KEYWORD_LAST = 'last';
     /** Reserved keyword */
-    const KEYWORD_NEXT          = 'next';
+    const KEYWORD_NEXT = 'next';
     /** Reserved keyword */
-    const KEYWORD_PREV          = 'prev';
+    const KEYWORD_PREV = 'prev';
     /** Reserved keyword */
-    const KEYWORD_RELATED       = 'related';
+    const KEYWORD_RELATED = 'related';
     /** Reserved keyword */
-    const KEYWORD_LINKAGE_DATA  = self::KEYWORD_DATA;
+    const KEYWORD_LINKAGE_DATA = self::KEYWORD_DATA;
     /** Reserved keyword */
-    const KEYWORD_TYPE          = 'type';
+    const KEYWORD_TYPE = 'type';
     /** Reserved keyword */
-    const KEYWORD_ID            = 'id';
+    const KEYWORD_ID = 'id';
     /** Reserved keyword */
-    const KEYWORD_ATTRIBUTES    = 'attributes';
+    const KEYWORD_ATTRIBUTES = 'attributes';
     /** Reserved keyword */
-    const KEYWORD_META          = 'meta';
+    const KEYWORD_META = 'meta';
     /** Reserved keyword */
-    const KEYWORD_DATA          = 'data';
+    const KEYWORD_DATA = 'data';
     /** Reserved keyword */
-    const KEYWORD_INCLUDED      = 'included';
+    const KEYWORD_INCLUDED = 'included';
     /** Reserved keyword */
-    const KEYWORD_JSON_API      = 'jsonapi';
+    const KEYWORD_JSON_API = 'jsonapi';
     /** Reserved keyword */
-    const KEYWORD_VERSION       = 'version';
+    const KEYWORD_VERSION = 'version';
 
     /** Reserved keyword */
-    const KEYWORD_ERRORS        = 'errors';
+    const KEYWORD_ERRORS = 'errors';
     /** Reserved keyword */
-    const KEYWORD_ERRORS_ID     = 'id';
+    const KEYWORD_ERRORS_ID = 'id';
     /** Reserved keyword */
-    const KEYWORD_ERRORS_LINKS  = self::KEYWORD_LINKS;
+    const KEYWORD_ERRORS_LINKS = self::KEYWORD_LINKS;
     /** Reserved keyword */
     const KEYWORD_ERRORS_STATUS = 'status';
     /** Reserved keyword */
-    const KEYWORD_ERRORS_CODE   = 'code';
+    const KEYWORD_ERRORS_CODE = 'code';
     /** Reserved keyword */
-    const KEYWORD_ERRORS_TITLE  = 'title';
+    const KEYWORD_ERRORS_TITLE = 'title';
     /** Reserved keyword */
     const KEYWORD_ERRORS_DETAIL = 'detail';
     /** Reserved keyword */
-    const KEYWORD_ERRORS_META   = 'meta';
+    const KEYWORD_ERRORS_META = 'meta';
     /** Reserved keyword */
     const KEYWORD_ERRORS_SOURCE = 'source';
     /** Reserved keyword */
-    const KEYWORD_ERRORS_ABOUT  = 'about';
+    const KEYWORD_ERRORS_ABOUT = 'about';
     /** Include path separator */
-    const PATH_SEPARATOR        = '.';
+    const PATH_SEPARATOR = '.';
 
     /**
      * Set URLs to top-level 'links' section.
@@ -92,16 +92,16 @@ interface DocumentInterface
      *
      * @return void
      */
-    public function setDocumentLinks($links);
+    public function setDocumentLinks(array $links): void;
 
     /**
      * Set arbitrary meta-information about primary data to top-level 'meta' section.
      *
-     * @param object|array $meta
+     * @param mixed $meta
      *
      * @return void
      */
-    public function setMetaToDocument($meta);
+    public function setMetaToDocument($meta): void;
 
     /**
      * Add resource to 'data' section.
@@ -110,21 +110,21 @@ interface DocumentInterface
      *
      * @return void
      */
-    public function addToData(ResourceObjectInterface $resource);
+    public function addToData(ResourceObjectInterface $resource): void;
 
     /**
      * Set empty array to 'data' section.
      *
      * @return void
      */
-    public function setEmptyData();
+    public function setEmptyData(): void;
 
     /**
      * Set null to 'data' section.
      *
      * @return void
      */
-    public function setNullData();
+    public function setNullData(): void;
 
     /**
      * Add a relationship to resource in 'data' section.
@@ -139,7 +139,7 @@ interface DocumentInterface
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship,
         ResourceObjectInterface $resource
-    );
+    ): void;
 
     /**
      * Add an empty relationship to resource in 'data' section.
@@ -152,7 +152,7 @@ interface DocumentInterface
     public function addEmptyRelationshipToData(
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship
-    );
+    ): void;
 
     /**
      * Add a null relationship to resource in 'data' section.
@@ -165,7 +165,7 @@ interface DocumentInterface
     public function addNullRelationshipToData(
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship
-    );
+    ): void;
 
     /**
      * Add resource to 'included' section.
@@ -174,7 +174,7 @@ interface DocumentInterface
      *
      * @return void
      */
-    public function addToIncluded(ResourceObjectInterface $resource);
+    public function addToIncluded(ResourceObjectInterface $resource): void;
 
     /**
      * Add a relationship to resource in 'included' section.
@@ -189,7 +189,7 @@ interface DocumentInterface
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship,
         ResourceObjectInterface $resource
-    );
+    ): void;
 
     /**
      * Add an empty relationship to resource in 'included' section.
@@ -202,7 +202,7 @@ interface DocumentInterface
     public function addEmptyRelationshipToIncluded(
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship
-    );
+    ): void;
 
     /**
      * Add a null relationship to resource in 'included' section.
@@ -215,7 +215,7 @@ interface DocumentInterface
     public function addNullRelationshipToIncluded(
         ResourceObjectInterface $parent,
         RelationshipObjectInterface $relationship
-    );
+    ): void;
 
     /**
      * Mark resource as completed (no new relations/links/etc will be added to the resource anymore).
@@ -224,7 +224,7 @@ interface DocumentInterface
      *
      * @return void
      */
-    public function setResourceCompleted(ResourceObjectInterface $resource);
+    public function setResourceCompleted(ResourceObjectInterface $resource): void;
 
     /**
      * Add information to 'errors' top-level section.
@@ -235,7 +235,7 @@ interface DocumentInterface
      *
      * @return void
      */
-    public function addError(ErrorInterface $error);
+    public function addError(ErrorInterface $error): void;
 
     /**
      * Add information to 'errors' top-level section.
@@ -246,7 +246,7 @@ interface DocumentInterface
      *
      * @return void
      */
-    public function addErrors($errors);
+    public function addErrors($errors): void;
 
     /**
      * Add JSON API version information.
@@ -258,7 +258,7 @@ interface DocumentInterface
      *
      * @return void
      */
-    public function addJsonApiVersion($version, $meta = null);
+    public function addJsonApiVersion(string $version, $meta = null);
 
     /**
      * Set a prefix that will be applied to all URLs in the document except marked as href.
@@ -269,19 +269,19 @@ interface DocumentInterface
      *
      * @return void
      */
-    public function setUrlPrefix($prefix);
+    public function setUrlPrefix(string $prefix): void;
 
     /**
      * Remove 'data' top-level section.
      *
      * @return void
      */
-    public function unsetData();
+    public function unsetData(): void;
 
     /**
      * Get document as array.
      *
      * @return array
      */
-    public function getDocument();
+    public function getDocument(): array;
 }

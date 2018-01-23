@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Encoder\Parameters;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \Mockery\MockInterface;
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
+use Mockery;
+use Mockery\MockInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
+use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Neomerx\JsonApi\Factories\Factory;
+use Neomerx\Tests\JsonApi\BaseTestCase;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -82,8 +82,8 @@ class ParametersAnalyzerTest extends BaseTestCase
 
         $type = 'type';
 
-        $schema1 = Mockery::mock(SchemaProviderInterface::class);
-        $schema2 = Mockery::mock(SchemaProviderInterface::class);
+        $schema1 = Mockery::mock(SchemaInterface::class);
+        $schema2 = Mockery::mock(SchemaInterface::class);
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->container->shouldReceive('getSchemaByResourceType')->zeroOrMoreTimes()->with($type)->andReturn($schema1);

@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Encoder;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 
-use \Iterator;
-use \InvalidArgumentException;
-use \Psr\Log\LoggerAwareTrait;
-use \Psr\Log\LoggerAwareInterface;
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use InvalidArgumentException;
+use Iterator;
+use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use Neomerx\JsonApi\Factories\Factory;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * @package Neomerx\JsonApi
@@ -96,7 +96,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function withLinks(array $links)
+    public function withLinks(array $links): EncoderInterface
     {
         $this->links = array_merge($this->links, $links);
 
@@ -106,7 +106,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function withMeta($meta)
+    public function withMeta($meta): EncoderInterface
     {
         $this->meta = $meta;
 
@@ -116,10 +116,10 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function withJsonApiVersion($meta = null)
+    public function withJsonApiVersion($version = null): EncoderInterface
     {
-        $this->isAddJsonApiVersion = true;
-        $this->jsonApiVersionMeta  = $meta;
+        $this->isAddJsonApiVersion = $version !== null;
+        $this->jsonApiVersionMeta  = $version;
 
         return $this;
     }
@@ -130,8 +130,12 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function withRelationshipSelfLink($resource, $relationshipName, $meta = null, $treatAsHref = false)
-    {
+    public function withRelationshipSelfLink(
+        $resource,
+        string $relationshipName,
+        $meta = null,
+        bool $treatAsHref = false
+    ): EncoderInterface {
         $link = $this->getContainer()->getSchema($resource)
             ->getRelationshipSelfLink($resource, $relationshipName, $meta, $treatAsHref);
 
@@ -145,8 +149,12 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function withRelationshipRelatedLink($resource, $relationshipName, $meta = null, $treatAsHref = false)
-    {
+    public function withRelationshipRelatedLink(
+        $resource,
+        string $relationshipName,
+        $meta = null,
+        bool $treatAsHref = false
+    ): EncoderInterface {
         $link = $this->getContainer()->getSchema($resource)
             ->getRelationshipRelatedLink($resource, $relationshipName, $meta, $treatAsHref);
 
@@ -158,7 +166,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function encodeData($data, EncodingParametersInterface $parameters = null)
+    public function encodeData($data, EncodingParametersInterface $parameters = null): string
     {
         $array  = $this->encodeDataToArray($this->getContainer(), $data, $parameters);
         $result = $this->encodeToJson($array);
@@ -169,7 +177,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function encodeIdentifiers($data, EncodingParametersInterface $parameters = null)
+    public function encodeIdentifiers($data, EncodingParametersInterface $parameters = null): string
     {
         $array  = $this->encodeIdentifiersToArray($data, $parameters);
         $result = $this->encodeToJson($array);
@@ -180,7 +188,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function encodeError(ErrorInterface $error)
+    public function encodeError(ErrorInterface $error): string
     {
         return $this->encodeToJson($this->encodeErrorToArray($error));
     }
@@ -188,7 +196,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function encodeErrors($errors)
+    public function encodeErrors($errors): string
     {
         return $this->encodeToJson($this->encodeErrorsToArray($errors));
     }
@@ -196,7 +204,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function encodeMeta($meta)
+    public function encodeMeta($meta): string
     {
         return $this->encodeToJson($this->encodeMetaToArray($meta));
     }
@@ -212,7 +220,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
         ContainerInterface $container,
         $data,
         EncodingParametersInterface $parameters = null
-    ) {
+    ): array {
         $this->checkInputData($data);
 
         $docWriter     = $this->getFactory()->createDocument();
@@ -244,7 +252,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      *
      * @return string
      */
-    protected function encodeToJson(array $document)
+    protected function encodeToJson(array $document): string
     {
         return $this->getEncoderOptions() === null ?
             json_encode($document) :
@@ -254,12 +262,12 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * Create encoder instance.
      *
-     * @param array               $schemas       Schema providers.
+     * @param array               $schemas Schema providers.
      * @param EncoderOptions|null $encodeOptions
      *
      * @return EncoderInterface
      */
-    public static function instance(array $schemas = [], EncoderOptions $encodeOptions = null)
+    public static function instance(array $schemas = [], EncoderOptions $encodeOptions = null): EncoderInterface
     {
         $factory   = static::createFactory();
         $container = $factory->createContainer($schemas);
@@ -271,7 +279,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @return FactoryInterface
      */
-    protected static function createFactory()
+    protected static function createFactory(): FactoryInterface
     {
         return new Factory();
     }
@@ -279,7 +287,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @param mixed $data
      */
-    protected function checkInputData($data)
+    protected function checkInputData($data): void
     {
         if (is_array($data) === false && is_object($data) === false && $data !== null && !($data instanceof Iterator)) {
             throw new InvalidArgumentException('data');
@@ -292,7 +300,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      *
      * @return array
      */
-    protected function encodeIdentifiersToArray($data, EncodingParametersInterface $parameters = null)
+    protected function encodeIdentifiersToArray($data, EncodingParametersInterface $parameters = null): array
     {
         $container = $this->getFactory()->createResourceIdentifierContainerAdapter($this->getContainer());
         $result    = $this->encodeDataToArray($container, $data, $parameters);
@@ -305,7 +313,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      *
      * @return array
      */
-    protected function encodeErrorToArray(ErrorInterface $error)
+    protected function encodeErrorToArray(ErrorInterface $error): array
     {
         $docWriter = $this->getFactory()->createDocument();
         $docWriter->addError($error);
@@ -323,7 +331,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      *
      * @return array
      */
-    protected function encodeErrorsToArray($errors)
+    protected function encodeErrorsToArray($errors): array
     {
         $docWriter = $this->getFactory()->createDocument();
         $docWriter->addErrors($errors);
@@ -341,7 +349,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
      *
      * @return array
      */
-    protected function encodeMetaToArray($meta)
+    protected function encodeMetaToArray($meta): array
     {
         $docWriter = $this->getFactory()->createDocument();
 
@@ -355,7 +363,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @param DocumentInterface $docWriter
      */
-    protected function addTopLevelMeta(DocumentInterface $docWriter)
+    protected function addTopLevelMeta(DocumentInterface $docWriter): void
     {
         if ($this->getMeta() !== null) {
             $docWriter->setMetaToDocument($this->getMeta());
@@ -365,7 +373,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @param DocumentInterface $docWriter
      */
-    protected function addTopLevelLinks(DocumentInterface $docWriter)
+    protected function addTopLevelLinks(DocumentInterface $docWriter): void
     {
         if (empty($this->getLinks()) === false) {
             $docWriter->setDocumentLinks($this->getLinks());
@@ -375,7 +383,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @param DocumentInterface $docWriter
      */
-    protected function addTopLevelJsonApiVersion(DocumentInterface $docWriter)
+    protected function addTopLevelJsonApiVersion(DocumentInterface $docWriter): void
     {
         if ($this->isWithJsonApiVersion() === true) {
             $docWriter->addJsonApiVersion(self::JSON_API_VERSION, $this->getJsonApiVersionMeta());
@@ -385,7 +393,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @return ContainerInterface
      */
-    protected function getContainer()
+    protected function getContainer(): ContainerInterface
     {
         return $this->container;
     }
@@ -393,7 +401,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @return FactoryInterface
      */
-    protected function getFactory()
+    protected function getFactory(): FactoryInterface
     {
         return $this->factory;
     }
@@ -401,7 +409,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @return EncoderOptions|null
      */
-    protected function getEncoderOptions()
+    protected function getEncoderOptions(): ?EncoderOptions
     {
         return $this->encoderOptions;
     }
@@ -409,7 +417,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @return array|null
      */
-    protected function getLinks()
+    protected function getLinks(): ?array
     {
         return $this->links;
     }
@@ -423,9 +431,9 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
-    protected function isWithJsonApiVersion()
+    protected function isWithJsonApiVersion(): bool
     {
         return $this->isAddJsonApiVersion;
     }
@@ -447,7 +455,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     private function createParametersAnalyzer(
         ContainerInterface $container,
         EncodingParametersInterface $parameters = null
-    ) {
+    ): ParametersAnalyzerInterface {
         return $this->getFactory()->createParametersAnalyzer(
             $parameters === null ? $this->getFactory()->createQueryParameters() : $parameters,
             $container
@@ -457,7 +465,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * Reset encode parameters.
      */
-    private function resetEncodeParameters()
+    private function resetEncodeParameters(): void
     {
         $this->meta                = null;
         $this->links               = [];
@@ -468,7 +476,7 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     /**
      * @param DocumentInterface $docWriter
      */
-    private function configureUrlPrefix(DocumentInterface $docWriter)
+    private function configureUrlPrefix(DocumentInterface $docWriter): void
     {
         $this->getEncoderOptions() !== null && $this->getEncoderOptions()->getUrlPrefix() !== null ?
             $docWriter->setUrlPrefix($this->getEncoderOptions()->getUrlPrefix()) : null;

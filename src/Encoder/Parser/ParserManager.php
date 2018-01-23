@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Encoder\Parser;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-use \Psr\Log\LoggerAwareTrait;
-use \Psr\Log\LoggerAwareInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * @package Neomerx\JsonApi
@@ -51,7 +51,7 @@ class ParserManager implements ParserManagerInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function isShouldParseRelationships(StackReadOnlyInterface $stack)
+    public function isShouldParseRelationships(StackReadOnlyInterface $stack): bool
     {
         if ($stack->count() < 2) {
             // top level, no resources ware started to parse yet
@@ -70,7 +70,7 @@ class ParserManager implements ParserManagerInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function getIncludeRelationships(StackReadOnlyInterface $stack)
+    public function getIncludeRelationships(StackReadOnlyInterface $stack): array
     {
         $currentPath     = $stack->end()->getPath();
         $currentRootType = $stack->root()->getResource()->getType();
@@ -82,7 +82,7 @@ class ParserManager implements ParserManagerInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function isRelationshipInFieldSet(StackReadOnlyInterface $stack)
+    public function isRelationshipInFieldSet(StackReadOnlyInterface $stack): bool
     {
         $resourceType     = $stack->penult()->getResource()->getType();
         $resourceFieldSet = $this->getFieldSet($resourceType);
@@ -98,12 +98,10 @@ class ParserManager implements ParserManagerInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function getFieldSet($type)
+    public function getFieldSet(string $type): ?array
     {
-        settype($type, 'string');
-
         if (array_key_exists($type, $this->fieldSetCache) === false) {
-            $fieldSet = $this->parameterAnalyzer->getParameters()->getFieldSet($type);
+            $fieldSet                   = $this->parameterAnalyzer->getParameters()->getFieldSet($type);
             $this->fieldSetCache[$type] = $fieldSet === null ? null : array_flip(array_values($fieldSet));
         }
 

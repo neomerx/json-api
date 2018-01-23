@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -29,14 +29,14 @@ interface StackInterface extends StackReadOnlyInterface
      *
      * @return StackFrameInterface
      */
-    public function push();
+    public function push(): StackFrameInterface;
 
     /**
      * Reduce stack for one frame.
      *
      * @return void
      */
-    public function pop();
+    public function pop(): void;
 
     /**
      * Set resource object for current frame.
@@ -45,7 +45,7 @@ interface StackInterface extends StackReadOnlyInterface
      *
      * @return void
      */
-    public function setCurrentResource(ResourceObjectInterface $resource);
+    public function setCurrentResource(ResourceObjectInterface $resource): void;
 
     /**
      * Set relationship object for current frame.
@@ -54,5 +54,5 @@ interface StackInterface extends StackReadOnlyInterface
      *
      * @return void
      */
-    public function setCurrentRelationship(RelationshipObjectInterface $relationship);
+    public function setCurrentRelationship(RelationshipObjectInterface $relationship): void;
 }

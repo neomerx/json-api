@@ -16,22 +16,32 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Schema\SchemaProvider;
+use Neomerx\JsonApi\Schema\BaseSchema;
+use Neomerx\Samples\JsonApi\Models\Post;
 
 /**
  * @package Neomerx\Samples\JsonApi
  */
-class PostSchema extends SchemaProvider
+class PostSchema extends BaseSchema
 {
+    /**
+     * @inheritdoc
+     */
     protected $resourceType = 'posts';
 
-    public function getId($post)
+    /**
+     * @inheritdoc
+     */
+    public function getId($post): ?string
     {
         /** @var Post $post */
         return $post->postId;
     }
 
-    public function getAttributes($post)
+    /**
+     * @inheritdoc
+     */
+    public function getAttributes($post, array $fieldKeysFilter = null): ?array
     {
         /** @var Post $post */
         return [
@@ -40,7 +50,10 @@ class PostSchema extends SchemaProvider
         ];
     }
 
-    public function getRelationships($post, $isPrimary, array $includeList)
+    /**
+     * @inheritdoc
+     */
+    public function getRelationships($post, bool $isPrimary, array $includeRelationships): ?array
     {
         /** @var Post $post */
         return [

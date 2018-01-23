@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Encoder\Parser;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,19 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \Mockery\MockInterface;
-use \Neomerx\Tests\JsonApi\Data\Post;
-use \Neomerx\Tests\JsonApi\Data\Author;
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\Tests\JsonApi\Data\Comment;
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\Tests\JsonApi\Data\PostSchema;
-use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
-use \Neomerx\Tests\JsonApi\Data\CommentSchema;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
+use Mockery;
+use Mockery\MockInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
+use Neomerx\JsonApi\Factories\Factory;
+use Neomerx\Tests\JsonApi\BaseTestCase;
+use Neomerx\Tests\JsonApi\Data\Author;
+use Neomerx\Tests\JsonApi\Data\AuthorSchema;
+use Neomerx\Tests\JsonApi\Data\Comment;
+use Neomerx\Tests\JsonApi\Data\CommentSchema;
+use Neomerx\Tests\JsonApi\Data\Post;
+use Neomerx\Tests\JsonApi\Data\PostSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi

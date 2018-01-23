@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \Monolog\Logger;
-use \PHPUnit\Framework\TestCase;
-use \Monolog\Handler\StreamHandler;
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\JsonApi\Encoder\EncoderOptions;
-use \Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
+use Mockery;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
+use Neomerx\JsonApi\Encoder\EncoderOptions;
+use Neomerx\JsonApi\Factories\Factory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @package Neomerx\JsonApi

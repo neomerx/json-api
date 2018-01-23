@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Http\Headers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use \InvalidArgumentException;
-use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use InvalidArgumentException;
+use Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -39,15 +39,11 @@ class Header implements HeaderInterface
      * @param string               $name
      * @param MediaTypeInterface[] $mediaTypes
      */
-    public function __construct($name, $mediaTypes)
+    public function __construct(string $name, array $mediaTypes)
     {
         $name = trim($name);
         if (empty($name) === true) {
             throw new InvalidArgumentException('name');
-        }
-
-        if (is_array($mediaTypes) === false) {
-            throw new InvalidArgumentException('mediaTypes');
         }
 
         $this->name       = $name;
@@ -57,7 +53,7 @@ class Header implements HeaderInterface
     /**
      * @inheritdoc
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -65,7 +61,7 @@ class Header implements HeaderInterface
     /**
      * @inheritdoc
      */
-    public function getMediaTypes()
+    public function getMediaTypes(): array
     {
         return $this->mediaTypes;
     }
@@ -80,7 +76,7 @@ class Header implements HeaderInterface
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      */
-    public static function parse($header, $name)
+    public static function parse(string $header, string $name)
     {
         if (is_string($name) === false || empty($name) === true) {
             throw new InvalidArgumentException('header');
@@ -104,7 +100,7 @@ class Header implements HeaderInterface
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      */
-    protected static function parseMediaType($position, $mediaType)
+    protected static function parseMediaType(int $position, string $mediaType)
     {
         return MediaType::parse($position, $mediaType);
     }
@@ -115,7 +111,7 @@ class Header implements HeaderInterface
      *
      * @return Header
      */
-    protected static function newInstance($name, $mediaTypes)
+    protected static function newInstance(string $name, array $mediaTypes)
     {
         return new static($name, $mediaTypes);
     }

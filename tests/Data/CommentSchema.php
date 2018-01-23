@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Data;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class CommentSchema extends DevSchemaProvider
+class CommentSchema extends DevSchema
 {
     /**
      * @inheritdoc
@@ -31,7 +31,7 @@ class CommentSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getId($comment)
+    public function getId($comment): ?string
     {
         return $comment->{Comment::ATTRIBUTE_ID};
     }
@@ -39,7 +39,7 @@ class CommentSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getAttributes($comment)
+    public function getAttributes($comment, array $fieldKeysFilter = null): ?array
     {
         return [
             Comment::ATTRIBUTE_BODY => $comment->{Comment::ATTRIBUTE_BODY},
@@ -49,9 +49,9 @@ class CommentSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($comment, $isPrimary, array $includeRelationships)
+    public function getRelationships($comment, bool $isPrimary, array $includeRelationships): ?array
     {
-        assert('$comment instanceof '.Comment::class);
+        assert($comment instanceof Comment);
 
         if (isset($includeRelationships[Comment::LINK_AUTHOR]) === true) {
             $data = $comment->{Comment::LINK_AUTHOR};
@@ -86,7 +86,7 @@ class CommentSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getIncludedResourceLinks($resource)
+    public function getIncludedResourceLinks($resource): array
     {
         $links = [
             LinkInterface::SELF => $this->getSelfSubLink($resource),

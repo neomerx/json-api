@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Http\Headers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Http\Headers\AcceptHeader;
-use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use Neomerx\JsonApi\Http\Headers\AcceptHeader;
+use Neomerx\Tests\JsonApi\BaseTestCase;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -57,7 +57,6 @@ class AcceptHeaderTest extends BaseTestCase
         $this->assertEquals('foo/bar.baz', $header->getMediaTypes()[2]->getMediaType());
         $this->assertEquals(0.5, $header->getMediaTypes()[2]->getQuality());
         $this->assertEquals(['media' => 'param'], $header->getMediaTypes()[2]->getParameters());
-        $this->assertEquals(['ext' => 'ext1,ext2'], $header->getMediaTypes()[2]->getExtensions());
     }
 
     /**
@@ -168,7 +167,7 @@ class AcceptHeaderTest extends BaseTestCase
      */
     public function testInvalidHeader1()
     {
-        AcceptHeader::parse(null);
+        AcceptHeader::parse('');
     }
 
     /**
@@ -176,25 +175,17 @@ class AcceptHeaderTest extends BaseTestCase
      */
     public function testInvalidHeader2()
     {
-        AcceptHeader::parse('');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidHeader3()
-    {
         AcceptHeader::parse('foo/bar; baz');
     }
 
     /**
-     * Test invalid constructor parameters.
+     * @see https://github.com/neomerx/json-api/issues/193
      *
      * @expectedException \InvalidArgumentException
      */
-    public function testInvalidConstructorParams()
+    public function testInvalidHeader4()
     {
-        new AcceptHeader(null);
+        AcceptHeader::parse('application/vnd.api+json;q=0.5,text/html;q=0.8;*/*;q=0.1');
     }
 
     /**

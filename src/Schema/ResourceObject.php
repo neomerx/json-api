@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Schema;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
+use Neomerx\JsonApi\Factories\Exceptions;
 
 /**
  * @package Neomerx\JsonApi
@@ -59,7 +59,7 @@ class ResourceObject implements ResourceObjectInterface
     private $isInArray;
 
     /**
-     * @var SchemaProviderInterface
+     * @var SchemaInterface
      */
     protected $schema;
 
@@ -71,7 +71,7 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @var array<string,int>|null
      */
-    protected $attributeKeysFilter;
+    protected $fieldKeysFilter;
 
     /**
      * @var bool
@@ -119,29 +119,31 @@ class ResourceObject implements ResourceObjectInterface
     private $relInclusionMeta;
 
     /**
-     * @param SchemaProviderInterface $schema
-     * @param object                  $resource
-     * @param bool                    $isInArray
+     * @param SchemaInterface $schema
+     * @param object          $resource
+     * @param bool            $isInArray
      * @param array<string,int>|null  $attributeKeysFilter
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function __construct(
-        SchemaProviderInterface $schema,
+        SchemaInterface $schema,
         $resource,
-        $isInArray,
-        array $attributeKeysFilter = null
+        bool $isInArray,
+        array $fieldKeysFilter = null
     ) {
-        $this->checkInput($resource, $isInArray);
+        is_object($resource) === true ?: Exceptions::throwInvalidArgument('resource', $resource);
 
-        $this->schema              = $schema;
-        $this->resource            = $resource;
-        $this->isInArray           = $isInArray;
-        $this->attributeKeysFilter = $attributeKeysFilter;
+        $this->schema          = $schema;
+        $this->resource        = $resource;
+        $this->isInArray       = $isInArray;
+        $this->fieldKeysFilter = $fieldKeysFilter;
     }
 
     /**
      * @inheritdoc
      */
-    public function getType()
+    public function getType(): string
     {
         return $this->schema->getResourceType();
     }
@@ -149,10 +151,10 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function getId()
+    public function getId(): ?string
     {
         if ($this->idx === false) {
-            $index = $this->schema->getId($this->resource);
+            $index     = $this->schema->getId($this->resource);
             $this->idx = $index === null ? $index : (string)$index;
         }
 
@@ -162,12 +164,12 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function getAttributes()
+    public function getAttributes(): ?array
     {
         if ($this->attributes === null) {
-            $attributes = $this->schema->getAttributes($this->resource);
-            if ($this->attributeKeysFilter !== null) {
-                $attributes = array_intersect_key($attributes, $this->attributeKeysFilter);
+            $attributes = $this->schema->getAttributes($this->resource, $this->fieldKeysFilter);
+            if ($this->fieldKeysFilter !== null) {
+                $attributes = array_intersect_key($attributes, $this->fieldKeysFilter);
             }
             $this->attributes = $attributes;
         }
@@ -178,7 +180,7 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function getSelfSubLink()
+    public function getSelfSubLink(): LinkInterface
     {
         if ($this->isSelfSubLinkSet === false) {
             $this->selfSubLink      = $this->schema->getSelfSubLink($this->resource);
@@ -191,7 +193,7 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function getResourceLinks()
+    public function getResourceLinks(): array
     {
         return $this->schema->getResourceLinks($this->resource);
     }
@@ -199,7 +201,7 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function getIncludedResourceLinks()
+    public function getIncludedResourceLinks(): array
     {
         return $this->schema->getIncludedResourceLinks($this->resource);
     }
@@ -207,7 +209,7 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function isShowAttributesInIncluded()
+    public function isShowAttributesInIncluded(): bool
     {
         return $this->schema->isShowAttributesInIncluded();
     }
@@ -215,7 +217,7 @@ class ResourceObject implements ResourceObjectInterface
     /**
      * @inheritdoc
      */
-    public function isInArray()
+    public function isInArray(): bool
     {
         return $this->isInArray;
     }
@@ -226,7 +228,7 @@ class ResourceObject implements ResourceObjectInterface
     public function getPrimaryMeta()
     {
         if ($this->isPrimaryMetaSet === false) {
-            $this->primaryMeta = $this->schema->getPrimaryMeta($this->resource);
+            $this->primaryMeta      = $this->schema->getPrimaryMeta($this->resource);
             $this->isPrimaryMetaSet = true;
         }
 
@@ -239,7 +241,7 @@ class ResourceObject implements ResourceObjectInterface
     public function getInclusionMeta()
     {
         if ($this->isInclusionMetaSet === false) {
-            $this->inclusionMeta = $this->schema->getInclusionMeta($this->resource);
+            $this->inclusionMeta      = $this->schema->getInclusionMeta($this->resource);
             $this->isInclusionMetaSet = true;
         }
 
@@ -252,7 +254,7 @@ class ResourceObject implements ResourceObjectInterface
     public function getRelationshipsPrimaryMeta()
     {
         if ($this->isRelPrimaryMetaSet === false) {
-            $this->relPrimaryMeta = $this->schema->getRelationshipsPrimaryMeta($this->resource);
+            $this->relPrimaryMeta      = $this->schema->getRelationshipsPrimaryMeta($this->resource);
             $this->isRelPrimaryMetaSet = true;
         }
 
@@ -266,7 +268,7 @@ class ResourceObject implements ResourceObjectInterface
     {
         if ($this->isRelIncMetaSet === false) {
             $this->relInclusionMeta = $this->schema->getRelationshipsInclusionMeta($this->resource);
-            $this->isRelIncMetaSet = true;
+            $this->isRelIncMetaSet  = true;
         }
 
         return $this->relInclusionMeta;
@@ -278,22 +280,10 @@ class ResourceObject implements ResourceObjectInterface
     public function getLinkageMeta()
     {
         if ($this->isRelationshipMetaSet === false) {
-            $this->relationshipMeta = $this->schema->getLinkageMeta($this->resource);
+            $this->relationshipMeta      = $this->schema->getLinkageMeta($this->resource);
             $this->isRelationshipMetaSet = true;
         }
 
         return $this->relationshipMeta;
-    }
-
-    /**
-     * @param object $resource
-     * @param bool   $isInArray
-     *
-     * @SuppressWarnings(PHPMD.StaticAccess)
-     */
-    private function checkInput($resource, $isInArray)
-    {
-        is_bool($isInArray) === true ?: Exceptions::throwInvalidArgument('isInArray', $isInArray);
-        is_object($resource) === true ?: Exceptions::throwInvalidArgument('resource', $resource);
     }
 }

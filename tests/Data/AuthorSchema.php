@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Data;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class AuthorSchema extends DevSchemaProvider
+class AuthorSchema extends DevSchema
 {
     /**
      * @inheritdoc
@@ -31,7 +31,7 @@ class AuthorSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getId($author)
+    public function getId($author): ?string
     {
         return $author->{Author::ATTRIBUTE_ID};
     }
@@ -39,7 +39,7 @@ class AuthorSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getAttributes($author)
+    public function getAttributes($author, array $fieldKeysFilter = null): ?array
     {
         return [
             Author::ATTRIBUTE_FIRST_NAME => $author->{Author::ATTRIBUTE_FIRST_NAME},
@@ -50,9 +50,9 @@ class AuthorSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($author, $isPrimary, array $includeRelationships)
+    public function getRelationships($author, bool $isPrimary, array $includeRelationships): ?array
     {
-        assert('$author instanceof '. Author::class);
+        assert($author instanceof Author);
 
         if (($isPrimary && $this->isIsLinksInPrimary()) || (!$isPrimary && $this->isIsLinksInIncluded())) {
             $selfLink = $this->getRelationshipSelfLink($author, Author::LINK_COMMENTS);

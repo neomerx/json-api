@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Factories;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,53 +16,58 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \Psr\Log\LoggerInterface;
-use \Neomerx\JsonApi\Document\Link;
-use \Neomerx\JsonApi\Document\Error;
-use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Schema\Container;
-use \Neomerx\JsonApi\Document\Document;
-use \Neomerx\JsonApi\Codec\CodecMatcher;
-use \Neomerx\JsonApi\Encoder\Stack\Stack;
-use \Neomerx\JsonApi\Encoder\Parser\Parser;
-use \Neomerx\JsonApi\Schema\IdentitySchema;
-use \Neomerx\JsonApi\Schema\ResourceObject;
-use \Neomerx\JsonApi\Encoder\EncoderOptions;
-use \Neomerx\JsonApi\Http\Headers\MediaType;
-use \Neomerx\JsonApi\Encoder\Stack\StackFrame;
-use \Neomerx\JsonApi\Http\Headers\AcceptHeader;
-use \Neomerx\JsonApi\Schema\RelationshipObject;
-use \Neomerx\JsonApi\Encoder\Parser\ParserReply;
-use \Neomerx\JsonApi\Encoder\Parser\ParserManager;
-use \Neomerx\JsonApi\Http\Headers\AcceptMediaType;
-use \Neomerx\JsonApi\Http\Headers\HeaderParameters;
-use \Neomerx\JsonApi\Encoder\Parser\ParserEmptyReply;
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use \Neomerx\JsonApi\Encoder\Parameters\SortParameter;
-use \Neomerx\JsonApi\Http\Headers\SupportedExtensions;
-use \Neomerx\JsonApi\Http\Query\QueryParametersParser;
-use \Neomerx\JsonApi\Encoder\Handlers\ReplyInterpreter;
-use \Neomerx\JsonApi\Http\Query\RestrictiveQueryChecker;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Http\Headers\HeaderParametersParser;
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use \Neomerx\JsonApi\Contracts\Codec\CodecMatcherInterface;
-use \Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
-use \Neomerx\JsonApi\Encoder\Parameters\ParametersAnalyzer;
-use \Neomerx\JsonApi\Http\Headers\RestrictiveHeadersChecker;
-use \Neomerx\JsonApi\Schema\ResourceIdentifierSchemaAdapter;
-use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Schema\ResourceIdentifierContainerAdapter;
-use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Closure;
+use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Handlers\ReplyInterpreterInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
+use Neomerx\JsonApi\Document\Document;
+use Neomerx\JsonApi\Document\Error;
+use Neomerx\JsonApi\Document\Link;
+use Neomerx\JsonApi\Encoder\Encoder;
+use Neomerx\JsonApi\Encoder\EncoderOptions;
+use Neomerx\JsonApi\Encoder\Handlers\ReplyInterpreter;
+use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Neomerx\JsonApi\Encoder\Parameters\ParametersAnalyzer;
+use Neomerx\JsonApi\Encoder\Parser\Parser;
+use Neomerx\JsonApi\Encoder\Parser\ParserEmptyReply;
+use Neomerx\JsonApi\Encoder\Parser\ParserManager;
+use Neomerx\JsonApi\Encoder\Parser\ParserReply;
+use Neomerx\JsonApi\Encoder\Stack\Stack;
+use Neomerx\JsonApi\Encoder\Stack\StackFrame;
+use Neomerx\JsonApi\Http\Headers\AcceptHeader;
+use Neomerx\JsonApi\Http\Headers\AcceptMediaType;
+use Neomerx\JsonApi\Http\Headers\HeaderParameters;
+use Neomerx\JsonApi\Http\Headers\HeaderParametersParser;
+use Neomerx\JsonApi\Http\Headers\MediaType;
+use Neomerx\JsonApi\Schema\Container;
+use Neomerx\JsonApi\Schema\IdentitySchema;
+use Neomerx\JsonApi\Schema\RelationshipObject;
+use Neomerx\JsonApi\Schema\ResourceIdentifierContainerAdapter;
+use Neomerx\JsonApi\Schema\ResourceIdentifierSchemaAdapter;
+use Neomerx\JsonApi\Schema\ResourceObject;
+use Psr\Log\LoggerInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -89,7 +94,7 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger->setLogger($logger);
     }
@@ -97,8 +102,10 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createEncoder(ContainerInterface $container, EncoderOptions $encoderOptions = null)
-    {
+    public function createEncoder(
+        ContainerInterface $container,
+        EncoderOptions $encoderOptions = null
+    ): EncoderInterface {
         $encoder = new Encoder($this, $container, $encoderOptions);
 
         $encoder->setLogger($this->logger);
@@ -109,7 +116,7 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createDocument()
+    public function createDocument(): DocumentInterface
     {
         $document = new Document();
 
@@ -122,21 +129,22 @@ class Factory implements FactoryInterface
      * @inheritdoc
      */
     public function createError(
-        $idx = null,
+        string $idx = null,
         LinkInterface $aboutLink = null,
-        $status = null,
-        $code = null,
-        $title = null,
-        $detail = null,
-        $source = null,
+        string $status = null,
+        string $code = null,
+        string $title = null,
+        string $detail = null,
+        array $source = null,
         array $meta = null
-    ) {
+    ): ErrorInterface {
         return new Error($idx, $aboutLink, $status, $code, $title, $detail, $source, $meta);
     }
+
     /**
      * @inheritdoc
      */
-    public function createReply($replyType, StackReadOnlyInterface $stack)
+    public function createReply(int $replyType, StackReadOnlyInterface $stack): ParserReplyInterface
     {
         return new ParserReply($replyType, $stack);
     }
@@ -144,17 +152,15 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createEmptyReply(
-        $replyType,
-        StackReadOnlyInterface $stack
-    ) {
+    public function createEmptyReply(int $replyType, StackReadOnlyInterface $stack): ParserReplyInterface
+    {
         return new ParserEmptyReply($replyType, $stack);
     }
 
     /**
      * @inheritdoc
      */
-    public function createParser(ContainerInterface $container, ParserManagerInterface $manager)
+    public function createParser(ContainerInterface $container, ParserManagerInterface $manager): ParserInterface
     {
         $parser = new Parser($this, $this, $this, $container, $manager);
 
@@ -166,7 +172,7 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createManager(ParametersAnalyzerInterface $parameterAnalyzer)
+    public function createManager(ParametersAnalyzerInterface $parameterAnalyzer): ParserManagerInterface
     {
         $manager = new ParserManager($parameterAnalyzer);
 
@@ -178,7 +184,7 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createFrame(StackFrameReadOnlyInterface $previous = null)
+    public function createFrame(StackFrameReadOnlyInterface $previous = null): StackFrameInterface
     {
         return new StackFrame($previous);
     }
@@ -186,7 +192,7 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createStack()
+    public function createStack(): StackInterface
     {
         return new Stack($this);
     }
@@ -194,8 +200,10 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createReplyInterpreter(DocumentInterface $document, ParametersAnalyzerInterface $parameterAnalyzer)
-    {
+    public function createReplyInterpreter(
+        DocumentInterface $document,
+        ParametersAnalyzerInterface $parameterAnalyzer
+    ): ReplyInterpreterInterface {
         $interpreter = new ReplyInterpreter($document, $parameterAnalyzer);
 
         $interpreter->setLogger($this->logger);
@@ -206,8 +214,10 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createParametersAnalyzer(EncodingParametersInterface $parameters, ContainerInterface $container)
-    {
+    public function createParametersAnalyzer(
+        EncodingParametersInterface $parameters,
+        ContainerInterface $container
+    ): ParametersAnalyzerInterface {
         $analyzer = new ParametersAnalyzer($parameters, $container);
 
         $analyzer->setLogger($this->logger);
@@ -218,7 +228,7 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createMediaType($type, $subType, $parameters = null)
+    public function createMediaType(string $type, string $subType, array $parameters = null): MediaTypeInterface
     {
         return new MediaType($type, $subType, $parameters);
     }
@@ -227,55 +237,37 @@ class Factory implements FactoryInterface
      * @inheritdoc
      */
     public function createQueryParameters(
-        $includePaths = null,
-        array $fieldSets = null,
-        $sortParameters = null,
-        array $pagingParameters = null,
-        array $filteringParameters = null,
-        array $unrecognizedParams = null
-    ) {
-        return new EncodingParameters(
-            $includePaths,
-            $fieldSets,
-            $sortParameters,
-            $pagingParameters,
-            $filteringParameters,
-            $unrecognizedParams
-        );
+        array $includePaths = null,
+        array $fieldSets = null
+    ): EncodingParametersInterface {
+        return new EncodingParameters($includePaths, $fieldSets);
     }
 
     /**
      * @inheritdoc
      */
-    public function createHeaderParameters($method, AcceptHeaderInterface $accept, HeaderInterface $contentType)
-    {
+    public function createHeaderParameters(
+        string $method,
+        AcceptHeaderInterface $accept,
+        HeaderInterface $contentType
+    ): HeaderParametersInterface {
         return new HeaderParameters($method, $accept, $contentType);
     }
 
     /**
      * @inheritdoc
      */
-    public function createNoContentHeaderParameters($method, AcceptHeaderInterface $accept)
-    {
+    public function createNoContentHeaderParameters(
+        string $method,
+        AcceptHeaderInterface $accept
+    ): HeaderParametersInterface {
         return new HeaderParameters($method, $accept, null);
     }
 
     /**
      * @inheritdoc
      */
-    public function createQueryParametersParser()
-    {
-        $parser = new QueryParametersParser($this);
-
-        $parser->setLogger($this->logger);
-
-        return $parser;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createHeaderParametersParser()
+    public function createHeaderParametersParser(): HeaderParametersParserInterface
     {
         $parser = new HeaderParametersParser($this);
 
@@ -287,37 +279,20 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createSortParam($sortField, $isAscending)
-    {
-        return new SortParameter($sortField, $isAscending);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createSupportedExtensions($extensions = MediaTypeInterface::NO_EXT)
-    {
-        return new SupportedExtensions($extensions);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function createAcceptMediaType(
-        $position,
-        $type,
-        $subType,
-        $parameters = null,
-        $quality = 1.0,
-        $extensions = null
-    ) {
-        return new AcceptMediaType($position, $type, $subType, $parameters, $quality, $extensions);
+        int $position,
+        string $type,
+        string $subType,
+        array $parameters = null,
+        float $quality = 1.0
+    ): AcceptMediaTypeInterface {
+        return new AcceptMediaType($position, $type, $subType, $parameters, $quality);
     }
 
     /**
      * @inheritdoc
      */
-    public function createAcceptHeader($unsortedMediaTypes)
+    public function createAcceptHeader(array $unsortedMediaTypes): AcceptHeaderInterface
     {
         return new AcceptHeader($unsortedMediaTypes);
     }
@@ -325,38 +300,7 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createHeadersChecker(CodecMatcherInterface $codecMatcher)
-    {
-        return new RestrictiveHeadersChecker($codecMatcher);
-    }
-
-    /**
-     * @inheritdoc
-     *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     */
-    public function createQueryChecker(
-        $allowUnrecognized = true,
-        array $includePaths = null,
-        array $fieldSetTypes = null,
-        array $sortParameters = null,
-        array $pagingParameters = null,
-        array $filteringParameters = null
-    ) {
-        return new RestrictiveQueryChecker(
-            $allowUnrecognized,
-            $includePaths,
-            $fieldSetTypes,
-            $sortParameters,
-            $pagingParameters,
-            $filteringParameters
-        );
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createContainer(array $providers = [])
+    public function createContainer(array $providers = []): ContainerInterface
     {
         $container = new Container($this, $providers);
 
@@ -369,19 +313,25 @@ class Factory implements FactoryInterface
      * @inheritdoc
      */
     public function createResourceObject(
-        SchemaProviderInterface $schema,
+        SchemaInterface $schema,
         $resource,
-        $isInArray,
-        $attributeKeysFilter = null
-    ) {
-        return new ResourceObject($schema, $resource, $isInArray, $attributeKeysFilter);
+        bool $isInArray,
+        array $fieldKeysFilter = null
+    ): ResourceObjectInterface {
+        return new ResourceObject($schema, $resource, $isInArray, $fieldKeysFilter);
     }
 
     /**
      * @inheritdoc
      */
-    public function createRelationshipObject($name, $data, $links, $meta, $isShowData, $isRoot)
-    {
+    public function createRelationshipObject(
+        ?string $name,
+        $data,
+        array $links,
+        $meta,
+        bool $isShowData,
+        bool $isRoot
+    ): RelationshipObjectInterface {
         return new RelationshipObject($name, $data, $links, $meta, $isShowData, $isRoot);
     }
 
@@ -390,7 +340,7 @@ class Factory implements FactoryInterface
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function createLink($subHref, $meta = null, $treatAsHref = false)
+    public function createLink(string $subHref, $meta = null, bool $treatAsHref = false): LinkInterface
     {
         return new Link($subHref, $meta, $treatAsHref);
     }
@@ -398,7 +348,7 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createResourceIdentifierSchemaAdapter(SchemaProviderInterface $schema)
+    public function createResourceIdentifierSchemaAdapter(SchemaInterface $schema): SchemaInterface
     {
         return new ResourceIdentifierSchemaAdapter($this, $schema);
     }
@@ -406,7 +356,7 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createResourceIdentifierContainerAdapter(ContainerInterface $container)
+    public function createResourceIdentifierContainerAdapter(ContainerInterface $container): ContainerInterface
     {
         return new ResourceIdentifierContainerAdapter($this, $container);
     }
@@ -414,16 +364,11 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createIdentitySchema(ContainerInterface $container, $classType, Closure $identityClosure)
-    {
+    public function createIdentitySchema(
+        ContainerInterface $container,
+        string $classType,
+        Closure $identityClosure
+    ): SchemaInterface {
         return new IdentitySchema($this, $container, $classType, $identityClosure);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createCodecMatcher()
-    {
-        return new CodecMatcher();
     }
 }

@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Schema;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \LogicException;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use Closure;
+use LogicException;
+use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class IdentitySchema extends SchemaProvider
+class IdentitySchema extends BaseSchema
 {
     /**
      * @var Closure
@@ -55,7 +55,7 @@ class IdentitySchema extends SchemaProvider
     /**
      * @inheritdoc
      */
-    public function getId($resource)
+    public function getId($resource): ?string
     {
         $closure  = $this->identityClosure;
         $identity = $closure($resource);
@@ -66,7 +66,7 @@ class IdentitySchema extends SchemaProvider
     /**
      * @inheritdoc
      */
-    public function getAttributes($resource)
+    public function getAttributes($resource, array $fieldKeysFilter = null): ?array
     {
         // this method should not be called
         throw new LogicException();
@@ -75,7 +75,7 @@ class IdentitySchema extends SchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($resource, $isPrimary, array $includeRelationships)
+    public function getRelationships($resource, bool $isPrimary, array $includeRelationships): ?array
     {
         // this method should not be called
         throw new LogicException();

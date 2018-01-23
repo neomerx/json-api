@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Encoder\Parser;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -33,7 +33,7 @@ interface ParserFactoryInterface
      *
      * @return ParserReplyInterface
      */
-    public function createReply($replyType, StackReadOnlyInterface $stack);
+    public function createReply(int $replyType, StackReadOnlyInterface $stack): ParserReplyInterface;
 
     /**
      * Create parser empty reply.
@@ -43,7 +43,7 @@ interface ParserFactoryInterface
      *
      * @return ParserReplyInterface
      */
-    public function createEmptyReply($replyType, StackReadOnlyInterface $stack);
+    public function createEmptyReply(int $replyType, StackReadOnlyInterface $stack): ParserReplyInterface;
 
     /**
      * Create parser.
@@ -53,7 +53,7 @@ interface ParserFactoryInterface
      *
      * @return ParserInterface
      */
-    public function createParser(ContainerInterface $container, ParserManagerInterface $manager);
+    public function createParser(ContainerInterface $container, ParserManagerInterface $manager): ParserInterface;
 
     /**
      * Create parser manager for parsing full objects.
@@ -62,5 +62,5 @@ interface ParserFactoryInterface
      *
      * @return ParserManagerInterface
      */
-    public function createManager(ParametersAnalyzerInterface $parameterAnalyzer);
+    public function createManager(ParametersAnalyzerInterface $parameterAnalyzer): ParserManagerInterface;
 }

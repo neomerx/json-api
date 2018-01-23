@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Http\Headers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
  *
  * Accept header has the following structure
  *
- * Accept: type/subtype;media=parameters;q=1.0;extension="param1,param2", ... (other comma separated media types)
+ * Accept: type/subtype;media=parameters;q=1.0, ... (other comma separated media types)
  *           ^    ^                      ^
  *           |    |                      |___ Special 'q' parameter sets quality factor and separates media(-range/type)
  *           |    |                           parameters from accept extension parameters.
@@ -37,19 +37,12 @@ interface AcceptMediaTypeInterface extends MediaTypeInterface
      *
      * @return float Quality factor [0 .. 1]
      */
-    public function getQuality();
-
-    /**
-     * Get media type extension parameters.
-     *
-     * @return array<string,string>|null
-     */
-    public function getExtensions();
+    public function getQuality(): float;
 
     /**
      * Get initial position of the media type in header (needed for stable sorting).
      *
      * @return int
      */
-    public function getPosition();
+    public function getPosition(): int;
 }

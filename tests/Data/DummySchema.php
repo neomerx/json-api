@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Data;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class DummySchema extends DevSchemaProvider
+class DummySchema extends DevSchema
 {
     /**
      * @inheritdoc
@@ -34,7 +34,7 @@ class DummySchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getId($resource)
+    public function getId($resource): ?string
     {
         return 'dummyId';
     }
@@ -42,7 +42,7 @@ class DummySchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getAttributes($author)
+    public function getAttributes($author, array $fieldKeysFilter = null): ?array
     {
         return [];
     }

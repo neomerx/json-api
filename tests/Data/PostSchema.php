@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Data;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class PostSchema extends DevSchemaProvider
+class PostSchema extends DevSchema
 {
     /**
      * @inheritdoc
@@ -31,7 +31,7 @@ class PostSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getId($post)
+    public function getId($post): ?string
     {
         return $post->{Post::ATTRIBUTE_ID};
     }
@@ -39,9 +39,9 @@ class PostSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getAttributes($post)
+    public function getAttributes($post, array $fieldKeysFilter = null): ?array
     {
-        assert('$post instanceof '.Post::class);
+        assert($post instanceof Post);
 
         return [
             Post::ATTRIBUTE_TITLE => $post->{Post::ATTRIBUTE_TITLE},
@@ -52,14 +52,14 @@ class PostSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($post, $isPrimary, array $includeRelationships)
+    public function getRelationships($post, bool $isPrimary, array $includeRelationships): ?array
     {
-        assert('$post instanceof '.Post::class);
+        assert($post instanceof Post);
 
         if (($isPrimary && $this->isIsLinksInPrimary()) || (!$isPrimary && $this->isIsLinksInIncluded())) {
             $authorSelfLink   = $this->getRelationshipSelfLink($post, Post::LINK_AUTHOR);
             $commentsSelfLink = $this->getRelationshipSelfLink($post, Post::LINK_COMMENTS);
-            $links    = [
+            $links            = [
                 Post::LINK_AUTHOR   =>
                     [self::LINKS => [LinkInterface::SELF => $authorSelfLink], self::SHOW_DATA => false],
                 Post::LINK_COMMENTS =>

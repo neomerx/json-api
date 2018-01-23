@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Http\Headers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,42 +30,33 @@ interface MediaTypeInterface
     /** JSON API type */
     const JSON_API_SUB_TYPE = 'vnd.api+json';
 
-    /** Parameter name for storing supported extensions in Content-Type header */
-    const PARAM_SUPPORTED_EXT = 'supported-ext';
-
-    /** Parameter name for storing applied extensions in Content-Type header */
-    const PARAM_EXT = 'ext';
-
-    /** Constant for 'no-extensions' */
-    const NO_EXT = '';
-
     /**
      * Get media type (no subtype).
      *
      * @return string
      */
-    public function getType();
+    public function getType(): string;
 
     /**
      * Get media subtype.
      *
      * @return string
      */
-    public function getSubType();
+    public function getSubType(): string;
 
     /**
      * Get full media type (type/subtype).
      *
      * @return string
      */
-    public function getMediaType();
+    public function getMediaType(): string;
 
     /**
      * Get media type parameters.
      *
      * @return array<string,string>|null
      */
-    public function getParameters();
+    public function getParameters(): ?array;
 
     /**
      * Compare media types.
@@ -74,7 +65,7 @@ interface MediaTypeInterface
      *
      * @return bool
      */
-    public function matchesTo(MediaTypeInterface $mediaType);
+    public function matchesTo(MediaTypeInterface $mediaType): bool;
 
     /**
      * Compare media types.
@@ -83,5 +74,5 @@ interface MediaTypeInterface
      *
      * @return bool
      */
-    public function equalsTo(MediaTypeInterface $mediaType);
+    public function equalsTo(MediaTypeInterface $mediaType): bool;
 }

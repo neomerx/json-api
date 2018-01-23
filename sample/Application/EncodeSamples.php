@@ -16,19 +16,19 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \Neomerx\JsonApi\Document\Link;
-use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\Samples\JsonApi\Models\Post;
-use \Neomerx\Samples\JsonApi\Models\Site;
-use \Neomerx\Samples\JsonApi\Models\Author;
-use \Neomerx\Samples\JsonApi\Models\Comment;
-use \Neomerx\JsonApi\Encoder\EncoderOptions;
-use \Neomerx\Samples\JsonApi\Schemas\PostSchema;
-use \Neomerx\Samples\JsonApi\Schemas\SiteSchema;
-use \Neomerx\Samples\JsonApi\Schemas\AuthorSchema;
-use \Neomerx\Samples\JsonApi\Schemas\CommentSchema;
-use \Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Closure;
+use Neomerx\JsonApi\Document\Link;
+use Neomerx\JsonApi\Encoder\Encoder;
+use Neomerx\JsonApi\Encoder\EncoderOptions;
+use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Neomerx\Samples\JsonApi\Models\Author;
+use Neomerx\Samples\JsonApi\Models\Comment;
+use Neomerx\Samples\JsonApi\Models\Post;
+use Neomerx\Samples\JsonApi\Models\Site;
+use Neomerx\Samples\JsonApi\Schemas\AuthorSchema;
+use Neomerx\Samples\JsonApi\Schemas\CommentSchema;
+use Neomerx\Samples\JsonApi\Schemas\PostSchema;
+use Neomerx\Samples\JsonApi\Schemas\SiteSchema;
 
 /**
  * @package Neomerx\Samples\JsonApi
@@ -106,7 +106,7 @@ class EncodeSamples
         ]);
 
         SiteSchema::$isShowCustomLinks = false;
-        $encoder = Encoder::instance([
+        $encoder                       = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
@@ -167,10 +167,10 @@ class EncodeSamples
         ], new EncoderOptions(JSON_PRETTY_PRINT));
 
         SiteSchema::$isShowCustomLinks = false;
-        $noLinksResult = $encoder->encodeData($site);
+        $noLinksResult                 = $encoder->encodeData($site);
 
         SiteSchema::$isShowCustomLinks = true;
-        $withLinksResult = $encoder->encodeData($site);
+        $withLinksResult               = $encoder->encodeData($site);
 
         return [
             $noLinksResult,

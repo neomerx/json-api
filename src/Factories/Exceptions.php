@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Factories;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \LogicException;
-use \InvalidArgumentException;
+use InvalidArgumentException;
+use LogicException;
 
 /**
  * @package Neomerx\JsonApi
@@ -30,7 +30,7 @@ class Exceptions
      *
      * @throws InvalidArgumentException
      */
-    public static function throwInvalidArgument($parameterName, $value)
+    public static function throwInvalidArgument(string $parameterName, $value): void
     {
         $value ?: null;
 
@@ -42,7 +42,7 @@ class Exceptions
      *
      * @throws LogicException
      */
-    public static function throwLogicException($message = null)
+    public static function throwLogicException(string $message = null): void
     {
         throw new LogicException($message);
     }

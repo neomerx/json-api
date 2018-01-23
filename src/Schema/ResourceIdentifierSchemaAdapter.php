@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Schema;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,19 @@
  * limitations under the License.
  */
 
-use \EmptyIterator;
-use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
+use EmptyIterator;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
+class ResourceIdentifierSchemaAdapter implements SchemaInterface
 {
     /**
-     * @var SchemaProviderInterface
+     * @var SchemaInterface
      */
     private $schema;
 
@@ -36,10 +38,10 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     private $factory;
 
     /**
-     * @param FactoryInterface        $factory
-     * @param SchemaProviderInterface $schema
+     * @param FactoryInterface $factory
+     * @param SchemaInterface  $schema
      */
-    public function __construct(FactoryInterface $factory, SchemaProviderInterface $schema)
+    public function __construct(FactoryInterface $factory, SchemaInterface $schema)
     {
         $this->schema  = $schema;
         $this->factory = $factory;
@@ -48,7 +50,7 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getResourceType()
+    public function getResourceType(): string
     {
         return $this->schema->getResourceType();
     }
@@ -56,7 +58,7 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getSelfSubUrl($resource = null)
+    public function getSelfSubUrl($resource = null): string
     {
         return $this->schema->getSelfSubUrl($resource);
     }
@@ -64,7 +66,7 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getId($resource)
+    public function getId($resource): ?string
     {
         return $this->schema->getId($resource);
     }
@@ -72,7 +74,7 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getSelfSubLink($resource)
+    public function getSelfSubLink($resource): LinkInterface
     {
         return $this->schema->getSelfSubLink($resource);
     }
@@ -80,7 +82,7 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getAttributes($resource)
+    public function getAttributes($resource, array $fieldKeysFilter = null): ?array
     {
         return [];
     }
@@ -88,16 +90,32 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function createResourceObject($resource, $isOriginallyArrayed, $attributeKeysFilter = null)
-    {
-        $attributeKeysFilter = [];
-        return $this->factory->createResourceObject($this, $resource, $isOriginallyArrayed, $attributeKeysFilter);
+    public function getRelationships(
+        $resource,
+        bool $isPrimary,
+        array $includeRelationships,
+        array $fieldKeysFilter = null
+    ): ?array {
+        return [];
     }
 
     /**
      * @inheritdoc
      */
-    public function getRelationshipObjectIterator($resource, $isPrimary, array $includeRelationships)
+    public function createResourceObject(
+        $resource,
+        bool $isOriginallyArrayed,
+        array $fieldKeysFilter = null
+    ): ResourceObjectInterface {
+        $fieldKeysFilter = [];
+
+        return $this->factory->createResourceObject($this, $resource, $isOriginallyArrayed, $fieldKeysFilter);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationshipObjectIterator($resource, bool $isPrimary, array $includeRelationships): iterable
     {
         return new EmptyIterator();
     }
@@ -105,7 +123,7 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getResourceLinks($resource)
+    public function getResourceLinks($resource): array
     {
         return [];
     }
@@ -113,7 +131,7 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function getIncludedResourceLinks($resource)
+    public function getIncludedResourceLinks($resource): array
     {
         return [];
     }
@@ -121,7 +139,7 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function isShowAttributesInIncluded()
+    public function isShowAttributesInIncluded(): bool
     {
         return false;
     }
@@ -129,15 +147,7 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
     /**
      * @inheritdoc
      */
-    public function isShowRelationshipsInIncluded()
-    {
-        return false;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIncludePaths()
+    public function getIncludePaths(): array
     {
         return [];
     }
@@ -187,8 +197,12 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function getRelationshipSelfLink($resource, $name, $meta = null, $treatAsHref = false)
-    {
+    public function getRelationshipSelfLink(
+        $resource,
+        string $name,
+        $meta = null,
+        bool $treatAsHref = false
+    ): LinkInterface {
         return $this->schema->getRelationshipSelfLink($resource, $name, $meta, $treatAsHref);
     }
 
@@ -197,8 +211,12 @@ class ResourceIdentifierSchemaAdapter implements SchemaProviderInterface
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function getRelationshipRelatedLink($resource, $name, $meta = null, $treatAsHref = false)
-    {
+    public function getRelationshipRelatedLink(
+        $resource,
+        string $name,
+        $meta = null,
+        bool $treatAsHref = false
+    ): LinkInterface {
         return $this->schema->getRelationshipRelatedLink($resource, $name, $meta, $treatAsHref);
     }
 }

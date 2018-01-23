@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Encoder\Stack;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
-use \ArrayIterator;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameInterface;
-use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
+use ArrayIterator;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFactoryInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
+use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -58,7 +59,7 @@ class Stack implements StackInterface
     /**
      * @inheritdoc
      */
-    public function push()
+    public function push(): StackFrameInterface
     {
         $frame = $this->factory->createFrame($this->end());
         array_push($this->stack, $frame);
@@ -69,7 +70,7 @@ class Stack implements StackInterface
     /**
      * @inheritdoc
      */
-    public function pop()
+    public function pop(): void
     {
         array_pop($this->stack);
         $this->size <= 0 ?: $this->size--;
@@ -78,7 +79,7 @@ class Stack implements StackInterface
     /**
      * @inheritdoc
      */
-    public function root()
+    public function root(): ?StackFrameReadOnlyInterface
     {
         return $this->size > 0 ? $this->stack[0] : null;
     }
@@ -86,7 +87,7 @@ class Stack implements StackInterface
     /**
      * @inheritdoc
      */
-    public function end()
+    public function end(): ?StackFrameReadOnlyInterface
     {
         return $this->size > 0 ? $this->stack[$this->size - 1] : null;
     }
@@ -94,7 +95,7 @@ class Stack implements StackInterface
     /**
      * @inheritdoc
      */
-    public function penult()
+    public function penult(): ?StackFrameReadOnlyInterface
     {
         return $this->size > 1 ? $this->stack[$this->size - 2] : null;
     }
@@ -118,7 +119,7 @@ class Stack implements StackInterface
     /**
      * @inheritdoc
      */
-    public function setCurrentResource(ResourceObjectInterface $resource)
+    public function setCurrentResource(ResourceObjectInterface $resource): void
     {
         /** @var StackFrameInterface $lastFrame */
         $lastFrame = end($this->stack);
@@ -128,7 +129,7 @@ class Stack implements StackInterface
     /**
      * @inheritdoc
      */
-    public function setCurrentRelationship(RelationshipObjectInterface $relationship)
+    public function setCurrentRelationship(RelationshipObjectInterface $relationship): void
     {
         /** @var StackFrameInterface $lastFrame */
         $lastFrame = end($this->stack);

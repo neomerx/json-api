@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Encoder\Parser;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -37,12 +37,12 @@ interface ParserReplyInterface
      *
      * @return int
      */
-    public function getReplyType();
+    public function getReplyType(): int;
 
     /**
      * Get stack for parse reply.
      *
      * @return StackReadOnlyInterface
      */
-    public function getStack();
+    public function getStack(): StackReadOnlyInterface;
 }

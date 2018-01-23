@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Encoder\Handlers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -32,5 +32,8 @@ interface HandlerFactoryInterface
      *
      * @return ReplyInterpreterInterface
      */
-    public function createReplyInterpreter(DocumentInterface $document, ParametersAnalyzerInterface $parameterAnalyzer);
+    public function createReplyInterpreter(
+        DocumentInterface $document,
+        ParametersAnalyzerInterface $parameterAnalyzer
+    ): ReplyInterpreterInterface;
 }

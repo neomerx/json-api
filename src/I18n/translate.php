@@ -1,7 +1,7 @@
-<?php namespace Neomerx\JsonApi\Contracts\Decoder;
+<?php namespace Neomerx\JsonApi\I18n;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,16 @@
 /**
  * @package Neomerx\JsonApi
  */
-interface DecoderInterface
+
+/**
+ * @param string $format
+ * @param array  ...$parameters
+ *
+ * @return string
+ */
+function translate(string $format, ...$parameters): string
 {
-    /**
-     * Decode input JSON API data.
-     *
-     * @param string $content Request content.
-     *
-     * @return mixed
-     */
-    public function decode($content);
+    $result = empty($parameters) === false ? vsprintf($format, $parameters) : $format;
+
+    return $result;
 }

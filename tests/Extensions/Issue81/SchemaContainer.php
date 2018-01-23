@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue81;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use Closure;
+use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
 use Neomerx\JsonApi\Schema\Container;
 
 /**
@@ -27,9 +27,9 @@ class SchemaContainer extends Container
     /**
      * @inheritdoc
      */
-    protected function createSchemaFromClosure(Closure $closure)
+    protected function createSchemaFromCallable(callable $callable): SchemaInterface
     {
-        $schema = $closure($this->getFactory(), $this);
+        $schema = call_user_func($callable, $this->getFactory(), $this);
 
         return $schema;
     }
@@ -37,7 +37,7 @@ class SchemaContainer extends Container
     /**
      * @inheritdoc
      */
-    protected function createSchemaFromClassName($className)
+    protected function createSchemaFromClassName(string $className): SchemaInterface
     {
         $schema = new $className($this->getFactory(), $this);
 

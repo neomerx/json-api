@@ -16,14 +16,18 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Document\Link;
-use \Neomerx\JsonApi\Schema\SchemaProvider;
+use Neomerx\JsonApi\Document\Link;
+use Neomerx\JsonApi\Schema\BaseSchema;
+use Neomerx\Samples\JsonApi\Models\Site;
 
 /**
  * @package Neomerx\Samples\JsonApi
  */
-class SiteSchema extends SchemaProvider
+class SiteSchema extends BaseSchema
 {
+    /**
+     * @inheritdoc
+     */
     protected $resourceType = 'sites';
 
     /**
@@ -31,13 +35,19 @@ class SiteSchema extends SchemaProvider
      */
     public static $isShowCustomLinks = true;
 
-    public function getId($site)
+    /**
+     * @inheritdoc
+     */
+    public function getId($site): ?string
     {
         /** @var Site $site */
         return $site->siteId;
     }
 
-    public function getAttributes($site)
+    /**
+     * @inheritdoc
+     */
+    public function getAttributes($site, array $fieldKeysFilter = null): ?array
     {
         /** @var Site $site */
         return [
@@ -45,7 +55,10 @@ class SiteSchema extends SchemaProvider
         ];
     }
 
-    public function getRelationships($site, $isPrimary, array $includeList)
+    /**
+     * @inheritdoc
+     */
+    public function getRelationships($site, bool $isPrimary, array $includeRelationships): ?array
     {
         /** @var Site $site */
 
@@ -62,7 +75,10 @@ class SiteSchema extends SchemaProvider
         ];
     }
 
-    public function getIncludePaths()
+    /**
+     * @inheritdoc
+     */
+    public function getIncludePaths(): array
     {
         return [
             'posts',

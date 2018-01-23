@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Http\Headers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -33,5 +33,5 @@ interface HeaderParametersParserInterface
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function parse(ServerRequestInterface $request, $checkContentType = true);
+    public function parse(ServerRequestInterface $request, bool $checkContentType = true): HeaderParametersInterface;
 }

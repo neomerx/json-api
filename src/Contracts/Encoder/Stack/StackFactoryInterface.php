@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@ interface StackFactoryInterface
      *
      * @return StackFrameInterface
      */
-    public function createFrame(StackFrameReadOnlyInterface $previous = null);
+    public function createFrame(StackFrameReadOnlyInterface $previous = null): StackFrameInterface;
 
     /**
      * Create stack.
      *
      * @return StackInterface
      */
-    public function createStack();
+    public function createStack(): StackInterface;
 }

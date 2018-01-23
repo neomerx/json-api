@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Http\Headers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,12 @@ interface HeaderInterface
      *
      * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Get media types.
      *
      * @return MediaTypeInterface[]
      */
-    public function getMediaTypes();
+    public function getMediaTypes(): array;
 }

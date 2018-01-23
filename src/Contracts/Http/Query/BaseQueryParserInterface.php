@@ -1,7 +1,7 @@
-<?php namespace Neomerx\JsonApi\Decoders;
+<?php namespace Neomerx\JsonApi\Contracts\Http\Query;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,32 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Decoder\DecoderInterface;
-
 /**
  * @package Neomerx\JsonApi
  */
-class ObjectDecoder implements DecoderInterface
+interface BaseQueryParserInterface
 {
+    /** Parameter name */
+    public const PARAM_INCLUDE = 'include';
+
+    /** Parameter name */
+    public const PARAM_FIELDS = 'fields';
+
+    /** Parameter name */
+    public const PARAM_SORT = 'sort';
+
     /**
-     * @inheritdoc
-     *
-     * @return object
+     * @return iterable
      */
-    public function decode($content)
-    {
-        return json_decode($content);
-    }
+    public function getIncludes(): iterable;
+
+    /**
+     * @return iterable
+     */
+    public function getFields(): iterable;
+
+    /**
+     * @return iterable
+     */
+    public function getSorts(): iterable;
 }

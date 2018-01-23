@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Encoder\Parameters;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\SortParameterInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Neomerx\JsonApi\Factories\Exceptions;
 
 /**
  * @package Neomerx\JsonApi
@@ -36,53 +35,19 @@ class EncodingParameters implements EncodingParametersInterface
     private $fieldSets;
 
     /**
-     * @var SortParameterInterface[]|null
+     * @param string[]|null $includePaths
+     * @param array|null    $fieldSets
      */
-    private $sortParameters;
-
-    /**
-     * @var array|null
-     */
-    private $pagingParameters;
-
-    /**
-     * @var array|null
-     */
-    private $filteringParameters;
-
-    /**
-     * @var array|null
-     */
-    private $unrecognizedParams;
-
-    /**
-     * @param string[]|null                 $includePaths
-     * @param array|null                    $fieldSets
-     * @param SortParameterInterface[]|null $sortParameters
-     * @param array|null                    $pagingParameters
-     * @param array|null                    $filteringParameters
-     * @param array|null                    $unrecognizedParams
-     */
-    public function __construct(
-        $includePaths = null,
-        array $fieldSets = null,
-        $sortParameters = null,
-        array $pagingParameters = null,
-        array $filteringParameters = null,
-        array $unrecognizedParams = null
-    ) {
-        $this->fieldSets           = $fieldSets;
-        $this->includePaths        = $includePaths;
-        $this->sortParameters      = $sortParameters;
-        $this->pagingParameters    = $pagingParameters;
-        $this->unrecognizedParams  = $unrecognizedParams;
-        $this->filteringParameters = $filteringParameters;
+    public function __construct(array $includePaths = null, array $fieldSets = null)
+    {
+        $this->fieldSets    = $fieldSets;
+        $this->includePaths = $includePaths;
     }
 
     /**
      * @inheritdoc
      */
-    public function getIncludePaths()
+    public function getIncludePaths(): ?array
     {
         return $this->includePaths;
     }
@@ -90,7 +55,7 @@ class EncodingParameters implements EncodingParametersInterface
     /**
      * @inheritdoc
      */
-    public function getFieldSets()
+    public function getFieldSets(): ?array
     {
         return $this->fieldSets;
     }
@@ -100,53 +65,10 @@ class EncodingParameters implements EncodingParametersInterface
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      */
-    public function getFieldSet($type)
+    public function getFieldSet(string $type): ?array
     {
         is_string($type) === true ?: Exceptions::throwInvalidArgument('type', $type);
 
         return (isset($this->fieldSets[$type]) === true ? $this->fieldSets[$type] : null);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSortParameters()
-    {
-        return $this->sortParameters;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getPaginationParameters()
-    {
-        return $this->pagingParameters;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getFilteringParameters()
-    {
-        return $this->filteringParameters;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getUnrecognizedParameters()
-    {
-        return $this->unrecognizedParams;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isEmpty()
-    {
-        return
-            empty($this->getFieldSets()) === true && empty($this->getIncludePaths()) === true &&
-            empty($this->getSortParameters()) === true && empty($this->getPaginationParameters()) === true &&
-            empty($this->getFilteringParameters()) === true;
     }
 }

@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Http\Headers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,19 +26,19 @@ interface HeaderParametersInterface
      *
      * @return string
      */
-    public function getMethod();
+    public function getMethod(): string;
 
     /**
      * Get get 'Content-Type' header if request has body and `null` otherwise.
      *
      * @return HeaderInterface|null
      */
-    public function getContentTypeHeader();
+    public function getContentTypeHeader(): ?HeaderInterface;
 
     /**
      * Get 'Accept' header.
      *
      * @return AcceptHeaderInterface
      */
-    public function getAcceptHeader();
+    public function getAcceptHeader(): AcceptHeaderInterface;
 }

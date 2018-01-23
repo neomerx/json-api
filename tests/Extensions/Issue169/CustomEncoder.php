@@ -1,12 +1,11 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue169;
 
-use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use Neomerx\JsonApi\Encoder\EncoderOptions;
-use \Neomerx\JsonApi\Encoder\Serialize\ArraySerializerTrait;
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Encoder\Encoder;
+use Neomerx\JsonApi\Encoder\Serialize\ArraySerializerTrait;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,23 +28,9 @@ class CustomEncoder extends Encoder
     use ArraySerializerTrait;
 
     /**
-     * @param array               $schemas
-     * @param EncoderOptions|null $encodeOptions
-     *
-     * @return CustomEncoder
-     */
-    public static function instance(array $schemas = [], EncoderOptions $encodeOptions = null)
-    {
-        /** @var CustomEncoder $encoder */
-        $encoder = parent::instance($schemas, $encodeOptions);
-
-        return $encoder;
-    }
-
-    /**
      * @return FactoryInterface
      */
-    protected static function createFactory()
+    protected static function createFactory(): FactoryInterface
     {
         return new CustomFactory();
     }

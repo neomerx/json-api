@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Http;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Exceptions\ErrorCollection;
-use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use Neomerx\JsonApi\Exceptions\ErrorCollection;
 
 /**
  * @package Neomerx\JsonApi
@@ -52,8 +52,8 @@ interface ResponsesInterface
      */
     public function getContentResponse(
         $data,
-        $statusCode = self::HTTP_OK,
-        $links = null,
+        int $statusCode = self::HTTP_OK,
+        array $links = null,
         $meta = null,
         array $headers = []
     );
@@ -68,7 +68,7 @@ interface ResponsesInterface
      *
      * @return mixed
      */
-    public function getCreatedResponse($resource, $links = null, $meta = null, array $headers = []);
+    public function getCreatedResponse($resource, array $links = null, $meta = null, array $headers = []);
 
     /**
      * Get response with HTTP code only.
@@ -78,7 +78,7 @@ interface ResponsesInterface
      *
      * @return mixed
      */
-    public function getCodeResponse($statusCode, array $headers = []);
+    public function getCodeResponse(int $statusCode, array $headers = []);
 
     /**
      * Get response with meta information only.
@@ -89,7 +89,7 @@ interface ResponsesInterface
      *
      * @return mixed
      */
-    public function getMetaResponse($meta, $statusCode = self::HTTP_OK, array $headers = []);
+    public function getMetaResponse($meta, int $statusCode = self::HTTP_OK, array $headers = []);
 
     /**
      * Get response with only resource identifiers.
@@ -104,8 +104,8 @@ interface ResponsesInterface
      */
     public function getIdentifiersResponse(
         $data,
-        $statusCode = self::HTTP_OK,
-        $links = null,
+        int $statusCode = self::HTTP_OK,
+        array $links = null,
         $meta = null,
         array $headers = []
     );
@@ -119,5 +119,5 @@ interface ResponsesInterface
      *
      * @return mixed
      */
-    public function getErrorResponse($errors, $statusCode = self::HTTP_BAD_REQUEST, array $headers = []);
+    public function getErrorResponse($errors, int $statusCode = self::HTTP_BAD_REQUEST, array $headers = []);
 }

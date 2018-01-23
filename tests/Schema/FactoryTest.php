@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Schema;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \stdClass;
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
+use Mockery;
+use Mockery\Mock;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
+use Neomerx\JsonApi\Factories\Factory;
+use Neomerx\Tests\JsonApi\BaseTestCase;
+use stdClass;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -56,14 +57,14 @@ class FactoryTest extends BaseTestCase
      */
     public function testCreateResourceObject()
     {
-        $schema = Mockery::mock(SchemaProviderInterface::class);
-        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $linkMock = Mockery::mock(LinkInterface::class);
+
+        /** @var Mock $schema */
+        $schema = Mockery::mock(SchemaInterface::class);
         $schema->shouldReceive('getResourceType')->once()->andReturn('some-type');
+        $schema->shouldReceive('getSelfSubLink')->once()->andReturn($linkMock);
 
-        /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $schema->shouldReceive('getSelfSubLink')->once()->andReturn('whatever');
-
-        /** @var SchemaProviderInterface $schema */
+        /** @var SchemaInterface $schema */
 
         $this->assertNotNull($resource = $this->factory->createResourceObject(
             $schema,
@@ -74,7 +75,7 @@ class FactoryTest extends BaseTestCase
 
         $this->assertEquals($isInArray, $resource->isInArray());
         $this->assertSame('some-type', $resource->getType());
-        $this->assertEquals('whatever', $resource->getSelfSubLink());
+        $this->assertSame($linkMock, $resource->getSelfSubLink());
     }
 
     /**

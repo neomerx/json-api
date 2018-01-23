@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Encoder;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Factories\Exceptions;
+use Neomerx\JsonApi\Factories\Exceptions;
 
 /**
  * @package Neomerx\JsonApi
@@ -46,15 +46,11 @@ class EncoderOptions
      * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function __construct(
-        $options = 0,
-        $urlPrefix = null,
-        $depth = 512
+        int $options = 0,
+        string $urlPrefix = null,
+        int $depth = 512
     ) {
-        is_int($depth) === true ?: Exceptions::throwInvalidArgument('depth', $depth);
-        is_int($options) === true ?: Exceptions::throwInvalidArgument('options', $options);
-
-        $isOk = ($urlPrefix === null || is_string($urlPrefix) === true);
-        $isOk ?: Exceptions::throwInvalidArgument('urlPrefix', $urlPrefix);
+        $depth >= true ?: Exceptions::throwInvalidArgument('depth', $depth);
 
         $this->options   = $options;
         $this->depth     = $depth;
@@ -66,7 +62,7 @@ class EncoderOptions
      *
      * @return int
      */
-    public function getOptions()
+    public function getOptions(): int
     {
         return $this->options;
     }
@@ -76,7 +72,7 @@ class EncoderOptions
      *
      * @return int
      */
-    public function getDepth()
+    public function getDepth(): int
     {
         return $this->depth;
     }
@@ -84,7 +80,7 @@ class EncoderOptions
     /**
      * @return null|string
      */
-    public function getUrlPrefix()
+    public function getUrlPrefix(): ?string
     {
         return $this->urlPrefix;
     }

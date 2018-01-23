@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Encoder\Parser;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -38,7 +38,7 @@ abstract class BaseReply implements ParserReplyInterface
      * @param int                    $replyType
      * @param StackReadOnlyInterface $stack
      */
-    public function __construct($replyType, StackReadOnlyInterface $stack)
+    public function __construct(int $replyType, StackReadOnlyInterface $stack)
     {
         $this->stack     = $stack;
         $this->replyType = $replyType;
@@ -47,7 +47,7 @@ abstract class BaseReply implements ParserReplyInterface
     /**
      * @inheritdoc
      */
-    public function getReplyType()
+    public function getReplyType(): int
     {
         return $this->replyType;
     }
@@ -55,7 +55,7 @@ abstract class BaseReply implements ParserReplyInterface
     /**
      * @inheritdoc
      */
-    public function getStack()
+    public function getStack(): StackReadOnlyInterface
     {
         return $this->stack;
     }

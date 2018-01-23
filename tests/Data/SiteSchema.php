@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Data;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class SiteSchema extends DevSchemaProvider
+class SiteSchema extends DevSchema
 {
     /**
      * @inheritdoc
@@ -46,7 +46,7 @@ class SiteSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getId($site)
+    public function getId($site): ?string
     {
         return $site->{Site::ATTRIBUTE_ID};
     }
@@ -54,9 +54,9 @@ class SiteSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getAttributes($site)
+    public function getAttributes($site, array $fieldKeysFilter = null): array
     {
-        assert('$site instanceof '.Site::class);
+        assert($site instanceof Site);
 
         return [
             Site::ATTRIBUTE_NAME => $site->{Site::ATTRIBUTE_NAME},
@@ -66,9 +66,9 @@ class SiteSchema extends DevSchemaProvider
     /**
      * @inheritdoc
      */
-    public function getRelationships($site, $isPrimary, array $includeRelationships)
+    public function getRelationships($site, bool $isPrimary, array $includeRelationships): ?array
     {
-        assert('$site instanceof '.Site::class);
+        assert($site instanceof Site);
 
         if (($isPrimary && $this->isIsLinksInPrimary()) || (!$isPrimary && $this->isIsLinksInIncluded())) {
             $selfLink = $this->getRelationshipSelfLink($site, Site::LINK_POSTS);

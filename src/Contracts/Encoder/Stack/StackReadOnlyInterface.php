@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Encoder\Stack;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Countable;
-use \IteratorAggregate;
+use Countable;
+use IteratorAggregate;
 
 /**
  * @package Neomerx\JsonApi
@@ -29,19 +29,19 @@ interface StackReadOnlyInterface extends IteratorAggregate, Countable
      *
      * @return StackFrameReadOnlyInterface|null
      */
-    public function root();
+    public function root(): ?StackFrameReadOnlyInterface;
 
     /**
      * Get a stack frame from end.
      *
      * @return StackFrameReadOnlyInterface|null
      */
-    public function end();
+    public function end(): ?StackFrameReadOnlyInterface;
 
     /**
      * Get a penult stack frame.
      *
      * @return StackFrameReadOnlyInterface|null
      */
-    public function penult();
+    public function penult(): ?StackFrameReadOnlyInterface;
 }

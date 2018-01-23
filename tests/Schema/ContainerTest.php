@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Schema;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-use \InvalidArgumentException;
-use \Neomerx\Tests\JsonApi\Data\Post;
-use \Neomerx\JsonApi\Schema\Container;
-use \Neomerx\Tests\JsonApi\Data\Author;
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use InvalidArgumentException;
+use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use Neomerx\JsonApi\Factories\Factory;
+use Neomerx\JsonApi\Schema\Container;
+use Neomerx\Tests\JsonApi\BaseTestCase;
+use Neomerx\Tests\JsonApi\Data\Author;
+use Neomerx\Tests\JsonApi\Data\AuthorSchema;
+use Neomerx\Tests\JsonApi\Data\Post;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -144,10 +144,10 @@ class ContainerTest extends BaseTestCase
      *
      * @link https://github.com/neomerx/json-api/issues/177
      */
-    public function testRegisterCallableSchemeFactory()
+    public function testRegisterCallableSchemaFactory()
     {
         $container = new Container($this->factory, [
-            Author::class => [static::class, 'authorShemeFactory'],
+            Author::class => [static::class, 'authorSchemaFactory'],
         ]);
 
         $this->assertNotNull($container->getSchema(new Author()));
@@ -161,7 +161,7 @@ class ContainerTest extends BaseTestCase
     public function testForNullResourceShouldReturnNull()
     {
         $container = new Container($this->factory, [
-            Author::class => [static::class, 'authorShemeFactory'],
+            Author::class => [static::class, 'authorSchemaFactory'],
         ]);
 
         $this->assertNull($container->getSchema(null));
@@ -172,7 +172,7 @@ class ContainerTest extends BaseTestCase
      *
      * @return AuthorSchema
      */
-    public static function authorShemeFactory(SchemaFactoryInterface $factory)
+    public static function authorSchemaFactory(SchemaFactoryInterface $factory)
     {
         return new AuthorSchema($factory);
     }

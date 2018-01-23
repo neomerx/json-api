@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Document;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \stdClass;
-use \Neomerx\JsonApi\Document\Link;
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
-use \Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
+use Mockery;
+use Neomerx\JsonApi\Contracts\Document\DocumentFactoryInterface;
+use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
+use Neomerx\JsonApi\Document\Link;
+use Neomerx\JsonApi\Factories\Factory;
+use Neomerx\Tests\JsonApi\BaseTestCase;
+use stdClass;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -1246,7 +1246,7 @@ EOL;
      * @param mixed         $relPrimaryMeta
      * @param mixed         $relIncMeta
      *
-     * @return SchemaProviderInterface
+     * @return SchemaInterface
      */
     private function getSchema(
         $type,
@@ -1265,7 +1265,7 @@ EOL;
         $relIncMeta = null
     ) {
         /** @var Mockery\Mock $schema */
-        $schema = Mockery::mock(SchemaProviderinterface::class);
+        $schema = Mockery::mock(SchemaInterface::class);
 
         $schema->shouldReceive('getResourceType')->zeroOrMoreTimes()->andReturn($type);
         $schema->shouldReceive('getId')->zeroOrMoreTimes()->andReturn($idx);
@@ -1282,7 +1282,7 @@ EOL;
         $schema->shouldReceive('getRelationshipsPrimaryMeta')->zeroOrMoreTimes()->andReturn($relPrimaryMeta);
         $schema->shouldReceive('getRelationshipsInclusionMeta')->zeroOrMoreTimes()->andReturn($relIncMeta);
 
-        /** @var SchemaProviderInterface $schema */
+        /** @var SchemaInterface $schema */
 
         return $schema;
     }

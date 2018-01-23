@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Encoder;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-use \Iterator;
-use \Neomerx\JsonApi\Exceptions\ErrorCollection;
-use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Iterator;
+use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Neomerx\JsonApi\Exceptions\ErrorCollection;
 
 /**
  * @package Neomerx\JsonApi
@@ -34,29 +34,29 @@ interface EncoderInterface
      *
      * @param array $links
      *
-     * @return EncoderInterface
+     * @return self
      */
-    public function withLinks(array $links);
+    public function withLinks(array $links): self;
 
     /**
      * Add meta information that will be encoded with data. If 'null' meta will not appear in a document.
      *
      * @param mixed|null $meta
      *
-     * @return EncoderInterface
+     * @return self
      */
-    public function withMeta($meta);
+    public function withMeta($meta): self;
 
     /**
      * If called JSON API version information with optional meta will be added to a document.
      *
-     * @param mixed|null $meta
+     * @param mixed|null $version
      *
-     * @return EncoderInterface
+     * @return self
      *
      * @see http://jsonapi.org/format/#document-jsonapi-object
      */
-    public function withJsonApiVersion($meta = null);
+    public function withJsonApiVersion($version = null): self;
 
     /**
      * Add 'self' Link to top-level document's 'links' section for relationship specified.
@@ -68,11 +68,16 @@ interface EncoderInterface
      *
      * @see http://jsonapi.org/format/#fetching-relationships
      *
-     * @return EncoderInterface
+     * @return self
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function withRelationshipSelfLink($resource, $relationshipName, $meta = null, $treatAsHref = false);
+    public function withRelationshipSelfLink(
+        $resource,
+        string $relationshipName,
+        $meta = null,
+        bool $treatAsHref = false
+    ): self;
 
     /**
      * Add 'related' Link to top-level document's 'links' section for relationship specified.
@@ -84,11 +89,16 @@ interface EncoderInterface
      *
      * @see http://jsonapi.org/format/#fetching-relationships
      *
-     * @return EncoderInterface
+     * @return self
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function withRelationshipRelatedLink($resource, $relationshipName, $meta = null, $treatAsHref = false);
+    public function withRelationshipRelatedLink(
+        $resource,
+        string $relationshipName,
+        $meta = null,
+        bool $treatAsHref = false
+    ): self;
 
     /**
      * Encode input as JSON API string.
@@ -98,7 +108,7 @@ interface EncoderInterface
      *
      * @return string
      */
-    public function encodeData($data, EncodingParametersInterface $parameters = null);
+    public function encodeData($data, EncodingParametersInterface $parameters = null): string;
 
     /**
      * Encode input as JSON API string with a list of resource identifiers.
@@ -108,7 +118,7 @@ interface EncoderInterface
      *
      * @return string
      */
-    public function encodeIdentifiers($data, EncodingParametersInterface $parameters = null);
+    public function encodeIdentifiers($data, EncodingParametersInterface $parameters = null): string;
 
     /**
      * Encode error as JSON API string.
@@ -117,7 +127,7 @@ interface EncoderInterface
      *
      * @return string
      */
-    public function encodeError(ErrorInterface $error);
+    public function encodeError(ErrorInterface $error): string;
 
     /**
      * Encode errors as JSON API string.
@@ -126,14 +136,14 @@ interface EncoderInterface
      *
      * @return string
      */
-    public function encodeErrors($errors);
+    public function encodeErrors($errors): string;
 
     /**
      * Encode input meta as JSON API string.
      *
-     * @param array|object $meta Meta information.
+     * @param mixed $meta Meta information.
      *
      * @return string
      */
-    public function encodeMeta($meta);
+    public function encodeMeta($meta): string;
 }

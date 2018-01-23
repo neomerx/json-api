@@ -2,7 +2,6 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/neomerx/json-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/neomerx/json-api/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/neomerx/json-api/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/neomerx/json-api/?branch=master)
 [![Build Status](https://travis-ci.org/neomerx/json-api.svg?branch=master)](https://travis-ci.org/neomerx/json-api)
-[![HHVM](https://img.shields.io/hhvm/neomerx/json-api.svg)](https://travis-ci.org/neomerx/json-api)
 [![License](https://img.shields.io/packagist/l/neomerx/json-api.svg)](https://packagist.org/packages/neomerx/json-api)
 
 ## Description 
@@ -22,7 +21,7 @@ This framework agnostic package implements [JSON API](http://jsonapi.org/) speci
 * Sparse fieldsets and customized included paths
 * Errors
 
-High code quality and **100% test coverage** with **250+ tests**. Production ready.
+High code quality and **100% test coverage** with **200+ tests**. Production ready.
 
 **To find out more, please check out the [Wiki](https://github.com/neomerx/json-api/wiki) and [Sample App](/sample)**.
 
@@ -42,7 +41,7 @@ The server supports
 - Support for such JSON API features as resource inclusion, pagination and etc.
 
 <p align="center">
-<a href="https://github.com/limoncello-php/app" target="_blank"><img src="https://github.com/limoncello-php/app/raw/master/resources/img/screen-shot.png" alt="Demo app screen-shot" title="Limoncello App" align="middle" width="330" height="252" /></a>
+<a href="https://github.com/limoncello-php/app" target="_blank"><img src="https://raw.githubusercontent.com/limoncello-php/app/master/server/resources/img/screen-shot.png" alt="Demo app screen-shot" title="Limoncello App" align="middle" width="330" height="252" /></a>
 </p>
 
 ## Sample usage
@@ -78,17 +77,17 @@ will output
 The ```AuthorSchema``` provides information about resource's attributes and might look like
 
 ```php
-class AuthorSchema extends SchemaProvider
+class AuthorSchema extends BaseSchema
 {
     protected $resourceType = 'people';
 
-    public function getId($author)
+    public function getId($author): ?string
     {
         /** @var Author $author */
         return $author->authorId;
     }
 
-    public function getAttributes($author)
+    public function getAttributes($author, array $fieldKeysFilter = null): ?array
     {
         /** @var Author $author */
         return [
@@ -103,7 +102,13 @@ The first ```EncoderOptions``` parameter ```JSON_PRETTY_PRINT``` is a PHP predef
 
 The second ```EncoderOptions``` parameter ```http://example.com/api/v1``` is a URL prefix that will be applied to all encoded links unless they have ```$treatAsHref``` flag set to ```true```.
 
+A sample program with encoding of multiple, nested, filtered objects and more is [here](sample).
+
 **For more advanced usage please check out the [Wiki](https://github.com/neomerx/json-api/wiki)**.
+
+## Versions
+
+Current version is 2.x (PHP 7.1+) for older PHP versions (PHP 5.5 - 7.0, HHVM) please use version 1.x.
 
 ## Questions?
 
@@ -116,8 +121,6 @@ Are you planning to add JSON API and need help? We'd love to talk to you [sales@
 ## Contributing
 
 If you have spotted any specification changes that are not reflected in this package please post an [issue](https://github.com/neomerx/json-api/issues). Pull requests for documentation and code improvements are welcome.
-
-Current tasks are managed with [Waffle.io](https://waffle.io/neomerx/json-api).
 
 There are 2 ways to send pull requests
 - small pull requests should be sent to `develop` branch as **1 commit**

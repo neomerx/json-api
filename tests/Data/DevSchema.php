@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Data;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \Neomerx\JsonApi\Schema\SchemaProvider;
+use Closure;
+use Neomerx\JsonApi\Schema\BaseSchema;
 
 /**
  * Base schema provider for testing/development purposes. It's not intended to be used in production.
  *
  * @package Neomerx\Tests\JsonApi
  */
-abstract class DevSchemaProvider extends SchemaProvider
+abstract class DevSchema extends BaseSchema
 {
     /**
      * @var array
@@ -89,7 +89,7 @@ abstract class DevSchemaProvider extends SchemaProvider
     /**
      * @inheritdoc
      */
-    public function getResourceLinks($resource)
+    public function getResourceLinks($resource): array
     {
         if (($linksClosure = $this->resourceLinksClosure) === null) {
             return parent::getResourceLinks($resource);
@@ -125,7 +125,7 @@ abstract class DevSchemaProvider extends SchemaProvider
      */
     public function linkAddTo($name, $key, $value)
     {
-        assert('is_string($name) && is_string($key)');
+        assert(is_string($name) && is_string($key));
         $this->linkAddTo[] = [$name, $key, $value];
     }
 
@@ -139,7 +139,7 @@ abstract class DevSchemaProvider extends SchemaProvider
      */
     public function linkRemoveFrom($name, $key)
     {
-        assert('is_string($name) && is_string($key)');
+        assert(is_string($name) && is_string($key));
         $this->linkRemoveFrom[] = [$name, $key];
     }
 
@@ -152,7 +152,7 @@ abstract class DevSchemaProvider extends SchemaProvider
      */
     public function linkRemove($name)
     {
-        assert('is_string($name)');
+        assert(is_string($name));
         $this->linkRemove[] = $name;
     }
 
@@ -161,7 +161,7 @@ abstract class DevSchemaProvider extends SchemaProvider
      *
      * @return string[]
      */
-    public function getIncludePaths()
+    public function getIncludePaths(): array
     {
         return empty($this->includePaths) === false ? $this->includePaths : parent::getIncludePaths();
     }

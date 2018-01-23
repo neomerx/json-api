@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Http\Headers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Http\Headers\Header;
+use Neomerx\JsonApi\Http\Headers\Header;
+use Neomerx\Tests\JsonApi\BaseTestCase;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -64,7 +64,7 @@ class HeaderTest extends BaseTestCase
      */
     public function testInvalidParams1()
     {
-        new Header('name', null);
+        new Header('', []);
     }
 
     /**
@@ -73,16 +73,6 @@ class HeaderTest extends BaseTestCase
      * @expectedException \InvalidArgumentException
      */
     public function testInvalidParams2()
-    {
-        new Header(null, []);
-    }
-
-    /**
-     * Test invalid parameters.
-     *
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidParams3()
     {
         Header::parse('', '');
     }

@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Schema;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,19 @@
  * limitations under the License.
  */
 
-use \Iterator;
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-interface SchemaProviderInterface
+interface SchemaInterface
 {
     /**
      * Get resource type.
      *
      * @return string
      */
-    public function getResourceType();
+    public function getResourceType(): string;
 
     /**
      * Get resource sub URL.
@@ -38,16 +37,16 @@ interface SchemaProviderInterface
      *
      * @return string
      */
-    public function getSelfSubUrl($resource = null);
+    public function getSelfSubUrl($resource = null): string;
 
     /**
      * Get resource identity.
      *
      * @param object $resource
      *
-     * @return string
+     * @return string|null
      */
-    public function getId($resource);
+    public function getId($resource): ?string;
 
     /**
      * Get resource URL link.
@@ -56,7 +55,7 @@ interface SchemaProviderInterface
      *
      * @return LinkInterface
      */
-    public function getSelfSubLink($resource);
+    public function getSelfSubLink($resource): LinkInterface;
 
     /**
      * Get 'self' URL link to resource relationship.
@@ -70,7 +69,12 @@ interface SchemaProviderInterface
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function getRelationshipSelfLink($resource, $name, $meta = null, $treatAsHref = false);
+    public function getRelationshipSelfLink(
+        $resource,
+        string $name,
+        $meta = null,
+        bool $treatAsHref = false
+    ): LinkInterface;
 
     /**
      * Get 'related' URL link to resource relationship.
@@ -84,38 +88,59 @@ interface SchemaProviderInterface
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function getRelationshipRelatedLink($resource, $name, $meta = null, $treatAsHref = false);
+    public function getRelationshipRelatedLink(
+        $resource,
+        string $name,
+        $meta = null,
+        bool $treatAsHref = false
+    ): LinkInterface;
 
     /**
      * Get resource attributes.
      *
-     * @param object $resource
+     * @param object     $resource
+     * @param array|null $fieldKeysFilter
      *
-     * @return array
+     * @return array|null
      */
-    public function getAttributes($resource);
+    public function getAttributes($resource, array $fieldKeysFilter = null): ?array;
+
+    /**
+     * Get resource relationships.
+     *
+     * @param            $resource
+     * @param bool       $isPrimary
+     * @param array      $includeRelationships
+     *
+     * @return array|null
+     */
+    public function getRelationships($resource, bool $isPrimary, array $includeRelationships): ?array;
 
     /**
      * Create resource object.
      *
-     * @param object                   $resource
-     * @param bool                     $isOriginallyArrayed
+     * @param object $resource
+     * @param bool   $isOriginallyArrayed
      * @param array <string, int>|null $attributeKeysFilter
      *
      * @return ResourceObjectInterface
      */
-    public function createResourceObject($resource, $isOriginallyArrayed, $attributeKeysFilter = null);
+    public function createResourceObject(
+        $resource,
+        bool $isOriginallyArrayed,
+        array $fieldKeysFilter = null
+    ): ResourceObjectInterface;
 
     /**
      * Get resource's relationship objects.
      *
-     * @param object $resource
-     * @param bool   $isPrimary
-     * @param array  $includeRelationships
+     * @param object     $resource
+     * @param bool       $isPrimary
+     * @param array      $includeRelationships
      *
-     * @return Iterator RelationshipObjectInterface[]
+     * @return iterable RelationshipObjectInterface[]
      */
-    public function getRelationshipObjectIterator($resource, $isPrimary, array $includeRelationships);
+    public function getRelationshipObjectIterator($resource, bool $isPrimary, array $includeRelationships): iterable;
 
     /**
      * Get links related to resource.
@@ -124,7 +149,7 @@ interface SchemaProviderInterface
      *
      * @return array Array key is link name and value is LinkInterface.
      */
-    public function getResourceLinks($resource);
+    public function getResourceLinks($resource): array;
 
     /**
      * Get links related to resource when it is in 'included' section.
@@ -133,21 +158,21 @@ interface SchemaProviderInterface
      *
      * @return array Array key is link name and value is LinkInterface.
      */
-    public function getIncludedResourceLinks($resource);
+    public function getIncludedResourceLinks($resource): array;
 
     /**
      * If resource attributes should be shown when the resource is within 'included'.
      *
      * @return bool
      */
-    public function isShowAttributesInIncluded();
+    public function isShowAttributesInIncluded(): bool;
 
     /**
      * Get schema default include paths.
      *
      * @return string[]
      */
-    public function getIncludePaths();
+    public function getIncludePaths(): array;
 
     /**
      * Get meta when resource is primary (top level 'data' section).

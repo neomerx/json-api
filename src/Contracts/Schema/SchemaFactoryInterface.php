@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Schema;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Closure;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -31,7 +31,7 @@ interface SchemaFactoryInterface
      *
      * @return ContainerInterface
      */
-    public function createContainer(array $providers = []);
+    public function createContainer(array $providers = []): ContainerInterface;
 
     /**
      * Create adapter for schema provider container that returns 'resource identifiers' schemes.
@@ -45,35 +45,42 @@ interface SchemaFactoryInterface
     /**
      * Create resource object.
      *
-     * @param SchemaProviderInterface $schema
-     * @param object                  $resource
-     * @param bool                    $isInArray
+     * @param SchemaInterface $schema
+     * @param object          $resource
+     * @param bool            $isInArray
      * @param array<string,int>|null  $attributeKeysFilter
      *
      * @return ResourceObjectInterface
      */
     public function createResourceObject(
-        SchemaProviderInterface $schema,
+        SchemaInterface $schema,
         $resource,
-        $isInArray,
-        $attributeKeysFilter = null
-    );
+        bool $isInArray,
+        array $fieldKeysFilter = null
+    ): ResourceObjectInterface;
 
     /**
      * Create relationship object.
      *
-     * @param string                                                        $name
-     * @param object|array|null                                             $data
+     * @param string|null       $name
+     * @param object|array|null $data
      * @param array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface> $links
-     * @param mixed                                                         $meta
-     * @param bool                                                          $isShowData
-     * @param bool                                                          $isRoot
+     * @param mixed             $meta
+     * @param bool              $isShowData
+     * @param bool              $isRoot
      *
      * @return RelationshipObjectInterface
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function createRelationshipObject($name, $data, $links, $meta, $isShowData, $isRoot);
+    public function createRelationshipObject(
+        ?string $name,
+        $data,
+        array $links,
+        $meta,
+        bool $isShowData,
+        bool $isRoot
+    ): RelationshipObjectInterface;
 
     /**
      * Create link.
@@ -86,16 +93,16 @@ interface SchemaFactoryInterface
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function createLink($subHref, $meta = null, $treatAsHref = false);
+    public function createLink(string $subHref, $meta = null, bool $treatAsHref = false): LinkInterface;
 
     /**
      * Create an adapter for schema that will provide data to encode them as resource identifiers.
      *
-     * @param SchemaProviderInterface $schema
+     * @param SchemaInterface $schema
      *
-     * @return SchemaProviderInterface
+     * @return SchemaInterface
      */
-    public function createResourceIdentifierSchemaAdapter(SchemaProviderInterface $schema);
+    public function createResourceIdentifierSchemaAdapter(SchemaInterface $schema): SchemaInterface;
 
     /**
      * Create schema for identity objects.
@@ -104,7 +111,11 @@ interface SchemaFactoryInterface
      * @param string             $classType
      * @param Closure            $identityClosure function($resource) : string
      *
-     * @return SchemaProviderInterface
+     * @return SchemaInterface
      */
-    public function createIdentitySchema(ContainerInterface $container, $classType, Closure $identityClosure);
+    public function createIdentitySchema(
+        ContainerInterface $container,
+        string $classType,
+        Closure $identityClosure
+    ): SchemaInterface;
 }

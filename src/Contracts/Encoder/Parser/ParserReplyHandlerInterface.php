@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Encoder\Parser;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,5 +28,5 @@ interface ParserReplyHandlerInterface
      *
      * @return void
      */
-    public function handle(ParserReplyInterface $reply);
+    public function handle(ParserReplyInterface $reply): void;
 }

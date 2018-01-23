@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue154;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use \Neomerx\Tests\JsonApi\Data\Author;
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
+use Neomerx\Tests\JsonApi\BaseTestCase;
+use Neomerx\Tests\JsonApi\Data\Author;
+use Neomerx\Tests\JsonApi\Data\AuthorSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -33,6 +33,7 @@ class IssueTest extends BaseTestCase
     public function testEnheritedEncoder()
     {
         $encoder = CustomEncoder::instance();
+        /** @var CustomEncoder $encoder */
         $encoder->addSchema(Author::class, AuthorSchema::class);
 
         $author = Author::instance(9, 'Dan', 'Gebhardt');

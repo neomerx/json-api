@@ -21,23 +21,24 @@
     }
   ],
   "require": {
-    "php": ">=5.5.0",
+    "php": ">=7.1.0",
     "psr/http-message": "^1.0",
     "psr/log": "^1.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^4.6 || ^5.0 || ^6.0",
-    "mockery/mockery": "~0.9.4",
-    "scrutinizer/ocular": "^1.3",
-    "squizlabs/php_codesniffer": "^2.5",
-    "monolog/monolog": "^1.18",
+    "phpunit/phpunit": "^6.5",
+    "mockery/mockery": "^1.0",
+    "scrutinizer/ocular": "^1.4",
+    "squizlabs/php_codesniffer": "^3.1",
+    "monolog/monolog": "^1.23",
     "phpmd/phpmd": "^2.6"
   },
   "minimum-stability": "stable",
   "autoload": {
     "psr-4": {
       "Neomerx\\JsonApi\\": "src/"
-    }
+    },
+    "files": ["src/I18n/translate.php"]
   },
   "autoload-dev": {
     "psr-4": {
@@ -52,7 +53,6 @@
     "test-cs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests",
     "test-md": "./vendor/bin/phpmd ./src text codesize,controversial,cleancode,design,unusedcode,naming",
 
-    "perf-php": "docker-compose run --rm cli_php php /app/sample/sample.php -t=10000",
-    "perf-hhvm": "docker-compose run --rm cli_hhvm hhvm /app/sample/sample.php -t=10000"
+    "perf-test": "docker-compose run --rm cli_7_1_php php /app/sample/sample.php -t=10000"
   }
 }

@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Schema;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use \Neomerx\JsonApi\Contracts\Schema\SchemaProviderInterface;
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -50,7 +50,7 @@ class ResourceIdentifierContainerAdapter implements ContainerInterface
     /**
      * @inheritdoc
      */
-    public function getSchema($resourceObject)
+    public function getSchema($resourceObject): SchemaInterface
     {
         return $this->getSchemaAdapter($this->container->getSchema($resourceObject));
     }
@@ -58,7 +58,7 @@ class ResourceIdentifierContainerAdapter implements ContainerInterface
     /**
      * @inheritdoc
      */
-    public function getSchemaByType($type)
+    public function getSchemaByType(string $type): SchemaInterface
     {
         return $this->getSchemaAdapter($this->container->getSchemaByType($type));
     }
@@ -66,17 +66,17 @@ class ResourceIdentifierContainerAdapter implements ContainerInterface
     /**
      * @inheritdoc
      */
-    public function getSchemaByResourceType($resourceType)
+    public function getSchemaByResourceType(string $resourceType): SchemaInterface
     {
         return $this->getSchemaAdapter($this->container->getSchemaByResourceType($resourceType));
     }
 
     /**
-     * @param SchemaProviderInterface $schema
+     * @param SchemaInterface $schema
      *
-     * @return SchemaProviderInterface
+     * @return SchemaInterface
      */
-    protected function getSchemaAdapter(SchemaProviderInterface $schema)
+    protected function getSchemaAdapter(SchemaInterface $schema): SchemaInterface
     {
         return $this->factory->createResourceIdentifierSchemaAdapter($schema);
     }

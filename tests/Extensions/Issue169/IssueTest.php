@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue169;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ class IssueTest extends BaseTestCase
     public function testDataSerialization()
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        /** @var CustomEncoder $encoder */
         $encoder = CustomEncoder::instance([
             Author::class => function ($factory) {
                 $schema = new AuthorSchema($factory);
@@ -69,6 +70,7 @@ class IssueTest extends BaseTestCase
     public function testIdentifiersSerialization()
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        /** @var CustomEncoder $encoder */
         $encoder = CustomEncoder::instance([
             Author::class => AuthorSchema::class
         ]);
@@ -93,6 +95,7 @@ class IssueTest extends BaseTestCase
     public function testErrorSerialization()
     {
         $error   = new Error('some-id');
+        /** @var CustomEncoder $encoder */
         $encoder = CustomEncoder::instance();
 
         $this->assertEquals(['errors' => [['id' => 'some-id']]], $encoder->serializeError($error));
@@ -107,6 +110,7 @@ class IssueTest extends BaseTestCase
     public function testMetaSerialization()
     {
         $meta    = ['some meta'];
+        /** @var CustomEncoder $encoder */
         $encoder = CustomEncoder::instance();
 
         $this->assertEquals(['meta' => $meta], $encoder->serializeMeta($meta));

@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Schema;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,25 +26,25 @@ interface ContainerInterface
      *
      * @param object $resourceObject
      *
-     * @return SchemaProviderInterface
+     * @return SchemaInterface|null
      */
-    public function getSchema($resourceObject);
+    public function getSchema($resourceObject): ?SchemaInterface;
 
     /**
      * Get schema provider by resource type.
      *
      * @param string $type
      *
-     * @return SchemaProviderInterface
+     * @return SchemaInterface
      */
-    public function getSchemaByType($type);
+    public function getSchemaByType(string $type): SchemaInterface;
 
     /**
      * Get schema provider by JSON API type.
      *
      * @param string $resourceType
      *
-     * @return SchemaProviderInterface
+     * @return SchemaInterface
      */
-    public function getSchemaByResourceType($resourceType);
+    public function getSchemaByResourceType(string $resourceType): SchemaInterface;
 }

@@ -21,8 +21,16 @@
 # Performance test
 # $ cd /app/sample/ && time php sample.php -t=10000
 
-cli_php:
-  image: php:cli
+cli_7_1_php:
+  image: php:7.1-cli
+  container_name: cli_php_json_api
+  volumes:
+    - .:/app
+  working_dir: /app
+  tty: true
+
+cli_7_2_php:
+  image: php:7.2-cli
   container_name: cli_php_json_api
   volumes:
     - .:/app

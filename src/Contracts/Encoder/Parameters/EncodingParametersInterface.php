@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Encoder\Parameters;
 
-    /**
- * Copyright 2015-2017 info@neomerx.com
+/**
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,14 @@ interface EncodingParametersInterface
      *
      * @return array|null
      */
-    public function getIncludePaths();
+    public function getIncludePaths(): ?array;
 
     /**
      * Get field names that should be in result.
      *
      * @return array|null
      */
-    public function getFieldSets();
+    public function getFieldSets(): ?array;
 
     /**
      * Get field names that should be in result.
@@ -42,46 +42,5 @@ interface EncodingParametersInterface
      *
      * @return string[]|null
      */
-    public function getFieldSet($type);
-
-    /**
-     * Get sort parameters.
-     *
-     * @return SortParameterInterface[]|null
-     */
-    public function getSortParameters();
-
-    /**
-     * Get pagination parameters.
-     *
-     * Pagination parameters are not detailed in the specification however a keyword 'page' is reserved for pagination.
-     * This method returns key and value pairs from input 'page' parameter.
-     *
-     * @return array|null
-     */
-    public function getPaginationParameters();
-
-    /**
-     * Get filtering parameters.
-     *
-     * Filtering parameters are not detailed in the specification however a keyword 'filter' is reserved for filtering.
-     * This method returns key and value pairs from input 'filter' parameter.
-     *
-     * @return array|null
-     */
-    public function getFilteringParameters();
-
-    /**
-     * Get top level parameters that have not been recognized by parser.
-     *
-     * @return array|null
-     */
-    public function getUnrecognizedParameters();
-
-    /**
-     * Returns true if inclusion, field set, sorting, paging, and filtering parameters are empty.
-     *
-     * @return bool
-     */
-    public function isEmpty();
+    public function getFieldSet(string $type): ?array;
 }

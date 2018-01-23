@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Encoder\Stack;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameInterface;
-use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
+use Neomerx\JsonApi\Factories\Exceptions;
 
 /**
  * @package Neomerx\JsonApi
@@ -60,8 +60,6 @@ class StackFrame implements StackFrameInterface
      */
     public function __construct(StackFrameReadOnlyInterface $previous = null)
     {
-        settype($level, 'int');
-
         $level = $previous === null ? 1 : $previous->getLevel() + 1;
 
         // debug check
@@ -75,7 +73,7 @@ class StackFrame implements StackFrameInterface
     /**
      * @inheritdoc
      */
-    public function getLevel()
+    public function getLevel(): int
     {
         return $this->level;
     }
@@ -83,7 +81,7 @@ class StackFrame implements StackFrameInterface
     /**
      * @inheritdoc
      */
-    public function setResource(ResourceObjectInterface $resource)
+    public function setResource(ResourceObjectInterface $resource): void
     {
         $this->resource = $resource;
     }
@@ -91,7 +89,7 @@ class StackFrame implements StackFrameInterface
     /**
      * @inheritdoc
      */
-    public function setRelationship(RelationshipObjectInterface $relationship)
+    public function setRelationship(RelationshipObjectInterface $relationship): void
     {
         $this->relationship = $relationship;
 
@@ -101,7 +99,7 @@ class StackFrame implements StackFrameInterface
     /**
      * @inheritdoc
      */
-    public function getResource()
+    public function getResource(): ?ResourceObjectInterface
     {
         return $this->resource;
     }
@@ -109,7 +107,7 @@ class StackFrame implements StackFrameInterface
     /**
      * @inheritdoc
      */
-    public function getRelationship()
+    public function getRelationship(): ?RelationshipObjectInterface
     {
         return $this->relationship;
     }
@@ -117,7 +115,7 @@ class StackFrame implements StackFrameInterface
     /**
      * @inheritdoc
      */
-    public function getPath()
+    public function getPath(): ?string
     {
         return $this->path;
     }
@@ -127,7 +125,7 @@ class StackFrame implements StackFrameInterface
      *
      * @SuppressWarnings(PHPMD.ElseExpression)
      */
-    private function setCurrentPath()
+    private function setCurrentPath(): void
     {
         if ($this->previous === null || $this->previous->getPath() === null) {
             $this->path = $this->relationship->getName();

@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Schema;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ interface RelationshipObjectInterface
      *
      * @return string|null
      */
-    public function getName();
+    public function getName(): ?string;
 
     /**
      * Get resource data from relationship.
@@ -40,7 +40,7 @@ interface RelationshipObjectInterface
      *
      * @return array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface>
      */
-    public function getLinks();
+    public function getLinks(): array;
 
     /**
      * Get meta.
@@ -54,12 +54,12 @@ interface RelationshipObjectInterface
      *
      * @return bool
      */
-    public function isShowData();
+    public function isShowData(): bool;
 
     /**
      * If relationship is from root (non existing root element).
      *
      * @return bool
      */
-    public function isRoot();
+    public function isRoot(): bool;
 }

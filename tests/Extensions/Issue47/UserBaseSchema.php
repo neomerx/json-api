@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue47;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Schema\SchemaProvider;
+use Neomerx\JsonApi\Schema\BaseSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class UserSchema extends SchemaProvider
+class UserBaseSchema extends BaseSchema
 {
     /**
      * @inheritdoc
@@ -31,7 +31,7 @@ class UserSchema extends SchemaProvider
     /**
      * @inheritdoc
      */
-    public function getId($user)
+    public function getId($user): ?string
     {
         /** @var User $user */
         return $user->identity;
@@ -40,7 +40,7 @@ class UserSchema extends SchemaProvider
     /**
      * @inheritdoc
      */
-    public function getAttributes($user)
+    public function getAttributes($user, array $fieldKeysFilter = null): ?array
     {
         /** @var User $user */
         return [

@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue47;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \InvalidArgumentException;
-use \Neomerx\JsonApi\Schema\ResourceObject;
+use InvalidArgumentException;
+use Neomerx\JsonApi\Schema\ResourceObject;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -27,9 +27,9 @@ class CustomResourceObject extends ResourceObject
     /**
      * @inheritdoc
      */
-    public function getAttributes()
+    public function getAttributes(): ?array
     {
-        $filter     = $this->attributeKeysFilter;
+        $filter     = $this->fieldKeysFilter;
         $attributes = $this->schema->getAttributes($this->resource);
 
         // in real app here should come filtering however for testing it's ok to make sure we have

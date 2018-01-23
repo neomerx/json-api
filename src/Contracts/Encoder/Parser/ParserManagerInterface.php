@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Encoder\Parser;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -26,11 +26,11 @@ interface ParserManagerInterface
     /**
      * If parser should parse relationships for the resource.
      *
-     * @param StackReadOnlyInterface  $stack
+     * @param StackReadOnlyInterface $stack
      *
      * @return bool
      */
-    public function isShouldParseRelationships(StackReadOnlyInterface $stack);
+    public function isShouldParseRelationships(StackReadOnlyInterface $stack): bool;
 
     /**
      * Get a list of paths that should be included for current (end) stack element.
@@ -39,7 +39,7 @@ interface ParserManagerInterface
      *
      * @return string[]
      */
-    public function getIncludeRelationships(StackReadOnlyInterface $stack);
+    public function getIncludeRelationships(StackReadOnlyInterface $stack): array;
 
     /**
      * Return true if relationship is in input field set and should be included in output.
@@ -48,7 +48,7 @@ interface ParserManagerInterface
      *
      * @return bool
      */
-    public function isRelationshipInFieldSet(StackReadOnlyInterface $stack);
+    public function isRelationshipInFieldSet(StackReadOnlyInterface $stack): bool;
 
     /**
      * Get field set for resource. Required fields will be array keys.
@@ -57,5 +57,5 @@ interface ParserManagerInterface
      *
      * @return array <string, int>|null
      */
-    public function getFieldSet($type);
+    public function getFieldSet(string $type): ?array;
 }

@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Document;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,21 +43,21 @@ interface ErrorInterface
      *
      * @return null|array<string,\Neomerx\JsonApi\Contracts\Schema\LinkInterface>
      */
-    public function getLinks();
+    public function getLinks(): ?array;
 
     /**
      * Get the HTTP status code applicable to this problem, expressed as a string value.
      *
      * @return string|null
      */
-    public function getStatus();
+    public function getStatus(): ?string;
 
     /**
      * Get an application-specific error code, expressed as a string value.
      *
      * @return string|null
      */
-    public function getCode();
+    public function getCode(): ?string;
 
     /**
      * Get a short, human-readable summary of the problem.
@@ -66,14 +66,14 @@ interface ErrorInterface
      *
      * @return string|null
      */
-    public function getTitle();
+    public function getTitle(): ?string;
 
     /**
      * Get a human-readable explanation specific to this occurrence of the problem.
      *
      * @return string|null
      */
-    public function getDetail();
+    public function getDetail(): ?string;
 
     /**
      * An object containing references to the source of the error, optionally including any of the following members:
@@ -83,12 +83,12 @@ interface ErrorInterface
      *
      * @return array|null
      */
-    public function getSource();
+    public function getSource(): ?array;
 
     /**
      * Get error meta information.
      *
-     * @return array|null
+     * @return mixed|null
      */
     public function getMeta();
 }

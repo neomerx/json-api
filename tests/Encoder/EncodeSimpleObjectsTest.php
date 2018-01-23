@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Encoder;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Document\Link;
-use \Neomerx\Tests\JsonApi\Data\Site;
-use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\Tests\JsonApi\Data\Author;
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\Tests\JsonApi\Data\Collection;
-use \Neomerx\Tests\JsonApi\Data\SiteSchema;
-use \Neomerx\JsonApi\Encoder\EncoderOptions;
-use \Neomerx\Tests\JsonApi\Data\AuthorSchema;
-use \Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Neomerx\JsonApi\Document\Link;
+use Neomerx\JsonApi\Encoder\Encoder;
+use Neomerx\JsonApi\Encoder\EncoderOptions;
+use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Neomerx\JsonApi\Factories\Factory;
+use Neomerx\Tests\JsonApi\BaseTestCase;
+use Neomerx\Tests\JsonApi\Data\Author;
+use Neomerx\Tests\JsonApi\Data\AuthorSchema;
+use Neomerx\Tests\JsonApi\Data\Collection;
+use Neomerx\Tests\JsonApi\Data\Site;
+use Neomerx\Tests\JsonApi\Data\SiteSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -540,8 +540,8 @@ EOL;
         ];
 
         $actual = Encoder::instance([
-            Author::class => function ($factory, $container) {
-                $schema = new AuthorSchema($factory, $container);
+            Author::class => function ($factory) {
+                $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 return $schema;
             }

@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Exceptions;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-use \Countable;
-use \ArrayAccess;
-use \Serializable;
-use \ArrayIterator;
-use \IteratorAggregate;
-use \Neomerx\JsonApi\Document\Error;
-use \Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use \Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
+use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
+use Neomerx\JsonApi\Contracts\Document\LinkInterface;
+use Neomerx\JsonApi\Document\Error;
+use Serializable;
 
 /**
  * @package Neomerx\JsonApi
@@ -115,9 +115,9 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     /**
      * @param ErrorInterface $error
      *
-     * @return $this
+     * @return self
      */
-    public function add(ErrorInterface $error)
+    public function add(ErrorInterface $error): self
     {
         $this->items[] =$error;
 
@@ -133,7 +133,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      * @param int|string|null    $code
      * @param mixed|null         $meta
      *
-     * @return $this
+     * @return self
      */
     public function addDataError(
         $title,
@@ -143,7 +143,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
         LinkInterface $aboutLink = null,
         $code = null,
         $meta = null
-    ) {
+    ): self {
         $pointer = $this->getPathToData();
 
         return $this->addResourceError($title, $pointer, $detail, $status, $idx, $aboutLink, $code, $meta);
@@ -158,7 +158,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      * @param int|string|null    $code
      * @param mixed|null         $meta
      *
-     * @return $this
+     * @return self
      */
     public function addDataTypeError(
         $title,
@@ -168,7 +168,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
         LinkInterface $aboutLink = null,
         $code = null,
         $meta = null
-    ) {
+    ): self {
         $pointer = $this->getPathToType();
 
         return $this->addResourceError($title, $pointer, $detail, $status, $idx, $aboutLink, $code, $meta);
@@ -183,7 +183,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      * @param int|string|null    $code
      * @param mixed|null         $meta
      *
-     * @return $this
+     * @return self
      */
     public function addDataIdError(
         $title,
@@ -193,7 +193,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
         LinkInterface $aboutLink = null,
         $code = null,
         $meta = null
-    ) {
+    ): self {
         $pointer = $this->getPathToId();
 
         return $this->addResourceError($title, $pointer, $detail, $status, $idx, $aboutLink, $code, $meta);
@@ -208,7 +208,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      * @param int|string|null    $code
      * @param mixed|null         $meta
      *
-     * @return $this
+     * @return self
      */
     public function addAttributesError(
         $title,
@@ -218,7 +218,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
         LinkInterface $aboutLink = null,
         $code = null,
         $meta = null
-    ) {
+    ): self {
         $pointer = $this->getPathToAttributes();
 
         return $this->addResourceError($title, $pointer, $detail, $status, $idx, $aboutLink, $code, $meta);
@@ -234,7 +234,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      * @param int|string|null    $code
      * @param mixed|null         $meta
      *
-     * @return $this
+     * @return self
      */
     public function addDataAttributeError(
         $name,
@@ -245,7 +245,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
         LinkInterface $aboutLink = null,
         $code = null,
         $meta = null
-    ) {
+    ): self {
         $pointer = $this->getPathToAttribute($name);
 
         return $this->addResourceError($title, $pointer, $detail, $status, $idx, $aboutLink, $code, $meta);
@@ -260,7 +260,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      * @param int|string|null    $code
      * @param mixed|null         $meta
      *
-     * @return $this
+     * @return self
      */
     public function addRelationshipsError(
         $title,
@@ -270,7 +270,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
         LinkInterface $aboutLink = null,
         $code = null,
         $meta = null
-    ) {
+    ): self {
         $pointer = $this->getPathToRelationships();
 
         return $this->addResourceError($title, $pointer, $detail, $status, $idx, $aboutLink, $code, $meta);
@@ -286,7 +286,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      * @param int|string|null    $code
      * @param mixed|null         $meta
      *
-     * @return $this
+     * @return self
      */
     public function addRelationshipError(
         $name,
@@ -297,7 +297,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
         LinkInterface $aboutLink = null,
         $code = null,
         $meta = null
-    ) {
+    ): self {
         $pointer = $this->getPathToRelationship($name);
 
         return $this->addResourceError($title, $pointer, $detail, $status, $idx, $aboutLink, $code, $meta);
@@ -313,7 +313,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      * @param int|string|null    $code
      * @param mixed|null         $meta
      *
-     * @return $this
+     * @return self
      */
     public function addRelationshipTypeError(
         $name,
@@ -324,7 +324,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
         LinkInterface $aboutLink = null,
         $code = null,
         $meta = null
-    ) {
+    ): self {
         $pointer = $this->getPathToRelationshipType($name);
 
         return $this->addResourceError($title, $pointer, $detail, $status, $idx, $aboutLink, $code, $meta);
@@ -340,7 +340,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      * @param int|string|null    $code
      * @param mixed|null         $meta
      *
-     * @return $this
+     * @return self
      */
     public function addRelationshipIdError(
         $name,
@@ -351,7 +351,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
         LinkInterface $aboutLink = null,
         $code = null,
         $meta = null
-    ) {
+    ): self {
         $pointer = $this->getPathToRelationshipId($name);
 
         return $this->addResourceError($title, $pointer, $detail, $status, $idx, $aboutLink, $code, $meta);
@@ -367,7 +367,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      * @param int|string|null    $code
      * @param mixed|null         $meta
      *
-     * @return $this
+     * @return self
      */
     public function addQueryParameterError(
         $name,
@@ -378,7 +378,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
         LinkInterface $aboutLink = null,
         $code = null,
         $meta = null
-    ) {
+    ): self {
         $source = [Error::SOURCE_PARAMETER => $name];
         $error  = new Error($idx, $aboutLink, $status, $code, $title, $detail, $source, $meta);
 
@@ -391,24 +391,24 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      * @param string             $title
      * @param string             $pointer
      * @param string|null        $detail
-     * @param int|string|null    $status
-     * @param int|string|null    $idx
+     * @param string|null        $status
+     * @param null               $idx
      * @param LinkInterface|null $aboutLink
-     * @param int|string|null    $code
-     * @param mixed|null         $meta
+     * @param string|null        $code
+     * @param null               $meta
      *
-     * @return $this
+     * @return self
      */
     protected function addResourceError(
-        $title,
-        $pointer,
-        $detail = null,
-        $status = null,
+        string $title,
+        string $pointer,
+        string $detail = null,
+        string $status = null,
         $idx = null,
         LinkInterface $aboutLink = null,
-        $code = null,
+        string $code = null,
         $meta = null
-    ) {
+    ): self {
         $source = [Error::SOURCE_POINTER => $pointer];
         $error  = new Error($idx, $aboutLink, $status, $code, $title, $detail, $source, $meta);
 
@@ -420,7 +420,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     /**
      * @return string
      */
-    protected function getPathToData()
+    protected function getPathToData(): string
     {
         return '/' . DocumentInterface::KEYWORD_DATA;
     }
@@ -428,7 +428,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     /**
      * @return string
      */
-    protected function getPathToType()
+    protected function getPathToType(): string
     {
         return $this->getPathToData() . '/' . DocumentInterface::KEYWORD_TYPE;
     }
@@ -436,7 +436,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     /**
      * @return string
      */
-    protected function getPathToId()
+    protected function getPathToId(): string
     {
         return $this->getPathToData() . '/' . DocumentInterface::KEYWORD_ID;
     }
@@ -444,7 +444,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     /**
      * @return string
      */
-    protected function getPathToAttributes()
+    protected function getPathToAttributes(): string
     {
         return $this->getPathToData() . '/' . DocumentInterface::KEYWORD_ATTRIBUTES;
     }
@@ -454,7 +454,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      *
      * @return string
      */
-    protected function getPathToAttribute($name)
+    protected function getPathToAttribute(string $name): string
     {
         return $this->getPathToData() . '/' . DocumentInterface::KEYWORD_ATTRIBUTES . '/' . $name;
     }
@@ -462,7 +462,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
     /**
      * @return string
      */
-    protected function getPathToRelationships()
+    protected function getPathToRelationships(): string
     {
         return $this->getPathToData() . '/' . DocumentInterface::KEYWORD_RELATIONSHIPS;
     }
@@ -472,7 +472,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      *
      * @return string
      */
-    protected function getPathToRelationship($name)
+    protected function getPathToRelationship(string $name): string
     {
         return $this->getPathToRelationships() . '/' . $name;
     }
@@ -482,7 +482,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      *
      * @return string
      */
-    protected function getPathToRelationshipType($name)
+    protected function getPathToRelationshipType(string $name): string
     {
         return $this->getPathToRelationship($name) . '/' .
             DocumentInterface::KEYWORD_DATA . '/' . DocumentInterface::KEYWORD_TYPE;
@@ -493,7 +493,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      *
      * @return string
      */
-    protected function getPathToRelationshipId($name)
+    protected function getPathToRelationshipId(string $name): string
     {
         return $this->getPathToRelationship($name) . '/' .
             DocumentInterface::KEYWORD_DATA . '/' . DocumentInterface::KEYWORD_ID;

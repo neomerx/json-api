@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Contracts\Document;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,31 +22,31 @@
 interface LinkInterface
 {
     /** Reserved keyword */
-    const SELF    = DocumentInterface::KEYWORD_SELF;
+    const SELF = DocumentInterface::KEYWORD_SELF;
     /** Reserved keyword */
     const RELATED = DocumentInterface::KEYWORD_RELATED;
     /** Reserved keyword */
-    const FIRST   = DocumentInterface::KEYWORD_FIRST;
+    const FIRST = DocumentInterface::KEYWORD_FIRST;
     /** Reserved keyword */
-    const LAST    = DocumentInterface::KEYWORD_LAST;
+    const LAST = DocumentInterface::KEYWORD_LAST;
     /** Reserved keyword */
-    const NEXT    = DocumentInterface::KEYWORD_NEXT;
+    const NEXT = DocumentInterface::KEYWORD_NEXT;
     /** Reserved keyword */
-    const PREV    = DocumentInterface::KEYWORD_PREV;
+    const PREV = DocumentInterface::KEYWORD_PREV;
     /** Reserved keyword */
-    const ABOUT   = 'about';
+    const ABOUT = 'about';
 
     /**
      * Get 'href' (URL) value.
      *
      * @return string
      */
-    public function getSubHref();
+    public function getSubHref(): string;
 
     /**
      * Get meta information.
      *
-     * @return array|object|null
+     * @return mixed|null
      */
     public function getMeta();
 
@@ -55,5 +55,30 @@ interface LinkInterface
      *
      * @return bool
      */
-    public function isTreatAsHref();
+    public function isTreatAsHref(): bool;
+
+    /**
+     * If link has meta information.
+     *
+     * @return bool
+     */
+    public function hasMeta(): bool;
+
+    /**
+     * Get link value as URL string.
+     *
+     * @param string|null $prefix
+     *
+     * @return string
+     */
+    public function getHref(string $prefix = null): string;
+
+    /**
+     * Get link URL with meta information.
+     *
+     * @param string|null $prefix
+     *
+     * @return array
+     */
+    public function getHrefWithMeta(string $prefix = null): array;
 }

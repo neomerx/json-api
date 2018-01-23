@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue81;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use \Neomerx\Tests\JsonApi\Data\Author;
-use \Neomerx\Tests\JsonApi\Data\Comment;
-use \Neomerx\Tests\JsonApi\Data\CommentSchema as ParentSchema;
+use Neomerx\Tests\JsonApi\Data\Author;
+use Neomerx\Tests\JsonApi\Data\Comment;
+use Neomerx\Tests\JsonApi\Data\CommentSchema as ParentSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -28,9 +28,9 @@ class CommentSchema extends ParentSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($comment, $isPrimary, array $includeRelationships)
+    public function getRelationships($comment, bool $isPrimary, array $includeRelationships): ?array
     {
-        assert('$comment instanceof '.Comment::class);
+        assert($comment instanceof Comment);
 
         if (isset($includeRelationships[Comment::LINK_AUTHOR]) === true) {
             $data = $comment->{Comment::LINK_AUTHOR};
@@ -55,7 +55,7 @@ class CommentSchema extends ParentSchema
     /**
      * @inheritdoc
      */
-    public function getIncludedResourceLinks($resource)
+    public function getIncludedResourceLinks($resource): array
     {
         return [];
     }

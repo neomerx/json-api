@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue154;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Encoder\EncoderOptions;
-use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Encoder\Encoder;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -26,25 +25,13 @@ use \Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 class CustomEncoder extends Encoder implements CustomEncoderInterface
 {
     /**
-     * @param array               $schemas
-     * @param EncoderOptions|null $encodeOptions
-     *
-     * @return CustomEncoderInterface
-     */
-    public static function instance(array $schemas = [], EncoderOptions $encodeOptions = null)
-    {
-        /** @var CustomEncoderInterface $encoder */
-        $encoder = parent::instance($schemas, $encodeOptions);
-
-        return $encoder;
-    }
-
-    /**
      * @inheritdoc
      */
     public function addSchema($type, $schema)
     {
-        $this->getContainer()->register($type, $schema);
+        /** @var CustomContainerInterface $container */
+        $container = $this->getContainer();
+        $container->register($type, $schema);
 
         return $this;
     }
@@ -52,19 +39,8 @@ class CustomEncoder extends Encoder implements CustomEncoderInterface
     /**
      * @return FactoryInterface
      */
-    protected static function createFactory()
+    protected static function createFactory(): FactoryInterface
     {
         return new CustomFactory();
-    }
-
-    /**
-     * @return CustomContainerInterface
-     */
-    protected function getContainer()
-    {
-        /** @var CustomContainerInterface $container */
-        $container = parent::getContainer();
-
-        return $container;
     }
 }

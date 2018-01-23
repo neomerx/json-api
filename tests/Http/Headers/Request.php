@@ -1,7 +1,7 @@
-<?php namespace Neomerx\JsonApi\Http;
+<?php namespace Neomerx\Tests\JsonApi\Http\Headers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \LogicException;
-use \Psr\Http\Message\UriInterface;
-use \Psr\Http\Message\StreamInterface;
-use \Psr\Http\Message\ServerRequestInterface;
+use Closure;
+use LogicException;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
- * @package Neomerx\JsonApi
+ * @package Neomerx\Tests\JsonApi
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
@@ -40,25 +40,13 @@ class Request implements ServerRequestInterface
     private $getHeaderClosure;
 
     /**
-     * @var Closure
-     */
-    private $getQueryParamsClosure;
-
-    /**
      * @param Closure $getMethodClosure
      * @param Closure $getHeaderClosure
-     * @param Closure $getQueryParamsClosure
-     *
-     * @SuppressWarnings(PHPMD.LongVariable)
      */
-    public function __construct(
-        Closure $getMethodClosure,
-        Closure $getHeaderClosure,
-        Closure $getQueryParamsClosure
-    ) {
-        $this->getMethodClosure      = $getMethodClosure;
-        $this->getHeaderClosure      = $getHeaderClosure;
-        $this->getQueryParamsClosure = $getQueryParamsClosure;
+    public function __construct(Closure $getMethodClosure, Closure $getHeaderClosure)
+    {
+        $this->getMethodClosure = $getMethodClosure;
+        $this->getHeaderClosure = $getHeaderClosure;
     }
 
     /**
@@ -75,9 +63,9 @@ class Request implements ServerRequestInterface
     /**
      * @inheritdoc
      */
-    public function getQueryParams()
+    public function getMethod()
     {
-        $closure = $this->getQueryParamsClosure;
+        $closure = $this->getMethodClosure;
         $result  = $closure();
 
         return $result;
@@ -86,12 +74,10 @@ class Request implements ServerRequestInterface
     /**
      * @inheritdoc
      */
-    public function getMethod()
+    public function getQueryParams()
     {
-        $closure = $this->getMethodClosure;
-        $result  = $closure();
-
-        return $result;
+        // Method is not used.
+        throw new LogicException();
     }
 
     /**

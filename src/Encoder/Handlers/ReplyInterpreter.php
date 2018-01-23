@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Encoder\Handlers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-use \Psr\Log\LoggerAwareTrait;
-use \Psr\Log\LoggerAwareInterface;
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Handlers\ReplyInterpreterInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface as Frame;
+use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Handlers\ReplyInterpreterInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface as Frame;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * @package Neomerx\JsonApi
@@ -54,12 +54,13 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
     /**
      * @inheritdoc
      */
-    public function handle(ParserReplyInterface $reply)
+    public function handle(ParserReplyInterface $reply): void
     {
         $current = $reply->getStack()->end();
 
         if ($reply->getReplyType() === ParserReplyInterface::REPLY_TYPE_RESOURCE_COMPLETED) {
             $this->setResourceCompleted($current);
+
             return;
         }
 
@@ -86,8 +87,12 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
      * @param Frame                $current
      * @param Frame                $previous
      */
-    protected function handleRelationships($rootType, ParserReplyInterface $reply, Frame $current, Frame $previous)
-    {
+    protected function handleRelationships(
+        string $rootType,
+        ParserReplyInterface $reply,
+        Frame $current,
+        Frame $previous
+    ): void {
         $this->addToIncludedAndCheckIfParentIsTarget($rootType, $reply, $current, $previous);
 
         if ($this->isRelationshipInFieldSet($current, $previous) === true) {
@@ -101,8 +106,12 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
      * @param Frame                $current
      * @param Frame                $previous
      */
-    protected function handleIncluded($rootType, ParserReplyInterface $reply, Frame $current, Frame $previous)
-    {
+    protected function handleIncluded(
+        string $rootType,
+        ParserReplyInterface $reply,
+        Frame $current,
+        Frame $previous
+    ): void {
         if ($this->addToIncludedAndCheckIfParentIsTarget($rootType, $reply, $current, $previous) === true &&
             $this->isRelationshipInFieldSet($current, $previous) === true
         ) {
@@ -119,11 +128,11 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
      * @return bool
      */
     private function addToIncludedAndCheckIfParentIsTarget(
-        $rootType,
+        string $rootType,
         ParserReplyInterface $reply,
         Frame $current,
         Frame $previous
-    ) {
+    ): bool {
         list($parentIsTarget, $currentIsTarget) = $this->getIfTargets($rootType, $current, $previous);
 
         if ($currentIsTarget === true) {
@@ -139,7 +148,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
      *
      * @return void
      */
-    private function addToData(ParserReplyInterface $reply, Frame $current)
+    private function addToData(ParserReplyInterface $reply, Frame $current): void
     {
         switch ($reply->getReplyType()) {
             case ParserReplyInterface::REPLY_TYPE_NULL_RESOURCE_STARTED:
@@ -160,7 +169,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
      *
      * @return void
      */
-    private function addToIncluded(ParserReplyInterface $reply, Frame $current)
+    private function addToIncluded(ParserReplyInterface $reply, Frame $current): void
     {
         if ($reply->getReplyType() === ParserReplyInterface::REPLY_TYPE_RESOURCE_STARTED) {
             $resourceObject = $current->getResource();
@@ -175,7 +184,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
      *
      * @return void
      */
-    private function addRelationshipToData(ParserReplyInterface $reply, Frame $current, Frame $previous)
+    private function addRelationshipToData(ParserReplyInterface $reply, Frame $current, Frame $previous): void
     {
         $relationship = $current->getRelationship();
         $parent       = $previous->getResource();
@@ -200,7 +209,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
      *
      * @return void
      */
-    private function addRelationshipToIncluded(ParserReplyInterface $reply, Frame $current, Frame $previous)
+    private function addRelationshipToIncluded(ParserReplyInterface $reply, Frame $current, Frame $previous): void
     {
         $relationship = $current->getRelationship();
         $parent       = $previous->getResource();
@@ -223,7 +232,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
      *
      * @return void
      */
-    private function setResourceCompleted(Frame $current)
+    private function setResourceCompleted(Frame $current): void
     {
         // Add resource if it is a main resource (even if it has no fields) or
         // if field set allows any fields for this type (filter out resources with no attributes and relationships)
@@ -242,7 +251,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
      *
      * @return bool[]
      */
-    private function getIfTargets($rootType, Frame $current, Frame $previous = null)
+    private function getIfTargets(string $rootType, Frame $current, Frame $previous = null): array
     {
         $currentIsTarget = $this->parameterAnalyzer->isPathIncluded($current->getPath(), $rootType);
         $parentIsTarget  = ($previous === null ||
@@ -259,7 +268,7 @@ class ReplyInterpreter implements ReplyInterpreterInterface, LoggerAwareInterfac
      *
      * @return bool
      */
-    private function isRelationshipInFieldSet(Frame $current, Frame $previous)
+    private function isRelationshipInFieldSet(Frame $current, Frame $previous): bool
     {
         $parentType = $previous->getResource()->getType();
         $parameters = $this->parameterAnalyzer->getParameters();

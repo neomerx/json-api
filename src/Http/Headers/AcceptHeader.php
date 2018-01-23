@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Http\Headers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \InvalidArgumentException;
-use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
+use Closure;
+use Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -31,13 +30,8 @@ class AcceptHeader extends Header implements AcceptHeaderInterface
     /**
      * @param AcceptMediaTypeInterface[] $unsortedMediaTypes
      */
-    public function __construct($unsortedMediaTypes)
+    public function __construct(array $unsortedMediaTypes)
     {
-
-        if (is_array($unsortedMediaTypes) ===  false) {
-            throw new InvalidArgumentException('unsortedMediaTypes');
-        }
-
         usort($unsortedMediaTypes, $this->getMediaTypeCompareClosure());
 
         parent::__construct(self::HEADER_ACCEPT, $unsortedMediaTypes);
@@ -48,7 +42,7 @@ class AcceptHeader extends Header implements AcceptHeaderInterface
      *
      * @return AcceptHeaderInterface
      */
-    public static function parse($header, $accept = self::HEADER_ACCEPT)
+    public static function parse(string $header, string $accept = self::HEADER_ACCEPT)
     {
         /** @var AcceptHeaderInterface $result */
         $result = parent::parse($header, self::HEADER_ACCEPT);
@@ -61,7 +55,7 @@ class AcceptHeader extends Header implements AcceptHeaderInterface
      *
      * @return AcceptMediaTypeInterface
      */
-    protected static function parseMediaType($position, $mediaType)
+    protected static function parseMediaType(int $position, string $mediaType)
     {
         return AcceptMediaType::parse($position, $mediaType);
     }
@@ -71,7 +65,7 @@ class AcceptHeader extends Header implements AcceptHeaderInterface
      *
      * @return AcceptHeaderInterface
      */
-    protected static function newInstance($name, $mediaTypes)
+    protected static function newInstance(string $name, array $mediaTypes)
     {
         /** @var AcceptMediaTypeInterface[] $mediaTypes */
         return new static($mediaTypes);
@@ -80,7 +74,7 @@ class AcceptHeader extends Header implements AcceptHeaderInterface
     /**
      * @return Closure
      */
-    private function getMediaTypeCompareClosure()
+    private function getMediaTypeCompareClosure(): Closure
     {
         return function (AcceptMediaTypeInterface $lhs, AcceptMediaTypeInterface $rhs) {
             $qualityCompare = $this->compareQuality($lhs->getQuality(), $rhs->getQuality());
@@ -115,7 +109,7 @@ class AcceptHeader extends Header implements AcceptHeaderInterface
      *
      * @SuppressWarnings(PHPMD.ElseExpression)
      */
-    private function compareQuality($lhs, $rhs)
+    private function compareQuality(float $lhs, float $rhs): int
     {
         $qualityDiff = $lhs - $rhs;
 
@@ -133,7 +127,7 @@ class AcceptHeader extends Header implements AcceptHeaderInterface
      *
      * @return int
      */
-    private function compareStrings($lhs, $rhs)
+    private function compareStrings(string $lhs, string $rhs): int
     {
         return ($rhs !== '*' ? 1 : 0) - ($lhs !== '*' ? 1 : 0);
     }
@@ -144,7 +138,7 @@ class AcceptHeader extends Header implements AcceptHeaderInterface
      *
      * @return int
      */
-    private function compareParameters($lhs, $rhs)
+    private function compareParameters(?array $lhs, ?array $rhs): int
     {
         return (empty($lhs) !== false ? 1 : 0) - (empty($rhs) !== false ? 1 : 0);
     }

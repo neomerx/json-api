@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Extensions\Issue47;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Neomerx\Tests\JsonApi\BaseTestCase;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -32,7 +32,7 @@ class IssueTest extends BaseTestCase
         $user = new User('12287', 'vivalacrowe', ['email' => 'hello@vivalacrowe.com', 'name' => 'Rob']);
 
         $actual = CustomEncoder::instance([
-            User::class => UserSchema::class,
+            User::class => UserBaseSchema::class,
         ])->encodeData($user, new EncodingParameters(
             null,
             [

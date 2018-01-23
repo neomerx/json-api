@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\JsonApi\Http\Headers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,13 @@
  * limitations under the License.
  */
 
-use \LogicException;
-use \Neomerx\JsonApi\Http\Request;
-use \Neomerx\JsonApi\Factories\Factory;
-use \Neomerx\Tests\JsonApi\BaseTestCase;
-use \Psr\Http\Message\ServerRequestInterface;
-use \Neomerx\JsonApi\Exceptions\JsonApiException;
-use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use \Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use Neomerx\JsonApi\Exceptions\JsonApiException;
+use Neomerx\JsonApi\Factories\Factory;
+use Neomerx\Tests\JsonApi\BaseTestCase;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -239,8 +237,6 @@ class HeaderParametersParserTest extends BaseTestCase
             $this->actrualCalls[$name]++;
 
             return $headers[$name];
-        }, function () {
-            throw new LogicException();
         });
 
         $this->expectedCalls[self::HEADER_ACCEPT]       = $acceptTimes;

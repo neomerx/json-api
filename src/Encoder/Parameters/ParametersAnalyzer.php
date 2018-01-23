@@ -1,7 +1,7 @@
 <?php namespace Neomerx\JsonApi\Encoder\Parameters;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2018 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-use \Psr\Log\LoggerAwareTrait;
-use \Psr\Log\LoggerAwareInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * @package Neomerx\JsonApi
@@ -65,7 +65,7 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
     /**
      * @inheritdoc
      */
-    public function getParameters()
+    public function getParameters(): EncodingParametersInterface
     {
         return $this->parameters;
     }
@@ -73,7 +73,7 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
     /**
      * @inheritdoc
      */
-    public function isPathIncluded($path, $type)
+    public function isPathIncluded(?string $path, string $type): bool
     {
         // check if it's in cache
         if (isset($this->includePathsCache[$type][$path]) === true) {
@@ -97,7 +97,7 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
      *
      * @SuppressWarnings(PHPMD.ElseExpression)
      */
-    public function getIncludeRelationships($path, $type)
+    public function getIncludeRelationships(?string $path, string $type): array
     {
         // check if it's in cache
         if (isset($this->includeRelationshipsCache[$type][$path]) === true) {
@@ -132,7 +132,7 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
     /**
      * @inheritdoc
      */
-    public function hasSomeFields($type)
+    public function hasSomeFields(string $type): bool
     {
         $hasSomeFields = $this->getParameters()->getFieldSet($type) !== [];
 
@@ -142,12 +142,12 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
     /**
      * If path has exact match with one of the 'include' paths.
      *
-     * @param string[] $paths
-     * @param string   $path
+     * @param string[]    $paths
+     * @param string|null $path
      *
      * @return bool
      */
-    protected function hasExactPathMatch(array $paths, $path)
+    protected function hasExactPathMatch(array $paths, ?string $path): bool
     {
         $result = in_array($path, $paths, true);
 
@@ -157,12 +157,12 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
     /**
      * If path matches one of the included paths.
      *
-     * @param string[] $paths
-     * @param string   $path
+     * @param string[]    $paths
+     * @param string|null $path
      *
      * @return bool
      */
-    protected function hasMatchWithIncludedPaths(array $paths, $path)
+    protected function hasMatchWithIncludedPaths(array $paths, ?string $path): bool
     {
         $hasMatch = false;
 
@@ -185,11 +185,11 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
      *
      * @SuppressWarnings(PHPMD.ElseExpression)
      */
-    private function getIncludePathsByType($type)
+    private function getIncludePathsByType(string $type): array
     {
         // if include paths are set in params use them otherwise use default include paths from schema
 
-        $includePaths = $this->parameters->getIncludePaths();
+        $includePaths = $this->getParameters()->getIncludePaths();
         if (empty($includePaths) === false) {
             $typePaths = $includePaths;
         } else {
@@ -205,7 +205,7 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
      *
      * @return string
      */
-    private function getRelationshipNameForTopResource($curPath)
+    private function getRelationshipNameForTopResource(string $curPath): string
     {
         $nextSeparatorPos = strpos($curPath, DocumentInterface::PATH_SEPARATOR);
         $relationshipName = $nextSeparatorPos === false ? $curPath : substr($curPath, 0, $nextSeparatorPos);
@@ -219,7 +219,7 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
      *
      * @return string
      */
-    private function getRelationshipNameForResource($curPath, $pathLength)
+    private function getRelationshipNameForResource(string $curPath, int $pathLength): string
     {
         $nextSeparatorPos = strpos($curPath, DocumentInterface::PATH_SEPARATOR, $pathLength + 1);
         $relationshipName = $nextSeparatorPos === false ?
