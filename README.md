@@ -17,7 +17,7 @@ This framework agnostic package implements [JSON API](http://jsonapi.org/) speci
 * Compound documents with inclusion of related resources (circular resource references supported)
 * Meta information for document, resources, errors, relationship and link objects
 * Parsing HTTP `Accept` and `Content-Type` headers in accordance with [RFC 7231](https://tools.ietf.org/html/rfc7231)
-* Parsing parameters for pagination, sorting and filtering
+* Parsing HTTP query parameters (e.g. pagination, sorting and etc)
 * Sparse fieldsets and customized included paths
 * Errors
 
@@ -108,7 +108,7 @@ A sample program with encoding of multiple, nested, filtered objects and more is
 
 ## Versions
 
-Current version is 2.x (PHP 7.1+) for older PHP versions (PHP 5.5 - 7.0, HHVM) please use version 1.x.
+Current version is 2.x (PHP 7.1+) for older PHP (PHP 5.5 - 7.0, HHVM) please use version 1.x.
 
 ## Questions?
 

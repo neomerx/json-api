@@ -30,6 +30,12 @@ interface BaseQueryParserInterface
     /** Parameter name */
     public const PARAM_SORT = 'sort';
 
+    /** Parameter name */
+    public const PARAM_PAGE = 'page';
+
+    /** Parameter name */
+    public const PARAM_FILTER = 'filter';
+
     /**
      * @return iterable
      */
