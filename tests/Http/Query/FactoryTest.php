@@ -18,7 +18,6 @@
 
 use Neomerx\JsonApi\Contracts\Http\HttpFactoryInterface;
 use Neomerx\JsonApi\Factories\Factory;
-use Neomerx\JsonApi\Http\Headers\MediaType;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 
 /**
@@ -81,13 +80,5 @@ class FactoryTest extends BaseTestCase
 
         $this->assertEquals($includePaths, $parameters->getIncludePaths());
         $this->assertEquals($fieldSets, $parameters->getFieldSets());
-    }
-
-    public function testCreateAcceptHeader()
-    {
-        $header = $this->factory->createAcceptHeader([new MediaType('type', 'subType')]);
-        $this->assertNotNull($header);
-        $this->assertCount(1, $header->getMediaTypes());
-        $this->assertEquals('type/subType', $header->getMediaTypes()[0]->getMediaType());
     }
 }

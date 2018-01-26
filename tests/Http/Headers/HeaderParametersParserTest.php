@@ -16,13 +16,12 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
+use InvalidArgumentException;
+use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use Neomerx\JsonApi\Exceptions\JsonApiException;
 use Neomerx\JsonApi\Factories\Factory;
 use Neomerx\Tests\JsonApi\BaseTestCase;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -33,25 +32,15 @@ class HeaderParametersParserTest extends BaseTestCase
     const TYPE = MediaTypeInterface::JSON_API_MEDIA_TYPE;
 
     /** Header name */
-    const HEADER_ACCEPT = HeaderInterface::HEADER_ACCEPT;
+    const HEADER_ACCEPT = HeaderParametersParserInterface::HEADER_ACCEPT;
 
     /** Header name */
-    const HEADER_CONTENT_TYPE = HeaderInterface::HEADER_CONTENT_TYPE;
+    const HEADER_CONTENT_TYPE = HeaderParametersParserInterface::HEADER_CONTENT_TYPE;
 
     /**
      * @var HeaderParametersParserInterface
      */
     private $parser;
-
-    /**
-     * @var array
-     */
-    private $expectedCalls = [];
-
-    /**
-     * @var array
-     */
-    private $actrualCalls = [];
 
     /**
      * @inheritdoc
@@ -61,187 +50,340 @@ class HeaderParametersParserTest extends BaseTestCase
         parent::setUp();
 
         $this->parser = (new Factory())->createHeaderParametersParser();
-
-        $this->expectedCalls = $this->actrualCalls = [
-            self::HEADER_ACCEPT       => 0,
-            self::HEADER_CONTENT_TYPE => 0,
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function tearDown()
-    {
-        parent::tearDown();
-
-        $this->assertEquals($this->expectedCalls, $this->actrualCalls);
     }
 
     /**
      * Test parse parameters.
      */
-    public function testHeadersWithNoExtensionsAndParameters()
+    public function testParseHeadersNoParams1(): void
     {
-        $parameters = $this->parser->parse($this->prepareRequest('POST', self::TYPE, self::TYPE));
-
-        $this->assertEquals('POST', $parameters->getMethod());
-        $this->assertCount(1, $parameters->getContentTypeHeader()->getMediaTypes());
-        $this->assertNotNull($contentType = $parameters->getContentTypeHeader()->getMediaTypes()[0]);
+        /** @var MediaTypeInterface $contentType */
+        $contentType = $this->parser->parseContentTypeHeader(self::TYPE);
         $this->assertEquals(self::TYPE, $contentType->getMediaType());
-        $this->assertCount(1, $parameters->getAcceptHeader()->getMediaTypes());
-        $this->assertNotNull($accept = $parameters->getAcceptHeader()->getMediaTypes()[0]);
-        $this->assertEquals(self::TYPE, $accept->getMediaType());
         $this->assertNull($contentType->getParameters());
+
+        /** @var AcceptMediaTypeInterface $accept */
+        $accept = $this->first($this->parser->parseAcceptHeader(self::TYPE));
+        $this->assertEquals(self::TYPE, $accept->getMediaType());
         $this->assertNull($accept->getParameters());
     }
 
     /**
      * Test parse headers.
      */
-    public function testParseHeadersNoParams()
+    public function testParseHeadersNoParams2(): void
     {
-        $parameters = $this->parser->parse($this->prepareRequest('POST', self::TYPE, self::TYPE . ';'));
+        /** @var MediaTypeInterface $contentType */
+        $contentType = $this->parser->parseContentTypeHeader(self::TYPE);
+        $this->assertEquals(self::TYPE, $contentType->getMediaType());
+        $this->assertNull($contentType->getParameters());
 
-        $this->assertEquals(self::TYPE, $parameters->getContentTypeHeader()->getMediaTypes()[0]->getMediaType());
-        $this->assertEquals(self::TYPE, $parameters->getAcceptHeader()->getMediaTypes()[0]->getMediaType());
-        $this->assertNull($parameters->getContentTypeHeader()->getMediaTypes()[0]->getParameters());
-        $this->assertNull($parameters->getAcceptHeader()->getMediaTypes()[0]->getParameters());
-    }
-
-    /**
-     * Test parse headers. Issue #135
-     *
-     * @see https://github.com/neomerx/json-api/issues/135
-     */
-    public function testParseEmptyContentTypeHeader()
-    {
-        $parameters = $this->parser->parse($this->prepareRequest('POST', '', self::TYPE));
-
-        $this->assertEquals(self::TYPE, $parameters->getContentTypeHeader()->getMediaTypes()[0]->getMediaType());
-        $this->assertEquals(self::TYPE, $parameters->getAcceptHeader()->getMediaTypes()[0]->getMediaType());
-        $this->assertNull($parameters->getContentTypeHeader()->getMediaTypes()[0]->getParameters());
-        $this->assertNull($parameters->getAcceptHeader()->getMediaTypes()[0]->getParameters());
+        /** @var AcceptMediaTypeInterface $accept */
+        $accept = $this->first($this->parser->parseAcceptHeader(self::TYPE . ';'));
+        $this->assertEquals(self::TYPE, $accept->getMediaType());
+        $this->assertNull($accept->getParameters());
     }
 
     /**
      * Test parse headers.
      */
-    public function testParseHeadersWithParamsNoExtraParams()
+    public function testParseHeadersWithParamsNoExtraParams(): void
     {
-        $parameters = $this->parser->parse(
-            $this->prepareRequest('POST', self::TYPE . ';ext="ext1,ext2"', self::TYPE . ';ext=ext1')
+        $contentType = $this->parser->parseContentTypeHeader(self::TYPE . ';ext="ext1,ext2"');
+        $this->assertEquals(self::TYPE, $contentType->getMediaType());
+
+        /** @var AcceptMediaTypeInterface $accept */
+        $accept = $this->first($this->parser->parseAcceptHeader(self::TYPE . ';ext=ext1'));
+        $this->assertEquals(self::TYPE, $accept->getMediaType());
+
+        $this->assertEquals(self::TYPE, $contentType->getMediaType());
+        $this->assertEquals(self::TYPE, $accept->getMediaType());
+        $this->assertEquals(['ext' => 'ext1,ext2'], $contentType->getParameters());
+        $this->assertEquals(['ext' => 'ext1'], $accept->getParameters());
+    }
+
+    /**
+     * Test parse headers.
+     */
+    public function testParseHeadersWithParamsWithExtraParams(): void
+    {
+        /** @var AcceptMediaTypeInterface $accept */
+        $contentType = $this->parser->parseContentTypeHeader(
+            self::TYPE . ' ;  boo = foo; ext="ext1,ext2";  foo = boo '
         );
-
-        $contentType = $parameters->getContentTypeHeader();
-        $accept = $parameters->getAcceptHeader();
-
-        $this->assertEquals(self::TYPE, $contentType->getMediaTypes()[0]->getMediaType());
-        $this->assertEquals(self::TYPE, $accept->getMediaTypes()[0]->getMediaType());
-        $this->assertEquals(['ext' => 'ext1,ext2'], $contentType->getMediaTypes()[0]->getParameters());
-        $this->assertEquals(['ext' => 'ext1'], $accept->getMediaTypes()[0]->getParameters());
-    }
-
-    /**
-     * Test parse headers.
-     */
-    public function testParseHeadersWithParamsWithExtraParams()
-    {
-        $parameters = $this->parser->parse($this->prepareRequest(
-            'POST',
-            self::TYPE . ' ;  boo = foo; ext="ext1,ext2";  foo = boo ',
+        $accept      = $this->first($this->parser->parseAcceptHeader(
             self::TYPE . ' ; boo = foo; ext=ext1;  foo = boo'
         ));
 
-        $contentType = $parameters->getContentTypeHeader();
-        $accept = $parameters->getAcceptHeader();
-
-        $this->assertEquals(self::TYPE, $contentType->getMediaTypes()[0]->getMediaType());
-        $this->assertEquals(self::TYPE, $accept->getMediaTypes()[0]->getMediaType());
+        $this->assertEquals(self::TYPE, $contentType->getMediaType());
+        $this->assertEquals(self::TYPE, $accept->getMediaType());
         $this->assertEquals(
             ['boo' => 'foo', 'ext' => 'ext1,ext2', 'foo' => 'boo'],
-            $contentType->getMediaTypes()[0]->getParameters()
+            $contentType->getParameters()
         );
         $this->assertEquals(
             ['boo' => 'foo', 'ext' => 'ext1', 'foo' => 'boo'],
-            $accept->getMediaTypes()[0]->getParameters()
+            $accept->getParameters()
         );
     }
 
     /**
-     * Test parse headers when 'Accept' header is not given.
+     * Test parse empty header.
+     *
+     * @expectedException InvalidArgumentException
      */
-    public function testParseWithEmptyAcceptHeader()
+    public function testParseEmptyHeader1(): void
     {
-        $parameters = $this->parser->parse($this->prepareRequest('POST', self::TYPE, ''));
+        $this->parser->parseContentTypeHeader('');
+    }
 
-        $accept = $parameters->getAcceptHeader();
-        $this->assertCount(1, $accept->getMediaTypes());
-        $this->assertEquals(self::TYPE, $accept->getMediaTypes()[0]->getMediaType());
+    /**
+     * Test parse empty header.
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseEmptyHeader2(): void
+    {
+        $this->first($this->parser->parseAcceptHeader(''));
     }
 
     /**
      * Test parse invalid headers.
+     *
+     * @expectedException InvalidArgumentException
      */
-    public function testParseIvalidHeaders1()
+    public function testParseIvalidHeaders1(): void
     {
-        $exception = null;
-        try {
-            $this->parser->parse($this->prepareRequest('POST', self::TYPE . ';foo', self::TYPE, 1, 0));
-        } catch (JsonApiException $exception) {
-        }
-
-        $this->assertNotNull($exception);
-        $this->assertNotEmpty($exception->getErrors());
+        $this->parser->parseContentTypeHeader(self::TYPE . ';foo');
     }
 
     /**
      * Test parse invalid headers.
+     *
+     * @expectedException InvalidArgumentException
      */
     public function testParseIvalidHeaders2()
     {
-        $exception = null;
-        try {
-            $this->parser->parse($this->prepareRequest('POST', self::TYPE, self::TYPE.';foo', 1, 1));
-        } catch (JsonApiException $exception) {
-        }
-
-        $this->assertNotNull($exception);
-        $this->assertNotEmpty($exception->getErrors());
+        $this->first($this->parser->parseAcceptHeader(self::TYPE . ';foo'));
     }
 
     /**
-     * @param string $method
-     * @param string $contentType
-     * @param string $accept
-     * @param int    $contentTypeTimes
-     * @param int    $acceptTimes
-     *
-     * @return ServerRequestInterface
+     * Test rfc2616 #3.9 (3 meaningful digits for quality)
      */
-    private function prepareRequest(
-        $method,
-        $contentType,
-        $accept,
-        $contentTypeTimes = 1,
-        $acceptTimes = 1
-    ) {
-        $request = new Request(function () use ($method) {
-            return $method;
-        }, function ($name) use ($accept, $contentType) {
-            $headers = [
-                self::HEADER_ACCEPT       => $accept === null ? [] : [$accept],
-                self::HEADER_CONTENT_TYPE => $contentType === null ? [] : [$contentType],
-            ];
+    public function testParserHeaderRfc2616P3p9Part1()
+    {
+        $input = 'type1/*;q=0.5001, type2/*;q=0.5009';
 
-            $this->actrualCalls[$name]++;
+        $types  = $this->iterableToArray($this->parser->parseAcceptHeader($input));
+        $params = [
+            $types[0]->getMediaType() => $types[0]->getQuality(),
+            $types[1]->getMediaType() => $types[1]->getQuality(),
+        ];
 
-            return $headers[$name];
-        });
+        $this->assertCount(2, array_intersect(['type1/*' => 0.5, 'type2/*' => 0.5], $params));
+    }
 
-        $this->expectedCalls[self::HEADER_ACCEPT]       = $acceptTimes;
-        $this->expectedCalls[self::HEADER_CONTENT_TYPE] = $contentTypeTimes;
+    /**
+     * Test rfc2616 #3.9 (3 meaningful digits for quality)
+     */
+    public function testParserHeaderRfc2616P3p9Part2()
+    {
+        $input = 'type1/*;q=0.501, type2/*;q=0.509';
 
-        return $request;
+        $types  = $this->iterableToArray($this->parser->parseAcceptHeader($input));
+        $params = [
+            $types[0]->getMediaType() => $types[0]->getQuality(),
+            $types[1]->getMediaType() => $types[1]->getQuality(),
+        ];
+
+        $this->assertCount(2, array_intersect(['type1/*' => 0.501, 'type2/*' => 0.509], $params));
+    }
+
+    /**
+     * Test parsing multiple params.
+     */
+    public function testParserHeaderWithMultipleParameters()
+    {
+        $input = ' foo/bar.baz;media=param;q=0.5;ext="ext1,ext2", type/*';
+
+        /** @var AcceptMediaTypeInterface[] $types */
+        $types  = $this->iterableToArray($this->parser->parseAcceptHeader($input));
+        $params = [
+            $types[0]->getMediaType() => $types[0]->getParameters(),
+            $types[1]->getMediaType() => $types[1]->getParameters(),
+        ];
+
+        asort($params);
+
+        $this->assertEquals(['type/*' => null, 'foo/bar.baz' => ['media' => 'param']], $params);
+    }
+
+    /**
+     * Test sample from RFC.
+     */
+    public function testParseHeaderRfcSample1()
+    {
+        $input = 'audio/*; q=0.2, audio/basic';
+
+        /** @var AcceptMediaTypeInterface[] $types */
+        $types = $this->iterableToArray($this->parser->parseAcceptHeader($input));
+
+        $this->assertCount(2, $types);
+        $this->assertEquals('audio/*', $types[0]->getMediaType());
+        $this->assertEquals(0.2, $types[0]->getQuality());
+        $this->assertEquals(0, $types[0]->getPosition());
+        $this->assertEquals('audio/basic', $types[1]->getMediaType());
+        $this->assertEquals(1.0, $types[1]->getQuality());
+        $this->assertEquals(1, $types[1]->getPosition());
+    }
+
+    /**
+     * Test sample from RFC.
+     */
+    public function testParseHeaderRfcSample2()
+    {
+        $input = 'text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c';
+
+        /** @var AcceptMediaTypeInterface[] $types */
+        $types = $this->iterableToArray($this->parser->parseAcceptHeader($input));
+
+        $this->assertCount(4, $types);
+        $this->assertEquals('text/plain', $types[0]->getMediaType());
+        $this->assertEquals(0.5, $types[0]->getQuality());
+        $this->assertEquals('text/html', $types[1]->getMediaType());
+        $this->assertEquals(1.0, $types[1]->getQuality());
+        $this->assertEquals('text/x-dvi', $types[2]->getMediaType());
+        $this->assertEquals(0.8, $types[2]->getQuality());
+        $this->assertEquals('text/x-c', $types[3]->getMediaType());
+        $this->assertEquals(1.0, $types[3]->getQuality());
+    }
+
+    /**
+     * Test sample from RFC.
+     */
+    public function testParseHeaderRfcSample3()
+    {
+        $input = 'text/*, text/html, text/html;level=1, */*';
+
+        /** @var AcceptMediaTypeInterface[] $types */
+        $types = $this->iterableToArray($this->parser->parseAcceptHeader($input));
+
+        $this->assertCount(4, $types);
+        $this->assertEquals('text/*', $types[0]->getMediaType());
+        $this->assertEquals(1.0, $types[0]->getQuality());
+        $this->assertEquals('text/html', $types[1]->getMediaType());
+        $this->assertEquals(null, $types[0]->getParameters());
+        $this->assertEquals(1.0, $types[1]->getQuality());
+        $this->assertEquals(null, $types[1]->getParameters());
+        $this->assertEquals('text/html', $types[2]->getMediaType());
+        $this->assertEquals(1.0, $types[2]->getQuality());
+        $this->assertEquals(['level' => '1'], $types[2]->getParameters());
+        $this->assertEquals('*/*', $types[3]->getMediaType());
+        $this->assertEquals(1.0, $types[3]->getQuality());
+        $this->assertEquals(null, $types[3]->getParameters());
+    }
+
+    /**
+     * Test sample from RFC.
+     */
+    public function testParseHeaderRfcSample4()
+    {
+        $input = 'text/*;q=0.3, text/html;q=0.7, text/html;level=1, text/html;level=2;q=0.4, */*;q=0.5';
+
+        /** @var AcceptMediaTypeInterface[] $types */
+        $types = $this->iterableToArray($this->parser->parseAcceptHeader($input));
+
+        $this->assertCount(5, $types);
+        $this->assertEquals('text/*', $types[0]->getMediaType());
+        $this->assertEquals(0.3, $types[0]->getQuality());
+        $this->assertEquals(null, $types[0]->getParameters());
+        $this->assertEquals('text/html', $types[1]->getMediaType());
+        $this->assertEquals(0.7, $types[1]->getQuality());
+        $this->assertEquals(null, $types[1]->getParameters());
+        $this->assertEquals('text/html', $types[2]->getMediaType());
+        $this->assertEquals(1.0, $types[2]->getQuality());
+        $this->assertEquals(['level' => '1'], $types[2]->getParameters());
+        $this->assertEquals('text/html', $types[3]->getMediaType());
+        $this->assertEquals(0.4, $types[3]->getQuality());
+        $this->assertEquals(['level' => '2'], $types[3]->getParameters());
+        $this->assertEquals('*/*', $types[4]->getMediaType());
+        $this->assertEquals(0.5, $types[4]->getQuality());
+        $this->assertEquals(null, $types[4]->getParameters());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidHeader1()
+    {
+        $this->parser->parseContentTypeHeader('');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidHeader2()
+    {
+        $this->parser->parseContentTypeHeader('foo/bar; baz');
+    }
+
+    /**
+     * @see https://github.com/neomerx/json-api/issues/193
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidHeader3()
+    {
+        $this->parser->parseContentTypeHeader('application/vnd.api+json;q=0.5,text/html;q=0.8;*/*;q=0.1');
+    }
+
+    /**
+     * Test invalid parse parameters.
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidParseParams1()
+    {
+        $this->first($this->parser->parseAcceptHeader('boo.bar+baz'));
+    }
+
+    /**
+     * Test invalid parse parameters.
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidParseParams2()
+    {
+        $this->first($this->parser->parseAcceptHeader('boo/bar+baz;param'));
+    }
+
+    /**
+     * @param iterable $iterable
+     *
+     * @return mixed
+     */
+    private function first(iterable $iterable)
+    {
+        foreach ($iterable as $item) {
+            return $item;
+        }
+
+        throw new InvalidArgumentException();
+    }
+
+    /**
+     * @param iterable $iterable
+     *
+     * @return array
+     */
+    private function iterableToArray(iterable $iterable): array
+    {
+        $result = [];
+
+        foreach ($iterable as $item) {
+            $result[] = $item;
+        }
+
+        return $result;
     }
 }

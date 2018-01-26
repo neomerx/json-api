@@ -32,10 +32,7 @@ use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
 use Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
 use Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
-use Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
 use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
@@ -56,9 +53,7 @@ use Neomerx\JsonApi\Encoder\Parser\ParserManager;
 use Neomerx\JsonApi\Encoder\Parser\ParserReply;
 use Neomerx\JsonApi\Encoder\Stack\Stack;
 use Neomerx\JsonApi\Encoder\Stack\StackFrame;
-use Neomerx\JsonApi\Http\Headers\AcceptHeader;
 use Neomerx\JsonApi\Http\Headers\AcceptMediaType;
-use Neomerx\JsonApi\Http\Headers\HeaderParameters;
 use Neomerx\JsonApi\Http\Headers\HeaderParametersParser;
 use Neomerx\JsonApi\Http\Headers\MediaType;
 use Neomerx\JsonApi\Schema\Container;
@@ -246,27 +241,6 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createHeaderParameters(
-        string $method,
-        AcceptHeaderInterface $accept,
-        HeaderInterface $contentType
-    ): HeaderParametersInterface {
-        return new HeaderParameters($method, $accept, $contentType);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createNoContentHeaderParameters(
-        string $method,
-        AcceptHeaderInterface $accept
-    ): HeaderParametersInterface {
-        return new HeaderParameters($method, $accept, null);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function createHeaderParametersParser(): HeaderParametersParserInterface
     {
         $parser = new HeaderParametersParser($this);
@@ -287,14 +261,6 @@ class Factory implements FactoryInterface
         float $quality = 1.0
     ): AcceptMediaTypeInterface {
         return new AcceptMediaType($position, $type, $subType, $parameters, $quality);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createAcceptHeader(array $unsortedMediaTypes): AcceptHeaderInterface
-    {
-        return new AcceptHeader($unsortedMediaTypes);
     }
 
     /**

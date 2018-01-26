@@ -27,9 +27,11 @@ class MediaTypeTest extends BaseTestCase
     /**
      * Test invalid constructor parameters.
      *
+     * @return void
+     *
      * @expectedException \InvalidArgumentException
      */
-    public function testInvalidConstructorParams1()
+    public function testInvalidConstructorParams1(): void
     {
         new MediaType('', 'subtype');
     }
@@ -37,44 +39,40 @@ class MediaTypeTest extends BaseTestCase
     /**
      * Test invalid constructor parameters.
      *
+     * @return void
+     *
      * @expectedException \InvalidArgumentException
      */
-    public function testInvalidConstructorParams2()
+    public function testInvalidConstructorParams2(): void
     {
         new MediaType('type', '');
     }
 
     /**
-     * Test invalid parse parameters.
+     * Test full media type name combine.
      *
-     * @expectedException \InvalidArgumentException
+     * @return void
      */
-    public function testInvalidParseParams1()
+    public function testGetMediaType(): void
     {
-        MediaType::parse(1, 'boo.bar+baz');
-    }
+        $type = new MediaType('text', 'html', ['charset' => 'utf-8']);
 
-    /**
-     * Test invalid parse parameters.
-     *
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidParseParams2()
-    {
-        MediaType::parse(1, 'boo/bar+baz;param');
+        $this->assertEquals('text/html', $type->getMediaType());
     }
 
     /**
      * Test compare media types
+     *
+     * @return void
      */
-    public function testCompareMediaTypes()
+    public function testCompareMediaTypes(): void
     {
-        $type1 = MediaType::parse(0, 'text/html;charset=utf-8');
-        $type2 = MediaType::parse(0, 'Text/HTML; Charset="utf-8"');
-        $type3 = MediaType::parse(0, 'text/plain;charset=utf-8');
-        $type4 = MediaType::parse(0, 'text/html;otherParam=utf-8');
-        $type5 = MediaType::parse(0, 'text/html;charset=UTF-8');
-        $type6 = MediaType::parse(0, 'text/html;charset=UTF-8;oneMore=param');
+        $type1 = new MediaType('text', 'html', ['charset' => 'utf-8']);
+        $type2 = new MediaType('Text', 'HTML', ['Charset' => 'utf-8']);
+        $type3 = new MediaType('text', 'plain', ['charset' => 'utf-8']);
+        $type4 = new MediaType('text', 'html', ['otherParam' => 'utf-8']);
+        $type5 = new MediaType('text', 'html', ['charset' => 'UTF-8']);
+        $type6 = new MediaType('text', 'html', ['charset' => 'UTF-8', 'oneMore' => 'param']);
 
         $this->assertTrue($type1->equalsTo($type2));
         $this->assertFalse($type1->equalsTo($type3));
@@ -85,16 +83,31 @@ class MediaTypeTest extends BaseTestCase
 
     /**
      * Test compare media types
+     *
+     * @return void
      */
-    public function testMatchMediaTypes()
+    public function testMatchMediaTypes(): void
     {
-        $type1 = MediaType::parse(0, 'text/html;charset=utf-8');
-        $type2 = MediaType::parse(0, 'Text/HTML; Charset="utf-8"');
-        $type3 = MediaType::parse(0, 'text/*;charset=utf-8');
-        $type4 = MediaType::parse(0, 'whatever/*;charset=utf-8');
+        $type1 = new MediaType('text', 'html', ['charset' => 'utf-8']);
+        $type2 = new MediaType('Text', 'HTML', ['Charset' => 'utf-8']);
+        $type3 = new MediaType('text', '*', ['charset' => 'utf-8']);
+        $type4 = new MediaType('whatever', '*', ['charset' => 'utf-8']);
 
         $this->assertTrue($type1->matchesTo($type2));
         $this->assertTrue($type1->matchesTo($type3));
         $this->assertFalse($type1->matchesTo($type4));
+    }
+
+    /**
+     * Test compare media types
+     *
+     * @return void
+     */
+    public function testMatchMediaTypesWithoutParameters(): void
+    {
+        $type1 = new MediaType('text', 'html');
+        $type2 = new MediaType('Text', 'HTML');
+
+        $this->assertTrue($type1->matchesTo($type2));
     }
 }

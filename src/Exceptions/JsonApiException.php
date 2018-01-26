@@ -128,12 +128,4 @@ class JsonApiException extends RuntimeException
     {
         return $this->httpCode;
     }
-
-    /**
-     * @param JsonApiException $exception
-     */
-    public static function throwException(JsonApiException $exception)
-    {
-        throw $exception;
-    }
 }

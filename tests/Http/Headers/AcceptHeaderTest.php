@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use Neomerx\JsonApi\Http\Headers\AcceptHeader;
+use Neomerx\JsonApi\Http\Headers\AcceptMediaType;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 
 /**
@@ -27,76 +27,217 @@ use Neomerx\Tests\JsonApi\BaseTestCase;
 class AcceptHeaderTest extends BaseTestCase
 {
     /**
-     * Test parse header.
+     * Test compare.
+     *
+     * @return void
      */
-    public function testParseHeaderNameAndQualityAndParameters()
+    public function testCompare1(): void
     {
-        $input = ' foo/bar.baz;media=param;q=0.5;ext="ext1,ext2", type/*, */*';
+        $types = [
+            new AcceptMediaType(0, 'foo', 'bar.baz', ['media' => 'param'], 0.5),
+            new AcceptMediaType(1, 'type', '*'),
+            new AcceptMediaType(2, '*', '*'),
+        ];
+
+        usort($types, AcceptMediaType::getCompare());
+
         $this->checkSorting([
             'type/*',
             '*/*',
             'foo/bar.baz',
-        ], $header = AcceptHeader::parse($input));
+        ], $types);
 
-        $this->assertEquals('Accept', $header->getName());
+        $this->assertEquals('type', $types[0]->getType());
+        $this->assertEquals('*', $types[0]->getSubType());
+        $this->assertEquals('type/*', $types[0]->getMediaType());
+        $this->assertEquals(1, $types[0]->getQuality());
+        $this->assertEquals(null, $types[0]->getParameters());
 
-        $this->assertEquals('type', $header->getMediaTypes()[0]->getType());
-        $this->assertEquals('*', $header->getMediaTypes()[0]->getSubType());
-        $this->assertEquals('type/*', $header->getMediaTypes()[0]->getMediaType());
-        $this->assertEquals(1, $header->getMediaTypes()[0]->getQuality());
-        $this->assertEquals(null, $header->getMediaTypes()[0]->getParameters());
+        $this->assertEquals('*', $types[1]->getType());
+        $this->assertEquals('*', $types[1]->getSubType());
+        $this->assertEquals('*/*', $types[1]->getMediaType());
+        $this->assertEquals(1, $types[1]->getQuality());
+        $this->assertEquals(null, $types[1]->getParameters());
 
-        $this->assertEquals('*', $header->getMediaTypes()[1]->getType());
-        $this->assertEquals('*', $header->getMediaTypes()[1]->getSubType());
-        $this->assertEquals('*/*', $header->getMediaTypes()[1]->getMediaType());
-        $this->assertEquals(1, $header->getMediaTypes()[1]->getQuality());
-        $this->assertEquals(null, $header->getMediaTypes()[1]->getParameters());
-
-        $this->assertEquals('foo', $header->getMediaTypes()[2]->getType());
-        $this->assertEquals('bar.baz', $header->getMediaTypes()[2]->getSubType());
-        $this->assertEquals('foo/bar.baz', $header->getMediaTypes()[2]->getMediaType());
-        $this->assertEquals(0.5, $header->getMediaTypes()[2]->getQuality());
-        $this->assertEquals(['media' => 'param'], $header->getMediaTypes()[2]->getParameters());
+        $this->assertEquals('foo', $types[2]->getType());
+        $this->assertEquals('bar.baz', $types[2]->getSubType());
+        $this->assertEquals('foo/bar.baz', $types[2]->getMediaType());
+        $this->assertEquals(0.5, $types[2]->getQuality());
+        $this->assertEquals(['media' => 'param'], $types[2]->getParameters());
     }
 
     /**
-     * Test rfc2616 #3.9 (3 meaningful digits for quality)
+     * Test compare.
+     *
+     * @return void
      */
-    public function testParserHeaderRfc2616P3p9Part1()
+    public function testCompareByQuality1(): void
     {
-        $input = 'type1/*;q=0.5001, type2/*;q=0.5009';
-
-        $this->checkSorting([
-            'type1/*',
-            'type2/*',
-        ], $header = AcceptHeader::parse($input));
-
-        $params = [
-            $header->getMediaTypes()[0]->getMediaType() => $header->getMediaTypes()[0]->getQuality(),
-            $header->getMediaTypes()[1]->getMediaType() => $header->getMediaTypes()[1]->getQuality(),
+        $types = [
+            new AcceptMediaType(0, 'foo', 'bar', [], 0.5),
+            new AcceptMediaType(1, 'boo', 'baz', [], 0.6),
         ];
 
-        $this->assertCount(2, array_intersect(['type1/*' => 0.5, 'type2/*' => 0.5], $params));
+        usort($types, AcceptMediaType::getCompare());
+
+        $this->checkSorting([
+            'boo/baz',
+            'foo/bar',
+        ], $types);
+
+        $this->assertEquals('boo', $types[0]->getType());
+        $this->assertEquals('baz', $types[0]->getSubType());
+        $this->assertEquals('boo/baz', $types[0]->getMediaType());
+        $this->assertEquals(0.6, $types[0]->getQuality());
+        $this->assertEquals([], $types[0]->getParameters());
+
+        $this->assertEquals('foo', $types[1]->getType());
+        $this->assertEquals('bar', $types[1]->getSubType());
+        $this->assertEquals('foo/bar', $types[1]->getMediaType());
+        $this->assertEquals(0.5, $types[1]->getQuality());
+        $this->assertEquals([], $types[1]->getParameters());
     }
 
     /**
-     * Test rfc2616 #3.9 (3 meaningful digits for quality)
+     * Test compare.
+     *
+     * @return void
      */
-    public function testParserHeaderRfc2616P3p9Part2()
+    public function testCompareByQuality2(): void
     {
-        $input = 'type1/*;q=0.501, type2/*;q=0.509';
-
-        $this->checkSorting([
-            'type2/*',
-            'type1/*',
-        ], $header = AcceptHeader::parse($input));
-
-        $params = [
-            $header->getMediaTypes()[0]->getMediaType() => $header->getMediaTypes()[0]->getQuality(),
-            $header->getMediaTypes()[1]->getMediaType() => $header->getMediaTypes()[1]->getQuality(),
+        $types = [
+            new AcceptMediaType(0, 'foo', 'bar', [], 0.5001),
+            new AcceptMediaType(1, 'boo', 'baz', [], 0.5009),
         ];
 
-        $this->assertCount(2, array_intersect(['type1/*' => 0.501, 'type2/*' => 0.509], $params));
+        usort($types, AcceptMediaType::getCompare());
+
+        $this->checkSorting([
+            'foo/bar',
+            'boo/baz',
+        ], $types);
+    }
+
+    /**
+     * Test compare.
+     *
+     * @return void
+     */
+    public function testCompareBySubType(): void
+    {
+        $types = [
+            new AcceptMediaType(0, 'foo', '*'),
+            new AcceptMediaType(1, 'boo', 'baz'),
+        ];
+
+        /** @var MediaTypeInterface[] $types */
+        usort($types, AcceptMediaType::getCompare());
+
+        $this->checkSorting([
+            'boo/baz',
+            'foo/*',
+        ], $types);
+
+        $this->assertEquals('boo', $types[0]->getType());
+        $this->assertEquals('baz', $types[0]->getSubType());
+        $this->assertEquals('boo/baz', $types[0]->getMediaType());
+        $this->assertEquals(1.0, $types[0]->getQuality());
+        $this->assertNull($types[0]->getParameters());
+
+        $this->assertEquals('foo', $types[1]->getType());
+        $this->assertEquals('*', $types[1]->getSubType());
+        $this->assertEquals('foo/*', $types[1]->getMediaType());
+        $this->assertEquals(1.0, $types[1]->getQuality());
+        $this->assertNull($types[1]->getParameters());
+    }
+
+    /**
+     * Test compare.
+     *
+     * @return void
+     */
+    public function testCompareByParams(): void
+    {
+        $types = [
+            new AcceptMediaType(0, 'foo', 'bar'),
+            new AcceptMediaType(1, 'boo', 'baz', ['param' => 'value']),
+        ];
+
+        /** @var MediaTypeInterface[] $types */
+        usort($types, AcceptMediaType::getCompare());
+
+        $this->checkSorting([
+            'boo/baz',
+            'foo/bar',
+        ], $types);
+
+        $this->assertEquals('boo', $types[0]->getType());
+        $this->assertEquals('baz', $types[0]->getSubType());
+        $this->assertEquals('boo/baz', $types[0]->getMediaType());
+        $this->assertEquals(1.0, $types[0]->getQuality());
+        $this->assertEquals(['param' => 'value'], $types[0]->getParameters());
+
+        $this->assertEquals('foo', $types[1]->getType());
+        $this->assertEquals('bar', $types[1]->getSubType());
+        $this->assertEquals('foo/bar', $types[1]->getMediaType());
+        $this->assertEquals(1.0, $types[1]->getQuality());
+        $this->assertNull($types[1]->getParameters());
+    }
+
+    /**
+     * Test compare.
+     *
+     * @return void
+     */
+    public function testCompareByPosition(): void
+    {
+        $types = [
+            new AcceptMediaType(0, 'foo', 'bar', [], 0.5),
+            new AcceptMediaType(1, 'boo', 'baz', [], 0.5),
+        ];
+
+        usort($types, AcceptMediaType::getCompare());
+
+        $this->checkSorting([
+            'foo/bar',
+            'boo/baz',
+        ], $types);
+
+        $this->assertEquals('foo', $types[0]->getType());
+        $this->assertEquals('bar', $types[0]->getSubType());
+        $this->assertEquals('foo/bar', $types[0]->getMediaType());
+        $this->assertEquals(0.5, $types[0]->getQuality());
+        $this->assertEquals([], $types[0]->getParameters());
+
+        $this->assertEquals('boo', $types[1]->getType());
+        $this->assertEquals('baz', $types[1]->getSubType());
+        $this->assertEquals('boo/baz', $types[1]->getMediaType());
+        $this->assertEquals(0.5, $types[1]->getQuality());
+        $this->assertEquals([], $types[1]->getParameters());
+    }
+
+    /**
+     * Test invalid parameters.
+     *
+     * @return void
+     *
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidParameters1(): void
+    {
+        new AcceptMediaType(-1, 'foo', 'bar');
+    }
+
+    /**
+     * Test invalid parameters.
+     *
+     * @return void
+     *
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidParameters2(): void
+    {
+        new AcceptMediaType(0, 'foo', 'bar', null, 1.001);
     }
 
     /**
@@ -104,11 +245,18 @@ class AcceptHeaderTest extends BaseTestCase
      */
     public function testParseHeaderRfcSample1()
     {
-        $input = 'audio/*; q=0.2, audio/basic';
+        $types = [
+            new AcceptMediaType(0, 'audio', '*', null, 0.2),
+            new AcceptMediaType(1, 'audio', 'basic'),
+        ];
+
+        /** @var AcceptMediaTypeInterface[] $types */
+        usort($types, AcceptMediaType::getCompare());
+
         $this->checkSorting([
             'audio/basic',
             'audio/*',
-        ], $header = AcceptHeader::parse($input));
+        ], $types);
     }
 
     /**
@@ -116,17 +264,22 @@ class AcceptHeaderTest extends BaseTestCase
      */
     public function testParseHeaderRfcSample2()
     {
-        $input  = 'text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c';
+        $types = [
+            new AcceptMediaType(0, 'text', 'plain', null, 0.5),
+            new AcceptMediaType(1, 'text', 'html'),
+            new AcceptMediaType(2, 'text', 'x-dvi', null, 0.8),
+            new AcceptMediaType(3, 'text', 'x-c'),
+        ];
+
+        /** @var AcceptMediaTypeInterface[] $types */
+        usort($types, AcceptMediaType::getCompare());
 
         $this->checkSorting([
             'text/html',
             'text/x-c',
             'text/x-dvi',
             'text/plain',
-        ], $header = AcceptHeader::parse($input));
-
-        $this->assertEquals('text/x-dvi', $header->getMediaTypes()[2]->getMediaType());
-        $this->assertEquals('text/plain', $header->getMediaTypes()[3]->getMediaType());
+        ], $types);
     }
 
     /**
@@ -134,16 +287,24 @@ class AcceptHeaderTest extends BaseTestCase
      */
     public function testParseHeaderRfcSample3()
     {
-        $input = 'text/*, text/html, text/html;level=1, */*';
+        $types = [
+            new AcceptMediaType(0, 'text', '*'),
+            new AcceptMediaType(1, 'text', 'html'),
+            new AcceptMediaType(2, 'text', 'html', ['level' => '1']),
+            new AcceptMediaType(3, '*', '*'),
+        ];
+
+        /** @var AcceptMediaTypeInterface[] $types */
+        usort($types, AcceptMediaType::getCompare());
+
         $this->checkSorting([
             'text/html',
             'text/html',
             'text/*',
             '*/*',
-        ], $header = AcceptHeader::parse($input));
+        ], $types);
 
-        $this->assertEquals(['level' => '1'], $header->getMediaTypes()[0]->getParameters());
-        $this->assertEquals(null, $header->getMediaTypes()[1]->getParameters());
+        $this->assertEquals(['level' => '1'], $types[0]->getParameters());
     }
 
     /**
@@ -151,57 +312,42 @@ class AcceptHeaderTest extends BaseTestCase
      */
     public function testParseHeaderRfcSample4()
     {
-        $input = 'text/*;q=0.3, text/html;q=0.7, text/html;level=1, text/html;level=2;q=0.4, */*;q=0.5';
-        $header = AcceptHeader::parse($input);
+        $types = [
+            new AcceptMediaType(0, 'text', '*', null, 0.3),
+            new AcceptMediaType(1, 'text', 'html', null, 0.7),
+            new AcceptMediaType(2, 'text', 'html', ['level' => '1']),
+            new AcceptMediaType(3, 'text', 'html', ['level' => '2'], 0.4),
+            new AcceptMediaType(4, '*', '*', null, 0.5),
+        ];
+
+        /** @var AcceptMediaTypeInterface[] $types */
+        usort($types, AcceptMediaType::getCompare());
+
         $this->checkSorting([
             'text/html',
             'text/html',
             '*/*',
             'text/html',
             'text/*',
-        ], $header);
+        ], $types);
+
+        $this->assertEquals(1.0, $types[0]->getQuality());
+        $this->assertEquals(0.7, $types[1]->getQuality());
+        $this->assertEquals(0.4, $types[3]->getQuality());
     }
 
     /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidHeader1()
-    {
-        AcceptHeader::parse('');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidHeader2()
-    {
-        AcceptHeader::parse('foo/bar; baz');
-    }
-
-    /**
-     * @see https://github.com/neomerx/json-api/issues/193
-     *
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidHeader4()
-    {
-        AcceptHeader::parse('application/vnd.api+json;q=0.5,text/html;q=0.8;*/*;q=0.1');
-    }
-
-    /**
-     * @param string[]        $mediaTypes
-     * @param HeaderInterface $header
+     * @param string[]             $sorted
+     * @param MediaTypeInterface[] $mediaTypes
      *
      * @return void
      */
-    private function checkSorting($mediaTypes, HeaderInterface $header)
+    private function checkSorting(array $sorted, array $mediaTypes): void
     {
-        $this->assertEquals($count = count($mediaTypes), count($sorted = $header->getMediaTypes()));
+        $this->assertEquals($count = count($mediaTypes), count($sorted));
 
         for ($idx = 0; $idx < $count; ++$idx) {
-            /** @var MediaTypeInterface $mediaType */
-            $mediaType = $sorted[$idx];
-            $this->assertEquals($mediaTypes[$idx], $mediaType->getMediaType());
+            $this->assertEquals($mediaTypes[$idx]->getMediaType(), $sorted[$idx]);
         }
     }
 }

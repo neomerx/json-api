@@ -17,17 +17,11 @@
  */
 
 use InvalidArgumentException;
-use Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
 use Neomerx\JsonApi\Contracts\Http\HttpFactoryInterface;
-use Neomerx\JsonApi\Document\Error;
-use Neomerx\JsonApi\Exceptions\JsonApiException as E;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use function Neomerx\JsonApi\I18n\translate as _;
 
 /**
  * @package Neomerx\JsonApi
@@ -37,91 +31,111 @@ class HeaderParametersParser implements HeaderParametersParserInterface, LoggerA
     use LoggerAwareTrait;
 
     /**
-     * Message code.
-     */
-    const MSG_INVALID_HEADER = 0;
-
-    /**
-     * Default messages.
-     */
-    const MESSAGES = [
-        self::MSG_INVALID_HEADER => 'Type must be non-empty string.',
-    ];
-
-    /**
      * @var HttpFactoryInterface
      */
     private $factory;
 
     /**
-     * @var array
-     */
-    private $messages;
-
-    /**
      * @param HttpFactoryInterface $factory
-     * @param array                $messages
      */
-    public function __construct(HttpFactoryInterface $factory, $messages = self::MESSAGES)
+    public function __construct(HttpFactoryInterface $factory)
     {
-        $this->factory  = $factory;
-        $this->messages = $messages;
+        $this->factory = $factory;
     }
 
     /**
      * @inheritdoc
-     *
-     * @SuppressWarnings(PHPMD.StaticAccess)
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function parse(ServerRequestInterface $request, bool $checkContentType = true): HeaderParametersInterface
+    public function parseAcceptHeader(string $value): iterable
     {
-        $acceptHeader      = null;
-        $contentTypeHeader = null;
+        if (empty($value) === true) {
+            throw new InvalidArgumentException('value');
+        }
 
-        if ($checkContentType === true) {
-            try {
-                $header            = $this->getHeader($request, HeaderInterface::HEADER_CONTENT_TYPE);
-                $contentTypeHeader = Header::parse($header, HeaderInterface::HEADER_CONTENT_TYPE);
-            } catch (InvalidArgumentException $exception) {
-                $title = _($this->messages[self::MSG_INVALID_HEADER], HeaderInterface::HEADER_CONTENT_TYPE);
-                $error = new Error(null, null, null, null, $title);
-                E::throwException(new E([$error], E::HTTP_CODE_BAD_REQUEST, $exception));
+        $ranges = preg_split("/,(?=([^\"]*\"[^\"]*\")*[^\"]*$)/", $value);
+        for ($idx = 0; $idx < count($ranges); ++$idx) {
+            $fields = explode(';', $ranges[$idx]);
+
+            if (strpos($fields[0], '/') === false) {
+                throw new InvalidArgumentException('mediaType');
             }
+
+            list($type, $subType) = explode('/', $fields[0], 2);
+            list($parameters, $quality) = $this->parseQualityAndParameters($fields);
+
+            $mediaType = $this->factory->createAcceptMediaType($idx, $type, $subType, $parameters, $quality);
+
+            yield $mediaType;
         }
-
-        try {
-            $header       = $this->getHeader($request, HeaderInterface::HEADER_ACCEPT);
-            $acceptHeader = AcceptHeader::parse($header);
-        } catch (InvalidArgumentException $exception) {
-            $title = _($this->messages[self::MSG_INVALID_HEADER], HeaderInterface::HEADER_ACCEPT);
-            $error = new Error(null, null, null, null, $title);
-            E::throwException(new E([$error], E::HTTP_CODE_BAD_REQUEST, $exception));
-        }
-
-        $method = $request->getMethod();
-
-        return $checkContentType === true ?
-            $this->factory->createHeaderParameters($method, $acceptHeader, $contentTypeHeader) :
-            $this->factory->createNoContentHeaderParameters($method, $acceptHeader);
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @param string                 $name
-     *
-     * @return string
+     * @inheritdoc
      */
-    private function getHeader(ServerRequestInterface $request, string $name): string
+    public function parseContentTypeHeader(string $mediaType): MediaTypeInterface
     {
-        $value = $request->getHeader($name);
-        if (empty($value) === false) {
-            $value = $value[0];
-            if (empty($value) === false) {
-                return $value;
+        $fields = explode(';', $mediaType);
+
+        if (strpos($fields[0], '/') === false) {
+            throw new InvalidArgumentException('mediaType');
+        }
+
+        list($type, $subType) = explode('/', $fields[0], 2);
+
+        $parameters = null;
+        $count      = count($fields);
+        for ($idx = 1; $idx < $count; ++$idx) {
+            if (strpos($fields[$idx], '=') === false) {
+                throw new InvalidArgumentException('mediaType');
+            }
+
+            list($key, $value) = explode('=', $fields[$idx], 2);
+            $parameters[trim($key)] = trim($value, ' "');
+        }
+
+        return $this->factory->createMediaType($type, $subType, $parameters);
+    }
+
+    /**
+     * @param array $fields
+     *
+     * @return array
+     */
+    private function parseQualityAndParameters(array $fields): array
+    {
+        $quality     = 1;
+        $qParamFound = false;
+        $parameters  = null;
+
+        $count = count($fields);
+        for ($idx = 1; $idx < $count; ++$idx) {
+            $fieldValue = $fields[$idx];
+            if (empty($fieldValue) === true) {
+                continue;
+            }
+
+            if (strpos($fieldValue, '=') === false) {
+                throw new InvalidArgumentException('mediaType');
+            }
+
+            list($key, $value) = explode('=', $fieldValue, 2);
+
+            $key   = trim($key);
+            $value = trim($value, ' "');
+
+            // 'q' param separates media parameters from extension parameters
+
+            if ($key === 'q' && $qParamFound === false) {
+                $quality     = (float)$value;
+                $qParamFound = true;
+                continue;
+            }
+
+            if ($qParamFound === false) {
+                $parameters[$key] = $value;
             }
         }
 
-        return MediaTypeInterface::JSON_API_MEDIA_TYPE;
+        return [$parameters, $quality];
     }
 }

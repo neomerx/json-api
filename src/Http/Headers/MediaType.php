@@ -35,9 +35,9 @@ class MediaType implements MediaTypeInterface
     private $subType;
 
     /**
-     * @var string
+     * @var string?
      */
-    private $mediaType;
+    private $mediaType = null;
 
     /**
      * @var array<string,string>|null
@@ -72,7 +72,6 @@ class MediaType implements MediaTypeInterface
 
         $this->type       = $type;
         $this->subType    = $subType;
-        $this->mediaType  = $type . '/' . $subType;
         $this->parameters = $parameters;
     }
 
@@ -97,6 +96,10 @@ class MediaType implements MediaTypeInterface
      */
     public function getMediaType(): string
     {
+        if ($this->mediaType === null) {
+            $this->mediaType = $this->getType() . '/' . $this->getSubType();
+        }
+
         return $this->mediaType;
     }
 
@@ -128,40 +131,6 @@ class MediaType implements MediaTypeInterface
             $this->isTypeEquals($mediaType) &&
             $this->isSubTypeEquals($mediaType) &&
             $this->isMediaParametersEqual($mediaType);
-    }
-
-    /**
-     * Parse media type.
-     *
-     * @param int    $position
-     * @param string $mediaType
-     *
-     * @return MediaTypeInterface
-     */
-    public static function parse(int $position, string $mediaType)
-    {
-        $position ?: null;
-
-        $fields = explode(';', $mediaType);
-
-        if (strpos($fields[0], '/') === false) {
-            throw new InvalidArgumentException('mediaType');
-        }
-
-        list($type, $subType) = explode('/', $fields[0], 2);
-
-        $parameters = null;
-        $count      = count($fields);
-        for ($idx = 1; $idx < $count; ++$idx) {
-            if (strpos($fields[$idx], '=') === false) {
-                throw new InvalidArgumentException('mediaType');
-            }
-
-            list($key, $value) = explode('=', $fields[$idx], 2);
-            $parameters[trim($key)] = trim($value, ' "');
-        }
-
-        return new static($type, $subType, $parameters);
     }
 
     /**

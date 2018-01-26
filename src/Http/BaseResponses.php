@@ -19,7 +19,7 @@
 use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
-use Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
+use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
 use Neomerx\JsonApi\Contracts\Http\ResponsesInterface;
 use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
@@ -28,13 +28,13 @@ use Neomerx\JsonApi\Exceptions\ErrorCollection;
 /**
  * @package Neomerx\JsonApi
  */
-abstract class Responses implements ResponsesInterface
+abstract class BaseResponses implements ResponsesInterface
 {
     /** Header name that contains format of input data from client */
-    const HEADER_CONTENT_TYPE = HeaderInterface::HEADER_CONTENT_TYPE;
+    const HEADER_CONTENT_TYPE = HeaderParametersParserInterface::HEADER_CONTENT_TYPE;
 
     /** Header name that location of newly created resource */
-    const HEADER_LOCATION = HeaderInterface::HEADER_LOCATION;
+    const HEADER_LOCATION = 'Location';
 
     /**
      * Create HTTP response.

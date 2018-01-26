@@ -16,22 +16,32 @@
  * limitations under the License.
  */
 
-use Psr\Http\Message\ServerRequestInterface;
-
 /**
  * @package Neomerx\JsonApi
  */
 interface HeaderParametersParserInterface
 {
+    /** Header name that contains format of output data from client */
+    const HEADER_ACCEPT = 'Accept';
+
+    /** Header name that contains format of input data from client */
+    const HEADER_CONTENT_TYPE = 'Content-Type';
+
     /**
-     * Parse input parameters from request.
+     * Parse input as `Accept` header.
      *
-     * @param ServerRequestInterface $request
-     * @param bool                   $checkContentType
+     * @param string $value
      *
-     * @return HeaderParametersInterface
-     *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
+     * @return iterable
      */
-    public function parse(ServerRequestInterface $request, bool $checkContentType = true): HeaderParametersInterface;
+    public function parseAcceptHeader(string $value): iterable;
+
+    /**
+     * Parse input as `Content-Type` header.
+     *
+     * @param string $value
+     *
+     * @return MediaTypeInterface
+     */
+    public function parseContentTypeHeader(string $value): MediaTypeInterface;
 }

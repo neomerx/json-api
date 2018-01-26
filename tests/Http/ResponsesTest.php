@@ -26,8 +26,8 @@ use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
 use Neomerx\JsonApi\Document\Error;
 use Neomerx\JsonApi\Exceptions\ErrorCollection;
+use Neomerx\JsonApi\Http\BaseResponses;
 use Neomerx\JsonApi\Http\Headers\MediaType;
-use Neomerx\JsonApi\Http\Responses;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 use stdClass;
 
@@ -58,7 +58,7 @@ class ResponsesTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->mock      = Mockery::mock(Responses::class)->makePartial()->shouldAllowMockingProtectedMethods();
+        $this->mock      = Mockery::mock(BaseResponses::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $this->responses = $this->mock;
     }
 
@@ -82,7 +82,7 @@ class ResponsesTest extends BaseTestCase
         $meta  = ['some' => 'meta'];
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForData($data, 'some json api', $links, $meta);
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type'];
+        $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getContentResponse($data, 321, $links, $meta));
     }
@@ -97,7 +97,7 @@ class ResponsesTest extends BaseTestCase
         $meta  = ['some' => 'meta'];
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForData($data, 'some json api', $links, $meta);
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
+        $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getContentResponse($data, 321, $links, $meta, [
             'X-Custom' => 'Custom-Header',
@@ -116,10 +116,10 @@ class ResponsesTest extends BaseTestCase
         $this->willBeCalledEncoderForData($resource, 'some json api', $links, $meta);
         $this->willBeCreatedResourceLocationUrl($resource, 'http://server.tld', '/resource-type/123');
         $headers = [
-            Responses::HEADER_CONTENT_TYPE => 'some/type',
-            Responses::HEADER_LOCATION     => 'http://server.tld/resource-type/123',
+            BaseResponses::HEADER_CONTENT_TYPE => 'some/type',
+            BaseResponses::HEADER_LOCATION     => 'http://server.tld/resource-type/123',
         ];
-        $this->willBeCalledCreateResponse('some json api', Responses::HTTP_CREATED, $headers, 'some response');
+        $this->willBeCalledCreateResponse('some json api', BaseResponses::HTTP_CREATED, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getCreatedResponse($resource, $links, $meta));
     }
 
@@ -135,11 +135,11 @@ class ResponsesTest extends BaseTestCase
         $this->willBeCalledEncoderForData($resource, 'some json api', $links, $meta);
         $this->willBeCreatedResourceLocationUrl($resource, 'http://server.tld', '/resource-type/123');
         $headers = [
-            Responses::HEADER_CONTENT_TYPE => 'some/type',
-            Responses::HEADER_LOCATION     => 'http://server.tld/resource-type/123',
-            'X-Custom'                     => 'Custom-Header',
+            BaseResponses::HEADER_CONTENT_TYPE => 'some/type',
+            BaseResponses::HEADER_LOCATION     => 'http://server.tld/resource-type/123',
+            'X-Custom'                         => 'Custom-Header',
         ];
-        $this->willBeCalledCreateResponse('some json api', Responses::HTTP_CREATED, $headers, 'some response');
+        $this->willBeCalledCreateResponse('some json api', BaseResponses::HTTP_CREATED, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getCreatedResponse($resource, $links, $meta, [
             'X-Custom' => 'Custom-Header',
         ]));
@@ -153,7 +153,7 @@ class ResponsesTest extends BaseTestCase
         $meta = new stdClass();
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForMeta($meta, 'some json api');
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type'];
+        $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getMetaResponse($meta, 321));
     }
@@ -166,7 +166,7 @@ class ResponsesTest extends BaseTestCase
         $meta = new stdClass();
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForMeta($meta, 'some json api');
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
+        $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getMetaResponse($meta, 321, [
             'X-Custom' => 'Custom-Header',
@@ -183,7 +183,7 @@ class ResponsesTest extends BaseTestCase
         $meta  = ['some' => 'meta'];
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForIdentifiers($data, 'some json api', $links, $meta);
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type'];
+        $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getIdentifiersResponse($data, 321, $links, $meta));
     }
@@ -198,7 +198,7 @@ class ResponsesTest extends BaseTestCase
         $meta  = ['some' => 'meta'];
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForIdentifiers($data, 'some json api', $links, $meta);
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
+        $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getIdentifiersResponse($data, 321, $links, $meta, [
             'X-Custom' => 'Custom-Header',
@@ -213,7 +213,7 @@ class ResponsesTest extends BaseTestCase
         $error = new Error();
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForError($error, 'some json api');
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type'];
+        $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getErrorResponse($error, 321));
     }
@@ -226,7 +226,7 @@ class ResponsesTest extends BaseTestCase
         $errors = [new Error()];
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForErrors($errors, 'some json api');
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type'];
+        $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getErrorResponse($errors, 321));
     }
@@ -240,7 +240,7 @@ class ResponsesTest extends BaseTestCase
         $errors->add(new Error());
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForErrors($errors, 'some json api');
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type'];
+        $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getErrorResponse($errors, 321));
     }
@@ -253,7 +253,7 @@ class ResponsesTest extends BaseTestCase
         $error = new Error();
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForError($error, 'some json api');
-        $headers = [Responses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
+        $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
         $this->assertEquals('some response', $this->responses->getErrorResponse($error, 321, [
             'X-Custom' => 'Custom-Header',

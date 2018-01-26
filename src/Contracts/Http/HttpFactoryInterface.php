@@ -18,10 +18,7 @@
 
 use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 use Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
-use Neomerx\JsonApi\Contracts\Http\Headers\AcceptHeaderInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
-use Neomerx\JsonApi\Contracts\Http\Headers\HeaderInterface;
-use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
 use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
@@ -69,30 +66,6 @@ interface HttpFactoryInterface
     ): EncodingParametersInterface;
 
     /**
-     * @param string                $method
-     * @param AcceptHeaderInterface $accept
-     * @param HeaderInterface       $contentType
-     *
-     * @return HeaderParametersInterface
-     */
-    public function createHeaderParameters(
-        string $method,
-        AcceptHeaderInterface $accept,
-        HeaderInterface $contentType
-    ): HeaderParametersInterface;
-
-    /**
-     * @param string                $method
-     * @param AcceptHeaderInterface $accept
-     *
-     * @return HeaderParametersInterface
-     */
-    public function createNoContentHeaderParameters(
-        string $method,
-        AcceptHeaderInterface $accept
-    ): HeaderParametersInterface;
-
-    /**
      * Create parameters parser.
      *
      * @return HeaderParametersParserInterface
@@ -117,13 +90,4 @@ interface HttpFactoryInterface
         array $parameters = null,
         float $quality = 1.0
     ): AcceptMediaTypeInterface;
-
-    /**
-     * Create Accept HTTP header.
-     *
-     * @param AcceptMediaTypeInterface[] $unsortedMediaTypes
-     *
-     * @return AcceptHeaderInterface
-     */
-    public function createAcceptHeader(array $unsortedMediaTypes): AcceptHeaderInterface;
 }

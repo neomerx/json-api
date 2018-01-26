@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use Closure;
 use InvalidArgumentException;
 use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
 
@@ -54,11 +55,12 @@ class AcceptMediaType extends MediaType implements AcceptMediaTypeInterface
             throw new InvalidArgumentException('position');
         }
 
-        // rfc2616: 3 digits are meaningful (#3.9 Quality Values)
-        $quality = floor($quality * 1000) / 1000;
         if ($quality < 0 || $quality > 1) {
             throw new InvalidArgumentException('quality');
         }
+
+        // rfc2616: 3 digits are meaningful (#3.9 Quality Values)
+        $quality = floor($quality * 1000) / 1000;
 
         $this->position = $position;
         $this->quality  = $quality;
@@ -81,64 +83,74 @@ class AcceptMediaType extends MediaType implements AcceptMediaTypeInterface
     }
 
     /**
-     * @inheritdoc
-     *
-     * @return AcceptMediaTypeInterface
+     * @return Closure
      */
-    public static function parse(int $position, string $mediaType)
+    public static function getCompare(): Closure
     {
-        $fields = explode(';', $mediaType);
+        return function (AcceptMediaTypeInterface $lhs, AcceptMediaTypeInterface $rhs) {
+            $qualityCompare = self::compareQuality($lhs->getQuality(), $rhs->getQuality());
+            if ($qualityCompare !== 0) {
+                return $qualityCompare;
+            }
 
-        if (strpos($fields[0], '/') === false) {
-            throw new InvalidArgumentException('mediaType');
-        }
+            $typeCompare = self::compareStrings($lhs->getType(), $rhs->getType());
+            if ($typeCompare !== 0) {
+                return $typeCompare;
+            }
 
-        list($type, $subType) = explode('/', $fields[0], 2);
-        list($parameters, $quality) = self::parseQualityAndParameters($fields);
+            $subTypeCompare = self::compareStrings($lhs->getSubType(), $rhs->getSubType());
+            if ($subTypeCompare !== 0) {
+                return $subTypeCompare;
+            }
 
-        return new AcceptMediaType($position, $type, $subType, $parameters, $quality);
+            $parametersCompare = self::compareParameters($lhs->getParameters(), $rhs->getParameters());
+            if ($parametersCompare !== 0) {
+                return $parametersCompare;
+            }
+
+            return ($lhs->getPosition() - $rhs->getPosition());
+        };
     }
 
     /**
-     * @param array $fields
+     * @param float $lhs
+     * @param float $rhs
      *
-     * @return array
+     * @return int
+     *
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
-    private static function parseQualityAndParameters(array $fields): array
+    private static function compareQuality(float $lhs, float $rhs): int
     {
-        $quality     = 1;
-        $qParamFound = false;
-        $parameters  = null;
+        $qualityDiff = $lhs - $rhs;
 
-        $count = count($fields);
-        for ($idx = 1; $idx < $count; ++$idx) {
-            $fieldValue = $fields[$idx];
-            if (empty($fieldValue) === true) {
-                continue;
-            }
-
-            if (strpos($fieldValue, '=') === false) {
-                throw new InvalidArgumentException('mediaType');
-            }
-
-            list($key, $value) = explode('=', $fieldValue, 2);
-
-            $key   = trim($key);
-            $value = trim($value, ' "');
-
-            // 'q' param separates media parameters from extension parameters
-
-            if ($key === 'q' && $qParamFound === false) {
-                $quality     = (float)$value;
-                $qParamFound = true;
-                continue;
-            }
-
-            if ($qParamFound === false) {
-                $parameters[$key] = $value;
-            }
+        // rfc2616: 3 digits are meaningful (#3.9 Quality Values)
+        if (abs($qualityDiff) < 0.001) {
+            return 0;
+        } else {
+            return $lhs > $rhs ? -1 : 1;
         }
+    }
 
-        return [$parameters, $quality];
+    /**
+     * @param string $lhs
+     * @param string $rhs
+     *
+     * @return int
+     */
+    private static function compareStrings(string $lhs, string $rhs): int
+    {
+        return ($rhs !== '*' ? 1 : 0) - ($lhs !== '*' ? 1 : 0);
+    }
+
+    /**
+     * @param array|null $lhs
+     * @param array|null $rhs
+     *
+     * @return int
+     */
+    private static function compareParameters(?array $lhs, ?array $rhs): int
+    {
+        return (empty($lhs) !== false ? 1 : 0) - (empty($rhs) !== false ? 1 : 0);
     }
 }
