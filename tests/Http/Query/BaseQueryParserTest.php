@@ -56,6 +56,39 @@ class BaseQueryParserTest extends BaseTestCase
     }
 
     /**
+     * That's a special case to test possible issues with `empty` function which thinks "0" is an empty string.
+     */
+    public function testIncludesForStringWithZeroes1(): void
+    {
+        $queryParameters = [
+            BaseQueryParser::PARAM_INCLUDE => '0',
+        ];
+
+        $parser = $this->createParser($queryParameters);
+
+        $this->assertEquals([
+            '0' => ['0'],
+        ], $this->iterableToArray($parser->getIncludes()));
+    }
+
+    /**
+     * That's a special case to test possible issues with `empty` function which thinks "0" is an empty string.
+     */
+    public function testIncludesForStringWithZeroes2(): void
+    {
+        $queryParameters = [
+            BaseQueryParser::PARAM_INCLUDE => '0,1',
+        ];
+
+        $parser = $this->createParser($queryParameters);
+
+        $this->assertEquals([
+            '0' => ['0'],
+            '1' => ['1'],
+        ], $this->iterableToArray($parser->getIncludes()));
+    }
+
+    /**
      * Test query.
      */
     public function testFields(): void

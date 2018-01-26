@@ -133,7 +133,7 @@ class BaseQueryParser implements BaseQueryParserInterface
      */
     protected function splitString(string $paramName, $shouldBeString, string $separator): iterable
     {
-        if (is_string($shouldBeString) === false || empty($trimmed = trim($shouldBeString)) === true) {
+        if (is_string($shouldBeString) === false || ($trimmed = trim($shouldBeString)) === '') {
             throw new JsonApiException($this->createParameterError($paramName));
         }
 
@@ -153,7 +153,7 @@ class BaseQueryParser implements BaseQueryParserInterface
     {
         foreach ($this->splitString($paramName, $shouldBeString, $separator) as $value) {
             $trimmedValue = trim($value);
-            if (empty($trimmedValue) === true) {
+            if (($trimmedValue) === '') {
                 throw new JsonApiException($this->createParameterError($paramName));
             }
 
