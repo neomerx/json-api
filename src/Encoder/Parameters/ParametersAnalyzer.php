@@ -51,8 +51,6 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
     private $includeRelationshipsCache = [];
 
     /**
-     * Constructor.
-     *
      * @param EncodingParametersInterface $parameters
      * @param ContainerInterface          $container
      */

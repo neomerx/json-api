@@ -25,6 +25,8 @@ use Neomerx\Tests\JsonApi\BaseTestCase;
 use Neomerx\Tests\JsonApi\Data\Author;
 use Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use Neomerx\Tests\JsonApi\Data\Collection;
+use Neomerx\Tests\JsonApi\Data\Comment;
+use Neomerx\Tests\JsonApi\Data\CommentSchema;
 use Neomerx\Tests\JsonApi\Data\Site;
 use Neomerx\Tests\JsonApi\Data\SiteSchema;
 
@@ -48,10 +50,10 @@ class EncodeSimpleObjectsTest extends BaseTestCase
     /**
      * Test encode null.
      */
-    public function testEncodeNull()
+    public function testEncodeNull(): void
     {
         $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class
+            Author::class => AuthorSchema::class,
         ]);
 
         $actual = $encoder->encodeData(null);
@@ -70,10 +72,10 @@ EOL;
     /**
      * Test encode empty array.
      */
-    public function testEncodeEmpty()
+    public function testEncodeEmpty(): void
     {
         $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class
+            Author::class => AuthorSchema::class,
         ]);
 
         $actual = $encoder->encodeData([]);
@@ -92,7 +94,7 @@ EOL;
     /**
      * Test encode empty iterator.
      */
-    public function testEncodeEmptyIterator()
+    public function testEncodeEmptyIterator(): void
     {
         $encoder = Encoder::instance([
             Author::class => AuthorSchema::class,
@@ -116,10 +118,10 @@ EOL;
      *
      * Issue #50 @link https://github.com/neomerx/json-api/issues/50
      */
-    public function testEncodeEmptyWithParameters()
+    public function testEncodeEmptyWithParameters(): void
     {
         $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class
+            Author::class => AuthorSchema::class,
         ]);
 
         $actual = $encoder->encodeData([], new EncodingParameters(null, [
@@ -141,15 +143,16 @@ EOL;
     /**
      * Test encode simple object with attributes only.
      */
-    public function testEncodeObjectWithAttributesOnly()
+    public function testEncodeObjectWithAttributesOnly(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
             Author::class => function ($factory) {
                 $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
+
                 return $schema;
-            }
+            },
         ], $this->encoderOptions);
 
         $actual = $encoder->encodeData($author);
@@ -178,19 +181,20 @@ EOL;
     /**
      * Test encode simple object without ID and attributes only.
      */
-    public function testEncodeObjectWithAttributesOnlyAndNoId()
+    public function testEncodeObjectWithAttributesOnlyAndNoId(): void
     {
-        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $author                         = Author::instance(9, 'Dan', 'Gebhardt');
         $author->{Author::ATTRIBUTE_ID} = null;
-        $encoder = Encoder::instance([
+        $encoder                        = Encoder::instance([
             Author::class => function ($factory) {
                 $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 $schema->setResourceLinksClosure(function () {
                     return []; // no `self` link and others
                 });
+
                 return $schema;
-            }
+            },
         ], $this->encoderOptions);
 
         $actual = $encoder->encodeData($author);
@@ -217,7 +221,7 @@ EOL;
      *
      * @see https://github.com/neomerx/json-api/issues/64
      */
-    public function testEncodeObjectWithAttributesAndCustomLinks()
+    public function testEncodeObjectWithAttributesAndCustomLinks(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
@@ -226,12 +230,14 @@ EOL;
                 $schema->linkRemove(Author::LINK_COMMENTS);
                 $schema->setResourceLinksClosure(function ($resource) {
                     $this->assertNotNull($resource);
+
                     return [
                         'custom' => new Link('http://custom-link.com/', null, true),
                     ];
                 });
+
                 return $schema;
-            }
+            },
         ], $this->encoderOptions);
 
         $actual = $encoder->encodeData($author);
@@ -260,11 +266,11 @@ EOL;
     /**
      * Test encode simple object as resource identity.
      */
-    public function testEncodeObjectAsResourceIdentity()
+    public function testEncodeObjectAsResourceIdentity(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class
+            Author::class => AuthorSchema::class,
         ], $this->encoderOptions);
 
         $actual = $encoder->encodeIdentifiers($author);
@@ -286,11 +292,11 @@ EOL;
     /**
      * Test encode array of simple objects as resource identity.
      */
-    public function testEncodeArrayAsResourceIdentity()
+    public function testEncodeArrayAsResourceIdentity(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class
+            Author::class => AuthorSchema::class,
         ], $this->encoderOptions);
 
         $actual = $encoder->encodeIdentifiers([$author]);
@@ -312,15 +318,16 @@ EOL;
     /**
      * Test encode simple object with attributes only in array.
      */
-    public function testEncodeObjectWithAttributesOnlyInArray()
+    public function testEncodeObjectWithAttributesOnlyInArray(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
             Author::class => function ($factory) {
                 $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
+
                 return $schema;
-            }
+            },
         ], $this->encoderOptions);
 
         $actual = $encoder->encodeData([$author]);
@@ -349,15 +356,16 @@ EOL;
     /**
      * Test encode simple object with attributes only associative array.
      */
-    public function testEncodeObjectWithAttributesOnlyInAssocArray()
+    public function testEncodeObjectWithAttributesOnlyInAssocArray(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
             Author::class => function ($factory) {
                 $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
+
                 return $schema;
-            }
+            },
         ], $this->encoderOptions);
 
         $actual = $encoder->encodeData(['key_doesnt_matter' => $author]);
@@ -386,15 +394,16 @@ EOL;
     /**
      * Test encode simple object in pretty format.
      */
-    public function testEncodeObjectWithAttributesOnlyPrettyPrinted()
+    public function testEncodeObjectWithAttributesOnlyPrettyPrinted(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
             Author::class => function ($factory) {
                 $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
+
                 return $schema;
-            }
+            },
         ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
 
         $actual = $encoder->encodeData($author);
@@ -421,7 +430,7 @@ EOL;
     /**
      * Test encode array of simple objects with attributes only.
      */
-    public function testEncodeArrayOfObjectsWithAttributesOnly()
+    public function testEncodeArrayOfObjectsWithAttributesOnly(): void
     {
         $author1 = Author::instance(7, 'First', 'Last');
         $author2 = Author::instance(9, 'Dan', 'Gebhardt');
@@ -429,8 +438,9 @@ EOL;
             Author::class => function ($factory) {
                 $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
+
                 return $schema;
-            }
+            },
         ], $this->encoderOptions);
 
         $actual = $encoder->encodeData([$author1, $author2]);
@@ -472,7 +482,7 @@ EOL;
     /**
      * Test encode meta and top-level links for simple object.
      */
-    public function testEncodeMetaAndtopLinksForSimpleObject()
+    public function testEncodeMetaAndtopLinksForSimpleObject(): void
     {
         $author = Author::instance(9, 'Dan', 'Gebhardt');
         $links  = [Link::SELF => new Link('/people/9')];
@@ -481,16 +491,17 @@ EOL;
             "authors"   => [
                 "Yehuda Katz",
                 "Steve Klabnik",
-                "Dan Gebhardt"
-            ]
+                "Dan Gebhardt",
+            ],
         ];
 
         $actual = Encoder::instance([
             Author::class => function ($factory) {
                 $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
+
                 return $schema;
-            }
+            },
         ], $this->encoderOptions)->withLinks($links)->withMeta($meta)->encodeData($author);
 
         $expected = <<<EOL
@@ -528,23 +539,24 @@ EOL;
     /**
      * Test encode meta.
      */
-    public function testEncodeMeta()
+    public function testEncodeMeta(): void
     {
         $meta = [
             "copyright" => "Copyright 2015 Example Corp.",
             "authors"   => [
                 "Yehuda Katz",
                 "Steve Klabnik",
-                "Dan Gebhardt"
-            ]
+                "Dan Gebhardt",
+            ],
         ];
 
         $actual = Encoder::instance([
             Author::class => function ($factory) {
                 $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
+
                 return $schema;
-            }
+            },
         ])->encodeMeta($meta);
 
         $expected = <<<EOL
@@ -568,7 +580,7 @@ EOL;
     /**
      * Test encoding with JSON API version.
      */
-    public function testEncodeJsonApiVersion()
+    public function testEncodeJsonApiVersion(): void
     {
         $actual = Encoder::instance()->withJsonApiVersion(['some' => 'meta'])->encodeData(null);
 
@@ -590,7 +602,7 @@ EOL;
     /**
      * Test encode polymorphic array (resources of different types).
      */
-    public function testEncodePolymorphicArray()
+    public function testEncodePolymorphicArray(): void
     {
         $author  = Author::instance(7, 'First', 'Last', []);
         $site    = Site::instance(9, 'Main Site', []);
@@ -646,18 +658,19 @@ EOL;
     /**
      * Test encode simple object with attributes only in ArrayAccess collection.
      */
-    public function testEncodeObjectWithAttributesOnlyInArrayAccessCollection()
+    public function testEncodeObjectWithAttributesOnlyInArrayAccessCollection(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
             Author::class => function ($factory) {
                 $schema = new AuthorSchema($factory);
                 $schema->linkRemove(Author::LINK_COMMENTS);
+
                 return $schema;
-            }
+            },
         ], $this->encoderOptions);
 
-        $collection = new Collection();
+        $collection   = new Collection();
         $collection[] = $author;
 
         $actual = $encoder->encodeData($collection);
@@ -688,14 +701,14 @@ EOL;
      *
      * @link https://github.com/neomerx/json-api/issues/168
      */
-    public function testEncodeWithSchmaInstance()
+    public function testEncodeWithSchmaInstance(): void
     {
         $authorSchema = new AuthorSchema(new Factory());
         $authorSchema->linkRemove(Author::LINK_COMMENTS);
 
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance([
-            Author::class => $authorSchema
+            Author::class => $authorSchema,
         ], $this->encoderOptions);
 
         $actual = $encoder->encodeData($author);
@@ -713,6 +726,98 @@ EOL;
                     "self" : "http://example.com/people/9"
                 }
             }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode for 2 relationships that have identical name beginnings.
+     *
+     * @return void
+     *
+     * @link https://github.com/neomerx/json-api/issues/200
+     */
+    public function testEncodingSimilarRelationships(): void
+    {
+        /**
+         * It's odd to have a second comments relationship and the naming is also weird but...
+         * we need a second relationship that which naming start identical to the first one.
+         */
+        $secondRelName = Author::LINK_COMMENTS . '-second-name';
+
+        $comment1 = Comment::instance(1, 'One!');
+        $comment5 = Comment::instance(5, 'Five!');
+        $author  = Author::instance(9, 'Dan', 'Gebhardt', [$comment1]);
+
+        $actual = Encoder::instance([
+            Author::class  => function ($factory) use ($secondRelName, $comment5) {
+                $schema = new AuthorSchema($factory);
+
+                // make the author have the comment only in that odd relationship
+                // we will emulate the new relationship with that comment
+                $schema->linkAddTo($secondRelName, AuthorSchema::DATA, function () use ($comment5) {
+                    return [$comment5];
+                });
+
+                return $schema;
+            },
+            Comment::class => CommentSchema::class,
+        ], $this->encoderOptions)->encodeData($author, new EncodingParameters(
+            // include only the new odd relationship and omit the original `comments` relationship
+            [$secondRelName]
+        ));
+
+        // The issue was that comment with id 1 was also added in `included` section
+        $expected = <<<EOL
+        {
+            "data": {
+                "type": "people",
+                "id": "9",
+                "attributes": {
+                    "first_name": "Dan",
+                    "last_name": "Gebhardt"
+                },
+                "relationships": {
+                    "comments": {
+                    "data": [
+                        {
+                            "type": "comments",
+                            "id": "1"
+                        }
+                    ]
+                    },
+                    "comments-second-name": {
+                        "data": [
+                            {
+                                "type": "comments",
+                                "id": "5"
+                            }
+                        ]
+                    }
+                },
+                "links": {
+                    "self": "http://example.com/people/9"
+                }
+            },
+            "included": [
+                {
+                    "type": "comments",
+                    "id": "5",
+                    "attributes": {
+                    "body": "Five!"
+                    },
+                    "relationships": {
+                        "author": { "data": null }
+                    },
+                    "links": {
+                        "self": "http://example.com/comments/5"
+                    }
+                }
+            ]
         }
 EOL;
         // remove formatting from 'expected'

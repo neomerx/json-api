@@ -41,7 +41,7 @@ class Comment extends stdClass
         $comment->{self::ATTRIBUTE_ID}   = $identity;
         $comment->{self::ATTRIBUTE_BODY} = $body;
 
-        $author === null ?: $comment->{self::LINK_AUTHOR} = $author;
+        $comment->{self::LINK_AUTHOR} = $author;
 
         return $comment;
     }

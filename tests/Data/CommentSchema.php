@@ -60,8 +60,13 @@ class CommentSchema extends DevSchema
             // as author will not be included as full resource let's replace it with just identity (type + id)
             /** @var Author $author */
             $author         = $comment->{Comment::LINK_AUTHOR};
-            $authorId       = $author->{Author::ATTRIBUTE_ID};
-            $authorIdentity = Author::instance($authorId, null, null);
+
+            if ($author !== null) {
+                $authorId       = $author->{Author::ATTRIBUTE_ID};
+                $authorIdentity = Author::instance($authorId, null, null);
+            } else {
+                $authorIdentity = null;
+            }
 
             $data = $authorIdentity;
         }
