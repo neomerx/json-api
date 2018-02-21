@@ -58,6 +58,11 @@ class RelationshipObject implements RelationshipObjectInterface
     /**
      * @var bool
      */
+    private $isMetaEvaluated = false;
+
+    /**
+     * @var bool
+     */
     private $isDataEvaluated = false;
 
     /**
@@ -81,10 +86,7 @@ class RelationshipObject implements RelationshipObjectInterface
         $isOk = (($isRoot === false && $name !== null) || ($isRoot === true && $name === null));
         $isOk ?: Exceptions::throwInvalidArgument('name', $name);
 
-        $this->name       = $name;
-        $this->data       = $data;
-        $this->links      = $links;
-        $this->meta       = $meta;
+        $this->setName($name)->setData($data)->setLinks($links)->setMeta($meta);
         $this->isShowData = $isShowData;
         $this->isRoot     = $isRoot;
     }
@@ -98,6 +100,18 @@ class RelationshipObject implements RelationshipObjectInterface
     }
 
     /**
+     * @param null|string $name
+     *
+     * @return self
+     */
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getData()
@@ -107,12 +121,29 @@ class RelationshipObject implements RelationshipObjectInterface
 
             if ($this->data instanceof Closure) {
                 /** @var Closure $data */
-                $data       = $this->data;
-                $this->data = $data();
+                $data = $this->data;
+                $this->setData($data());
             }
         }
 
+        assert(is_array($this->data) === true || is_object($this->data) === true || $this->data === null);
+
         return $this->data;
+    }
+
+    /**
+     * @param object|array|null|Closure $data
+     *
+     * @return RelationshipObject
+     */
+    public function setData($data): self
+    {
+        assert(is_array($data) === true || $data instanceof Closure || is_object($data) === true || $data === null);
+
+        $this->data            = $data;
+        $this->isDataEvaluated = false;
+
+        return $this;
     }
 
     /**
@@ -124,16 +155,43 @@ class RelationshipObject implements RelationshipObjectInterface
     }
 
     /**
+     * @param array $links
+     *
+     * @return self
+     */
+    public function setLinks(array $links): self
+    {
+        $this->links = $links;
+
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getMeta()
     {
-        if ($this->meta instanceof Closure) {
+        if ($this->isMetaEvaluated === false && $this->meta instanceof Closure) {
             $meta       = $this->meta;
             $this->meta = $meta();
         }
 
+        $this->isMetaEvaluated = true;
+
         return $this->meta;
+    }
+
+    /**
+     * @param mixed $meta
+     *
+     * @return self
+     */
+    public function setMeta($meta): self
+    {
+        $this->meta            = $meta;
+        $this->isMetaEvaluated = false;
+
+        return $this;
     }
 
     /**
