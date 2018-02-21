@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \Neomerx\JsonApi\Factories\Exceptions;
-use \Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Closure;
+use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
+use Neomerx\JsonApi\Factories\Exceptions;
 
 /**
  * @package Neomerx\JsonApi
@@ -84,11 +84,12 @@ class RelationshipObject implements RelationshipObjectInterface
         $isOk ?: Exceptions::throwInvalidArgument('name', $name);
 
         $this->name       = $name;
-        $this->data       = $data;
         $this->links      = $links;
         $this->meta       = $meta;
         $this->isShowData = $isShowData;
         $this->isRoot     = $isRoot;
+
+        $this->setData($data);
     }
 
     /**
@@ -110,11 +111,26 @@ class RelationshipObject implements RelationshipObjectInterface
             if ($this->data instanceof Closure) {
                 /** @var Closure $data */
                 $data = $this->data;
-                $this->data = $data();
+                $this->setData($data());
             }
         }
 
+        assert(is_array($this->data) === true || is_object($this->data) === true || $this->data === null);
+
         return $this->data;
+    }
+
+    /**
+     * @param object|array|null|Closure $data
+     *
+     * @return void
+     */
+    public function setData($data)
+    {
+        assert(is_array($data) === true || $data instanceof Closure || is_object($data) === true || $data === null);
+
+        $this->data            = $data;
+        $this->isDataEvaluated = false;
     }
 
     /**
