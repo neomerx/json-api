@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-use \Psr\Log\LoggerAwareTrait;
-use \Psr\Log\LoggerAwareInterface;
-use \Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use \Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
-use \Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+use Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * @package Neomerx\JsonApi
@@ -168,7 +168,7 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
 
         if ($path !== null) {
             foreach ($paths as $targetPath) {
-                if (strpos($targetPath, $path) === 0) {
+                if (strpos($targetPath, $path . DocumentInterface::PATH_SEPARATOR) === 0) {
                     $hasMatch = true;
                     break;
                 }
