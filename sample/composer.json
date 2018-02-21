@@ -14,6 +14,6 @@
         }
     },
     "require": {
-        "neomerx/json-api": "dev-develop"
+        "neomerx/json-api": "1.x-dev"
     }
 }
