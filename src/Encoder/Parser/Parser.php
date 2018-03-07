@@ -17,7 +17,6 @@
  */
 
 use InvalidArgumentException;
-use Iterator;
 use IteratorAggregate;
 use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserFactoryInterface;
 use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
@@ -34,6 +33,7 @@ use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
 use Neomerx\JsonApi\Factories\Exceptions;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Traversable;
 use function Neomerx\JsonApi\I18n\translate as _;
 
 /**
@@ -160,18 +160,20 @@ class Parser implements ParserInterface, LoggerAwareInterface
     }
 
     /**
-     * @return Iterator
+     * @return iterable
      *
      * @SuppressWarnings(PHPMD.ElseExpression)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function parseData(): iterable
     {
-        list($isEmpty, $isOriginallyArrayed, $traversableData) = $this->analyzeCurrentData();
+        list($isNull, $isOriginallyArrayed, $traversableData) = $this->analyzeCurrentData();
 
-        /** @var bool $isEmpty */
+        /** @var bool $isNull */
         /** @var bool $isOriginallyArrayed */
 
-        if ($isEmpty === true) {
+        if ($isNull === true) {
+            assert($traversableData === null);
             yield $this->createReplyForEmptyData($traversableData);
         } else {
             $curFrame = $this->stack->end();
@@ -179,7 +181,13 @@ class Parser implements ParserInterface, LoggerAwareInterface
             // if resource(s) is in primary data section (not in included)
             $isPrimary = $curFrame->getLevel() < 2;
 
+            // we need to know if there are no resources in traversable to report an empty array
+            // as `Traversable` do not have any methods and `empty` do not work on it we have
+            // to count actual resources.
+            $dataIsEmpty = true;
             foreach ($traversableData as $resource) {
+                $dataIsEmpty = false;
+
                 $schema         = $this->getSchema($resource, $curFrame);
                 $fieldSet       = $this->getFieldSet($schema->getResourceType());
                 $resourceObject = $schema->createResourceObject($resource, $isOriginallyArrayed, $fieldSet);
@@ -214,6 +222,11 @@ class Parser implements ParserInterface, LoggerAwareInterface
 
                 yield $this->createReplyResourceCompleted();
             }
+
+            if ($dataIsEmpty === true) {
+                // it actually was empty traversable (such as an empty array) so report about it.
+                yield $this->createReplyForEmptyData([]);
+            }
         }
     }
 
@@ -246,43 +259,29 @@ class Parser implements ParserInterface, LoggerAwareInterface
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @SuppressWarnings(PHPMD.ElseExpression)
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function analyzeData($data): array
     {
         $isCollection    = true;
-        $isEmpty         = true;
+        $isNull          = false;
         $traversableData = null;
 
         $isOk = (is_array($data) === true || is_object($data) === true || $data === null);
         $isOk ?: Exceptions::throwInvalidArgument('data', $data);
 
         if (is_array($data) === true) {
-            /** @var array $data */
-            $isEmpty         = empty($data);
             $traversableData = $data;
-        } elseif (($data instanceof Iterator && ($iterator = $data) !== null) ||
-            ($data instanceof IteratorAggregate && ($iterator = $data->getIterator()) !== null)
-        ) {
-            /** @var Iterator $iterator */
-            $iterator->rewind();
-            $isEmpty = ($iterator->valid() === false);
-            if ($isEmpty === false) {
-                $traversableData = $data;
-            } else {
-                $traversableData = [];
-            }
+        } elseif ($data instanceof Traversable) {
+            $traversableData = $data instanceof IteratorAggregate ? $data->getIterator() : $data;
         } elseif (is_object($data) === true) {
-            /** @var object $data */
-            $isEmpty         = ($data === null);
             $isCollection    = false;
             $traversableData = [$data];
         } elseif ($data === null) {
             $isCollection = false;
-            $isEmpty      = true;
+            $isNull       = true;
         }
 
-        return [$isEmpty, $isCollection, $traversableData];
+        return [$isNull, $isCollection, $traversableData];
     }
 
     /**

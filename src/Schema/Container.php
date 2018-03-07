@@ -21,7 +21,6 @@ use InvalidArgumentException;
 use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
-use Neomerx\JsonApi\Factories\Exceptions;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use function Neomerx\JsonApi\I18n\translate as _;
@@ -184,8 +183,6 @@ class Container implements ContainerInterface, LoggerAwareInterface
      */
     public function getSchemaByType(string $type): SchemaInterface
     {
-        is_string($type) === true ?: Exceptions::throwInvalidArgument('type', $type);
-
         if ($this->hasCreatedProvider($type) === true) {
             return $this->getCreatedProvider($type);
         }

@@ -50,7 +50,7 @@ class EncoderOptions
         string $urlPrefix = null,
         int $depth = 512
     ) {
-        $depth >= true ?: Exceptions::throwInvalidArgument('depth', $depth);
+        $depth > 0 ?: Exceptions::throwInvalidArgument('depth', $depth);
 
         $this->options   = $options;
         $this->depth     = $depth;

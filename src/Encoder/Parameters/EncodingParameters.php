@@ -17,7 +17,6 @@
  */
 
 use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
-use Neomerx\JsonApi\Factories\Exceptions;
 
 /**
  * @package Neomerx\JsonApi
@@ -67,8 +66,6 @@ class EncodingParameters implements EncodingParametersInterface
      */
     public function getFieldSet(string $type): ?array
     {
-        is_string($type) === true ?: Exceptions::throwInvalidArgument('type', $type);
-
         return (isset($this->fieldSets[$type]) === true ? $this->fieldSets[$type] : null);
     }
 }
