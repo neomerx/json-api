@@ -185,15 +185,15 @@ class ParametersAnalyzer implements ParametersAnalyzerInterface, LoggerAwareInte
      */
     private function getIncludePathsByType(string $type): array
     {
-        // if include paths are set in params use them otherwise use default include paths from schema
-
         $includePaths = $this->getParameters()->getIncludePaths();
-        if (empty($includePaths) === false) {
-            $typePaths = $includePaths;
-        } else {
-            $schema    = $this->container->getSchemaByResourceType($type);
-            $typePaths = $schema->getIncludePaths();
+
+        // if include paths are set in params use them otherwise use default include paths from schema
+        if ($includePaths !== null) {
+            return $includePaths;
         }
+
+        $schema    = $this->container->getSchemaByResourceType($type);
+        $typePaths = $schema->getIncludePaths();
 
         return $typePaths;
     }
