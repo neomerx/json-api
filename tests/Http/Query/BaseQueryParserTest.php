@@ -274,7 +274,7 @@ class BaseQueryParserTest extends BaseTestCase
             public function getSorts(): array
             {
                 if ($this->sorts === null) {
-                    $this->sorts = $this->iterableToArray(parent::getSorts());;
+                    $this->sorts = $this->iterableToArray(parent::getSorts());
                 }
 
                 return $this->sorts;
