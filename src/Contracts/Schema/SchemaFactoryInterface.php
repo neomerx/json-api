@@ -34,7 +34,7 @@ interface SchemaFactoryInterface
     public function createContainer(array $providers = []): ContainerInterface;
 
     /**
-     * Create adapter for schema provider container that returns 'resource identifiers' schemes.
+     * Create adapter for schema provider container that returns 'resource identifiers' schemas.
      *
      * @param ContainerInterface $container
      *
