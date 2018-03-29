@@ -327,11 +327,11 @@ class Encoder implements EncoderInterface, LoggerAwareInterface
     }
 
     /**
-     * @param $errors
+     * @param iterable $errors
      *
      * @return array
      */
-    protected function encodeErrorsToArray($errors): array
+    protected function encodeErrorsToArray(iterable $errors): array
     {
         $docWriter = $this->getFactory()->createDocument();
         $docWriter->addErrors($errors);

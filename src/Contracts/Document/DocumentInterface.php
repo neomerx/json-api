@@ -242,11 +242,11 @@ interface DocumentInterface
      *
      * If you add errors information no other elements will be in output document.
      *
-     * @param ErrorInterface[]|ErrorCollection $errors
+     * @param ErrorInterface[]|ErrorCollection|iterable $errors
      *
      * @return void
      */
-    public function addErrors($errors): void;
+    public function addErrors(iterable $errors): void;
 
     /**
      * Add JSON API version information.

@@ -394,7 +394,7 @@ class Document implements DocumentInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function addErrors($errors): void
+    public function addErrors(iterable $errors): void
     {
         empty($this->errors) === false ?: $this->errors = [];
 

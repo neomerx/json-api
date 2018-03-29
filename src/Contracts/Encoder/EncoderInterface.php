@@ -132,7 +132,7 @@ interface EncoderInterface
     /**
      * Encode errors as JSON API string.
      *
-     * @param ErrorInterface[]|ErrorCollection $errors
+     * @param ErrorInterface[]|ErrorCollection|iterable $errors
      *
      * @return string
      */

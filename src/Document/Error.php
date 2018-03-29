@@ -87,16 +87,15 @@ class Error implements ErrorInterface
         array $source = null,
         $meta = null
     ) {
-        assert($idx === null || is_int($idx) === true || is_string($idx) === true);
-
-        $this->idx    = $idx;
-        $this->links  = ($aboutLink === null ? null : [DocumentInterface::KEYWORD_ERRORS_ABOUT => $aboutLink]);
-        $this->status = ($status !== null ? (string)$status : null);
-        $this->code   = ($code !== null ? (string)$code : null);
-        $this->title  = $title;
-        $this->source = $source;
-        $this->detail = $detail;
-        $this->meta   = $meta;
+        $this
+            ->setId($idx)
+            ->setLink(DocumentInterface::KEYWORD_ERRORS_ABOUT, $aboutLink)
+            ->setStatus($status)
+            ->setCode($code)
+            ->setTitle($title)
+            ->setDetail($detail)
+            ->setSource($source)
+            ->setMeta($meta);
     }
 
     /**
@@ -108,11 +107,42 @@ class Error implements ErrorInterface
     }
 
     /**
+     * @param string|int|null $idx
+     *
+     * @return self
+     */
+    public function setId($idx): self
+    {
+        assert($idx === null || is_int($idx) === true || is_string($idx) === true);
+
+        $this->idx = $idx;
+
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getLinks(): ?array
     {
         return $this->links;
+    }
+
+    /**
+     * @param string             $name
+     * @param LinkInterface|null $link
+     *
+     * @return self
+     */
+    public function setLink(string $name, ?LinkInterface $link): self
+    {
+        if ($link !== null) {
+            $this->links[$name] = $link;
+        } else {
+            unset($this->links[$name]);
+        }
+
+        return $this;
     }
 
     /**
@@ -124,11 +154,35 @@ class Error implements ErrorInterface
     }
 
     /**
+     * @param string|null $status
+     *
+     * @return self
+     */
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getCode(): ?string
     {
         return $this->code;
+    }
+
+    /**
+     * @param string|null $code
+     *
+     * @return self
+     */
+    public function setCode(?string $code): self
+    {
+        $this->code = $code;
+
+        return $this;
     }
 
     /**
@@ -140,11 +194,35 @@ class Error implements ErrorInterface
     }
 
     /**
+     * @param null|string $title
+     *
+     * @return self
+     */
+    public function setTitle(?string $title): self
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getDetail(): ?string
     {
         return $this->detail;
+    }
+
+    /**
+     * @param null|string $detail
+     *
+     * @return self
+     */
+    public function setDetail(?string $detail): self
+    {
+        $this->detail = $detail;
+
+        return $this;
     }
 
     /**
@@ -156,10 +234,34 @@ class Error implements ErrorInterface
     }
 
     /**
+     * @param array|null $source
+     *
+     * @return self
+     */
+    public function setSource(?array $source): self
+    {
+        $this->source = $source;
+
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getMeta()
     {
         return $this->meta;
+    }
+
+    /**
+     * @param mixed|null $meta
+     *
+     * @return self
+     */
+    public function setMeta($meta): self
+    {
+        $this->meta = $meta;
+
+        return $this;
     }
 }
