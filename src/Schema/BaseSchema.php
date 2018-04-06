@@ -43,7 +43,7 @@ abstract class BaseSchema implements SchemaInterface
     const SHOW_SELF = 'showSelf';
 
     /** If 'related' URL should be shown. */
-    const SHOW_RELATED = 'related';
+    const SHOW_RELATED = 'showRelated';
 
     /** If data should be shown in relationships. */
     const SHOW_DATA = 'showData';
