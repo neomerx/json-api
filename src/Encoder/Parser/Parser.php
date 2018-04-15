@@ -70,16 +70,32 @@ class Parser implements ParserInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
+    /** @deprecated Use `MSG_GET_SCHEMA_FAILED_FOR_RESOURCE_AT_XXX` instead
+     * Message code.
+     */
+    const MSG_SCHEME_NOT_REGISTERED = self::MSG_GET_SCHEMA_FAILED_FOR_RESOURCE_AT_PATH;
+
     /**
      * Message code.
      */
-    const MSG_SCHEME_NOT_REGISTERED = 0;
+    const MSG_GET_SCHEMA_FAILED_FOR_RESOURCE_AT_ROOT = 0;
+
+    /**
+     * Message code.
+     */
+    const MSG_GET_SCHEMA_FAILED_FOR_RESOURCE_AT_PATH = self::MSG_GET_SCHEMA_FAILED_FOR_RESOURCE_AT_ROOT + 1;
 
     /**
      * Default messages.
      */
     const MESSAGES = [
-        self::MSG_SCHEME_NOT_REGISTERED => 'Schema is not registered for a resource at path \'%s\'.',
+        self::MSG_GET_SCHEMA_FAILED_FOR_RESOURCE_AT_ROOT =>
+            'Getting Schema for a top-level resource of type `%s` failed. ' .
+            'Please check you have added a Schema for this type.',
+
+        self::MSG_GET_SCHEMA_FAILED_FOR_RESOURCE_AT_PATH =>
+            'Getting Schema for a resource of type `%s` at path `%s` failed. ' .
+            'Please check you have added a Schema for this type.',
     ];
 
     /**
@@ -291,13 +307,21 @@ class Parser implements ParserInterface, LoggerAwareInterface
      * @return SchemaInterface
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     private function getSchema($resource, StackFrameReadOnlyInterface $frame): SchemaInterface
     {
         try {
             $schema = $this->container->getSchema($resource);
         } catch (InvalidArgumentException $exception) {
-            $message = _($this->messages[self::MSG_SCHEME_NOT_REGISTERED], $frame->getPath());
+            $path     = $frame->getPath();
+            $typeName = is_object($resource) === true ? get_class($resource) : gettype($resource);
+            if ($path === null) {
+                $message = _($this->messages[static::MSG_GET_SCHEMA_FAILED_FOR_RESOURCE_AT_ROOT], $typeName);
+            } else {
+                $message = _($this->messages[static::MSG_GET_SCHEMA_FAILED_FOR_RESOURCE_AT_PATH], $typeName, $path);
+            }
+
             throw new InvalidArgumentException($message, 0, $exception);
         }
 

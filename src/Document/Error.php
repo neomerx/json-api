@@ -133,6 +133,8 @@ class Error implements ErrorInterface
      * @param LinkInterface|null $link
      *
      * @return self
+     *
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
     public function setLink(string $name, ?LinkInterface $link): self
     {

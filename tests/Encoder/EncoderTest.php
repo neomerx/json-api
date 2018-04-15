@@ -858,7 +858,29 @@ EOL;
     /**
      * Test encode unrecognized resource (no registered Schema).
      */
-    public function testEncodeUnrecognizedResource()
+    public function testEncodeUnrecognizedResourceAtRoot()
+    {
+        $author = Author::instance(9, 'Dan', 'Gebhardt');
+
+        /** @var InvalidArgumentException $catch */
+        $catch = null;
+        try {
+            Encoder::instance([
+                Post::class    => PostSchema::class,
+            ], $this->encoderOptions)->encodeData($author);
+        } catch (InvalidArgumentException $exception) {
+            $catch = $exception;
+        }
+
+        $this->assertNotNull($catch);
+        $this->assertContains('top-level', $catch->getMessage());
+        $this->assertNotNull($catch->getPrevious());
+    }
+
+    /**
+     * Test encode unrecognized resource (no registered Schema).
+     */
+    public function testEncodeUnrecognizedResourceInRelationship()
     {
         $author = Author::instance(9, 'Dan', 'Gebhardt');
         $post   = Post::instance(1, 'Title', 'Body', null, [Comment::instance(5, 'First!', $author)]);
