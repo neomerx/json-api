@@ -288,7 +288,16 @@ class Parser implements ParserInterface, LoggerAwareInterface
         if (is_array($data) === true) {
             $traversableData = $data;
         } elseif ($data instanceof Traversable) {
-            $traversableData = $data instanceof IteratorAggregate ? $data->getIterator() : $data;
+            if ($data instanceof IteratorAggregate
+                && is_object(current(current($data->getIterator())))
+            ) {
+                $traversableData = $data->getIterator();
+            } elseif ($data instanceof Iterator) {
+                $traversableData = $data;
+            } else {
+                $isCollection    = false;
+                $traversableData = [$data];
+            }
         } elseif (is_object($data) === true) {
             $isCollection    = false;
             $traversableData = [$data];
