@@ -23,6 +23,8 @@ use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 use Neomerx\JsonApi\Factories\Factory;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 use Neomerx\Tests\JsonApi\Data\Author;
+use Neomerx\Tests\JsonApi\Data\AuthorCModel;
+use Neomerx\Tests\JsonApi\Data\AuthorCModelSchema;
 use Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use Neomerx\Tests\JsonApi\Data\Collection;
 use Neomerx\Tests\JsonApi\Data\Comment;
@@ -818,6 +820,71 @@ EOL;
                     }
                 }
             ]
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test encode array-based objects.
+     *
+     * @see https://github.com/neomerx/json-api/pull/214
+     */
+    public function testEncodeArrayBasedObject(): void
+    {
+        $author  = new AuthorCModel(9, 'Dan', 'Gebhardt');
+        $encoder = Encoder::instance([
+            AuthorCModel::class => AuthorCModelSchema::class,
+        ], $this->encoderOptions);
+
+        $actual = $encoder->encodeData($author);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "people",
+                "id"   : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "relationships" : {
+                    "comments" : { "data" : null }
+                },
+                "links" : {
+                    "self" : "http://example.com/people/9"
+                }
+            }
+        }
+EOL;
+        // remove formatting from 'expected'
+        $expected = json_encode(json_decode($expected));
+
+        $this->assertEquals($expected, $actual);
+
+        // same but as array
+
+        $actual = $encoder->encodeData([$author]);
+
+        $expected = <<<EOL
+        {
+            "data" : [{
+                "type" : "people",
+                "id"   : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "relationships" : {
+                    "comments" : { "data" : null }
+                },
+                "links" : {
+                    "self" : "http://example.com/people/9"
+                }
+            }]
         }
 EOL;
         // remove formatting from 'expected'

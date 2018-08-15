@@ -58,6 +58,14 @@ class ResourceIdentifierContainerAdapter implements ContainerInterface
     /**
      * @inheritdoc
      */
+    public function hasSchema($resourceObject): bool
+    {
+        return $this->container->hasSchema($resourceObject);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getSchemaByType(string $type): SchemaInterface
     {
         return $this->getSchemaAdapter($this->container->getSchemaByType($type));

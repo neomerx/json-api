@@ -31,6 +31,15 @@ interface ContainerInterface
     public function getSchema($resourceObject): ?SchemaInterface;
 
     /**
+     * If container has a Schema for a given input.
+     *
+     * @param mixed $resourceObject
+     *
+     * @return bool
+     */
+    public function hasSchema($resourceObject): bool;
+
+    /**
      * Get schema provider by resource type.
      *
      * @param string $type

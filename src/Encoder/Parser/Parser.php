@@ -275,6 +275,7 @@ class Parser implements ParserInterface, LoggerAwareInterface
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @SuppressWarnings(PHPMD.ElseExpression)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function analyzeData($data): array
     {
@@ -285,11 +286,15 @@ class Parser implements ParserInterface, LoggerAwareInterface
         $isOk = (is_array($data) === true || is_object($data) === true || $data === null);
         $isOk ?: Exceptions::throwInvalidArgument('data', $data);
 
-        if (is_array($data) === true) {
+        if ($this->container->hasSchema($data) === true) {
+            $isCollection    = false;
+            $traversableData = [$data];
+        } elseif (is_array($data) === true) {
             $traversableData = $data;
         } elseif ($data instanceof Traversable) {
             $traversableData = $data instanceof IteratorAggregate ? $data->getIterator() : $data;
         } elseif (is_object($data) === true) {
+            // normally resources should be handled above but if Schema was not registered for $data we get here
             $isCollection    = false;
             $traversableData = [$data];
         } elseif ($data === null) {
