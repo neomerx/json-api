@@ -292,7 +292,16 @@ class Parser implements ParserInterface, LoggerAwareInterface
         } elseif (is_array($data) === true) {
             $traversableData = $data;
         } elseif ($data instanceof Traversable) {
-            $traversableData = $data instanceof IteratorAggregate ? $data->getIterator() : $data;
+            if ($data instanceof IteratorAggregate
+                && is_object(current($data->getIterator()))
+            ) {
+                $traversableData = $data->getIterator();
+            } elseif ($data instanceof Iterator || in_array('Iterator', class_implements($data))) {
+                $traversableData = $data;
+            } else {
+                $isCollection    = false;
+                $traversableData = [$data];
+            }
         } elseif (is_object($data) === true) {
             // normally resources should be handled above but if Schema was not registered for $data we get here
             $isCollection    = false;
