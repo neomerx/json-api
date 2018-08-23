@@ -22,8 +22,10 @@ use Neomerx\JsonApi\Factories\Factory;
 use Neomerx\JsonApi\Schema\Container;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 use Neomerx\Tests\JsonApi\Data\Author;
+use Neomerx\Tests\JsonApi\Data\AuthorInterface;
 use Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use Neomerx\Tests\JsonApi\Data\Post;
+use stdClass;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -134,6 +136,26 @@ class ContainerTest extends BaseTestCase
         $authorSchema = new AuthorSchema($this->factory);
         $container    = new Container($this->factory, [
             Author::class => $authorSchema,
+        ]);
+
+        $this->assertSame($authorSchema, $container->getSchema(new Author()));
+    }
+
+    public function testRegisterSchemaInstanceWhenInterfaceIsMapped()
+    {
+        $authorSchema = new AuthorSchema($this->factory);
+        $container    = new Container($this->factory, [
+            AuthorInterface::class => $authorSchema,
+        ]);
+
+        $this->assertSame($authorSchema, $container->getSchema(new Author()));
+    }
+
+    public function testRegisterSchemaInstanceWhenParentClassIsMapped()
+    {
+        $authorSchema = new AuthorSchema($this->factory);
+        $container    = new Container($this->factory, [
+            stdClass::class => $authorSchema,
         ]);
 
         $this->assertSame($authorSchema, $container->getSchema(new Author()));

@@ -21,7 +21,7 @@ use stdClass;
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class Author extends stdClass
+class Author extends stdClass implements AuthorInterface
 {
     const ATTRIBUTE_ID         = 'author_id';
     const ATTRIBUTE_FIRST_NAME = 'first_name';
