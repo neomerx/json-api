@@ -120,7 +120,7 @@ class Container implements ContainerInterface, LoggerAwareInterface
      */
     public function register(string $type, $schema): void
     {
-        if (empty($type) === true || class_exists($type) === false) {
+        if (empty($type) === true || (class_exists($type) === false && interface_exists($type) === false)) {
             throw new InvalidArgumentException(_($this->messages[self::MSG_INVALID_TYPE]));
         }
 
@@ -371,6 +371,12 @@ class Container implements ContainerInterface, LoggerAwareInterface
             'Unable to get a type of the resource as it is not an object.'
         );
 
+        foreach (array_keys($this->getProviderMappings()) as $schema) {
+            if (is_subclass_of($resource, $schema)) {
+                return $schema;
+            }
+        }
+        
         return get_class($resource);
     }
 
