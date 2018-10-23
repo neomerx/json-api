@@ -335,6 +335,13 @@ abstract class BaseSchema implements SchemaInterface
      */
     protected function createRelationshipObject($resource, $name, array $desc)
     {
+        assert(
+            array_key_exists(self::DATA, $desc) === true ||
+            array_key_exists(self::META, $desc) === true ||
+            array_key_exists(self::LINKS, $desc) === true,
+            'A `' . $this->getResourceType() . ".$name` relationship must contain at least data, links or meta."
+        );
+
         $data          = $desc[self::DATA] ?? null;
         $meta          = $desc[self::META] ?? null;
         $isShowSelf    = (($desc[self::SHOW_SELF] ?? false) === true);
