@@ -27,8 +27,8 @@ High code quality and **100% test coverage** with **200+ tests**. Production rea
 
 <blockquote align="right">
     &ldquo;I'm loving how easy it makes it to quickly implement an api&rdquo;
+    <p>&ndash; <em>Jeremy Cloutier</em></p>
 </blockquote>
-<p align="right">&ndash;<strong>Jeremy Cloutier</strong></p>
 
 ## Full-stack Integration
 
