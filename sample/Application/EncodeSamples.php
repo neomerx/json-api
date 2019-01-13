@@ -183,9 +183,9 @@ class EncodeSamples
      *
      * @param int $iterations
      *
-     * @return mixed
+     * @return array
      */
-    public function runPerformanceTestForSmallNestedResources($iterations)
+    public function runPerformanceTestForSmallNestedResources(int $iterations): array
     {
         $closure = function () use ($iterations) {
             $options = new EncodingParameters(
@@ -217,10 +217,11 @@ class EncodeSamples
             }
         };
 
-        $timeSpent = null;
-        $this->getTime($closure, $timeSpent);
+        $timeSpent = 0;
+        $bytesUsed = 0;
+        $this->getTime($closure, $timeSpent, $bytesUsed);
 
-        return $timeSpent;
+        return [$timeSpent, $bytesUsed];
     }
 
     /**
@@ -228,9 +229,9 @@ class EncodeSamples
      *
      * @param int $numberOfItems
      *
-     * @return mixed
+     * @return array
      */
-    public function runPerformanceTestForBigCollection($numberOfItems)
+    public function runPerformanceTestForBigCollection(int $numberOfItems): array
     {
         $closure = function() use ($numberOfItems) {
             $sites = [];
@@ -262,26 +263,32 @@ class EncodeSamples
             $encoder->encodeData($sites, $options);
         };
 
-        $timeSpent = null;
-        $this->getTime($closure, $timeSpent);
+        $timeSpent = 0;
+        $bytesUsed = 0;
+        $this->getTime($closure, $timeSpent, $bytesUsed);
 
-        return $timeSpent;
+        return [$timeSpent, $bytesUsed];
     }
 
     /**
      * @param Closure $closure
      * @param float   &$time
+     * @param int     &$memory
      *
      * @return mixed
      */
-    private function getTime(Closure $closure, &$time)
+    private function getTime(Closure $closure, float &$time, int &$memory)
     {
-        $time_start = microtime(true);
+        $timeStart  = microtime(true);
+        $bytesStart = memory_get_usage();
         try {
             return $closure();
         } finally {
-            $time_end = microtime(true);
-            $time     = $time_end - $time_start;
+            $bytesEnd = memory_get_usage();
+            $timeEnd  = microtime(true);
+
+            $time   = $timeEnd - $timeStart;
+            $memory = $bytesEnd - $bytesStart;
         }
     }
 }

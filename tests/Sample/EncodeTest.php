@@ -295,7 +295,7 @@ EOL;
      */
     public function testPerformanceTestForSmallNestedResources()
     {
-        $this->assertGreaterThan(0, $this->samples->runPerformanceTestForSmallNestedResources(10));
+        $this->assertGreaterThan(0, $this->samples->runPerformanceTestForSmallNestedResources(10)[0]);
     }
 
     /**
@@ -303,7 +303,7 @@ EOL;
      */
     public function testPerformanceTestForBigCollection()
     {
-        $this->assertGreaterThan(0, $this->samples->runPerformanceTestForBigCollection(10));
+        $this->assertGreaterThan(0, $this->samples->runPerformanceTestForBigCollection(10)[0]);
     }
 
     /**

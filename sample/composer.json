@@ -10,10 +10,12 @@
     ],
     "autoload": {
         "psr-4": {
+            "Neomerx\\JsonApi\\": "./../src",
             "Neomerx\\Samples\\JsonApi\\": "./"
         }
     },
     "require": {
-        "neomerx/json-api": "dev-develop"
+        "php": ">=7.1.0",
+        "psr/log": "^1.0"
     }
 }

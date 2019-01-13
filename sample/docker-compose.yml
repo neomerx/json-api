@@ -1,0 +1,29 @@
+# Usefull links
+# =============
+# https://hub.docker.com/_/php/
+# https://docs.docker.com/compose/overview/
+# https://docs.docker.com/compose/compose-file/
+
+cli_7_1_php:
+  image: php:7.1-cli
+  container_name: cli_php_7_1_json_api
+  volumes:
+    - ./..:/app
+  working_dir: /app
+  tty: true
+
+cli_7_2_php:
+  image: php:7.2-cli
+  container_name: cli_php_7_2_json_api
+  volumes:
+    - ./..:/app
+  working_dir: /app
+  tty: true
+
+cli_7_3_php:
+  image: php:7.3-cli
+  container_name: cli_php_7_3_json_api
+  volumes:
+    - ./..:/app
+  working_dir: /app
+  tty: true

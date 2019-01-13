@@ -16,15 +16,13 @@
  * limitations under the License.
  */
 
-use \Neomerx\JsonApi\Schema\Link;
-use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Encoder\EncoderOptions;
-use \Neomerx\Samples\JsonApi\Application\EncodeSamples;
-use \Neomerx\JsonApi\Http\Parameters\EncodingParameters;
+use Neomerx\JsonApi\Http\Parameters\EncodingParameters;
+use Neomerx\JsonApi\Schema\Link;
+use Neomerx\Samples\JsonApi\Application\EncodeSamples;
 
 require './vendor/autoload.php';
 
-/**
+/** @noinspection PhpIllegalPsrClassPathInspection
  * @package Neomerx\Samples\JsonApi
  */
 class Application
@@ -98,8 +96,9 @@ class Application
     private function runPerformanceTestForSmallNestedResources($num)
     {
         echo "Neomerx JSON API performance test ($num iterations for small resources)... ";
-        $time = $this->samples->runPerformanceTestForSmallNestedResources($num);
-        echo $time . ' seconds' . PHP_EOL;
+        [$time, $bytes] = $this->samples->runPerformanceTestForSmallNestedResources($num);
+        $bytes = number_format($bytes);
+        echo "$time  seconds ($bytes bytes used)." . PHP_EOL;
     }
 
     /**
@@ -110,8 +109,9 @@ class Application
     private function runPerformanceTestForBigCollection($num)
     {
         echo "Neomerx JSON API performance test (1 iteration for $num resources)... ";
-        $time = $this->samples->runPerformanceTestForBigCollection($num);
-        echo $time . ' seconds' . PHP_EOL;
+        [$time, $bytes] = $this->samples->runPerformanceTestForBigCollection($num);
+        $bytes = number_format($bytes);
+        echo "$time  seconds ($bytes bytes used)." . PHP_EOL;
     }
 
     /**
