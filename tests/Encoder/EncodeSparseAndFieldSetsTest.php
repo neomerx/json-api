@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Encoder;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Encoder;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +18,17 @@
  * limitations under the License.
  */
 
+use Exception;
 use Neomerx\JsonApi\Encoder\Encoder;
-use Neomerx\JsonApi\Encoder\EncoderOptions;
-use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 use Neomerx\Tests\JsonApi\BaseTestCase;
-use Neomerx\Tests\JsonApi\Data\Author;
-use Neomerx\Tests\JsonApi\Data\AuthorSchema;
-use Neomerx\Tests\JsonApi\Data\Comment;
-use Neomerx\Tests\JsonApi\Data\CommentSchema;
-use Neomerx\Tests\JsonApi\Data\Post;
-use Neomerx\Tests\JsonApi\Data\PostSchema;
-use Neomerx\Tests\JsonApi\Data\Site;
-use Neomerx\Tests\JsonApi\Data\SiteSchema;
+use Neomerx\Tests\JsonApi\Data\Models\Author;
+use Neomerx\Tests\JsonApi\Data\Models\Comment;
+use Neomerx\Tests\JsonApi\Data\Models\Post;
+use Neomerx\Tests\JsonApi\Data\Models\Site;
+use Neomerx\Tests\JsonApi\Data\Schemas\AuthorSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\CommentSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\PostSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\SiteSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -55,11 +56,6 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
     private $site;
 
     /**
-     * @var EncoderOptions
-     */
-    private $encoderOptions;
-
-    /**
      * Set up.
      */
     protected function setUp()
@@ -71,15 +67,14 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
             Comment::instance(5, 'First!', $this->author),
             Comment::instance(12, 'I like XML better', $this->author),
         ];
-        $this->post = Post::instance(
+        $this->post     = Post::instance(
             1,
             'JSON API paints my bikeshed!',
             'Outside every fat man there was an even fatter man trying to close in',
             $this->author,
             $this->comments
         );
-        $this->site = Site::instance(2, 'site name', [$this->post]);
-        $this->encoderOptions = new EncoderOptions(0, 'http://example.com');
+        $this->site     = Site::instance(2, 'site name', [$this->post]);
     }
 
     /**
@@ -89,19 +84,15 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
     {
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encodeData($this->site, new EncodingParameters(
-            // include only this relations
-            [
-                Site::LINK_POSTS,
-                Site::LINK_POSTS . '.' . Post::LINK_COMMENTS,
-            ],
-            null // no filter for attributes
-        ));
+        $actual = Encoder::instance($this->getSchemasWithoutDefaultLinksInRelationships())
+            ->withUrlPrefix('http://example.com')
+            ->withIncludedPaths(
+                [
+                    // include only this relations
+                    Site::LINK_POSTS,
+                    Site::LINK_POSTS . '.' . Post::LINK_COMMENTS,
+                ]
+            )->encodeData($this->site);
 
         $expected = <<<EOL
         {
@@ -124,6 +115,24 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
                 }
             },
             "included" : [{
+                "type" : "posts",
+                "id"   : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
+                "relationships" : {
+                    "author" : {
+                        "data" : { "type" : "people", "id" : "9" }
+                    },
+                    "comments" : {
+                        "data" : [
+                            { "type" : "comments", "id" : "5" },
+                            { "type" : "comments", "id" : "12" }
+                        ]
+                    }
+                }
+            }, {
                 "type"  : "comments",
                 "id"    : "5",
                 "attributes" : {
@@ -151,31 +160,10 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
                 "links" : {
                     "self"   : "http://example.com/comments/12"
                 }
-            },{
-                "type" : "posts",
-                "id"   : "1",
-                "attributes" : {
-                    "title" : "JSON API paints my bikeshed!",
-                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
-                },
-                "relationships" : {
-                    "author" : {
-                        "data" : { "type" : "people", "id" : "9" }
-                    },
-                    "comments" : {
-                        "data" : [
-                            { "type" : "comments", "id" : "5" },
-                            { "type" : "comments", "id" : "12" }
-                        ]
-                    }
-                }
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -185,21 +173,21 @@ EOL;
     {
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encodeData($this->site, new EncodingParameters(
-            null,
-            // include only these attributes and links
-            [
-                // note: no filter for 'comments'
-                'people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME],
-                'posts'  => [Post::LINK_COMMENTS, Post::LINK_AUTHOR],
-                'sites'  => [Site::LINK_POSTS],
-            ]
-        ));
+        $actual = Encoder::instance($this->getSchemasWithoutDefaultLinksInRelationships())
+            ->withUrlPrefix('http://example.com')->withFieldSets(
+                [
+                    // note: no filter for 'comments'
+                    'people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME],
+                    'posts'  => [Post::LINK_COMMENTS, Post::LINK_AUTHOR],
+                    'sites'  => [Site::LINK_POSTS],
+                ]
+            )->withIncludedPaths(
+                [
+                    Site::LINK_POSTS,
+                    Site::LINK_POSTS . '.' . Post::LINK_COMMENTS,
+                    Site::LINK_POSTS . '.' . Post::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR,
+                ]
+            )->encodeData($this->site);
 
         $expected = <<<EOL
         {
@@ -219,11 +207,18 @@ EOL;
                 }
             },
             "included" : [{
-                "type"       : "people",
-                "id"         : "9",
-                "attributes" : {
-                    "first_name" : "Dan",
-                    "last_name"  : "Gebhardt"
+                "type" : "posts",
+                "id"   : "1",
+                "relationships" : {
+                    "author" : {
+                        "data" : { "type" : "people", "id" : "9" }
+                    },
+                    "comments" : {
+                        "data" : [
+                            { "type" : "comments", "id" : "5" },
+                            { "type" : "comments", "id" : "12" }
+                        ]
+                    }
                 }
             }, {
                 "type"  : "comments",
@@ -238,6 +233,13 @@ EOL;
                 },
                 "links" : {
                     "self" : "http://example.com/comments/5"
+                }
+            }, {
+                "type"       : "people",
+                "id"         : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
                 }
             }, {
                 "type"  : "comments",
@@ -256,27 +258,10 @@ EOL;
                 "links" : {
                     "self" : "http://example.com/comments/12"
                 }
-            }, {
-                "type" : "posts",
-                "id"   : "1",
-                "relationships" : {
-                    "author" : {
-                        "data" : { "type" : "people", "id" : "9" }
-                    },
-                    "comments" : {
-                        "data" : [
-                            { "type" : "comments", "id" : "5" },
-                            { "type" : "comments", "id" : "12" }
-                        ]
-                    }
-                }
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -288,20 +273,17 @@ EOL;
      */
     public function testIncludeAndSparseFieldSets()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encodeData($this->site, new EncodingParameters(
-            [
-                Site::LINK_POSTS
-            ],
-            // include only these attributes and links
-            [
-                'posts' => [Post::ATTRIBUTE_TITLE, Post::ATTRIBUTE_BODY],
-            ]
-        ));
+        $actual = Encoder::instance($this->getSchemasWithoutDefaultLinksInRelationships())
+            ->withUrlPrefix('http://example.com')
+            ->withIncludedPaths(
+                [
+                    Site::LINK_POSTS,
+                ]
+            )->withFieldSets(
+                [
+                    'posts' => [Post::ATTRIBUTE_TITLE, Post::ATTRIBUTE_BODY],
+                ]
+            )->encodeData($this->site);
 
         $expected = <<<EOL
         {
@@ -333,55 +315,7 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
-    }
-
-    /**
-     * Test closures are not executed in lazy relationships.
-     */
-    public function testDataNotLoadedInLazyRelationships()
-    {
-        $throwExClosure = function () {
-            throw new \Exception();
-        };
-
-        $actual = Encoder::instance([
-            Author::class  => function ($factory) use ($throwExClosure) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::DATA, $throwExClosure);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->author, new EncodingParameters(
-            // do not include any relationships
-            [],
-            // include only these attributes (thus relationship that throws exception should not be invoked)
-            [
-                'people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME],
-            ]
-        ));
-
-        $expected = <<<EOL
-        {
-            "data":{
-                "type" : "people",
-                "id"   : "9",
-                "attributes" : {
-                    "first_name" : "Dan",
-                    "last_name"  : "Gebhardt"
-                },
-                "links":{
-                    "self":"http://example.com/people/9"
-                }
-            }
-        }
-EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -390,23 +324,23 @@ EOL;
     public function testMetaNotLoadedInLazyRelationships()
     {
         $throwExClosure = function () {
-            throw new \Exception();
+            throw new Exception();
         };
 
-        $actual = Encoder::instance([
-            Author::class  => function ($factory) use ($throwExClosure) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::META, $throwExClosure);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->author, new EncodingParameters(
-            // do not include any relationships
-            [],
-            // include only these attributes (thus relationship that throws exception should not be invoked)
+        $actual = Encoder::instance(
             [
+                Author::class => function ($factory) use ($throwExClosure) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->addToRelationship(Author::LINK_COMMENTS, AuthorSchema::RELATIONSHIP_META, $throwExClosure);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->withFieldSets(
+            [
+                // include only these attributes (thus relationship that throws exception should not be invoked)
                 'people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME],
             ]
-        ));
+        )->encodeData($this->author);
 
         $expected = <<<EOL
         {
@@ -423,10 +357,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -439,27 +370,22 @@ EOL;
     {
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 
-        $actual = $this->createLoggedEncoder([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encodeData($this->site, new EncodingParameters(
-            [
-                Site::LINK_POSTS,
-                Site::LINK_POSTS . '.' . Post::LINK_AUTHOR,
-                Site::LINK_POSTS . '.' . Post::LINK_COMMENTS,
-                Site::LINK_POSTS . '.' . Post::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR,
-                Site::LINK_POSTS . '.' . Post::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR . '.' . Author::LINK_COMMENTS,
-            ],
-            // include only these attributes and links
-            [
-                'sites'    => [],
-                'posts'    => [],
-                'comments' => [],
-                'people'   => [Author::ATTRIBUTE_LAST_NAME, Author::LINK_COMMENTS],
-            ]
-        ));
+        $actual = Encoder::instance($this->getSchemasWithoutDefaultLinksInRelationships())
+            ->withUrlPrefix('http://example.com')->withIncludedPaths(
+                [
+                    Site::LINK_POSTS . '.' . Post::LINK_AUTHOR,
+                    Site::LINK_POSTS . '.' . Post::LINK_COMMENTS . '.' .
+                    Comment::LINK_AUTHOR . '.' . Author::LINK_COMMENTS,
+                ]
+            )->withFieldSets(
+                [
+                    // include only these attributes and links
+                    'sites'    => [],                  // note relationship resources will NOT be in included
+                    'posts'    => [Post::LINK_AUTHOR], // note relationship resources will be in included
+                    'comments' => [],                  // note relationship resources will NOT be in included
+                    'people'   => [Author::ATTRIBUTE_LAST_NAME, Author::LINK_COMMENTS],
+                ]
+            )->encodeData($this->site);
 
         $expected = <<<EOL
         {
@@ -489,9 +415,47 @@ EOL;
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
+        self::assertJsonStringEqualsJsonString($expected, $actual);
+    }
 
-        $this->assertEquals($expected, $actual);
+    /**
+     * @return array
+     */
+    private function getSchemasWithoutDefaultLinksInRelationships(): array
+    {
+        $authorSchema  = function ($factory) {
+            $schema = new AuthorSchema($factory);
+            $schema->hideResourceLinks();
+            $schema->hideDefaultLinksInRelationship(Author::LINK_COMMENTS);
+
+            return $schema;
+        };
+        $commentSchema = function ($factory) {
+            $schema = new CommentSchema($factory);
+            $schema->hideDefaultLinksInRelationship(Comment::LINK_AUTHOR);
+
+            return $schema;
+        };
+        $postSchema    = function ($factory) {
+            $schema = new PostSchema($factory);
+            $schema->hideResourceLinks();
+            $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+            $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+
+            return $schema;
+        };
+        $siteSchema    = function ($factory) {
+            $schema = new SiteSchema($factory);
+            $schema->hideDefaultLinksInRelationship(Site::LINK_POSTS);
+
+            return $schema;
+        };
+
+        return [
+            Author::class  => $authorSchema,
+            Comment::class => $commentSchema,
+            Post::class    => $postSchema,
+            Site::class    => $siteSchema,
+        ];
     }
 }

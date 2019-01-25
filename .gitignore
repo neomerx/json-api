@@ -2,3 +2,4 @@ vendor/
 build/
 .idea/
 composer.lock
+perf/blackfire.io.env

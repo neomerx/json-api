@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue169;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Extensions\Issue169;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +18,10 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Document\Error;
+use Neomerx\JsonApi\Schema\Error;
 use Neomerx\Tests\JsonApi\BaseTestCase;
-use Neomerx\Tests\JsonApi\Data\Author;
-use Neomerx\Tests\JsonApi\Data\AuthorSchema;
+use Neomerx\Tests\JsonApi\Data\Models\Author;
+use Neomerx\Tests\JsonApi\Data\Schemas\AuthorSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -33,15 +35,17 @@ class IssueTest extends BaseTestCase
      */
     public function testDataSerialization()
     {
-        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $author = Author::instance(9, 'Dan', 'Gebhardt');
         /** @var CustomEncoder $encoder */
-        $encoder = CustomEncoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
-                return $schema;
-            }
-        ]);
+        $encoder = CustomEncoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
+                    return $schema;
+                },
+            ]
+        );
 
         $actual = $encoder->serializeData($author);
 
@@ -51,12 +55,12 @@ class IssueTest extends BaseTestCase
                 'id'         => '9',
                 'attributes' => [
                     'first_name' => 'Dan',
-                    'last_name'  => 'Gebhardt'
+                    'last_name'  => 'Gebhardt',
                 ],
                 'links'      => [
-                    'self' => '/people/9'
-                ]
-            ]
+                    'self' => '/people/9',
+                ],
+            ],
         ];
 
         $this->assertEquals($expected, $actual);
@@ -69,11 +73,13 @@ class IssueTest extends BaseTestCase
      */
     public function testIdentifiersSerialization()
     {
-        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $author = Author::instance(9, 'Dan', 'Gebhardt');
         /** @var CustomEncoder $encoder */
-        $encoder = CustomEncoder::instance([
-            Author::class => AuthorSchema::class
-        ]);
+        $encoder = CustomEncoder::instance(
+            [
+                Author::class => AuthorSchema::class,
+            ]
+        );
 
         $actual = $encoder->serializeIdentifiers($author);
 
@@ -81,7 +87,7 @@ class IssueTest extends BaseTestCase
             'data' => [
                 'type' => 'people',
                 'id'   => '9',
-            ]
+            ],
         ];
 
         $this->assertEquals($expected, $actual);
@@ -94,7 +100,7 @@ class IssueTest extends BaseTestCase
      */
     public function testErrorSerialization()
     {
-        $error   = new Error('some-id');
+        $error = new Error('some-id');
         /** @var CustomEncoder $encoder */
         $encoder = CustomEncoder::instance();
 
@@ -109,7 +115,7 @@ class IssueTest extends BaseTestCase
      */
     public function testMetaSerialization()
     {
-        $meta    = ['some meta'];
+        $meta = ['some meta'];
         /** @var CustomEncoder $encoder */
         $encoder = CustomEncoder::instance();
 

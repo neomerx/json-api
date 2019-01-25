@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Encoder;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Encoder;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +18,12 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Document\Error;
-use Neomerx\JsonApi\Document\Link;
+use Neomerx\JsonApi\Contracts\Schema\ErrorInterface;
 use Neomerx\JsonApi\Encoder\Encoder;
-use Neomerx\JsonApi\Exceptions\ErrorCollection;
+use Neomerx\JsonApi\Schema\Error;
+use Neomerx\JsonApi\Schema\ErrorCollection;
+use Neomerx\JsonApi\Schema\Link;
+use Neomerx\JsonApi\Schema\LinkWithAliases;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 
 /**
@@ -30,18 +34,20 @@ class EncodeErrorsTest extends BaseTestCase
     /**
      * Test encode error.
      */
-    public function testEncodeError()
+    public function testEncodeError(): void
     {
         $error   = $this->getError();
         $encoder = Encoder::instance();
 
-        $actual = $encoder->encodeError($error);
-
+        $actual   = $encoder->encodeError($error);
         $expected = <<<EOL
         {
             "errors":[{
                 "id"     : "some-id",
-                "links"  : {"about" : "about-link"},
+                "links"  : {
+                    "about" : "about-link",
+                     "type" : [{ "href": "http://example.com/errors/123", "aliases": {"v": "version"} }]
+                },
                 "status" : "some-status",
                 "code"   : "some-code",
                 "title"  : "some-title",
@@ -51,16 +57,13 @@ class EncodeErrorsTest extends BaseTestCase
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
      * Test encode error array.
      */
-    public function testEncodeErrorsArray()
+    public function testEncodeErrorsArray(): void
     {
         $error   = $this->getError();
         $encoder = Encoder::instance();
@@ -71,7 +74,10 @@ EOL;
         {
             "errors":[{
                 "id"     : "some-id",
-                "links"  : {"about" : "about-link"},
+                "links"  : {
+                    "about" : "about-link",
+                     "type" : [{ "href": "http://example.com/errors/123", "aliases": {"v": "version"} }]
+                },
                 "status" : "some-status",
                 "code"   : "some-code",
                 "title"  : "some-title",
@@ -81,18 +87,15 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
      * Test encode error array.
      */
-    public function testEncodeErrorsCollection()
+    public function testEncodeErrorsCollection(): void
     {
-        $errors  = new ErrorCollection();
+        $errors = new ErrorCollection();
         $errors->add($this->getError());
 
         $encoder = Encoder::instance();
@@ -103,7 +106,10 @@ EOL;
         {
             "errors":[{
                 "id"     : "some-id",
-                "links"  : {"about" : "about-link"},
+                "links"  : {
+                    "about" : "about-link",
+                     "type" : [{ "href": "http://example.com/errors/123", "aliases": {"v": "version"} }]
+                },
                 "status" : "some-status",
                 "code"   : "some-code",
                 "title"  : "some-title",
@@ -113,10 +119,7 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -124,7 +127,7 @@ EOL;
      *
      * @see https://github.com/neomerx/json-api/issues/62
      */
-    public function testEncodeEmptyError()
+    public function testEncodeEmptyError(): void
     {
         $error   = new Error();
         $encoder = Encoder::instance();
@@ -137,10 +140,7 @@ EOL;
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -148,19 +148,16 @@ EOL;
      *
      * @see https://github.com/neomerx/json-api/issues/151
      */
-    public function testEncodeEmptyErrorArray()
+    public function testEncodeEmptyErrorArray(): void
     {
-        $actual  = Encoder::instance()->encodeErrors([]);
+        $actual = Encoder::instance()->encodeErrors([]);
 
         $expected = <<<EOL
         {
             "errors" : []
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -168,20 +165,21 @@ EOL;
      *
      * @see https://github.com/neomerx/json-api/issues/171
      */
-    public function testEncodeErrorWithMetaAndJsonApi()
+    public function testEncodeErrorWithMetaAndJsonApi(): void
     {
         $error   = $this->getError();
         $encoder = Encoder::instance();
 
         $actual = $encoder
-            ->withJsonApiVersion(['some' => 'meta'])
+            ->withJsonApiVersion(Encoder::JSON_API_VERSION)
+            ->withJsonApiMeta(['some' => 'meta'])
             ->withMeta(["copyright" => "Copyright 2015 Example Corp."])
             ->encodeError($error);
 
         $expected = <<<EOL
         {
             "jsonapi" : {
-                "version" : "1.0",
+                "version" : "1.1",
                 "meta"    : { "some" : "meta" }
             },
             "meta" : {
@@ -189,7 +187,10 @@ EOL;
             },
             "errors":[{
                 "id"     : "some-id",
-                "links"  : {"about" : "about-link"},
+                "links"  : {
+                    "about" : "about-link",
+                     "type" : [{ "href": "http://example.com/errors/123", "aliases": {"v": "version"} }]
+                },
                 "status" : "some-status",
                 "code"   : "some-code",
                 "title"  : "some-title",
@@ -199,25 +200,24 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
-     * @return Error
+     * @return ErrorInterface
      */
-    private function getError()
+    private function getError(): ErrorInterface
     {
         return new Error(
             'some-id',
-            new Link('about-link'),
+            new Link(false, 'about-link', false),
+            [new LinkWithAliases(false, 'http://example.com/errors/123', ['v' => 'version'], false)],
             'some-status',
             'some-code',
             'some-title',
             'some-detail',
             ['source' => 'data'],
+            true,
             ['some' => 'meta']
         );
     }

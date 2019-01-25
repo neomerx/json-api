@@ -1,7 +1,7 @@
-<?php namespace Neomerx\Samples\JsonApi\Schemas;
+<?php declare(strict_types=1); namespace Neomerx\Samples\JsonApi\Schemas;
 
 /**
- * Copyright 2015 info@neomerx.com (www.neomerx.com)
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Document\Link;
 use Neomerx\JsonApi\Schema\BaseSchema;
+use Neomerx\JsonApi\Schema\Link;
 use Neomerx\Samples\JsonApi\Models\Site;
 
 /**
@@ -26,11 +26,6 @@ use Neomerx\Samples\JsonApi\Models\Site;
 class SiteSchema extends BaseSchema
 {
     /**
-     * @inheritdoc
-     */
-    protected $resourceType = 'sites';
-
-    /**
      * @var bool
      */
     public static $isShowCustomLinks = true;
@@ -38,18 +33,28 @@ class SiteSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getId($site): ?string
+    public function getType(): string
     {
-        /** @var Site $site */
-        return $site->siteId;
+        return 'sites';
     }
 
     /**
      * @inheritdoc
      */
-    public function getAttributes($site, array $fieldKeysFilter = null): ?array
+    public function getId($site): ?string
     {
-        /** @var Site $site */
+        assert($site instanceof Site);
+
+        return (string)$site->siteId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAttributes($site, array $fieldKeysFilter = null): iterable
+    {
+        assert($site instanceof Site);
+
         return [
             'name' => $site->name,
         ];
@@ -58,32 +63,22 @@ class SiteSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($site, bool $isPrimary, array $includeRelationships): ?array
+    public function getRelationships($site): iterable
     {
-        /** @var Site $site */
+        assert($site instanceof Site);
 
         $links = static::$isShowCustomLinks === false ? [] : [
-            'some-sublink'  => new Link($this->getSelfSubUrl($site) . '/resource-sublink'),
-            'external-link' => new Link('www.example.com', null, true),
+            'some-sublink'  => new Link(true, $this->getSelfSubUrl($site) . '/resource-sublink', false),
+            'external-link' => new Link(false,'www.example.com', false),
         ];
 
         return [
             'posts' => [
-                self::DATA  => $site->posts,
-                self::LINKS => $links,
+                self::RELATIONSHIP_DATA          => $site->posts,
+                self::RELATIONSHIP_LINKS         => $links,
+                self::RELATIONSHIP_LINKS_SELF    => true,
+                self::RELATIONSHIP_LINKS_RELATED => false,
             ],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIncludePaths(): array
-    {
-        return [
-            'posts',
-            'posts.author',
-            'posts.comments',
         ];
     }
 }

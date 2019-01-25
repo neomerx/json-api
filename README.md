@@ -1,7 +1,6 @@
-[![Project Management](https://img.shields.io/badge/project-management-blue.svg)](https://waffle.io/neomerx/json-api)
+[![Build Status](https://travis-ci.org/neomerx/json-api.svg?branch=master)](https://travis-ci.org/neomerx/json-api)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/neomerx/json-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/neomerx/json-api/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/neomerx/json-api/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/neomerx/json-api/?branch=master)
-[![Build Status](https://travis-ci.org/neomerx/json-api.svg?branch=master)](https://travis-ci.org/neomerx/json-api)
 [![License](https://img.shields.io/packagist/l/neomerx/json-api.svg)](https://packagist.org/packages/neomerx/json-api)
 
 ## Description 
@@ -10,18 +9,19 @@
 
 A good API is one of most effective ways to improve the experience for your clients. Standardized approaches for data formats and communication protocols increase productivity and make integration between applications smooth.
 
-This framework agnostic package implements [JSON API](http://jsonapi.org/) specification **version v1.0** and helps focusing on core application functionality rather than on protocol implementation. It supports document structure, errors, data fetching as described in [JSON API Format](http://jsonapi.org/format/) and covers parsing and checking HTTP request parameters and headers. For instance it helps to correctly respond with ```Unsupported Media Type``` (HTTP code 415) and ```Not Acceptable``` (HTTP code 406) to invalid requests. You don't need to manually validate all input parameters on every request. You can configure what parameters are supported by your services and this package will check incoming requests automatically. It greatly simplifies API development and fully support specification. In particular
+This framework agnostic package implements [JSON API](http://jsonapi.org/) specification **version v1.1** and helps focusing on core application functionality rather than on protocol implementation. It supports document structure, errors, data fetching as described in [JSON API Format](http://jsonapi.org/format/) and covers parsing and checking HTTP request parameters and headers. For instance it helps to correctly respond with ```Unsupported Media Type``` (HTTP code 415) and ```Not Acceptable``` (HTTP code 406) to invalid requests. You don't need to manually validate all input parameters on every request. You can configure what parameters are supported by your services and this package will check incoming requests automatically. It greatly simplifies API development and fully support specification. In particular
 
 * Resource attributes and relationships
 * Polymorphic resource data and relationships
 * Compound documents with inclusion of related resources (circular resource references supported)
 * Meta information for document, resources, errors, relationship and link objects
+* Profiles 
 * Parsing HTTP `Accept` and `Content-Type` headers in accordance with [RFC 7231](https://tools.ietf.org/html/rfc7231)
 * Parsing HTTP query parameters (e.g. pagination, sorting and etc)
 * Sparse fieldsets and customized included paths
 * Errors
 
-High code quality and **100% test coverage** with **200+ tests**. Production ready.
+High code quality and **100% test coverage** with **150+ tests**. Production ready.
 
 **To find out more, please check out the [Wiki](https://github.com/neomerx/json-api/wiki) and [Sample App](/sample)**.
 
@@ -50,8 +50,10 @@ Assuming you've got an ```$author``` of type ```\Author``` you can encode it to 
 
 ```php
 $encoder = Encoder::instance([
-    '\Author' => '\AuthorSchema',
-], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com/api/v1'));
+        Author::class => AuthorSchema::class,
+    ])
+    ->withUrlPrefix('http://example.com/api/v1')
+    ->withEncodeOptions(JSON_PRETTY_PRINT);
 
 echo $encoder->encodeData($author) . PHP_EOL;
 ```
@@ -60,15 +62,22 @@ will output
 
 ```json
 {
-    "data": {
-        "type": "people",
-        "id": "123",
-        "attributes": {
-            "first_name": "John",
-            "last_name": "Dow"
+    "data" : {
+        "type"       : "people",
+        "id"         : "123",
+        "attributes" : {
+            "first-name": "John",
+            "last-name": "Doe"
         },
-        "links": {
-            "self": "http://example.com/api/v1/people/123"
+        "relationships" : {
+            "comments" : {
+                "links": {
+                    "related" : "http://example.com/api/v1/people/123/comments"
+                }
+            }
+        },
+        "links" : {
+            "self" : "http://example.com/api/v1/people/123"
         }
     }
 }
@@ -79,28 +88,42 @@ The ```AuthorSchema``` provides information about resource's attributes and migh
 ```php
 class AuthorSchema extends BaseSchema
 {
-    protected $resourceType = 'people';
+    public function getType(): string
+    {
+        return 'people';
+    }
 
     public function getId($author): ?string
     {
-        /** @var Author $author */
         return $author->authorId;
     }
 
-    public function getAttributes($author, array $fieldKeysFilter = null): ?array
+    public function getAttributes($author): iterable
     {
-        /** @var Author $author */
         return [
-            'first_name' => $author->firstName,
-            'last_name'  => $author->lastName,
+            'first-name' => $author->firstName,
+            'last-name'  => $author->lastName,
+        ];
+    }
+
+    public function getRelationships($author): iterable
+    {
+        return [
+            'comments' => [
+                self::RELATIONSHIP_LINKS_SELF    => false,
+                self::RELATIONSHIP_LINKS_RELATED => true,
+
+                // Data include supported as other cool features
+                // self::RELATIONSHIP_DATA => $author->comments,
+            ],
         ];
     }
 }
 ```
 
-The first ```EncoderOptions``` parameter ```JSON_PRETTY_PRINT``` is a PHP predefined [JSON constant](http://php.net/manual/en/json.constants.php).
+Parameter ```http://example.com/api/v1``` is a URL prefix that will be applied to all encoded links unless they have a flag set telling not to add any prefixes.
 
-The second ```EncoderOptions``` parameter ```http://example.com/api/v1``` is a URL prefix that will be applied to all encoded links unless they have ```$treatAsHref``` flag set to ```true```.
+Parameter ```JSON_PRETTY_PRINT``` is a PHP predefined [JSON constant](http://php.net/manual/en/json.constants.php).
 
 A sample program with encoding of multiple, nested, filtered objects and more is [here](sample).
 
@@ -108,7 +131,7 @@ A sample program with encoding of multiple, nested, filtered objects and more is
 
 ## Versions
 
-Current version is 2.x (PHP 7.1+) for older PHP (PHP 5.5 - 7.0, HHVM) please use version 1.x.
+Current version is 3.x (PHP 7.1+) for older PHP (PHP 5.5 - 7.0, HHVM) please use version 1.x.
 
 ## Questions?
 

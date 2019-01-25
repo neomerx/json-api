@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Encoder;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Encoder;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +18,17 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Document\Link;
 use Neomerx\JsonApi\Encoder\Encoder;
-use Neomerx\JsonApi\Encoder\EncoderOptions;
-use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Neomerx\JsonApi\Schema\Link;
 use Neomerx\Tests\JsonApi\BaseTestCase;
-use Neomerx\Tests\JsonApi\Data\Author;
-use Neomerx\Tests\JsonApi\Data\AuthorSchema;
-use Neomerx\Tests\JsonApi\Data\Comment;
-use Neomerx\Tests\JsonApi\Data\CommentSchema;
-use Neomerx\Tests\JsonApi\Data\Post;
-use Neomerx\Tests\JsonApi\Data\PostSchema;
-use Neomerx\Tests\JsonApi\Data\Site;
-use Neomerx\Tests\JsonApi\Data\SiteSchema;
+use Neomerx\Tests\JsonApi\Data\Models\Author;
+use Neomerx\Tests\JsonApi\Data\Models\Comment;
+use Neomerx\Tests\JsonApi\Data\Models\Post;
+use Neomerx\Tests\JsonApi\Data\Models\Site;
+use Neomerx\Tests\JsonApi\Data\Schemas\AuthorSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\CommentSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\PostSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\SiteSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -56,11 +56,6 @@ class EncodeIncludedObjectsTest extends BaseTestCase
     private $site;
 
     /**
-     * @var EncoderOptions
-     */
-    private $encoderOptions;
-
-    /**
      * Set up.
      */
     protected function setUp()
@@ -72,15 +67,14 @@ class EncodeIncludedObjectsTest extends BaseTestCase
             Comment::instance(5, 'First!', $this->author),
             Comment::instance(12, 'I like XML better', $this->author),
         ];
-        $this->post = Post::instance(
+        $this->post     = Post::instance(
             1,
             'JSON API paints my bikeshed!',
             'Outside every fat man there was an even fatter man trying to close in',
             $this->author,
             $this->comments
         );
-        $this->site = Site::instance(2, 'site name', [$this->post]);
-        $this->encoderOptions = new EncoderOptions(0, 'http://example.com');
+        $this->site     = Site::instance(2, 'site name', [$this->post]);
     }
 
     /**
@@ -88,19 +82,26 @@ class EncodeIncludedObjectsTest extends BaseTestCase
      */
     public function testEncodeWithIncludedObjects()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => function ($factory) {
-                $schema = new CommentSchema($factory);
-                $schema->linkRemove(Comment::LINK_AUTHOR);
-                return $schema;
-            },
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->setIncludePaths([Post::LINK_COMMENTS]);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->post);
+        $this->author->setIdentifierMeta('id meta');
+
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => function ($factory) {
+                    $schema = new CommentSchema($factory);
+                    $schema->removeRelationship(Comment::LINK_AUTHOR);
+                    return $schema;
+                },
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->withIncludedPaths(
+            [Post::LINK_COMMENTS]
+        )->encodeData($this->post);
 
         $expected = <<<EOL
         {
@@ -113,7 +114,7 @@ class EncodeIncludedObjectsTest extends BaseTestCase
                 },
                 "relationships" : {
                     "author" : {
-                        "data" : { "type" : "people", "id" : "9" }
+                        "data" : { "type" : "people", "id" : "9", "meta": "id meta" }
                     },
                     "comments" : {
                         "data" : [
@@ -147,10 +148,7 @@ class EncodeIncludedObjectsTest extends BaseTestCase
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -160,21 +158,41 @@ EOL;
     {
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encodeData($this->site, new EncodingParameters(
-            // include only this relation (according to the spec intermediate will be included as well)
-            [Site::LINK_POSTS . '.' . Post::LINK_COMMENTS],
-            // include only these attributes and links
+        $actual = Encoder::instance(
             [
-                'comments' => [Comment::ATTRIBUTE_BODY, Comment::LINK_AUTHOR],
-                'posts'    => [Post::LINK_COMMENTS],
-                'sites'    => [Site::LINK_POSTS],
+                Author::class  => AuthorSchema::class,
+                Comment::class => function ($factory) {
+                    $schema = new CommentSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Comment::LINK_AUTHOR);
+                    return $schema;
+                },
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+                Site::class    => function ($factory) {
+                    $schema = new SiteSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Site::LINK_POSTS);
+                    return $schema;
+                },
             ]
-        ));
+        )
+            ->withUrlPrefix('http://example.com')
+            ->withIncludedPaths(
+                [
+                    Site::LINK_POSTS . '.' . Post::LINK_COMMENTS,
+                ]
+            )->withFieldSets(
+                [
+                    // include only these attributes and links (note we specify relationships for linkage,
+                    // otherwise those intermediate resources will not be included in the output)
+                    'comments' => [Comment::ATTRIBUTE_BODY, Comment::LINK_AUTHOR],
+                    'posts'    => [Post::LINK_COMMENTS],
+                    'sites'    => [Site::LINK_POSTS],
+                ]
+            )->encodeData($this->site);
 
         $expected = <<<EOL
         {
@@ -194,6 +212,20 @@ EOL;
                 }
             },
             "included" : [{
+                "type" : "posts",
+                "id"   : "1",
+                "relationships" : {
+                    "comments" : {
+                        "data" : [
+                            { "type" : "comments", "id" : "5"  },
+                            { "type" : "comments", "id" : "12" }
+                        ]
+                    }
+                },
+                "links": {
+                    "self" : "http://example.com/posts/1"
+                }
+            }, {
                 "type"  : "comments",
                 "id"    : "5",
                 "attributes" : {
@@ -221,24 +253,10 @@ EOL;
                 "links" : {
                     "self"   : "http://example.com/comments/12"
                 }
-            }, {
-                "type" : "posts",
-                "id"   : "1",
-                "relationships" : {
-                    "comments" : {
-                        "data" : [
-                            { "type" : "comments", "id" : "5"  },
-                            { "type" : "comments", "id" : "12" }
-                        ]
-                    }
-                }
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -249,12 +267,22 @@ EOL;
         $this->post->{Post::LINK_AUTHOR}   = null;
         $this->post->{Post::LINK_COMMENTS} = [];
 
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encodeData($this->site);
+        $actual = Encoder::instance(
+            [
+                Post::class => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideResourceLinks();
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+                Site::class => function ($factory) {
+                    $schema = new SiteSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Site::LINK_POSTS);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->withIncludedPaths([Site::LINK_POSTS])->encodeData($this->site);
 
         $expected = <<<EOL
         {
@@ -290,10 +318,7 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -306,12 +331,22 @@ EOL;
         // Note: Will use existing link (in schema) but set to 'wrong' type and let's see if it can handle it correctly.
         $this->post->{Post::LINK_AUTHOR} = $this->post;
 
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encodeData($this->site);
+        $actual = Encoder::instance(
+            [
+                Post::class => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideResourceLinks();
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+                Site::class => function ($factory) {
+                    $schema = new SiteSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Site::LINK_POSTS);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->withIncludedPaths([Site::LINK_POSTS])->encodeData($this->site);
 
         $expected = <<<EOL
         {
@@ -349,10 +384,7 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -361,16 +393,27 @@ EOL;
      */
     public function testEncodeLinkNonIncludableWithIncludableLinks()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => function ($factory) {
-                $schema = new SiteSchema($factory);
-                $schema->setIncludePaths([Site::LINK_POSTS]);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->site);
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideResourceLinks();
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+                Site::class    => function ($factory) {
+                    $schema = new SiteSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Site::LINK_POSTS);
+                    return $schema;
+                },
+            ]
+        )
+            ->withUrlPrefix('http://example.com')
+            ->withIncludedPaths([Site::LINK_POSTS])
+            ->encodeData($this->site);
 
         $expected = <<<EOL
         {
@@ -413,10 +456,7 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -424,23 +464,27 @@ EOL;
      */
     public function testEncodeWithLinkWithPagination()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->linkAddTo(
-                    Post::LINK_COMMENTS,
-                    PostSchema::LINKS,
-                    [
-                        Link::FIRST => function (PostSchema $schema, Post $post) {
-                            return new Link($schema->getSelfSubUrl($post) . '/comments/first');
-                        }
-                    ]
-                );
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->post);
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideRelatedLinkInRelationship(Post::LINK_COMMENTS);
+                    $schema->addToRelationship(
+                        Post::LINK_COMMENTS,
+                        PostSchema::RELATIONSHIP_LINKS,
+                        [
+                            Link::FIRST => function (PostSchema $schema, Post $post) {
+                                return new Link(true, $schema->getSelfSubUrl($post) . '/comments/first', false);
+                            },
+                        ]
+                    );
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->encodeData($this->post);
 
         $expected = <<<EOL
         {
@@ -456,13 +500,14 @@ EOL;
                         "data" : { "type" : "people", "id" : "9" }
                     },
                     "comments" : {
+                        "links" : {
+                            "first" : "http://example.com/posts/1/comments/first",
+                            "self"  : "http://example.com/posts/1/relationships/comments"
+                        },
                         "data" : [
                             { "type" : "comments", "id" : "5" },
                             { "type" : "comments", "id" : "12" }
-                        ],
-                        "links" : {
-                            "first" : "http://example.com/posts/1/comments/first"
-                        }
+                        ]
                     }
                 },
                 "links" : {
@@ -471,10 +516,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -484,12 +526,41 @@ EOL;
      */
     public function testEncodeDeepDuplicateHierarchies()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encodeData([$this->site, $this->site]);
+        $actual = Encoder::instance(
+            [
+                Author::class  => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->hideResourceLinks();
+                    $schema->hideDefaultLinksInRelationship(Author::LINK_COMMENTS);
+                    return $schema;
+                },
+                Comment::class => function ($factory) {
+                    $schema = new CommentSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Comment::LINK_AUTHOR);
+                    return $schema;
+                },
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideResourceLinks();
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+                Site::class    => function ($factory) {
+                    $schema = new SiteSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Site::LINK_POSTS);
+                    return $schema;
+                },
+            ]
+        )
+            ->withUrlPrefix('http://example.com')
+            ->withIncludedPaths(
+                [
+                    Site::LINK_POSTS . '.' . Post::LINK_COMMENTS . '.' .
+                    Comment::LINK_AUTHOR . '.' . Author::LINK_COMMENTS,
+                ]
+            )
+            ->encodeData([$this->site, $this->site]);
 
         $expected = <<<EOL
         {
@@ -529,14 +600,18 @@ EOL;
                 }
             }],
             "included" : [{
-                "type" : "people",
-                "id"   : "9",
+                "type"  : "posts",
+                "id"    : "1",
                 "attributes" : {
-                    "first_name" : "Dan",
-                    "last_name"  : "Gebhardt"
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
                 },
-                "relationships":{
-                    "comments" : { "data":null }
+                "relationships" : {
+                    "author"   : { "data" : { "type" : "people", "id" : "9" } },
+                    "comments" : { "data" : [
+                        { "type" : "comments", "id" : "5" },
+                        { "type" : "comments", "id" : "12" }
+                    ]}
                 }
             }, {
                 "type" : "comments",
@@ -553,6 +628,20 @@ EOL;
                     "self" : "http://example.com/comments/5"
                 }
             }, {
+                "type" : "people",
+                "id"   : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "relationships":{
+                    "comments" : {
+                        "links": {
+                            "self": "http://example.com/people/9/relationships/comments"
+                        }
+                    }
+                }
+            }, {
                 "type" : "comments",
                 "id"   : "12",
                 "attributes" : {
@@ -566,27 +655,10 @@ EOL;
                 "links":{
                     "self" : "http://example.com/comments/12"
                 }
-            }, {
-                "type"  : "posts",
-                "id"    : "1",
-                "attributes" : {
-                    "title" : "JSON API paints my bikeshed!",
-                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
-                },
-                "relationships" : {
-                    "author"   : { "data" : { "type" : "people", "id" : "9" } },
-                    "comments" : { "data" : [
-                        { "type" : "comments", "id" : "5" },
-                        { "type" : "comments", "id" : "12" }
-                    ]}
-                }
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -596,36 +668,45 @@ EOL;
     {
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encodeData([$this->site, $this->author], new EncodingParameters([
-            Site::LINK_POSTS . '.' . Post::LINK_AUTHOR,
-            Author::LINK_COMMENTS,
-        ]));
+        $actual = Encoder::instance(
+            [
+                Author::class  => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Author::LINK_COMMENTS);
+                    return $schema;
+                },
+                Comment::class => function ($factory) {
+                    $schema = new CommentSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Comment::LINK_AUTHOR);
+                    return $schema;
+                },
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideResourceLinks();
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+                Site::class    => function ($factory) {
+                    $schema = new SiteSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Site::LINK_POSTS);
+                    return $schema;
+                },
+            ]
+        )
+            ->withUrlPrefix('http://example.com')
+            ->withIncludedPaths(
+                [
+                    Site::LINK_POSTS . '.' . Post::LINK_AUTHOR,
+                    Site::LINK_POSTS . '.' . Post::LINK_COMMENTS,
+                    Author::LINK_COMMENTS,
+                ]
+            )
+            ->encodeData([$this->author, $this->site]);
 
         $expected = <<<EOL
         {
             "data":[
-                {
-                    "type" : "sites",
-                    "id"   : "2",
-                    "attributes" : {
-                        "name" : "site name"
-                    },
-                    "relationships" : {
-                        "posts" : {
-                            "data" : [
-                                { "type":"posts", "id":"1" }
-                            ]
-                        }
-                    },
-                    "links":{
-                        "self" : "http://example.com/sites/2"
-                    }
-                },
                 {
                     "type" : "people",
                     "id"   : "9",
@@ -644,10 +725,54 @@ EOL;
                     "links":{
                         "self":"http://example.com/people/9"
                     }
+                }, {
+                    "type" : "sites",
+                    "id"   : "2",
+                    "attributes" : {
+                        "name" : "site name"
+                    },
+                    "relationships" : {
+                        "posts" : {
+                            "data" : [
+                                { "type":"posts", "id":"1" }
+                            ]
+                        }
+                    },
+                    "links":{
+                        "self" : "http://example.com/sites/2"
+                    }
                 }
             ],
             "included":[
                 {
+                    "type" : "comments",
+                    "id"   : "5",
+                    "attributes" : {
+                        "body" : "First!"
+                    },
+                    "relationships" : {
+                        "author" : {
+                            "data" : { "type":"people", "id":"9" }
+                        }
+                    },
+                    "links":{
+                        "self":"http://example.com/comments/5"
+                    }
+                }, {
+                    "type" : "comments",
+                    "id"   : "12",
+                    "attributes" : {
+                        "body" : "I like XML better"
+                    },
+                    "relationships" : {
+                        "author" : {
+                            "data" : { "type" : "people", "id" : "9" }
+                        }
+                    },
+                    "links" : {
+                        "self" : "http://example.com/comments/12"
+                    }
+                }, {
                     "type" : "posts",
                     "id"   : "1",
                     "attributes" : {
@@ -668,44 +793,11 @@ EOL;
                             ]
                         }
                     }
-                },
-                {
-                    "type" : "comments",
-                    "id"   : "5",
-                    "attributes" : {
-                        "body" : "First!"
-                    },
-                    "relationships" : {
-                        "author" : {
-                            "data" : { "type":"people", "id":"9" }
-                        }
-                    },
-                    "links":{
-                        "self":"http://example.com/comments/5"
-                    }
-                },
-                {
-                    "type" : "comments",
-                    "id"   : "12",
-                    "attributes" : {
-                        "body" : "I like XML better"
-                    },
-                    "relationships" : {
-                        "author" : {
-                            "data" : { "type" : "people", "id" : "9" }
-                        }
-                    },
-                    "links" : {
-                        "self" : "http://example.com/comments/12"
-                    }
                 }
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -716,14 +808,40 @@ EOL;
         // let's hack a little bit and place additional resource(s) into relationship
         $this->author->{Author::LINK_COMMENTS} = array_merge([$this->site], $this->comments);
 
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-            Site::class    => SiteSchema::class,
-        ], $this->encoderOptions)->encodeData($this->author, new EncodingParameters([
-            Author::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR,
-        ]));
+        $actual = Encoder::instance(
+            [
+                Author::class  => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Author::LINK_COMMENTS);
+                    return $schema;
+                },
+                Comment::class => function ($factory) {
+                    $schema = new CommentSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Comment::LINK_AUTHOR);
+                    return $schema;
+                },
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideResourceLinks();
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+                Site::class    => function ($factory) {
+                    $schema = new SiteSchema($factory);
+                    $schema->hideResourceLinks();
+                    $schema->hideDefaultLinksInRelationship(Site::LINK_POSTS);
+                    return $schema;
+                },
+            ]
+        )
+            ->withUrlPrefix('http://example.com')
+            ->withIncludedPaths(
+                [
+                    Author::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR,
+                ]
+            )
+            ->encodeData($this->author);
 
         $expected = <<<EOL
         {
@@ -795,10 +913,7 @@ EOL;
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -808,16 +923,21 @@ EOL;
      */
     public function testEncodeRelationshipsAsLinksDoNotFollowLinksWhenIncludePathSet()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->setIsLinksInPrimary(true);
-                $schema->setIncludePaths([Post::LINK_AUTHOR, Post::LINK_COMMENTS]);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->post);
+        unset($this->post->{Post::LINK_AUTHOR});
+        unset($this->post->{Post::LINK_COMMENTS});
+
+        $actual = Encoder::instance(
+            [
+                Post::class => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+            ]
+        )
+            ->withUrlPrefix('http://example.com')
+            ->encodeData($this->post);
 
         $expected = <<<EOL
         {
@@ -846,10 +966,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -859,25 +976,29 @@ EOL;
      */
     public function testEncodeRelationshipsAsLinks()
     {
-        $this->author->{Author::LINK_COMMENTS} = $this->comments;
+        unset($this->author->{Author::LINK_COMMENTS});
 
-        $actual = Encoder::instance([
-            Author::class  => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->setIsLinksInIncluded(true);
-                return $schema;
-            },
-            Comment::class => function ($factory) {
-                $schema = new CommentSchema($factory);
-                $schema->linkRemove(Comment::LINK_AUTHOR);
-                return $schema;
-            },
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->setIncludePaths([Post::LINK_AUTHOR]);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->post);
+        $actual = Encoder::instance(
+            [
+                Author::class  => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->hideResourceLinks();
+                    $schema->hideDefaultLinksInRelationship(Author::LINK_COMMENTS);
+                    return $schema;
+                },
+                Comment::class => function ($factory) {
+                    $schema = new CommentSchema($factory);
+                    $schema->removeRelationship(Comment::LINK_AUTHOR);
+                    return $schema;
+                },
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->withIncludedPaths([Post::LINK_AUTHOR])->encodeData($this->post);
 
         $expected = <<<EOL
         {
@@ -922,63 +1043,6 @@ EOL;
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
-    }
-
-    /**
-     * Test override default includes with empty list from encoding parameters.
-     *
-     * @see https://github.com/neomerx/json-api/issues/203
-     */
-    public function testOverrideDefaultIncludesFromEncodingParams()
-    {
-        $this->author->{Author::LINK_COMMENTS} = $this->comments;
-
-        // note we set an empty list as include paths
-        $encodingParams = new EncodingParameters([]);
-
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->setIncludePaths([Post::LINK_AUTHOR]);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->post, $encodingParams);
-
-        $expected = <<<EOL
-        {
-            "data" : {
-                "type" : "posts",
-                "id"   : "1",
-                "attributes" : {
-                    "title" : "JSON API paints my bikeshed!",
-                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
-                },
-                "relationships" : {
-                    "author" : {
-                        "data" : { "type" : "people", "id" : "9" }
-                    },
-                    "comments" : {
-                        "data" : [
-                            { "type" : "comments", "id" : "5" },
-                            { "type" : "comments", "id" : "12" }
-                        ]
-                    }
-                },
-                "links" : {
-                    "self" : "http://example.com/posts/1"
-                }
-            }
-        }
-EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 }

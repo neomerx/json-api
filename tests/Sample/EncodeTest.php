@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Sample;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Sample;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +62,7 @@ class EncodeTest extends BaseTestCase
         }
 EOL;
 
-        $this->assertEquals($this->normalize($expected), $this->normalize($actual));
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -79,13 +81,14 @@ EOL;
                 },
                 "relationships" : {
                     "posts" : {
-                        "data" : [
-                            { "type" : "posts", "id" : "321" }
-                        ],
                         "links" : {
                             "some-sublink"  : "http://example.com/sites/1/resource-sublink",
-                            "external-link" : "www.example.com"
-                        }
+                            "external-link" : "www.example.com",
+                            "self"          : "http://example.com/sites/1/relationships/posts"
+                        },
+                        "data" : [
+                            { "type" : "posts", "id" : "321" }
+                        ]
                     }
                 },
                 "links" : {
@@ -94,35 +97,6 @@ EOL;
             },
             "included" : [
                 {
-                    "type" : "people",
-                    "id"   : "123",
-                    "attributes" : {
-                        "first_name" : "John",
-                        "last_name" : "Dow"
-                    }
-                }, {
-                    "type" : "comments",
-                    "id"   : "456",
-                    "attributes" : {
-                        "body" : "Included objects work as easy as basic ones"
-                    },
-                    "relationships" : {
-                        "author" : {
-                            "data" : { "type" : "people", "id" : "123" }
-                        }
-                    }
-                }, {
-                    "type" : "comments",
-                    "id"   : "789",
-                    "attributes" : {
-                        "body" : "Let's try!"
-                    },
-                    "relationships" : {
-                        "author" : {
-                            "data" : { "type" : "people", "id" : "123" }
-                        }
-                    }
-                }, {
                     "type" : "posts",
                     "id"   : "321",
                     "attributes" : {
@@ -139,13 +113,54 @@ EOL;
                                 { "type" : "comments", "id" : "789" }
                             ]
                         }
+                    },
+                    "links" : {
+                        "self" : "http://example.com/posts/321"
+                    }
+                }, {
+                    "type" : "people",
+                    "id"   : "123",
+                    "attributes" : {
+                        "first_name" : "John",
+                        "last_name" : "Dow"
+                    },
+                    "links" : {
+                        "self" : "http://example.com/people/123"
+                    }
+                }, {
+                    "type" : "comments",
+                    "id"   : "456",
+                    "attributes" : {
+                        "body" : "Included objects work as easy as basic ones"
+                    },
+                    "relationships" : {
+                        "author" : {
+                            "data" : { "type" : "people", "id" : "123" }
+                        }
+                    },
+                    "links" : {
+                        "self" : "http://example.com/comments/456"
+                    }
+                }, {
+                    "type" : "comments",
+                    "id"   : "789",
+                    "attributes" : {
+                        "body" : "Let's try!"
+                    },
+                    "relationships" : {
+                        "author" : {
+                            "data" : { "type" : "people", "id" : "123" }
+                        }
+                    },
+                    "links" : {
+                        "self" : "http://example.com/comments/789"
                     }
                 }
             ]
         }
 EOL;
 
-        $this->assertEquals($this->normalize($expected), $this->normalize($actual));
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -164,6 +179,9 @@ EOL;
                 },
                 "relationships" : {
                     "posts" : {
+                        "links": {
+                            "self" : "/sites/1/relationships/posts"
+                        },
                         "data" : [
                             { "type" : "posts", "id" : "321" }
                         ]
@@ -175,25 +193,31 @@ EOL;
             },
             "included":[
                 {
-                    "type" : "people",
-                    "id"   : "123",
-                    "attributes" : {
-                        "first_name" : "John"
-                    }
-                }, {
                     "type" : "posts",
                     "id"   : "321",
                     "relationships" : {
                         "author" : {
                             "data" : { "type" : "people", "id" : "123" }
                         }
+                    },
+                    "links" : {
+                        "self" : "/posts/321"
+                    }
+                }, {
+                    "type" : "people",
+                    "id"   : "123",
+                    "attributes" : {
+                        "first_name" : "John"
+                    },
+                    "links" : {
+                        "self" : "/people/123"
                     }
                 }
             ]
         }
 EOL;
 
-        $this->assertEquals($this->normalize($expected), $this->normalize($actual));
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -232,7 +256,7 @@ EOL;
         }
 EOL;
 
-        $this->assertEquals($this->normalize($expected), $this->normalize($actual));
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -251,6 +275,9 @@ EOL;
                 },
                 "relationships" : {
                     "posts" : {
+                        "links": {
+                            "self" : "/sites/1/relationships/posts"
+                        },
                         "data" : []
                     }
                 },
@@ -261,7 +288,7 @@ EOL;
         }
 EOL;
 
-        $this->assertEquals($this->normalize($expected), $this->normalize($actual[0]));
+        self::assertJsonStringEqualsJsonString($expected, $actual[0]);
 
         $expected = <<<EOL
         {
@@ -273,11 +300,12 @@ EOL;
                 },
                 "relationships" : {
                     "posts" : {
-                        "data" : [],
                         "links" : {
                             "some-sublink"  : "/sites/1/resource-sublink",
-                            "external-link" : "www.example.com"
-                        }
+                            "external-link" : "www.example.com",
+                            "self"          : "/sites/1/relationships/posts"
+                        },
+                        "data" : []
                     }
                 },
                 "links" : {
@@ -287,7 +315,7 @@ EOL;
         }
 EOL;
 
-        $this->assertEquals($this->normalize($expected), $this->normalize($actual[1]));
+        self::assertJsonStringEqualsJsonString($expected, $actual[1]);
     }
 
     /**
@@ -295,7 +323,7 @@ EOL;
      */
     public function testPerformanceTestForSmallNestedResources()
     {
-        $this->assertGreaterThan(0, $this->samples->runPerformanceTestForSmallNestedResources(10)[0]);
+        self::assertGreaterThan(0, $this->samples->runPerformanceTestForSmallNestedResources(10)[0]);
     }
 
     /**
@@ -303,16 +331,6 @@ EOL;
      */
     public function testPerformanceTestForBigCollection()
     {
-        $this->assertGreaterThan(0, $this->samples->runPerformanceTestForBigCollection(10)[0]);
-    }
-
-    /**
-     * @param string $json
-     *
-     * @return string
-     */
-    private function normalize($json)
-    {
-        return json_encode(json_decode($json));
+        self::assertGreaterThan(0, $this->samples->runPerformanceTestForBigCollection(10)[0]);
     }
 }

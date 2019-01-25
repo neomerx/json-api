@@ -1,7 +1,9 @@
-<?php namespace Neomerx\JsonApi\Contracts\Http;
+<?php declare(strict_types=1);
+
+namespace Neomerx\JsonApi\Contracts\Http;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +18,7 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use Neomerx\JsonApi\Exceptions\ErrorCollection;
+use Neomerx\JsonApi\Contracts\Schema\ErrorInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -42,39 +43,30 @@ interface ResponsesInterface
     /**
      * Get response with regular JSON API Document in body.
      *
-     * @param object|array $data
-     * @param int          $statusCode
-     * @param array|null   $links
-     * @param mixed        $meta
-     * @param array        $headers
+     * @param object|array $data       Resource or resources to encode.
+     * @param int          $statusCode HTTP status code.
+     * @param array        $headers    Additional headers.
      *
      * @return mixed
      */
-    public function getContentResponse(
-        $data,
-        int $statusCode = self::HTTP_OK,
-        array $links = null,
-        $meta = null,
-        array $headers = []
-    );
+    public function getContentResponse($data, int $statusCode = self::HTTP_OK, array $headers = []);
 
     /**
      * Get response for newly created resource with HTTP code 201 (adds 'location' header).
      *
-     * @param object     $resource
-     * @param array|null $links
-     * @param mixed      $meta
-     * @param array      $headers
+     * @param object $resource Newly created resource to encode.
+     * @param string $url      URL of the resource.
+     * @param array  $headers  Additional headers.
      *
      * @return mixed
      */
-    public function getCreatedResponse($resource, array $links = null, $meta = null, array $headers = []);
+    public function getCreatedResponse($resource, string $url, array $headers = []);
 
     /**
      * Get response with HTTP code only.
      *
-     * @param int   $statusCode
-     * @param array $headers
+     * @param int   $statusCode HTTP status code.
+     * @param array $headers    Additional headers.
      *
      * @return mixed
      */
@@ -84,8 +76,8 @@ interface ResponsesInterface
      * Get response with meta information only.
      *
      * @param array|object $meta       Meta information.
-     * @param int          $statusCode
-     * @param array        $headers
+     * @param int          $statusCode HTTP status code.
+     * @param array        $headers    Additional headers.
      *
      * @return mixed
      */
@@ -94,28 +86,20 @@ interface ResponsesInterface
     /**
      * Get response with only resource identifiers.
      *
-     * @param object|array $data
-     * @param int          $statusCode
-     * @param array|null   $links
-     * @param mixed        $meta
-     * @param array        $headers
+     * @param object|array $data       Resource or resources to encode.
+     * @param int          $statusCode HTTP status code.
+     * @param array        $headers    Additional headers.
      *
      * @return mixed
      */
-    public function getIdentifiersResponse(
-        $data,
-        int $statusCode = self::HTTP_OK,
-        array $links = null,
-        $meta = null,
-        array $headers = []
-    );
+    public function getIdentifiersResponse($data, int $statusCode = self::HTTP_OK, array $headers = []);
 
     /**
      * Get response with JSON API Error in body.
      *
-     * @param ErrorInterface|ErrorInterface[]|ErrorCollection $errors
-     * @param int                                             $statusCode
-     * @param array                                           $headers
+     * @param ErrorInterface|iterable $errors     Error or errors to encode.
+     * @param int                     $statusCode HTTP status code.
+     * @param array                   $headers    Additional headers.
      *
      * @return mixed
      */

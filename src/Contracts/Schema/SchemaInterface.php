@@ -1,7 +1,9 @@
-<?php namespace Neomerx\JsonApi\Contracts\Schema;
+<?php declare(strict_types=1);
+
+namespace Neomerx\JsonApi\Contracts\Schema;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +18,35 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Document\LinkInterface;
-
 /**
  * @package Neomerx\JsonApi
  */
 interface SchemaInterface
 {
+    /** @var int Relationship's data section */
+    const RELATIONSHIP_DATA = 0;
+
+    /** @var int Relationship's links section */
+    const RELATIONSHIP_LINKS = self::RELATIONSHIP_DATA + 1;
+
+    /** @var int Relationship's meta section */
+    const RELATIONSHIP_META = self::RELATIONSHIP_LINKS + 1;
+
+    /** @var int If `self` link should be added in relationship */
+    const RELATIONSHIP_LINKS_SELF = self::RELATIONSHIP_META + 1;
+
+    /** @var int If `related` link should be added in relationship */
+    const RELATIONSHIP_LINKS_RELATED = self::RELATIONSHIP_LINKS_SELF + 1;
+
     /**
      * Get resource type.
      *
      * @return string
      */
-    public function getResourceType(): string;
+    public function getType(): string;
 
     /**
-     * Get resource sub URL.
-     *
-     * @param object|null $resource
-     *
-     * @return string
-     */
-    public function getSelfSubUrl($resource = null): string;
-
-    /**
-     * Get resource identity.
+     * Get resource identity. Newly created objects without ID may return `null` to exclude it from encoder output.
      *
      * @param object $resource
      *
@@ -49,173 +55,110 @@ interface SchemaInterface
     public function getId($resource): ?string;
 
     /**
-     * Get resource URL link.
+     * Get resource attributes.
      *
-     * @param object $resource
+     * @param mixed $resource
+     *
+     * @return iterable
+     */
+    public function getAttributes($resource): iterable;
+
+    /**
+     * Get resource relationship descriptions.
+     *
+     * @param mixed $resource
+     *
+     * @return iterable
+     */
+    public function getRelationships($resource): iterable;
+
+    /**
+     * Get resource sub URL.
+     *
+     * @param mixed $resource
      *
      * @return LinkInterface
      */
-    public function getSelfSubLink($resource): LinkInterface;
+    public function getSelfLink($resource): LinkInterface;
+
+    /**
+     * Get resource links.
+     *
+     * @param mixed $resource
+     *
+     * @see LinkInterface
+     *
+     * @return iterable
+     */
+    public function getLinks($resource): iterable;
 
     /**
      * Get 'self' URL link to resource relationship.
      *
-     * @param object     $resource
-     * @param string     $name
-     * @param null|mixed $meta
-     * @param bool       $treatAsHref
+     * @param mixed  $resource
+     * @param string $name
      *
      * @return LinkInterface
-     *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function getRelationshipSelfLink(
-        $resource,
-        string $name,
-        $meta = null,
-        bool $treatAsHref = false
-    ): LinkInterface;
+    public function getRelationshipSelfLink($resource, string $name): LinkInterface;
 
     /**
      * Get 'related' URL link to resource relationship.
      *
-     * @param object     $resource
-     * @param string     $name
-     * @param null|mixed $meta
-     * @param bool       $treatAsHref
+     * @param mixed  $resource
+     * @param string $name
      *
      * @return LinkInterface
-     *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function getRelationshipRelatedLink(
-        $resource,
-        string $name,
-        $meta = null,
-        bool $treatAsHref = false
-    ): LinkInterface;
+    public function getRelationshipRelatedLink($resource, string $name): LinkInterface;
 
     /**
-     * Get resource attributes.
-     *
-     * @param object     $resource
-     * @param array|null $fieldKeysFilter
-     *
-     * @return array|null
-     */
-    public function getAttributes($resource, array $fieldKeysFilter = null): ?array;
-
-    /**
-     * Get resource relationships.
-     *
-     * @param            $resource
-     * @param bool       $isPrimary
-     * @param array      $includeRelationships
-     *
-     * @return array|null
-     */
-    public function getRelationships($resource, bool $isPrimary, array $includeRelationships): ?array;
-
-    /**
-     * Create resource object.
-     *
-     * @param object $resource
-     * @param bool   $isOriginallyArrayed
-     * @param array <string, int>|null $attributeKeysFilter
-     *
-     * @return ResourceObjectInterface
-     */
-    public function createResourceObject(
-        $resource,
-        bool $isOriginallyArrayed,
-        array $fieldKeysFilter = null
-    ): ResourceObjectInterface;
-
-    /**
-     * Get resource's relationship objects.
-     *
-     * @param object     $resource
-     * @param bool       $isPrimary
-     * @param array      $includeRelationships
-     *
-     * @return iterable RelationshipObjectInterface[]
-     */
-    public function getRelationshipObjectIterator($resource, bool $isPrimary, array $includeRelationships): iterable;
-
-    /**
-     * Get links related to resource.
+     * If resource has meta when it is considered as a resource identifier (e.g. in a relationship).
      *
      * @param mixed $resource
-     *
-     * @return array Array key is link name and value is LinkInterface.
-     */
-    public function getResourceLinks($resource): array;
-
-    /**
-     * Get links related to resource when it is in 'included' section.
-     *
-     * @param mixed $resource
-     *
-     * @return array Array key is link name and value is LinkInterface.
-     */
-    public function getIncludedResourceLinks($resource): array;
-
-    /**
-     * If resource attributes should be shown when the resource is within 'included'.
      *
      * @return bool
      */
-    public function isShowAttributesInIncluded(): bool;
+    public function hasIdentifierMeta($resource): bool;
 
     /**
-     * Get schema default include paths.
+     * Get resource meta when it is considered as a resource identifier (e.g. in a relationship).
      *
-     * @return string[]
-     */
-    public function getIncludePaths(): array;
-
-    /**
-     * Get meta when resource is primary (top level 'data' section).
-     *
-     * @param object $resource
+     * @param mixed $resource
      *
      * @return mixed
      */
-    public function getPrimaryMeta($resource);
+    public function getIdentifierMeta($resource);
 
     /**
-     * Get meta when resource is within included resources.
+     * If resource has meta when it is considered as a resource (e.g. in a main data or included sections).
      *
-     * @param object $resource
+     * @param mixed $resource
+     *
+     * @return bool
+     */
+    public function hasResourceMeta($resource): bool;
+
+    /**
+     * Get resource meta when it is considered as a resource (e.g. in a main data or included sections).
+     *
+     * @param mixed $resource
      *
      * @return mixed
      */
-    public function getInclusionMeta($resource);
+    public function getResourceMeta($resource);
 
     /**
-     * Get get relationships meta when the resource is primary.
+     * If `self` links should be added in relationships by default.
      *
-     * @param object $resource
-     *
-     * @return mixed
+     * @return bool
      */
-    public function getRelationshipsPrimaryMeta($resource);
+    public function isAddSelfLinkInRelationshipByDefault(): bool;
 
     /**
-     * Get get relationships meta when the resource is within included.
+     * If `related` links should be added in relationships by default.
      *
-     * @param object $resource
-     *
-     * @return mixed
+     * @return bool
      */
-    public function getRelationshipsInclusionMeta($resource);
-
-    /**
-     * Get meta when resource is within relationship of a primary resource.
-     *
-     * @param object $resource
-     *
-     * @return mixed
-     */
-    public function getLinkageMeta($resource);
+    public function isAddRelatedLinkInRelationshipByDefault(): bool;
 }

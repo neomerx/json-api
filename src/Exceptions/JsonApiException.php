@@ -1,7 +1,9 @@
-<?php namespace Neomerx\JsonApi\Exceptions;
+<?php declare(strict_types=1);
+
+namespace Neomerx\JsonApi\Exceptions;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +19,13 @@
  */
 
 use Exception;
-use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use RuntimeException;
+use Neomerx\JsonApi\Contracts\Schema\ErrorInterface;
+use Neomerx\JsonApi\Schema\ErrorCollection;
 
 /**
  * @package Neomerx\JsonApi
  */
-class JsonApiException extends RuntimeException
+class JsonApiException extends BaseJsonApiException
 {
     /** Default HTTP code */
     const HTTP_CODE_BAD_REQUEST = 400;
@@ -54,9 +56,9 @@ class JsonApiException extends RuntimeException
     private $httpCode;
 
     /**
-     * @param ErrorInterface|ErrorInterface[]|ErrorCollection $errors
-     * @param int                                             $httpCode
-     * @param Exception|null                                  $previous
+     * @param ErrorInterface|iterable $errors
+     * @param int                     $httpCode
+     * @param Exception|null          $previous
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @SuppressWarnings(PHPMD.ElseExpression)
@@ -65,14 +67,14 @@ class JsonApiException extends RuntimeException
     {
         parent::__construct('JSON API error', 0, $previous);
 
-        $this->errors = new ErrorCollection();
-
         if ($errors instanceof ErrorCollection) {
+            $this->errors = clone $errors;
+        } elseif (is_iterable($errors) === true) {
+            $this->errors = new ErrorCollection();
             $this->addErrors($errors);
-        } elseif (is_array($errors) === true) {
-            $this->addErrorsFromArray($errors);
         } else {
             // should be ErrorInterface
+            $this->errors = new ErrorCollection();
             $this->addError($errors);
         }
 
@@ -90,23 +92,11 @@ class JsonApiException extends RuntimeException
     }
 
     /**
-     * @param ErrorCollection $errors
+     * @param iterable $errors
      *
      * @return void
      */
-    public function addErrors(ErrorCollection $errors): void
-    {
-        foreach ($errors as $error) {
-            $this->addError($error);
-        }
-    }
-
-    /**
-     * @param ErrorInterface[] $errors
-     *
-     * @return void
-     */
-    public function addErrorsFromArray(array $errors): void
+    public function addErrors(iterable $errors): void
     {
         foreach ($errors as $error) {
             $this->addError($error);

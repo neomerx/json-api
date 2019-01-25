@@ -1,7 +1,9 @@
-<?php namespace Neomerx\JsonApi\Contracts\Encoder;
+<?php declare(strict_types=1);
+
+namespace Neomerx\JsonApi\Contracts\Encoder;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +18,9 @@
  * limitations under the License.
  */
 
-use Iterator;
-use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
-use Neomerx\JsonApi\Exceptions\ErrorCollection;
+use Neomerx\JsonApi\Contracts\Schema\ErrorInterface;
+use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use Neomerx\JsonApi\Contracts\Schema\LinkWithAliasesInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -27,16 +28,92 @@ use Neomerx\JsonApi\Exceptions\ErrorCollection;
 interface EncoderInterface
 {
     /** JSON API version implemented by the encoder */
-    const JSON_API_VERSION = '1.0';
+    const JSON_API_VERSION = '1.1';
 
     /**
-     * Add links that will be encoded with data. Links must be in array<string,LinkInterface> format.
+     * This prefix will be used for URL links while encoding.
+     *
+     * @param string $prefix
+     *
+     * @return self
+     */
+    public function withUrlPrefix(string $prefix): self;
+
+    /**
+     * Include specified paths to the output. Paths should be separated with a dot symbol.
+     *
+     * Format
+     * [
+     *     'relationship1',
+     *     'relationship1.sub-relationship2',
+     * ]
+     *
+     * @param iterable $paths
+     *
+     * @return self
+     */
+    public function withIncludedPaths(iterable $paths): self;
+
+    /**
+     * Limit fields in the output result.
+     *
+     * Format
+     * [
+     *     'type1' => ['attribute1', 'attribute2', 'relationship1', ...]
+     *     'type2' => [] // no fields in output, only type and id.
+     *
+     *     // 'type3' is not on the list so all its attributes and relationships will be in output.
+     * ]
+     *
+     * @param array $fieldSets
+     *
+     * @return self
+     */
+    public function withFieldSets(array $fieldSets): self;
+
+    /**
+     * Set JSON encode options.
+     *
+     * @link http://php.net/manual/en/function.json-encode.php
+     *
+     * @param int $options
+     *
+     * @return self
+     */
+    public function withEncodeOptions(int $options): self;
+
+    /**
+     * Set JSON encode depth.
+     *
+     * @link http://php.net/manual/en/function.json-encode.php
+     *
+     * @param int $depth
+     *
+     * @return self
+     */
+    public function withEncodeDepth(int $depth): self;
+
+    /**
+     * Add links that will be encoded with data. Links must be in `$name => $link, ...` format.
      *
      * @param array $links
+     *
+     * @see LinkInterface
      *
      * @return self
      */
     public function withLinks(array $links): self;
+
+    /**
+     * Add profile links that will be encoded with data. Links must be in `$link1, $link2, ...` format.
+     *
+     * @param iterable $links
+     *
+     * @see LinkWithAliasesInterface
+     *
+     * @return self
+     */
+    public function withProfile(iterable $links): self;
 
     /**
      * Add meta information that will be encoded with data. If 'null' meta will not appear in a document.
@@ -48,77 +125,68 @@ interface EncoderInterface
     public function withMeta($meta): self;
 
     /**
-     * If called JSON API version information with optional meta will be added to a document.
+     * If called JSON API version information will be added to a document.
      *
-     * @param mixed|null $version
+     * @param string $version
      *
      * @return self
      *
      * @see http://jsonapi.org/format/#document-jsonapi-object
      */
-    public function withJsonApiVersion($version = null): self;
+    public function withJsonApiVersion(string $version): self;
+
+    /**
+     * If called JSON API version meta will be added to a document.
+     *
+     * @param mixed $meta
+     *
+     * @return self
+     *
+     * @see http://jsonapi.org/format/#document-jsonapi-object
+     */
+    public function withJsonApiMeta($meta): self;
 
     /**
      * Add 'self' Link to top-level document's 'links' section for relationship specified.
      *
-     * @param object     $resource
-     * @param string     $relationshipName
-     * @param null|mixed $meta
-     * @param bool       $treatAsHref
+     * @param object $resource
+     * @param string $relationshipName
      *
      * @see http://jsonapi.org/format/#fetching-relationships
      *
      * @return self
-     *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function withRelationshipSelfLink(
-        $resource,
-        string $relationshipName,
-        $meta = null,
-        bool $treatAsHref = false
-    ): self;
+    public function withRelationshipSelfLink($resource, string $relationshipName): self;
 
     /**
      * Add 'related' Link to top-level document's 'links' section for relationship specified.
      *
-     * @param object     $resource
-     * @param string     $relationshipName
-     * @param null|mixed $meta
-     * @param bool       $treatAsHref
+     * @param object $resource
+     * @param string $relationshipName
      *
      * @see http://jsonapi.org/format/#fetching-relationships
      *
      * @return self
-     *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function withRelationshipRelatedLink(
-        $resource,
-        string $relationshipName,
-        $meta = null,
-        bool $treatAsHref = false
-    ): self;
+    public function withRelationshipRelatedLink($resource, string $relationshipName): self;
 
     /**
      * Encode input as JSON API string.
      *
-     * @param object|array|Iterator|null       $data       Data to encode.
-     * @param EncodingParametersInterface|null $parameters Encoding parameters.
+     * @param object|iterable|null $data Data to encode.
      *
      * @return string
      */
-    public function encodeData($data, EncodingParametersInterface $parameters = null): string;
+    public function encodeData($data): string;
 
     /**
      * Encode input as JSON API string with a list of resource identifiers.
      *
-     * @param object|array|Iterator|null       $data       Data to encode.
-     * @param EncodingParametersInterface|null $parameters Encoding parameters.
+     * @param object|iterable|null $data Data to encode.
      *
      * @return string
      */
-    public function encodeIdentifiers($data, EncodingParametersInterface $parameters = null): string;
+    public function encodeIdentifiers($data): string;
 
     /**
      * Encode error as JSON API string.
@@ -132,11 +200,13 @@ interface EncoderInterface
     /**
      * Encode errors as JSON API string.
      *
-     * @param ErrorInterface[]|ErrorCollection|iterable $errors
+     * @see ErrorInterface
+     *
+     * @param iterable $errors
      *
      * @return string
      */
-    public function encodeErrors($errors): string;
+    public function encodeErrors(iterable $errors): string;
 
     /**
      * Encode input meta as JSON API string.

@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Http;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Http;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +20,12 @@
 
 use Mockery;
 use Mockery\MockInterface;
-use Neomerx\JsonApi\Contracts\Document\LinkInterface;
 use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 use Neomerx\JsonApi\Contracts\Http\ResponsesInterface;
-use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
-use Neomerx\JsonApi\Document\Error;
-use Neomerx\JsonApi\Exceptions\ErrorCollection;
 use Neomerx\JsonApi\Http\BaseResponses;
 use Neomerx\JsonApi\Http\Headers\MediaType;
+use Neomerx\JsonApi\Schema\Error;
+use Neomerx\JsonApi\Schema\ErrorCollection;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 use stdClass;
 
@@ -47,11 +45,6 @@ class ResponsesTest extends BaseTestCase
     private $responses;
 
     /**
-     * @var EncodingParametersInterface|null
-     */
-    private $encodingencodingParameters = null;
-
-    /**
      * Set up tests.
      */
     protected function setUp()
@@ -65,176 +58,192 @@ class ResponsesTest extends BaseTestCase
     /**
      * Test code response has no content-type header.
      */
-    public function testCodeResponseHasNoContentTypeHeader()
+    public function testCodeResponseHasNoContentTypeHeader(): void
     {
         $expectedHeaders = [];
         $this->willBeCalledCreateResponse(null, 123, $expectedHeaders, 'some response');
-        $this->assertEquals('some response', $this->responses->getCodeResponse(123));
+        self::assertEquals('some response', $this->responses->getCodeResponse(123));
     }
 
     /**
      * Test response.
      */
-    public function testContentResponse1()
+    public function testContentResponse1(): void
     {
-        $data  = new stdClass();
-        $links = ['some' => 'links'];
-        $meta  = ['some' => 'meta'];
+        $data = new stdClass();
         $this->willBeCalledGetMediaType('some', 'type');
-        $this->willBeCalledEncoderForData($data, 'some json api', $links, $meta);
+        $this->willBeCalledEncoderForData($data, 'some json api');
         $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getContentResponse($data, 321, $links, $meta));
+        self::assertEquals('some response', $this->responses->getContentResponse($data, 321));
     }
 
     /**
      * Test content response, with custom headers.
      */
-    public function testContentResponse2()
+    public function testContentResponse2(): void
     {
-        $data  = new stdClass();
-        $links = ['some' => 'links'];
-        $meta  = ['some' => 'meta'];
+        $data = new stdClass();
         $this->willBeCalledGetMediaType('some', 'type');
-        $this->willBeCalledEncoderForData($data, 'some json api', $links, $meta);
+        $this->willBeCalledEncoderForData($data, 'some json api');
         $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getContentResponse($data, 321, $links, $meta, [
-            'X-Custom' => 'Custom-Header',
-        ]));
+        self::assertEquals(
+            'some response',
+            $this->responses->getContentResponse(
+                $data,
+                321,
+                [
+                    'X-Custom' => 'Custom-Header',
+                ]
+            )
+        );
     }
 
     /**
      * Test response.
      */
-    public function testCreatedResponse1()
+    public function testCreatedResponse1(): void
     {
         $resource = new stdClass();
-        $links    = ['some' => 'links'];
-        $meta     = ['some' => 'meta'];
+        $location = 'http://server.tld/resource-type/123';
         $this->willBeCalledGetMediaType('some', 'type');
-        $this->willBeCalledEncoderForData($resource, 'some json api', $links, $meta);
-        $this->willBeCreatedResourceLocationUrl($resource, 'http://server.tld', '/resource-type/123');
+        $this->willBeCalledEncoderForData($resource, 'some json api');
         $headers = [
             BaseResponses::HEADER_CONTENT_TYPE => 'some/type',
-            BaseResponses::HEADER_LOCATION     => 'http://server.tld/resource-type/123',
+            BaseResponses::HEADER_LOCATION     => $location,
         ];
         $this->willBeCalledCreateResponse('some json api', BaseResponses::HTTP_CREATED, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getCreatedResponse($resource, $links, $meta));
+        self::assertEquals('some response', $this->responses->getCreatedResponse($resource, $location));
     }
 
     /**
      * Test response, with custom headers
      */
-    public function testCreatedResponse2()
+    public function testCreatedResponse2(): void
     {
         $resource = new stdClass();
-        $links    = ['some' => 'links'];
-        $meta     = ['some' => 'meta'];
+        $location = 'http://server.tld';
         $this->willBeCalledGetMediaType('some', 'type');
-        $this->willBeCalledEncoderForData($resource, 'some json api', $links, $meta);
-        $this->willBeCreatedResourceLocationUrl($resource, 'http://server.tld', '/resource-type/123');
+        $this->willBeCalledEncoderForData($resource, 'some json api');
         $headers = [
             BaseResponses::HEADER_CONTENT_TYPE => 'some/type',
-            BaseResponses::HEADER_LOCATION     => 'http://server.tld/resource-type/123',
+            BaseResponses::HEADER_LOCATION     => $location,
             'X-Custom'                         => 'Custom-Header',
         ];
         $this->willBeCalledCreateResponse('some json api', BaseResponses::HTTP_CREATED, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getCreatedResponse($resource, $links, $meta, [
-            'X-Custom' => 'Custom-Header',
-        ]));
+        self::assertEquals(
+            'some response',
+            $this->responses->getCreatedResponse(
+                $resource,
+                $location,
+                [
+                    'X-Custom' => 'Custom-Header',
+                ]
+            )
+        );
     }
 
     /**
      * Test response.
      */
-    public function testMetaResponse1()
+    public function testMetaResponse1(): void
     {
         $meta = new stdClass();
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForMeta($meta, 'some json api');
         $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getMetaResponse($meta, 321));
+        self::assertEquals('some response', $this->responses->getMetaResponse($meta, 321));
     }
 
     /**
      * Test response, with custom headers
      */
-    public function testMetaResponse2()
+    public function testMetaResponse2(): void
     {
         $meta = new stdClass();
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForMeta($meta, 'some json api');
         $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getMetaResponse($meta, 321, [
-            'X-Custom' => 'Custom-Header',
-        ]));
+        self::assertEquals(
+            'some response',
+            $this->responses->getMetaResponse(
+                $meta,
+                321,
+                [
+                    'X-Custom' => 'Custom-Header',
+                ]
+            )
+        );
     }
 
     /**
      * Test identifiers response.
      */
-    public function testIdentifiersResponse1()
+    public function testIdentifiersResponse1(): void
     {
-        $data  = new stdClass();
-        $links = ['some' => 'links'];
-        $meta  = ['some' => 'meta'];
+        $data = new stdClass();
         $this->willBeCalledGetMediaType('some', 'type');
-        $this->willBeCalledEncoderForIdentifiers($data, 'some json api', $links, $meta);
+        $this->willBeCalledEncoderForIdentifiers($data, 'some json api');
         $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getIdentifiersResponse($data, 321, $links, $meta));
+        self::assertEquals('some response', $this->responses->getIdentifiersResponse($data, 321));
     }
 
     /**
      * Test identifiers response, with custom headers.
      */
-    public function testIdentifiersResponse2()
+    public function testIdentifiersResponse2(): void
     {
-        $data  = new stdClass();
-        $links = ['some' => 'links'];
-        $meta  = ['some' => 'meta'];
+        $data = new stdClass();
         $this->willBeCalledGetMediaType('some', 'type');
-        $this->willBeCalledEncoderForIdentifiers($data, 'some json api', $links, $meta);
+        $this->willBeCalledEncoderForIdentifiers($data, 'some json api');
         $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getIdentifiersResponse($data, 321, $links, $meta, [
-            'X-Custom' => 'Custom-Header',
-        ]));
+        self::assertEquals(
+            'some response',
+            $this->responses->getIdentifiersResponse(
+                $data,
+                321,
+                [
+                    'X-Custom' => 'Custom-Header',
+                ]
+            )
+        );
     }
 
     /**
      * Test response.
      */
-    public function testErrorResponse1()
+    public function testErrorResponse1(): void
     {
         $error = new Error();
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForError($error, 'some json api');
         $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getErrorResponse($error, 321));
+        self::assertEquals('some response', $this->responses->getErrorResponse($error, 321));
     }
 
     /**
      * Test response.
      */
-    public function testErrorResponse2()
+    public function testErrorResponse2(): void
     {
         $errors = [new Error()];
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForErrors($errors, 'some json api');
         $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getErrorResponse($errors, 321));
+        self::assertEquals('some response', $this->responses->getErrorResponse($errors, 321));
     }
 
     /**
      * Test response.
      */
-    public function testErrorResponse3()
+    public function testErrorResponse3(): void
     {
         $errors = new ErrorCollection();
         $errors->add(new Error());
@@ -242,22 +251,29 @@ class ResponsesTest extends BaseTestCase
         $this->willBeCalledEncoderForErrors($errors, 'some json api');
         $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getErrorResponse($errors, 321));
+        self::assertEquals('some response', $this->responses->getErrorResponse($errors, 321));
     }
 
     /**
      * Test response, with custom headers.
      */
-    public function testErrorResponse4()
+    public function testErrorResponse4(): void
     {
         $error = new Error();
         $this->willBeCalledGetMediaType('some', 'type');
         $this->willBeCalledEncoderForError($error, 'some json api');
         $headers = [BaseResponses::HEADER_CONTENT_TYPE => 'some/type', 'X-Custom' => 'Custom-Header'];
         $this->willBeCalledCreateResponse('some json api', 321, $headers, 'some response');
-        $this->assertEquals('some response', $this->responses->getErrorResponse($error, 321, [
-            'X-Custom' => 'Custom-Header',
-        ]));
+        self::assertEquals(
+            'some response',
+            $this->responses->getErrorResponse(
+                $error,
+                321,
+                [
+                    'X-Custom' => 'Custom-Header',
+                ]
+            )
+        );
     }
 
     /**
@@ -267,7 +283,7 @@ class ResponsesTest extends BaseTestCase
      *
      * @return void
      */
-    private function willBeCalledGetMediaType($type, $subType, array $parameters = null)
+    private function willBeCalledGetMediaType(string $type, string $subType, array $parameters = null): void
     {
         $mediaType = new MediaType($type, $subType, $parameters);
 
@@ -283,7 +299,7 @@ class ResponsesTest extends BaseTestCase
      *
      * @return void
      */
-    private function willBeCalledCreateResponse($content, $httpCode, array $headers, $response)
+    private function willBeCalledCreateResponse(?string $content, int $httpCode, array $headers, $response): void
     {
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mock->shouldReceive('createResponse')->once()
@@ -291,75 +307,32 @@ class ResponsesTest extends BaseTestCase
     }
 
     /**
-     * @param bool $withEncodingParams
-     *
      * @return MockInterface
      */
-    private function willBeCalledGetEncoder($withEncodingParams)
+    private function willBeCalledGetEncoder(): MockInterface
     {
         $encoderMock = Mockery::mock(EncoderInterface::class);
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->mock->shouldReceive('getEncoder')->once()->withNoArgs()->andReturn($encoderMock);
-        if ($withEncodingParams === true) {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
-            $this->mock->shouldReceive('getEncodingParameters')
-                ->once()->withNoArgs()->andReturn($this->encodingencodingParameters);
-        }
 
         return $encoderMock;
     }
 
     /**
-     * @param mixed      $data
-     * @param string     $result
-     * @param array|null $links
-     * @param mixed      $meta
+     * @param mixed  $data
+     * @param string $result
      *
      * @return void
      */
-    private function willBeCalledEncoderForData($data, $result, array $links = null, $meta = null)
+    private function willBeCalledEncoderForData($data, string $result): void
     {
-        $encoderMock = $this->willBeCalledGetEncoder(true);
-
-        if ($links !== null) {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
-            $encoderMock->shouldReceive('withLinks')->once()->with($links)->andReturnSelf();
-        }
-
-        if ($meta !== null) {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
-            $encoderMock->shouldReceive('withMeta')->once()->with($meta)->andReturnSelf();
-        }
+        $encoderMock = $this->willBeCalledGetEncoder();
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $encoderMock->shouldReceive('encodeData')
             ->once()
-            ->withArgs([$data, $this->encodingencodingParameters])
+            ->withArgs([$data])
             ->andReturn($result);
-    }
-
-    /**
-     * @param mixed       $resource
-     * @param string|null $prefix
-     * @param string      $subUrl
-     *
-     * @return void
-     */
-    private function willBeCreatedResourceLocationUrl($resource, $prefix, $subUrl)
-    {
-        $linkMock = Mockery::mock(LinkInterface::class);
-
-        $containerMock = Mockery::mock(ContainerInterface::class);
-        $providerMock  = Mockery::mock(SchemaInterface::class);
-
-        /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->mock->shouldReceive('getSchemaContainer')->once()->withNoArgs()->andReturn($containerMock);
-
-        $containerMock->shouldReceive('getSchema')->once()->with($resource)->andReturn($providerMock);
-        $providerMock->shouldReceive('getSelfSubLink')->once()->with($resource)->andReturn($linkMock);
-        $linkMock->shouldReceive('getSubHref')->once()->withNoArgs()->andReturn($subUrl);
-
-        $this->mock->shouldReceive('getUrlPrefix')->once()->withNoArgs()->andReturn($prefix);
     }
 
     /**
@@ -368,66 +341,54 @@ class ResponsesTest extends BaseTestCase
      *
      * @return void
      */
-    private function willBeCalledEncoderForMeta($meta, $result)
+    private function willBeCalledEncoderForMeta($meta, string $result): void
     {
-        $encoderMock = $this->willBeCalledGetEncoder(false);
+        $encoderMock = $this->willBeCalledGetEncoder();
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $encoderMock->shouldReceive('encodeMeta')->once()->with($meta)->andReturn($result);
     }
 
     /**
-     * @param mixed      $data
-     * @param string     $result
-     * @param array|null $links
-     * @param mixed      $meta
+     * @param mixed  $data
+     * @param string $result
      *
      * @return void
      */
-    private function willBeCalledEncoderForIdentifiers($data, $result, array $links = null, $meta = null)
+    private function willBeCalledEncoderForIdentifiers($data, string $result): void
     {
-        $encoderMock = $this->willBeCalledGetEncoder(true);
-
-        if ($links !== null) {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
-            $encoderMock->shouldReceive('withLinks')->once()->with($links)->andReturnSelf();
-        }
-
-        if ($meta !== null) {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
-            $encoderMock->shouldReceive('withMeta')->once()->with($meta)->andReturnSelf();
-        }
+        $encoderMock = $this->willBeCalledGetEncoder();
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $encoderMock->shouldReceive('encodeIdentifiers')
             ->once()
-            ->withArgs([$data, $this->encodingencodingParameters])
+            ->withArgs([$data])
             ->andReturn($result);
     }
 
     /**
-     * @param mixed|Error $error
-     * @param string      $result
+     * @param mixed  $error
+     * @param string $result
      *
      * @return void
      */
-    private function willBeCalledEncoderForError($error, $result)
+    private function willBeCalledEncoderForError($error, string $result): void
     {
-        $encoderMock = $this->willBeCalledGetEncoder(false);
+        $encoderMock = $this->willBeCalledGetEncoder();
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $encoderMock->shouldReceive('encodeError')->once()->with($error)->andReturn($result);
     }
 
     /**
-     * @param mixed|Error[] $errors
-     * @param string        $result
+     * @param iterable $errors
+     * @param string   $result
      *
      * @return void
      */
-    private function willBeCalledEncoderForErrors($errors, $result)
+    private function willBeCalledEncoderForErrors(iterable $errors, string $result): void
     {
-        $encoderMock = $this->willBeCalledGetEncoder(false);
+        $encoderMock = $this->willBeCalledGetEncoder();
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $encoderMock->shouldReceive('encodeErrors')->once()->with($errors)->andReturn($result);

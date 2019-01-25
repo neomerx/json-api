@@ -1,7 +1,7 @@
-<?php namespace Neomerx\Samples\JsonApi\Schemas;
+<?php declare(strict_types=1); namespace Neomerx\Samples\JsonApi\Schemas;
 
 /**
- * Copyright 2015 info@neomerx.com (www.neomerx.com)
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,10 @@ class AuthorSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    protected $resourceType = 'people';
+    public function getType(): string
+    {
+        return 'people';
+    }
 
     /**
      * @inheritdoc
@@ -35,18 +38,26 @@ class AuthorSchema extends BaseSchema
     public function getId($author): ?string
     {
         /** @var Author $author */
-        return $author->authorId;
+        return (string)$author->authorId;
     }
 
     /**
      * @inheritdoc
      */
-    public function getAttributes($author, array $fieldKeysFilter = null): ? array
+    public function getAttributes($author): iterable
     {
         /** @var Author $author */
         return [
             'first_name' => $author->firstName,
             'last_name'  => $author->lastName,
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationships($resource): iterable
+    {
+        return [];
     }
 }

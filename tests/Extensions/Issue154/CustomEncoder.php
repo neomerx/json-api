@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue154;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Extensions\Issue154;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +29,10 @@ class CustomEncoder extends Encoder implements CustomEncoderInterface
     /**
      * @inheritdoc
      */
-    public function addSchema($type, $schema)
+    public function addSchema(string $type, $schema): CustomEncoderInterface
     {
         /** @var CustomContainerInterface $container */
-        $container = $this->getContainer();
+        $container = $this->getSchemaContainer();
         $container->register($type, $schema);
 
         return $this;

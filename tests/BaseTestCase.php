@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +19,7 @@
  */
 
 use Mockery;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use Neomerx\JsonApi\Encoder\EncoderOptions;
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 use Neomerx\JsonApi\Factories\Factory;
 use PHPUnit\Framework\TestCase;
 
@@ -39,23 +38,10 @@ abstract class BaseTestCase extends TestCase
     }
 
     /**
-     * @param array               $schemas
-     * @param EncoderOptions|null $encodeOptions
-     *
-     * @return EncoderInterface
+     * @return FactoryInterface
      */
-    protected function createLoggedEncoder(array $schemas, EncoderOptions $encodeOptions = null)
+    protected function createFactory(): FactoryInterface
     {
-        $factory = new Factory();
-
-        $path = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'neomerx-json-api-tests.log';
-        $log = new Logger('json-api');
-        $log->pushHandler(new StreamHandler($path));
-        $factory->setLogger($log);
-
-        $container = $factory->createContainer($schemas);
-        $encoder   = $factory->createEncoder($container, $encodeOptions);
-
-        return $encoder;
+        return new Factory();
     }
 }

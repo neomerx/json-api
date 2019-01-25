@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue154;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Extensions\Issue154;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +20,6 @@
 
 use Closure;
 use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use Neomerx\JsonApi\Encoder\EncoderOptions;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -26,18 +27,10 @@ use Neomerx\JsonApi\Encoder\EncoderOptions;
 interface CustomEncoderInterface extends EncoderInterface
 {
     /**
-     * @param array               $schemas
-     * @param EncoderOptions|null $encodeOptions
-     *
-     * @return CustomEncoderInterface
-     */
-    public static function instance(array $schemas = [], EncoderOptions $encodeOptions = null);
-
-    /**
      * @param string         $type
      * @param string|Closure $schema
      *
-     * @return CustomEncoderInterface
+     * @return self
      */
-    public function addSchema($type, $schema);
+    public function addSchema(string $type, $schema): self;
 }

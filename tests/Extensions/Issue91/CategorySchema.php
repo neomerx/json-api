@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue91;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Extensions\Issue91;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,21 +28,25 @@ class CategorySchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    protected $resourceType = 'categories';
+    public function getType(): string
+    {
+        return 'categories';
+    }
 
     /**
      * @inheritdoc
      */
     public function getId($resource): ?string
     {
-        /** @var Category $resource */
-        return $resource->index;
+        assert($resource instanceof Category);
+
+        return (string)$resource->index;
     }
 
     /**
      * @inheritdoc
      */
-    public function getAttributes($resource, array $fieldKeysFilter = null): ?array
+    public function getAttributes($resource, array $fieldKeysFilter = null): iterable
     {
         /** @var Category $resource */
         return [
@@ -51,21 +57,27 @@ class CategorySchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($resource, bool $isPrimary, array $includeRelationships): ?array
+    public function getRelationships($resource): iterable
     {
         /** @var Category $resource */
         return [
-            'parent' => [self::DATA => $resource->parent],
+            'parent' => [self::RELATIONSHIP_DATA => $resource->parent],
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function getIncludePaths(): array
+    public function isAddSelfLinkInRelationshipByDefault(): bool
     {
-        return [
-            'parent',
-        ];
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isAddRelatedLinkInRelationshipByDefault(): bool
+    {
+        return false;
     }
 }

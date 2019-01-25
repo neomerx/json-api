@@ -1,7 +1,9 @@
-<?php namespace Neomerx\JsonApi\Http;
+<?php declare(strict_types=1);
+
+namespace Neomerx\JsonApi\Http;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +18,11 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
 use Neomerx\JsonApi\Contracts\Http\ResponsesInterface;
-use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use Neomerx\JsonApi\Exceptions\ErrorCollection;
+use Neomerx\JsonApi\Contracts\Schema\ErrorInterface;
 
 /**
  * @package Neomerx\JsonApi
@@ -53,21 +52,6 @@ abstract class BaseResponses implements ResponsesInterface
     abstract protected function getEncoder(): EncoderInterface;
 
     /**
-     * @return string|null
-     */
-    abstract protected function getUrlPrefix(): ?string;
-
-    /**
-     * @return EncodingParametersInterface|null
-     */
-    abstract protected function getEncodingParameters(): ?EncodingParametersInterface;
-
-    /**
-     * @return ContainerInterface
-     */
-    abstract protected function getSchemaContainer(): ?ContainerInterface;
-
-    /**
      * @return MediaTypeInterface
      */
     abstract protected function getMediaType(): MediaTypeInterface;
@@ -75,17 +59,9 @@ abstract class BaseResponses implements ResponsesInterface
     /**
      * @inheritdoc
      */
-    public function getContentResponse(
-        $data,
-        int $statusCode = self::HTTP_OK,
-        array $links = null,
-        $meta = null,
-        array $headers = []
-    ) {
-        $encoder = $this->getEncoder();
-        $links === null ?: $encoder->withLinks($links);
-        $meta === null ?: $encoder->withMeta($meta);
-        $content = $encoder->encodeData($data, $this->getEncodingParameters());
+    public function getContentResponse($data, int $statusCode = self::HTTP_OK, array $headers = [])
+    {
+        $content = $this->getEncoder()->encodeData($data);
 
         return $this->createJsonApiResponse($content, $statusCode, $headers, true);
     }
@@ -93,13 +69,10 @@ abstract class BaseResponses implements ResponsesInterface
     /**
      * @inheritdoc
      */
-    public function getCreatedResponse($resource, array $links = null, $meta = null, array $headers = [])
+    public function getCreatedResponse($resource, string $url, array $headers = [])
     {
-        $encoder = $this->getEncoder();
-        $links === null ?: $encoder->withLinks($links);
-        $meta === null ?: $encoder->withMeta($meta);
-        $content = $encoder->encodeData($resource, $this->getEncodingParameters());
-        $headers[self::HEADER_LOCATION] = $this->getResourceLocationUrl($resource);
+        $content                        = $this->getEncoder()->encodeData($resource);
+        $headers[self::HEADER_LOCATION] = $url;
 
         return $this->createJsonApiResponse($content, self::HTTP_CREATED, $headers, true);
     }
@@ -117,8 +90,7 @@ abstract class BaseResponses implements ResponsesInterface
      */
     public function getMetaResponse($meta, int $statusCode = self::HTTP_OK, array $headers = [])
     {
-        $encoder = $this->getEncoder();
-        $content = $encoder->encodeMeta($meta);
+        $content = $this->getEncoder()->encodeMeta($meta);
 
         return $this->createJsonApiResponse($content, $statusCode, $headers, true);
     }
@@ -126,17 +98,9 @@ abstract class BaseResponses implements ResponsesInterface
     /**
      * @inheritDoc
      */
-    public function getIdentifiersResponse(
-        $data,
-        int $statusCode = self::HTTP_OK,
-        array $links = null,
-        $meta = null,
-        array $headers = []
-    ) {
-        $encoder = $this->getEncoder();
-        $links === null ?: $encoder->withLinks($links);
-        $meta === null ?: $encoder->withMeta($meta);
-        $content = $encoder->encodeIdentifiers($data, $this->getEncodingParameters());
+    public function getIdentifiersResponse($data, int $statusCode = self::HTTP_OK, array $headers = [])
+    {
+        $content = $this->getEncoder()->encodeIdentifiers($data);
 
         return $this->createJsonApiResponse($content, $statusCode, $headers, true);
     }
@@ -148,29 +112,15 @@ abstract class BaseResponses implements ResponsesInterface
      */
     public function getErrorResponse($errors, int $statusCode = self::HTTP_BAD_REQUEST, array $headers = [])
     {
-        if ($errors instanceof ErrorCollection || is_array($errors) === true) {
-            /** @var ErrorInterface[] $errors */
+        if (is_iterable($errors) === true) {
+            /** @var iterable $errors */
             $content = $this->getEncoder()->encodeErrors($errors);
         } else {
-            /** @var ErrorInterface $errors */
+            assert($errors instanceof ErrorInterface);
             $content = $this->getEncoder()->encodeError($errors);
         }
 
         return $this->createJsonApiResponse($content, $statusCode, $headers, true);
-    }
-
-    /**
-     * @param mixed $resource
-     *
-     * @return string
-     */
-    protected function getResourceLocationUrl($resource): string
-    {
-        $resSubUrl = $this->getSchemaContainer()->getSchema($resource)->getSelfSubLink($resource)->getSubHref();
-        $urlPrefix = $this->getUrlPrefix();
-        $location  = $urlPrefix . $resSubUrl;
-
-        return $location;
     }
 
     /**

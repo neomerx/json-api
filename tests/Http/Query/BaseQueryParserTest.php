@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Http\Query;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Http\Query;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +21,12 @@
 use Generator;
 use Neomerx\JsonApi\Contracts\Http\Query\BaseQueryParserInterface;
 use Neomerx\JsonApi\Encoder\Encoder;
-use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 use Neomerx\JsonApi\Http\Query\BaseQueryParser;
 use Neomerx\Tests\JsonApi\BaseTestCase;
-use Neomerx\Tests\JsonApi\Data\Author;
-use Neomerx\Tests\JsonApi\Data\AuthorSchema;
-use Neomerx\Tests\JsonApi\Data\Comment;
-use Neomerx\Tests\JsonApi\Data\CommentSchema;
+use Neomerx\Tests\JsonApi\Data\Models\Author;
+use Neomerx\Tests\JsonApi\Data\Models\Comment;
+use Neomerx\Tests\JsonApi\Data\Schemas\AuthorSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\CommentSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -41,8 +42,8 @@ class BaseQueryParserTest extends BaseTestCase
 
         $parser = $this->createParser($queryParameters);
 
-        $this->assertEquals([], $this->iterableToArray($parser->getIncludes()));
-        $this->assertEquals([], $this->iterableToArray($parser->getFields()));
+        self::assertEquals([], $this->iterableToArray($parser->getIncludes()));
+        self::assertEquals([], $this->iterableToArray($parser->getFields()));
     }
 
     /**
@@ -56,10 +57,13 @@ class BaseQueryParserTest extends BaseTestCase
 
         $parser = $this->createParser($queryParameters);
 
-        $this->assertEquals([
-            'comments'        => ['comments'],
-            'comments.author' => ['comments', 'author'],
-        ], $this->iterableToArray($parser->getIncludes()));
+        self::assertEquals(
+            [
+                'comments'        => ['comments'],
+                'comments.author' => ['comments', 'author'],
+            ],
+            $this->iterableToArray($parser->getIncludes())
+        );
     }
 
     /**
@@ -73,9 +77,12 @@ class BaseQueryParserTest extends BaseTestCase
 
         $parser = $this->createParser($queryParameters);
 
-        $this->assertEquals([
-            '0' => ['0'],
-        ], $this->iterableToArray($parser->getIncludes()));
+        self::assertEquals(
+            [
+                '0' => ['0'],
+            ],
+            $this->iterableToArray($parser->getIncludes())
+        );
     }
 
     /**
@@ -89,10 +96,13 @@ class BaseQueryParserTest extends BaseTestCase
 
         $parser = $this->createParser($queryParameters);
 
-        $this->assertEquals([
-            '0' => ['0'],
-            '1' => ['1'],
-        ], $this->iterableToArray($parser->getIncludes()));
+        self::assertEquals(
+            [
+                '0' => ['0'],
+                '1' => ['1'],
+            ],
+            $this->iterableToArray($parser->getIncludes())
+        );
     }
 
     /**
@@ -109,10 +119,13 @@ class BaseQueryParserTest extends BaseTestCase
 
         $parser = $this->createParser($queryParameters);
 
-        $this->assertEquals([
-            'articles' => ['title', 'body'],
-            'people'   => ['name'],
-        ], $this->iterableToArray($parser->getFields()));
+        self::assertEquals(
+            [
+                'articles' => ['title', 'body'],
+                'people'   => ['name'],
+            ],
+            $this->iterableToArray($parser->getFields())
+        );
     }
 
     /**
@@ -126,11 +139,14 @@ class BaseQueryParserTest extends BaseTestCase
 
         $parser = $this->createParser($queryParameters);
 
-        $this->assertEquals([
-            'created' => false,
-            'title'   => true,
-            'updated' => true,
-        ], $this->iterableToArray($parser->getSorts()));
+        self::assertEquals(
+            [
+                'created' => false,
+                'title'   => true,
+                'updated' => true,
+            ],
+            $this->iterableToArray($parser->getSorts())
+        );
     }
 
     /**
@@ -226,6 +242,9 @@ class BaseQueryParserTest extends BaseTestCase
      */
     public function testIntegrationWithEncodingParameters(): void
     {
+        $profileUrl1 = 'http://example1.com/foo';
+        $profileUrl2 = 'http://example2.com/boo';
+
         $queryParameters = [
             BaseQueryParser::PARAM_FIELDS  => [
                 'comments' => Comment::LINK_AUTHOR . ',     ' . Comment::ATTRIBUTE_BODY . '      ',
@@ -234,6 +253,7 @@ class BaseQueryParserTest extends BaseTestCase
             BaseQueryParser::PARAM_SORT    => '-created,title,+updated',
             BaseQueryParser::PARAM_INCLUDE => Comment::LINK_AUTHOR . ',   ' .
                 Comment::LINK_AUTHOR . '.' . Author::LINK_COMMENTS,
+            BaseQueryParser::PARAM_PROFILE => urlencode(implode(' ', [$profileUrl1, $profileUrl2])),
         ];
 
         // It is expected that classes that encapsulate/extend BaseQueryParser would add features
@@ -257,6 +277,11 @@ class BaseQueryParserTest extends BaseTestCase
             private $includes = null;
 
             /**
+             * @var null|array
+             */
+            private $profile = null;
+
+            /**
              * @return array
              */
             public function getFields(): array
@@ -278,6 +303,18 @@ class BaseQueryParserTest extends BaseTestCase
                 }
 
                 return $this->sorts;
+            }
+
+            /**
+             * @return array
+             */
+            public function getProfileUrls(): array
+            {
+                if ($this->profile === null) {
+                    $this->profile = $this->iterableToArray(parent::getProfileUrls());
+                }
+
+                return $this->profile;
             }
 
             /**
@@ -310,19 +347,35 @@ class BaseQueryParserTest extends BaseTestCase
         };
 
         // Check parsing works fine
-        $this->assertSame([
-            'comments' => [Comment::LINK_AUTHOR, Comment::ATTRIBUTE_BODY],
-            'people'   => [Author::ATTRIBUTE_FIRST_NAME],
-        ], $parser->getFields());
-        $this->assertSame([
-            'created' => false,
-            'title'   => true,
-            'updated' => true,
-        ], $parser->getSorts());
-        $this->assertSame([
-            Comment::LINK_AUTHOR,
-            Comment::LINK_AUTHOR . '.' . Author::LINK_COMMENTS,
-        ], $parser->getIncludes());
+        self::assertSame(
+            [
+                'comments' => [Comment::LINK_AUTHOR, Comment::ATTRIBUTE_BODY],
+                'people'   => [Author::ATTRIBUTE_FIRST_NAME],
+            ],
+            $parser->getFields()
+        );
+        self::assertSame(
+            [
+                'created' => false,
+                'title'   => true,
+                'updated' => true,
+            ],
+            $parser->getSorts()
+        );
+        self::assertSame(
+            [
+                Comment::LINK_AUTHOR,
+                Comment::LINK_AUTHOR . '.' . Author::LINK_COMMENTS,
+            ],
+            $parser->getIncludes()
+        );
+        self::assertSame(
+            [
+                $profileUrl1,
+                $profileUrl2,
+            ],
+            $parser->getProfileUrls()
+        );
 
         //
         // Now the main purpose of the test. Will it work with EncodingParameters?
@@ -337,11 +390,15 @@ class BaseQueryParserTest extends BaseTestCase
         $author->{Author::LINK_COMMENTS} = $comments;
 
         // and encode with params taken from the parser
-        $encodingParams = new EncodingParameters($parser->getIncludes(), $parser->getFields());
-        $actual         = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-        ])->encodeData($comments, $encodingParams);
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+            ]
+        )
+            ->withIncludedPaths($parser->getIncludes())
+            ->withFieldSets($parser->getFields())
+            ->encodeData($comments);
 
         $expected = <<<EOL
         {
@@ -354,6 +411,10 @@ class BaseQueryParserTest extends BaseTestCase
               },
               "relationships": {
                 "author": {
+                  "links": {
+                    "self"    : "/comments/5/relationships/author",
+                    "related" : "/comments/5/author"
+                  },
                   "data": { "type": "people", "id": "9" }
                 }
               },
@@ -369,6 +430,10 @@ class BaseQueryParserTest extends BaseTestCase
               },
               "relationships": {
                 "author": {
+                  "links": {
+                    "self"    : "/comments/12/relationships/author",
+                    "related" : "/comments/12/author"
+                  },
                   "data": { "type": "people", "id": "9" }
                 }
               },
@@ -383,15 +448,15 @@ class BaseQueryParserTest extends BaseTestCase
               "id": "9",
               "attributes":{
                 "first_name":"Dan"
+            },
+            "links": {
+                "self": "/people/9"
               }
             }
           ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**

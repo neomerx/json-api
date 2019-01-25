@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Http\Headers;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Http\Headers;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +31,7 @@ class MediaTypeTest extends BaseTestCase
      *
      * @return void
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testInvalidConstructorParams1(): void
     {
@@ -41,7 +43,7 @@ class MediaTypeTest extends BaseTestCase
      *
      * @return void
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testInvalidConstructorParams2(): void
     {
@@ -57,11 +59,11 @@ class MediaTypeTest extends BaseTestCase
     {
         $type = new MediaType('text', 'html', ['charset' => 'utf-8']);
 
-        $this->assertEquals('text/html', $type->getMediaType());
+        self::assertEquals('text/html', $type->getMediaType());
     }
 
     /**
-     * Test compare media types
+     * Test compare media types (case insensitive)
      *
      * @return void
      */
@@ -74,11 +76,26 @@ class MediaTypeTest extends BaseTestCase
         $type5 = new MediaType('text', 'html', ['charset' => 'UTF-8']);
         $type6 = new MediaType('text', 'html', ['charset' => 'UTF-8', 'oneMore' => 'param']);
 
-        $this->assertTrue($type1->equalsTo($type2));
-        $this->assertFalse($type1->equalsTo($type3));
-        $this->assertFalse($type1->equalsTo($type4));
-        $this->assertTrue($type1->equalsTo($type5));
-        $this->assertFalse($type1->equalsTo($type6));
+        self::assertTrue($type1->equalsTo($type2));
+        self::assertFalse($type1->equalsTo($type3));
+        self::assertFalse($type1->equalsTo($type4));
+        self::assertTrue($type1->equalsTo($type5));
+        self::assertFalse($type1->equalsTo($type6));
+    }
+
+    /**
+     * Test compare media types (case sensitive)
+     *
+     * @return void
+     */
+    public function testCompareMediaTypes2(): void
+    {
+        $type1 = new MediaType('text', 'html', ['case-sensitive-value' => 'whatever']);
+        $type2 = new MediaType('text', 'html', ['case-sensitive-value' => 'WHATEVER']);
+        $type3 = new MediaType('text', 'html', ['CASE-SENSITIVE-VALUE' => 'whatever']);
+
+        self::assertFalse($type1->equalsTo($type2));
+        self::assertTrue($type1->equalsTo($type3));
     }
 
     /**
@@ -93,9 +110,9 @@ class MediaTypeTest extends BaseTestCase
         $type3 = new MediaType('text', '*', ['charset' => 'utf-8']);
         $type4 = new MediaType('whatever', '*', ['charset' => 'utf-8']);
 
-        $this->assertTrue($type1->matchesTo($type2));
-        $this->assertTrue($type1->matchesTo($type3));
-        $this->assertFalse($type1->matchesTo($type4));
+        self::assertTrue($type1->matchesTo($type2));
+        self::assertTrue($type1->matchesTo($type3));
+        self::assertFalse($type1->matchesTo($type4));
     }
 
     /**
@@ -108,6 +125,6 @@ class MediaTypeTest extends BaseTestCase
         $type1 = new MediaType('text', 'html');
         $type2 = new MediaType('Text', 'HTML');
 
-        $this->assertTrue($type1->matchesTo($type2));
+        self::assertTrue($type1->matchesTo($type2));
     }
 }

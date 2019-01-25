@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue47;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Extensions\Issue47;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,26 +28,39 @@ class UserBaseSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    protected $resourceType = 'users';
+    public function getType(): string
+    {
+        return 'users';
+    }
 
     /**
      * @inheritdoc
      */
     public function getId($user): ?string
     {
-        /** @var User $user */
+        assert($user instanceof User);
+
         return $user->identity;
     }
 
     /**
      * @inheritdoc
      */
-    public function getAttributes($user, array $fieldKeysFilter = null): ?array
+    public function getAttributes($user): iterable
     {
-        /** @var User $user */
+        assert($user instanceof User);
+
         return [
             'username' => $user->name,
             'private'  => $user->contactDetails,
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRelationships($resource): iterable
+    {
+        return [];
     }
 }

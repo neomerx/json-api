@@ -1,7 +1,9 @@
-<?php namespace Neomerx\JsonApi\Http\Query;
+<?php declare(strict_types=1);
+
+namespace Neomerx\JsonApi\Http\Query;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +29,7 @@ class BaseQueryParser implements BaseQueryParserInterface
         BaseQueryParserTrait::getFields as getFieldsImpl;
         BaseQueryParserTrait::getIncludes as getIncludesImpl;
         BaseQueryParserTrait::getSorts as getSortsImpl;
+        BaseQueryParserTrait::getProfileUrls as getProfileUrlsImpl;
     }
 
     /** Message */
@@ -73,6 +76,14 @@ class BaseQueryParser implements BaseQueryParserInterface
     public function getSorts(): iterable
     {
         return $this->getSortsImpl($this->getParameters(), $this->getMessage(static::MSG_ERR_INVALID_PARAMETER));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getProfileUrls(): iterable
+    {
+        return $this->getProfileUrlsImpl($this->getParameters(), $this->getMessage(static::MSG_ERR_INVALID_PARAMETER));
     }
 
     /**

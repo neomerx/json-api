@@ -21,15 +21,13 @@
     }
   ],
   "require": {
-    "php": ">=7.1.0",
-    "psr/log": "^1.0"
+    "php": ">=7.1.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^7.0",
     "mockery/mockery": "^1.0",
     "scrutinizer/ocular": "^1.4",
     "squizlabs/php_codesniffer": "^2.9",
-    "monolog/monolog": "^1.23",
     "phpmd/phpmd": "^2.6"
   },
   "minimum-stability": "stable",
@@ -37,7 +35,7 @@
     "psr-4": {
       "Neomerx\\JsonApi\\": "src/"
     },
-    "files": ["src/I18n/translate.php"]
+    "files": ["src/I18n/format.php"]
   },
   "autoload-dev": {
     "psr-4": {
@@ -48,10 +46,8 @@
   "scripts": {
     "test": ["@test-unit", "@test-cs", "@test-md"],
     "test-unit": "./vendor/phpunit/phpunit/phpunit --coverage-text",
-    "test-unit-with-coverage": "phpdbg -qrr ./vendor/bin/phpunit --coverage-text",
+    "test-unit-phpdbg": "phpdbg -qrr ./vendor/bin/phpunit --coverage-text",
     "test-cs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests",
-    "test-md": "./vendor/bin/phpmd ./src text codesize,controversial,cleancode,design,unusedcode,naming",
-
-    "perf-test": "docker-compose run --rm cli_7_1_php php /app/sample/sample.php -t=10000"
+    "test-md": "./vendor/bin/phpmd ./src text codesize,controversial,cleancode,design,unusedcode,naming"
   }
 }

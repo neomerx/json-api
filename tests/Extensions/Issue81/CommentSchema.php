@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue81;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Extensions\Issue81;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +18,10 @@
  * limitations under the License.
  */
 
-use Neomerx\Tests\JsonApi\Data\Author;
-use Neomerx\Tests\JsonApi\Data\Comment;
-use Neomerx\Tests\JsonApi\Data\CommentSchema as ParentSchema;
+use Neomerx\Tests\JsonApi\Data\Models\Author;
+use Neomerx\Tests\JsonApi\Data\Models\AuthorIdentity;
+use Neomerx\Tests\JsonApi\Data\Models\Comment;
+use Neomerx\Tests\JsonApi\Data\Schemas\CommentSchema as ParentSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -28,35 +31,26 @@ class CommentSchema extends ParentSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($comment, bool $isPrimary, array $includeRelationships): ?array
+    public function getRelationships($comment): iterable
     {
         assert($comment instanceof Comment);
 
-        if (isset($includeRelationships[Comment::LINK_AUTHOR]) === true) {
-            $data = $comment->{Comment::LINK_AUTHOR};
-        } else {
-            /** @var Author $author */
-            $author   = $comment->{Comment::LINK_AUTHOR};
-            $authorId = $author->{Author::ATTRIBUTE_ID};
+        // emulate situation when we have only ID in relationship (e.g. user ID) and know type.
+        $author   = $comment->{Comment::LINK_AUTHOR};
+        $authorId = (string)$author->{Author::ATTRIBUTE_ID};
 
-            $data = $authorId === null ? null : new AuthorIdentity($authorId);
+        $authorIdentity = new AuthorIdentity($authorId);
+
+        $hasMeta = property_exists($author, Author::IDENTIFIER_META);
+        if ($hasMeta === true) {
+            $authorIdentity->setMeta($author->{Author::IDENTIFIER_META});
         }
 
-        $links = [
-            Comment::LINK_AUTHOR => [self::DATA => $data],
-        ];
-
-        // NOTE: The line(s) below for testing purposes only. Not for production.
-        $this->fixLinks($comment, $links);
-
-        return $links;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIncludedResourceLinks($resource): array
-    {
-        return [];
+        return $this->fixDescriptions(
+            $comment,
+            [
+                Comment::LINK_AUTHOR => [self::RELATIONSHIP_DATA => $authorIdentity],
+            ]
+        );
     }
 }

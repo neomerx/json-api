@@ -1,7 +1,9 @@
-<?php namespace Neomerx\JsonApi\Http\Headers;
+<?php declare(strict_types=1);
+
+namespace Neomerx\JsonApi\Http\Headers;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +18,25 @@
  * limitations under the License.
  */
 
-use InvalidArgumentException;
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use Neomerx\JsonApi\Contracts\Http\HttpFactoryInterface;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
+use Neomerx\JsonApi\Exceptions\InvalidArgumentException;
 
 /**
  * @package Neomerx\JsonApi
  */
-class HeaderParametersParser implements HeaderParametersParserInterface, LoggerAwareInterface
+class HeaderParametersParser implements HeaderParametersParserInterface
 {
-    use LoggerAwareTrait;
-
     /**
-     * @var HttpFactoryInterface
+     * @var FactoryInterface
      */
     private $factory;
 
     /**
-     * @param HttpFactoryInterface $factory
+     * @param FactoryInterface $factory
      */
-    public function __construct(HttpFactoryInterface $factory)
+    public function __construct(FactoryInterface $factory)
     {
         $this->factory = $factory;
     }
@@ -53,7 +51,8 @@ class HeaderParametersParser implements HeaderParametersParserInterface, LoggerA
         }
 
         $ranges = preg_split("/,(?=([^\"]*\"[^\"]*\")*[^\"]*$)/", $value);
-        for ($idx = 0; $idx < count($ranges); ++$idx) {
+        $count  = count($ranges);
+        for ($idx = 0; $idx < $count; ++$idx) {
             $fields = explode(';', $ranges[$idx]);
 
             if (strpos($fields[0], '/') === false) {

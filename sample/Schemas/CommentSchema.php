@@ -1,7 +1,7 @@
-<?php namespace Neomerx\Samples\JsonApi\Schemas;
+<?php declare(strict_types=1); namespace Neomerx\Samples\JsonApi\Schemas;
 
 /**
- * Copyright 2015 info@neomerx.com (www.neomerx.com)
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,28 +27,28 @@ class CommentSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    protected $resourceType = 'comments';
-
-    /**
-     * @inheritdoc
-     */
-    protected $isShowSelfInIncluded = true;
+    public function getType(): string
+    {
+        return 'comments';
+    }
 
     /**
      * @inheritdoc
      */
     public function getId($comment): ?string
     {
-        /** @var Comment $comment */
-        return $comment->commentId;
+        assert($comment instanceof Comment);
+
+        return (string)$comment->commentId;
     }
 
     /**
      * @inheritdoc
      */
-    public function getAttributes($comment, array $fieldKeysFilter = null): ?array
+    public function getAttributes($comment): iterable
     {
-        /** @var Comment $comment */
+        assert($comment instanceof Comment);
+
         return [
             'body' => $comment->body,
         ];
@@ -57,11 +57,16 @@ class CommentSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($comment, bool $isPrimary, array $includeRelationships): ?array
+    public function getRelationships($comment): iterable
     {
-        /** @var Comment $comment */
+        assert($comment instanceof Comment);
+
         return [
-            'author' => [self::DATA => $comment->author],
+            'author' => [
+                self::RELATIONSHIP_DATA          => $comment->author,
+                self::RELATIONSHIP_LINKS_SELF    => false,
+                self::RELATIONSHIP_LINKS_RELATED => false,
+            ],
         ];
     }
 }

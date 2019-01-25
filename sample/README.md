@@ -36,3 +36,11 @@ or with execution time measurement and specified number of iterations
 ```
 $ time php sample.php -t=10000
 ```
+
+If you have [docker-compose](https://docs.docker.com/compose/) installed you can run performance test in PHP 7.1, 7.2 and 7.3 with commands
+
+```
+$ composer perf-test-php-7-1
+$ composer perf-test-php-7-2
+$ composer perf-test-php-7-3
+```

@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Exceptions;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Exceptions;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +18,9 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Document\Error;
-use Neomerx\JsonApi\Exceptions\ErrorCollection;
 use Neomerx\JsonApi\Exceptions\JsonApiException;
+use Neomerx\JsonApi\Schema\Error;
+use Neomerx\JsonApi\Schema\ErrorCollection;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 
 /**
@@ -44,7 +46,7 @@ class JsonApiExceptionTest extends BaseTestCase
         parent::setUp();
 
         $this->collection = new ErrorCollection();
-        $this->error      = new Error('some-id', null, 404, 'some-code', 'some title', 'some details');
+        $this->error      = new Error('some-id', null, null, '404', 'some-code', 'some title', 'some details');
     }
 
     /**

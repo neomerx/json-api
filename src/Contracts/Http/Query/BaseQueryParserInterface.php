@@ -1,7 +1,9 @@
-<?php namespace Neomerx\JsonApi\Contracts\Http\Query;
+<?php declare(strict_types=1);
+
+namespace Neomerx\JsonApi\Contracts\Http\Query;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +37,9 @@ interface BaseQueryParserInterface
 
     /** Parameter name */
     public const PARAM_FILTER = 'filter';
+
+    /** Parameter name */
+    public const PARAM_PROFILE = 'profile';
 
     /**
      * @return iterable

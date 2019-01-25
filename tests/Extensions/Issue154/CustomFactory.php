@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue154;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Extensions\Issue154;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +19,7 @@
  */
 
 use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use Neomerx\JsonApi\Encoder\EncoderOptions;
+use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 use Neomerx\JsonApi\Factories\Factory;
 
 /**
@@ -29,18 +30,16 @@ class CustomFactory extends Factory
     /**
      * @inheritdoc
      */
-    public function createContainer(array $providers = []): ContainerInterface
+    public function createSchemaContainer(iterable $schemas): SchemaContainerInterface
     {
-        return new CustomContainer($this, $providers);
+        return new CustomSchemaContainer($this, $schemas);
     }
 
     /**
      * @inheritdoc
      */
-    public function createEncoder(
-        ContainerInterface $container,
-        EncoderOptions $encoderOptions = null
-    ): EncoderInterface {
-        return new CustomEncoder($this, $container, $encoderOptions);
+    public function createEncoder(SchemaContainerInterface $container): EncoderInterface
+    {
+        return new CustomEncoder($this, $container);
     }
 }

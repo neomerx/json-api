@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  cli_php:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: cli_php_json_api_blackfire
+    env_file: blackfire.io.env
+    volumes:
+      - type: bind
+        source: ./../
+        target: /app
+    working_dir: /app
+    tty: true

@@ -1,7 +1,9 @@
-<?php namespace Neomerx\JsonApi\Schema;
+<?php declare(strict_types=1);
+
+namespace Neomerx\JsonApi\Schema;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,241 +18,50 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
-use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\DocumentInterface;
+use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
+use Neomerx\JsonApi\Exceptions\LogicException;
 
 /**
  * @package Neomerx\JsonApi
- *
- * @SuppressWarnings(PHPMD.LongVariable)
  */
 abstract class BaseSchema implements SchemaInterface
 {
-    /** Links information */
-    const LINKS = DocumentInterface::KEYWORD_LINKS;
-
-    /** Linked data key. */
-    const DATA = DocumentInterface::KEYWORD_DATA;
-
-    /** Relationship meta */
-    const META = DocumentInterface::KEYWORD_META;
-
-    /** If 'self' URL should be shown. */
-    const SHOW_SELF = 'showSelf';
-
-    /** If 'related' URL should be shown. */
-    const SHOW_RELATED = 'showRelated';
-
-    /** If data should be shown in relationships. */
-    const SHOW_DATA = 'showData';
-
     /**
-     * @var string
-     */
-    protected $resourceType;
-
-    /**
-     * @var string Must start with '/' e.g. '/sub-url'
-     */
-    protected $selfSubUrl;
-
-    /**
-     * @var bool
-     */
-    protected $isShowAttributesInIncluded = true;
-
-    /**
-     * @var SchemaFactoryInterface
+     * @var FactoryInterface
      */
     private $factory;
 
     /**
-     * @param SchemaFactoryInterface $factory
-     *
-     * @SuppressWarnings(PHPMD.StaticAccess)
-     * @SuppressWarnings(PHPMD.ElseExpression)
+     * @var null|string
      */
-    public function __construct(SchemaFactoryInterface $factory)
+    private $subUrl = null;
+
+    /**
+     * @param FactoryInterface $factory
+     */
+    public function __construct(FactoryInterface $factory)
     {
-        assert(
-            is_string($this->getResourceType()) === true && empty($this->getResourceType()) === false,
-            'Resource type is not set for Schema \'' . static::class . '\'.'
-        );
-
-        if ($this->selfSubUrl === null) {
-            $this->selfSubUrl = '/' . $this->getResourceType();
-        } else {
-            assert(
-                is_string($this->selfSubUrl) === true && empty($this->selfSubUrl) === false &&
-                $this->selfSubUrl[0] === '/' && $this->selfSubUrl[strlen($this->selfSubUrl) - 1] != '/',
-                '\'Self\' sub-url set incorrectly for Schema \'' . static::class . '\'.'
-            );
-        }
-
         $this->factory = $factory;
     }
 
     /**
      * @inheritdoc
      */
-    public function getResourceType(): string
+    public function getSelfLink($resource): LinkInterface
     {
-        return $this->resourceType;
+        return $this->getFactory()->createLink(true, $this->getSelfSubUrl($resource), false);
     }
 
     /**
      * @inheritdoc
      */
-    public function getSelfSubUrl($resource = null): string
-    {
-        return $resource === null ? $this->selfSubUrl : $this->selfSubUrl . '/' . $this->getId($resource);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSelfSubLink($resource): LinkInterface
-    {
-        return $this->createLink($this->getSelfSubUrl($resource));
-    }
-
-    /**
-     * @inheritdoc
-     *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     */
-    public function getRelationshipSelfLink(
-        $resource,
-        string $name,
-        $meta = null,
-        bool $treatAsHref = false
-    ): LinkInterface {
-        $link = $this->createLink($this->getRelationshipSelfUrl($resource, $name), $meta, $treatAsHref);
-
-        return $link;
-    }
-
-    /**
-     * @inheritdoc
-     *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     */
-    public function getRelationshipRelatedLink(
-        $resource,
-        string $name,
-        $meta = null,
-        bool $treatAsHref = false
-    ): LinkInterface {
-        $link = $this->createLink($this->getRelationshipRelatedUrl($resource, $name), $meta, $treatAsHref);
-
-        return $link;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getPrimaryMeta($resource)
-    {
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getLinkageMeta($resource)
-    {
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getInclusionMeta($resource)
-    {
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getRelationshipsPrimaryMeta($resource)
-    {
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getRelationshipsInclusionMeta($resource)
-    {
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isShowAttributesInIncluded(): bool
-    {
-        return $this->isShowAttributesInIncluded;
-    }
-
-    /**
-     * Get resource links.
-     *
-     * @param object     $resource
-     * @param bool       $isPrimary
-     * @param array      $includeRelationships A list of relationships that will be included as full resources.
-     *
-     * @return array
-     */
-    public function getRelationships($resource, bool $isPrimary, array $includeRelationships): ?array
-    {
-        assert($resource || $isPrimary || $includeRelationships || true);
-
-        return [];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createResourceObject(
-        $resource,
-        bool $isOriginallyArrayed,
-        array $fieldKeysFilter = null
-    ): ResourceObjectInterface {
-        return $this->factory->createResourceObject($this, $resource, $isOriginallyArrayed, $fieldKeysFilter);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getRelationshipObjectIterator($resource, bool $isPrimary, array $includeRelationships): iterable
-    {
-        $relationships = $this->getRelationships($resource, $isPrimary, $includeRelationships);
-        foreach ($relationships as $name => $desc) {
-            yield $this->createRelationshipObject($resource, $name, $desc);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIncludePaths(): array
-    {
-        return [];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getResourceLinks($resource): array
+    public function getLinks($resource): iterable
     {
         $links = [
-            LinkInterface::SELF => $this->getSelfSubLink($resource),
+            LinkInterface::SELF => $this->getSelfLink($resource),
         ];
 
         return $links;
@@ -259,96 +70,106 @@ abstract class BaseSchema implements SchemaInterface
     /**
      * @inheritdoc
      */
-    public function getIncludedResourceLinks($resource): array
+    public function getRelationshipSelfLink($resource, string $name): LinkInterface
     {
-        return [];
-    }
+        // Feel free to override this method to change default URL or add meta
 
-    /**
-     * @param object $resource
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function getRelationshipSelfUrl($resource, $name)
-    {
         $url = $this->getSelfSubUrl($resource) . '/' . DocumentInterface::KEYWORD_RELATIONSHIPS . '/' . $name;
 
-        return $url;
+        return $this->getFactory()->createLink(true, $url, false);
     }
 
     /**
-     * @param object $resource
-     * @param string $name
+     * @inheritdoc
+     */
+    public function getRelationshipRelatedLink($resource, string $name): LinkInterface
+    {
+        // Feel free to override this method to change default URL or add meta
+
+        $url = $this->getSelfSubUrl($resource) . '/' . $name;
+
+        return $this->getFactory()->createLink(true, $url, false);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasIdentifierMeta($resource): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIdentifierMeta($resource)
+    {
+        // default schema does not provide any meta
+        throw new LogicException();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasResourceMeta($resource): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getResourceMeta($resource)
+    {
+        // default schema does not provide any meta
+        throw new LogicException();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isAddSelfLinkInRelationshipByDefault(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isAddRelatedLinkInRelationshipByDefault(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @return FactoryInterface
+     */
+    protected function getFactory(): FactoryInterface
+    {
+        return $this->factory;
+    }
+
+    /**
+     * Get resources sub-URL.
      *
      * @return string
      */
-    protected function getRelationshipRelatedUrl($resource, $name)
+    protected function getResourcesSubUrl(): string
     {
-        $url = $this->getSelfSubUrl($resource) . '/' . $name;
-
-        return $url;
-    }
-
-    /**
-     * @param string     $subHref
-     * @param null|mixed $meta
-     * @param bool       $treatAsHref
-     *
-     * @return LinkInterface
-     *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     */
-    protected function createLink($subHref, $meta = null, $treatAsHref = false)
-    {
-        return $this->factory->createLink($subHref, $meta, $treatAsHref);
-    }
-
-    /**
-     * @param object $resource
-     * @param string $relationshipName
-     * @param array  $description
-     * @param bool   $isShowSelf
-     * @param bool   $isShowRelated
-     *
-     * @return array <string,LinkInterface>
-     */
-    protected function readLinks($resource, $relationshipName, array $description, $isShowSelf, $isShowRelated)
-    {
-        $links = $description[self::LINKS] ?? [];
-        if ($isShowSelf === true && isset($links[LinkInterface::SELF]) === false) {
-            $links[LinkInterface::SELF] = $this->getRelationshipSelfLink($resource, $relationshipName);
-        }
-        if ($isShowRelated === true && isset($links[LinkInterface::RELATED]) === false) {
-            $links[LinkInterface::RELATED] = $this->getRelationshipRelatedLink($resource, $relationshipName);
+        if ($this->subUrl === null) {
+            $this->subUrl = '/' . $this->getType();
         }
 
-        return $links;
+        return $this->subUrl;
     }
 
     /**
-     * @param object $resource
-     * @param string $name
-     * @param array  $desc
+     * @param mixed $resource
      *
-     * @return RelationshipObjectInterface
+     * @return string
      */
-    protected function createRelationshipObject($resource, $name, array $desc)
+    protected function getSelfSubUrl($resource): string
     {
-        assert(
-            array_key_exists(self::DATA, $desc) === true ||
-            array_key_exists(self::META, $desc) === true ||
-            array_key_exists(self::LINKS, $desc) === true,
-            'A `' . $this->getResourceType() . ".$name` relationship must contain at least data, links or meta."
-        );
-
-        $data          = $desc[self::DATA] ?? null;
-        $meta          = $desc[self::META] ?? null;
-        $isShowSelf    = (($desc[self::SHOW_SELF] ?? false) === true);
-        $isShowRelated = (($desc[self::SHOW_RELATED] ?? false) === true);
-        $isShowData    = (($desc[self::SHOW_DATA] ?? array_key_exists(self::DATA, $desc)) === true);
-        $links         = $this->readLinks($resource, $name, $desc, $isShowSelf, $isShowRelated);
-
-        return $this->factory->createRelationshipObject($name, $data, $links, $meta, $isShowData, false);
+        return $this->getResourcesSubUrl() . '/' . $this->getId($resource);
     }
 }

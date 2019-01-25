@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Http\Headers;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Http\Headers;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +18,12 @@
  * limitations under the License.
  */
 
-use InvalidArgumentException;
 use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use Neomerx\JsonApi\Exceptions\InvalidArgumentException;
 use Neomerx\JsonApi\Factories\Factory;
+use Neomerx\JsonApi\Http\Headers\HeaderParametersParser;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 
 /**
@@ -29,7 +32,7 @@ use Neomerx\Tests\JsonApi\BaseTestCase;
 class HeaderParametersParserTest extends BaseTestCase
 {
     /** JSON API type */
-    const TYPE = MediaTypeInterface::JSON_API_MEDIA_TYPE;
+    const MEDIA_TYPE = MediaTypeInterface::JSON_API_MEDIA_TYPE;
 
     /** Header name */
     const HEADER_ACCEPT = HeaderParametersParserInterface::HEADER_ACCEPT;
@@ -49,7 +52,7 @@ class HeaderParametersParserTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->parser = (new Factory())->createHeaderParametersParser();
+        $this->parser = new HeaderParametersParser(new Factory());
     }
 
     /**
@@ -58,14 +61,14 @@ class HeaderParametersParserTest extends BaseTestCase
     public function testParseHeadersNoParams1(): void
     {
         /** @var MediaTypeInterface $contentType */
-        $contentType = $this->parser->parseContentTypeHeader(self::TYPE);
-        $this->assertEquals(self::TYPE, $contentType->getMediaType());
-        $this->assertNull($contentType->getParameters());
+        $contentType = $this->parser->parseContentTypeHeader(self::MEDIA_TYPE);
+        self::assertEquals(self::MEDIA_TYPE, $contentType->getMediaType());
+        self::assertNull($contentType->getParameters());
 
         /** @var AcceptMediaTypeInterface $accept */
-        $accept = $this->first($this->parser->parseAcceptHeader(self::TYPE));
-        $this->assertEquals(self::TYPE, $accept->getMediaType());
-        $this->assertNull($accept->getParameters());
+        $accept = $this->first($this->parser->parseAcceptHeader(self::MEDIA_TYPE));
+        self::assertEquals(self::MEDIA_TYPE, $accept->getMediaType());
+        self::assertNull($accept->getParameters());
     }
 
     /**
@@ -74,14 +77,14 @@ class HeaderParametersParserTest extends BaseTestCase
     public function testParseHeadersNoParams2(): void
     {
         /** @var MediaTypeInterface $contentType */
-        $contentType = $this->parser->parseContentTypeHeader(self::TYPE);
-        $this->assertEquals(self::TYPE, $contentType->getMediaType());
-        $this->assertNull($contentType->getParameters());
+        $contentType = $this->parser->parseContentTypeHeader(self::MEDIA_TYPE);
+        self::assertEquals(self::MEDIA_TYPE, $contentType->getMediaType());
+        self::assertNull($contentType->getParameters());
 
         /** @var AcceptMediaTypeInterface $accept */
-        $accept = $this->first($this->parser->parseAcceptHeader(self::TYPE . ';'));
-        $this->assertEquals(self::TYPE, $accept->getMediaType());
-        $this->assertNull($accept->getParameters());
+        $accept = $this->first($this->parser->parseAcceptHeader(self::MEDIA_TYPE . ';'));
+        self::assertEquals(self::MEDIA_TYPE, $accept->getMediaType());
+        self::assertNull($accept->getParameters());
     }
 
     /**
@@ -89,17 +92,17 @@ class HeaderParametersParserTest extends BaseTestCase
      */
     public function testParseHeadersWithParamsNoExtraParams(): void
     {
-        $contentType = $this->parser->parseContentTypeHeader(self::TYPE . ';ext="ext1,ext2"');
-        $this->assertEquals(self::TYPE, $contentType->getMediaType());
+        $contentType = $this->parser->parseContentTypeHeader(self::MEDIA_TYPE . ';ext="ext1,ext2"');
+        self::assertEquals(self::MEDIA_TYPE, $contentType->getMediaType());
 
         /** @var AcceptMediaTypeInterface $accept */
-        $accept = $this->first($this->parser->parseAcceptHeader(self::TYPE . ';ext=ext1'));
-        $this->assertEquals(self::TYPE, $accept->getMediaType());
+        $accept = $this->first($this->parser->parseAcceptHeader(self::MEDIA_TYPE . ';ext=ext1'));
+        self::assertEquals(self::MEDIA_TYPE, $accept->getMediaType());
 
-        $this->assertEquals(self::TYPE, $contentType->getMediaType());
-        $this->assertEquals(self::TYPE, $accept->getMediaType());
-        $this->assertEquals(['ext' => 'ext1,ext2'], $contentType->getParameters());
-        $this->assertEquals(['ext' => 'ext1'], $accept->getParameters());
+        self::assertEquals(self::MEDIA_TYPE, $contentType->getMediaType());
+        self::assertEquals(self::MEDIA_TYPE, $accept->getMediaType());
+        self::assertEquals(['ext' => 'ext1,ext2'], $contentType->getParameters());
+        self::assertEquals(['ext' => 'ext1'], $accept->getParameters());
     }
 
     /**
@@ -109,19 +112,21 @@ class HeaderParametersParserTest extends BaseTestCase
     {
         /** @var AcceptMediaTypeInterface $accept */
         $contentType = $this->parser->parseContentTypeHeader(
-            self::TYPE . ' ;  boo = foo; ext="ext1,ext2";  foo = boo '
+            self::MEDIA_TYPE . ' ;  boo = foo; ext="ext1,ext2";  foo = boo '
         );
-        $accept      = $this->first($this->parser->parseAcceptHeader(
-            self::TYPE . ' ; boo = foo; ext=ext1;  foo = boo'
-        ));
+        $accept      = $this->first(
+            $this->parser->parseAcceptHeader(
+                self::MEDIA_TYPE . ' ; boo = foo; ext=ext1;  foo = boo'
+            )
+        );
 
-        $this->assertEquals(self::TYPE, $contentType->getMediaType());
-        $this->assertEquals(self::TYPE, $accept->getMediaType());
-        $this->assertEquals(
+        self::assertEquals(self::MEDIA_TYPE, $contentType->getMediaType());
+        self::assertEquals(self::MEDIA_TYPE, $accept->getMediaType());
+        self::assertEquals(
             ['boo' => 'foo', 'ext' => 'ext1,ext2', 'foo' => 'boo'],
             $contentType->getParameters()
         );
-        $this->assertEquals(
+        self::assertEquals(
             ['boo' => 'foo', 'ext' => 'ext1', 'foo' => 'boo'],
             $accept->getParameters()
         );
@@ -130,7 +135,7 @@ class HeaderParametersParserTest extends BaseTestCase
     /**
      * Test parse empty header.
      *
-     * @expectedException InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testParseEmptyHeader1(): void
     {
@@ -140,7 +145,7 @@ class HeaderParametersParserTest extends BaseTestCase
     /**
      * Test parse empty header.
      *
-     * @expectedException InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testParseEmptyHeader2(): void
     {
@@ -150,27 +155,27 @@ class HeaderParametersParserTest extends BaseTestCase
     /**
      * Test parse invalid headers.
      *
-     * @expectedException InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
-    public function testParseIvalidHeaders1(): void
+    public function testParseInvalidHeaders1(): void
     {
-        $this->parser->parseContentTypeHeader(self::TYPE . ';foo');
+        $this->parser->parseContentTypeHeader(self::MEDIA_TYPE . ';foo');
     }
 
     /**
      * Test parse invalid headers.
      *
-     * @expectedException InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
-    public function testParseIvalidHeaders2()
+    public function testParseInvalidHeaders2(): void
     {
-        $this->first($this->parser->parseAcceptHeader(self::TYPE . ';foo'));
+        $this->first($this->parser->parseAcceptHeader(self::MEDIA_TYPE . ';foo'));
     }
 
     /**
      * Test rfc2616 #3.9 (3 meaningful digits for quality)
      */
-    public function testParserHeaderRfc2616P3p9Part1()
+    public function testParserHeaderRfc2616P3p9Part1(): void
     {
         $input = 'type1/*;q=0.5001, type2/*;q=0.5009';
 
@@ -180,13 +185,13 @@ class HeaderParametersParserTest extends BaseTestCase
             $types[1]->getMediaType() => $types[1]->getQuality(),
         ];
 
-        $this->assertCount(2, array_intersect(['type1/*' => 0.5, 'type2/*' => 0.5], $params));
+        self::assertCount(2, array_intersect(['type1/*' => 0.5, 'type2/*' => 0.5], $params));
     }
 
     /**
      * Test rfc2616 #3.9 (3 meaningful digits for quality)
      */
-    public function testParserHeaderRfc2616P3p9Part2()
+    public function testParserHeaderRfc2616P3p9Part2(): void
     {
         $input = 'type1/*;q=0.501, type2/*;q=0.509';
 
@@ -196,13 +201,13 @@ class HeaderParametersParserTest extends BaseTestCase
             $types[1]->getMediaType() => $types[1]->getQuality(),
         ];
 
-        $this->assertCount(2, array_intersect(['type1/*' => 0.501, 'type2/*' => 0.509], $params));
+        self::assertCount(2, array_intersect(['type1/*' => 0.501, 'type2/*' => 0.509], $params));
     }
 
     /**
      * Test parsing multiple params.
      */
-    public function testParserHeaderWithMultipleParameters()
+    public function testParserHeaderWithMultipleParameters(): void
     {
         $input = ' foo/bar.baz;media=param;q=0.5;ext="ext1,ext2", type/*';
 
@@ -215,114 +220,114 @@ class HeaderParametersParserTest extends BaseTestCase
 
         asort($params);
 
-        $this->assertEquals(['type/*' => null, 'foo/bar.baz' => ['media' => 'param']], $params);
+        self::assertEquals(['type/*' => null, 'foo/bar.baz' => ['media' => 'param']], $params);
     }
 
     /**
      * Test sample from RFC.
      */
-    public function testParseHeaderRfcSample1()
+    public function testParseHeaderRfcSample1(): void
     {
         $input = 'audio/*; q=0.2, audio/basic';
 
         /** @var AcceptMediaTypeInterface[] $types */
         $types = $this->iterableToArray($this->parser->parseAcceptHeader($input));
 
-        $this->assertCount(2, $types);
-        $this->assertEquals('audio/*', $types[0]->getMediaType());
-        $this->assertEquals(0.2, $types[0]->getQuality());
-        $this->assertEquals(0, $types[0]->getPosition());
-        $this->assertEquals('audio/basic', $types[1]->getMediaType());
-        $this->assertEquals(1.0, $types[1]->getQuality());
-        $this->assertEquals(1, $types[1]->getPosition());
+        self::assertEquals(2, count($types));
+        self::assertEquals('audio/*', $types[0]->getMediaType());
+        self::assertEquals(0.2, $types[0]->getQuality());
+        self::assertEquals(0, $types[0]->getPosition());
+        self::assertEquals('audio/basic', $types[1]->getMediaType());
+        self::assertEquals(1.0, $types[1]->getQuality());
+        self::assertEquals(1, $types[1]->getPosition());
     }
 
     /**
      * Test sample from RFC.
      */
-    public function testParseHeaderRfcSample2()
+    public function testParseHeaderRfcSample2(): void
     {
         $input = 'text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c';
 
         /** @var AcceptMediaTypeInterface[] $types */
         $types = $this->iterableToArray($this->parser->parseAcceptHeader($input));
 
-        $this->assertCount(4, $types);
-        $this->assertEquals('text/plain', $types[0]->getMediaType());
-        $this->assertEquals(0.5, $types[0]->getQuality());
-        $this->assertEquals('text/html', $types[1]->getMediaType());
-        $this->assertEquals(1.0, $types[1]->getQuality());
-        $this->assertEquals('text/x-dvi', $types[2]->getMediaType());
-        $this->assertEquals(0.8, $types[2]->getQuality());
-        $this->assertEquals('text/x-c', $types[3]->getMediaType());
-        $this->assertEquals(1.0, $types[3]->getQuality());
+        self::assertEquals(4, count($types));
+        self::assertEquals('text/plain', $types[0]->getMediaType());
+        self::assertEquals(0.5, $types[0]->getQuality());
+        self::assertEquals('text/html', $types[1]->getMediaType());
+        self::assertEquals(1.0, $types[1]->getQuality());
+        self::assertEquals('text/x-dvi', $types[2]->getMediaType());
+        self::assertEquals(0.8, $types[2]->getQuality());
+        self::assertEquals('text/x-c', $types[3]->getMediaType());
+        self::assertEquals(1.0, $types[3]->getQuality());
     }
 
     /**
      * Test sample from RFC.
      */
-    public function testParseHeaderRfcSample3()
+    public function testParseHeaderRfcSample3(): void
     {
         $input = 'text/*, text/html, text/html;level=1, */*';
 
         /** @var AcceptMediaTypeInterface[] $types */
         $types = $this->iterableToArray($this->parser->parseAcceptHeader($input));
 
-        $this->assertCount(4, $types);
-        $this->assertEquals('text/*', $types[0]->getMediaType());
-        $this->assertEquals(1.0, $types[0]->getQuality());
-        $this->assertEquals('text/html', $types[1]->getMediaType());
-        $this->assertEquals(null, $types[0]->getParameters());
-        $this->assertEquals(1.0, $types[1]->getQuality());
-        $this->assertEquals(null, $types[1]->getParameters());
-        $this->assertEquals('text/html', $types[2]->getMediaType());
-        $this->assertEquals(1.0, $types[2]->getQuality());
-        $this->assertEquals(['level' => '1'], $types[2]->getParameters());
-        $this->assertEquals('*/*', $types[3]->getMediaType());
-        $this->assertEquals(1.0, $types[3]->getQuality());
-        $this->assertEquals(null, $types[3]->getParameters());
+        self::assertEquals(4, count($types));
+        self::assertEquals('text/*', $types[0]->getMediaType());
+        self::assertEquals(1.0, $types[0]->getQuality());
+        self::assertEquals('text/html', $types[1]->getMediaType());
+        self::assertEquals(null, $types[0]->getParameters());
+        self::assertEquals(1.0, $types[1]->getQuality());
+        self::assertEquals(null, $types[1]->getParameters());
+        self::assertEquals('text/html', $types[2]->getMediaType());
+        self::assertEquals(1.0, $types[2]->getQuality());
+        self::assertEquals(['level' => '1'], $types[2]->getParameters());
+        self::assertEquals('*/*', $types[3]->getMediaType());
+        self::assertEquals(1.0, $types[3]->getQuality());
+        self::assertEquals(null, $types[3]->getParameters());
     }
 
     /**
      * Test sample from RFC.
      */
-    public function testParseHeaderRfcSample4()
+    public function testParseHeaderRfcSample4(): void
     {
         $input = 'text/*;q=0.3, text/html;q=0.7, text/html;level=1, text/html;level=2;q=0.4, */*;q=0.5';
 
         /** @var AcceptMediaTypeInterface[] $types */
         $types = $this->iterableToArray($this->parser->parseAcceptHeader($input));
 
-        $this->assertCount(5, $types);
-        $this->assertEquals('text/*', $types[0]->getMediaType());
-        $this->assertEquals(0.3, $types[0]->getQuality());
-        $this->assertEquals(null, $types[0]->getParameters());
-        $this->assertEquals('text/html', $types[1]->getMediaType());
-        $this->assertEquals(0.7, $types[1]->getQuality());
-        $this->assertEquals(null, $types[1]->getParameters());
-        $this->assertEquals('text/html', $types[2]->getMediaType());
-        $this->assertEquals(1.0, $types[2]->getQuality());
-        $this->assertEquals(['level' => '1'], $types[2]->getParameters());
-        $this->assertEquals('text/html', $types[3]->getMediaType());
-        $this->assertEquals(0.4, $types[3]->getQuality());
-        $this->assertEquals(['level' => '2'], $types[3]->getParameters());
-        $this->assertEquals('*/*', $types[4]->getMediaType());
-        $this->assertEquals(0.5, $types[4]->getQuality());
-        $this->assertEquals(null, $types[4]->getParameters());
+        self::assertEquals(5, count($types));
+        self::assertEquals('text/*', $types[0]->getMediaType());
+        self::assertEquals(0.3, $types[0]->getQuality());
+        self::assertEquals(null, $types[0]->getParameters());
+        self::assertEquals('text/html', $types[1]->getMediaType());
+        self::assertEquals(0.7, $types[1]->getQuality());
+        self::assertEquals(null, $types[1]->getParameters());
+        self::assertEquals('text/html', $types[2]->getMediaType());
+        self::assertEquals(1.0, $types[2]->getQuality());
+        self::assertEquals(['level' => '1'], $types[2]->getParameters());
+        self::assertEquals('text/html', $types[3]->getMediaType());
+        self::assertEquals(0.4, $types[3]->getQuality());
+        self::assertEquals(['level' => '2'], $types[3]->getParameters());
+        self::assertEquals('*/*', $types[4]->getMediaType());
+        self::assertEquals(0.5, $types[4]->getQuality());
+        self::assertEquals(null, $types[4]->getParameters());
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
-    public function testInvalidHeader1()
+    public function testInvalidHeader1(): void
     {
         $this->parser->parseContentTypeHeader('');
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
-    public function testInvalidHeader2()
+    public function testInvalidHeader2(): void
     {
         $this->parser->parseContentTypeHeader('foo/bar; baz');
     }
@@ -330,9 +335,9 @@ class HeaderParametersParserTest extends BaseTestCase
     /**
      * @see https://github.com/neomerx/json-api/issues/193
      *
-     * @expectedException InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
-    public function testInvalidHeader3()
+    public function testInvalidHeader3(): void
     {
         $this->parser->parseContentTypeHeader('application/vnd.api+json;q=0.5,text/html;q=0.8;*/*;q=0.1');
     }
@@ -340,9 +345,9 @@ class HeaderParametersParserTest extends BaseTestCase
     /**
      * Test invalid parse parameters.
      *
-     * @expectedException InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
-    public function testInvalidParseParams1()
+    public function testInvalidParseParams1(): void
     {
         $this->first($this->parser->parseAcceptHeader('boo.bar+baz'));
     }
@@ -350,11 +355,26 @@ class HeaderParametersParserTest extends BaseTestCase
     /**
      * Test invalid parse parameters.
      *
-     * @expectedException InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
-    public function testInvalidParseParams2()
+    public function testInvalidParseParams2(): void
     {
         $this->first($this->parser->parseAcceptHeader('boo/bar+baz;param'));
+    }
+
+    /**
+     * Test parse parameters.
+     */
+    public function testParseAcceptHeaderWithJsonApiProfile(): void
+    {
+        /** @var AcceptMediaTypeInterface $accept */
+        $accept = $this->first(
+            $this->parser->parseAcceptHeader(
+                'application/vnd.api+json;profile="http://example.com/last-modified",application/vnd.api+json'
+            )
+        );
+        self::assertEquals(self::MEDIA_TYPE, $accept->getMediaType());
+        self::assertEquals(['profile' => 'http://example.com/last-modified'], $accept->getParameters());
     }
 
     /**

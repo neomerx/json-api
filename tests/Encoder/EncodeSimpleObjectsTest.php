@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Encoder;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Encoder;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +18,22 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Document\Link;
+use ArrayIterator;
 use Neomerx\JsonApi\Encoder\Encoder;
-use Neomerx\JsonApi\Encoder\EncoderOptions;
-use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 use Neomerx\JsonApi\Factories\Factory;
+use Neomerx\JsonApi\Schema\Link;
+use Neomerx\JsonApi\Schema\LinkWithAliases;
 use Neomerx\Tests\JsonApi\BaseTestCase;
-use Neomerx\Tests\JsonApi\Data\Author;
-use Neomerx\Tests\JsonApi\Data\AuthorCModel;
-use Neomerx\Tests\JsonApi\Data\AuthorCModelSchema;
-use Neomerx\Tests\JsonApi\Data\AuthorSchema;
 use Neomerx\Tests\JsonApi\Data\Collection;
-use Neomerx\Tests\JsonApi\Data\Comment;
-use Neomerx\Tests\JsonApi\Data\CommentSchema;
-use Neomerx\Tests\JsonApi\Data\Site;
-use Neomerx\Tests\JsonApi\Data\SiteSchema;
+use Neomerx\Tests\JsonApi\Data\Models\Author;
+use Neomerx\Tests\JsonApi\Data\Models\AuthorCModel;
+use Neomerx\Tests\JsonApi\Data\Models\AuthorIdentity;
+use Neomerx\Tests\JsonApi\Data\Models\Comment;
+use Neomerx\Tests\JsonApi\Data\Models\Site;
+use Neomerx\Tests\JsonApi\Data\Schemas\AuthorCModelSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\AuthorSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\CommentSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\SiteSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -38,25 +41,15 @@ use Neomerx\Tests\JsonApi\Data\SiteSchema;
 class EncodeSimpleObjectsTest extends BaseTestCase
 {
     /**
-     * @var EncoderOptions
-     */
-    private $encoderOptions;
-
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $this->encoderOptions = new EncoderOptions(0, 'http://example.com');
-    }
-
-    /**
      * Test encode null.
      */
     public function testEncodeNull(): void
     {
-        $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class,
-        ]);
+        $encoder = Encoder::instance(
+            [
+                Author::class => AuthorSchema::class,
+            ]
+        );
 
         $actual = $encoder->encodeData(null);
 
@@ -65,10 +58,8 @@ class EncodeSimpleObjectsTest extends BaseTestCase
             "data" : null
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
 
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -76,9 +67,11 @@ EOL;
      */
     public function testEncodeEmpty(): void
     {
-        $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class,
-        ]);
+        $encoder = Encoder::instance(
+            [
+                Author::class => AuthorSchema::class,
+            ]
+        );
 
         $actual = $encoder->encodeData([]);
 
@@ -87,10 +80,7 @@ EOL;
             "data" : []
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -98,21 +88,20 @@ EOL;
      */
     public function testEncodeEmptyIterator(): void
     {
-        $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class,
-        ]);
+        $encoder = Encoder::instance(
+            [
+                Author::class => AuthorSchema::class,
+            ]
+        );
 
-        $actual = $encoder->encodeData(new \ArrayIterator([]));
+        $actual = $encoder->encodeData(new ArrayIterator([]));
 
         $expected = <<<EOL
         {
             "data": []
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -122,24 +111,25 @@ EOL;
      */
     public function testEncodeEmptyWithParameters(): void
     {
-        $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class,
-        ]);
+        $encoder = Encoder::instance(
+            [
+                Author::class => AuthorSchema::class,
+            ]
+        )->withFieldSets(
+            [
+                // include only these attributes and links
+                'authors' => [Author::ATTRIBUTE_FIRST_NAME, Author::LINK_COMMENTS],
+            ]
+        );
 
-        $actual = $encoder->encodeData([], new EncodingParameters(null, [
-            // include only these attributes and links
-            'authors' => [Author::ATTRIBUTE_FIRST_NAME, Author::LINK_COMMENTS],
-        ]));
+        $actual = $encoder->encodeData([]);
 
         $expected = <<<EOL
         {
             "data" : []
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -148,14 +138,16 @@ EOL;
     public function testEncodeObjectWithAttributesOnly(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
+        $encoder = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
 
-                return $schema;
-            },
-        ], $this->encoderOptions);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $actual = $encoder->encodeData($author);
 
@@ -174,10 +166,43 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
+        self::assertJsonStringEqualsJsonString($expected, $actual);
+    }
 
-        $this->assertEquals($expected, $actual);
+    /**
+     * Test encode identifier.
+     */
+    public function testEncodeIdentifier(): void
+    {
+        $encoder = Encoder::instance([]);
+
+        $identity = (new AuthorIdentity('123'))->setMeta('id meta');
+
+        $actual   = $encoder->encodeData($identity);
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "people",
+                "id"   : "123",
+                "meta" : "id meta"
+            }
+        }
+EOL;
+        self::assertJsonStringEqualsJsonString($expected, $actual);
+
+        // same but as an array
+
+        $actual   = $encoder->encodeData([$identity]);
+        $expected = <<<EOL
+        {
+            "data" : [{
+                "type" : "people",
+                "id"   : "123",
+                "meta" : "id meta"
+            }]
+        }
+EOL;
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -187,17 +212,21 @@ EOL;
     {
         $author                         = Author::instance(9, 'Dan', 'Gebhardt');
         $author->{Author::ATTRIBUTE_ID} = null;
-        $encoder                        = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
-                $schema->setResourceLinksClosure(function () {
-                    return []; // no `self` link and others
-                });
+        $encoder                        = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
+                    $schema->setResourceLinksClosure(
+                        function () {
+                            return []; // no `self` link and others
+                        }
+                    );
 
-                return $schema;
-            },
-        ], $this->encoderOptions);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $actual = $encoder->encodeData($author);
 
@@ -212,10 +241,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -225,22 +251,26 @@ EOL;
      */
     public function testEncodeObjectWithAttributesAndCustomLinks(): void
     {
-        $author  = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
-                $schema->setResourceLinksClosure(function ($resource) {
-                    $this->assertNotNull($resource);
+        $author  = Author::instance(9, 'Dan', 'Gebhardt')->setResourceMeta('resource meta');
+        $encoder = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
+                    $schema->setResourceLinksClosure(
+                        function ($resource) {
+                            self::assertNotNull($resource);
 
-                    return [
-                        'custom' => new Link('http://custom-link.com/', null, true),
-                    ];
-                });
+                            return [
+                                'custom' => new Link(false, 'http://custom-link.com/', false),
+                            ];
+                        }
+                    );
 
-                return $schema;
-            },
-        ], $this->encoderOptions);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $actual = $encoder->encodeData($author);
 
@@ -255,14 +285,12 @@ EOL;
                 },
                 "links" : {
                     "custom" : "http://custom-link.com/"
-                }
+                },
+                "meta": "resource meta"
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -270,10 +298,16 @@ EOL;
      */
     public function testEncodeObjectAsResourceIdentity(): void
     {
-        $author  = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class,
-        ], $this->encoderOptions);
+        $author  = Author::instance(9, 'Dan', 'Gebhardt')->setIdentifierMeta('id meta');
+        $encoder = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $actual = $encoder->encodeIdentifiers($author);
 
@@ -281,14 +315,12 @@ EOL;
         {
             "data" : {
                 "type" : "people",
-                "id"   : "9"
+                "id"   : "9",
+                "meta": "id meta"
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -297,9 +329,11 @@ EOL;
     public function testEncodeArrayAsResourceIdentity(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class,
-        ], $this->encoderOptions);
+        $encoder = Encoder::instance(
+            [
+                Author::class => AuthorSchema::class,
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $actual = $encoder->encodeIdentifiers([$author]);
 
@@ -311,10 +345,132 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
+        self::assertJsonStringEqualsJsonString($expected, $actual);
+    }
 
-        $this->assertEquals($expected, $actual);
+    /**
+     * Test encode simple object as resource identity with included resources.
+     */
+    public function testEncodeObjectAsResourceIdentityWithIncludes(): void
+    {
+        $comment                         = Comment::instance(1, 'One!');
+        $author                          = Author::instance(9, 'Dan', 'Gebhardt', [$comment]);
+        $comment->{Comment::LINK_AUTHOR} = $author;
+
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+            ]
+        )
+            ->withUrlPrefix('http://example.com')
+            ->withIncludedPaths([Comment::LINK_AUTHOR])
+            ->encodeIdentifiers($comment);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "comments",
+                "id"   : "1"
+            },
+            "included": [
+                {
+                    "type" : "comments",
+                    "id"   : "1",
+                    "attributes": {
+                        "body": "One!"
+                    },
+                    "relationships": {
+                        "author": {
+                            "links": {
+                                "self"    : "http://example.com/comments/1/relationships/author",
+                                "related" : "http://example.com/comments/1/author"
+                            },
+                            "data": {
+                                "type" : "people",
+                                "id"   : "9"
+                            }
+                        }
+                    },
+                    "links": {
+                        "self": "http://example.com/comments/1"
+                    }
+                }, {
+                    "type" : "people",
+                    "id"   : "9",
+                    "attributes": {
+                        "first_name" : "Dan",
+                        "last_name"  : "Gebhardt"
+                    },
+                    "relationships": {
+                        "comments": {
+                            "links": {
+                                "self"    : "http://example.com/people/9/relationships/comments",
+                                "related" : "http://example.com/people/9/comments"
+                            },
+                            "data": [
+                                { "type" : "comments", "id"   : "1" }
+                            ]
+                        }
+                    },
+                    "links": {
+                        "self": "http://example.com/people/9"
+                    }
+                }
+            ]
+        }
+EOL;
+
+        self::assertJsonStringEqualsJsonString($expected, $actual);
+    }
+
+    /**
+     * Test encode plain identifiers.
+     */
+    public function testEncodeIdentifiers(): void
+    {
+        $author  = new AuthorIdentity("123");
+        $encoder = Encoder::instance([]);
+
+        $actual = $encoder->encodeIdentifiers($author);
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "people",
+                "id"   : "123"
+            }
+        }
+EOL;
+        self::assertJsonStringEqualsJsonString($expected, $actual);
+
+        // same as array
+
+        $actual = $encoder->encodeIdentifiers([$author]);
+        $expected = <<<EOL
+        {
+            "data" : [{
+                "type" : "people",
+                "id"   : "123"
+            }]
+        }
+EOL;
+        self::assertJsonStringEqualsJsonString($expected, $actual);
+    }
+
+    /**
+     * Test encode plain identifiers.
+     */
+    public function testEncodeNullIdentifier(): void
+    {
+        $encoder = Encoder::instance([]);
+
+        $actual = $encoder->encodeIdentifiers(null);
+        $expected = <<<EOL
+        {
+            "data" : null
+        }
+EOL;
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -323,14 +479,16 @@ EOL;
     public function testEncodeObjectWithAttributesOnlyInArray(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
+        $encoder = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
 
-                return $schema;
-            },
-        ], $this->encoderOptions);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $actual = $encoder->encodeData([$author]);
 
@@ -349,10 +507,7 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -361,16 +516,18 @@ EOL;
     public function testEncodeObjectWithAttributesOnlyInAssocArray(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
+        $encoder = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
 
-                return $schema;
-            },
-        ], $this->encoderOptions);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com');
 
-        $actual = $encoder->encodeData(['key_doesnt_matter' => $author]);
+        $actual = $encoder->encodeData(['key_does_not_matter' => $author]);
 
         $expected = <<<EOL
         {
@@ -387,10 +544,7 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -399,14 +553,16 @@ EOL;
     public function testEncodeObjectWithAttributesOnlyPrettyPrinted(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
+        $encoder = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
 
-                return $schema;
-            },
-        ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->withEncodeOptions(JSON_PRETTY_PRINT);
 
         $actual = $encoder->encodeData($author);
 
@@ -426,7 +582,7 @@ EOL;
 }
 EOL;
 
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -436,14 +592,16 @@ EOL;
     {
         $author1 = Author::instance(7, 'First', 'Last');
         $author2 = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
+        $encoder = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
 
-                return $schema;
-            },
-        ], $this->encoderOptions);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $actual = $encoder->encodeData([$author1, $author2]);
 
@@ -475,10 +633,7 @@ EOL;
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -486,9 +641,13 @@ EOL;
      */
     public function testEncodeMetaAndtopLinksForSimpleObject(): void
     {
-        $author = Author::instance(9, 'Dan', 'Gebhardt');
-        $links  = [Link::SELF => new Link('/people/9')];
-        $meta   = [
+        $author  = Author::instance(9, 'Dan', 'Gebhardt');
+        $links   = [Link::SELF => new Link(true, '/people/9', false)];
+        $profile = [
+            new LinkWithAliases(false, 'http://example.com/profiles/flexible-pagination', [], false),
+            new LinkWithAliases(false, 'http://example.com/profiles/resource-versioning', ['version' => 'v'], false),
+        ];
+        $meta    = [
             "copyright" => "Copyright 2015 Example Corp.",
             "authors"   => [
                 "Yehuda Katz",
@@ -497,14 +656,22 @@ EOL;
             ],
         ];
 
-        $actual = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
+        $actual = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
 
-                return $schema;
-            },
-        ], $this->encoderOptions)->withLinks($links)->withMeta($meta)->encodeData($author);
+                    return $schema;
+                },
+            ]
+        )
+            ->withUrlPrefix('http://example.com')
+            ->withLinks([])
+            ->withLinks($links)
+            ->withProfile($profile)
+            ->withMeta($meta)
+            ->encodeData($author);
 
         $expected = <<<EOL
         {
@@ -517,7 +684,16 @@ EOL;
                 ]
             },
             "links" : {
-                "self" : "http://example.com/people/9"
+                "self" : "http://example.com/people/9",
+                "profile": [
+                    "http://example.com/profiles/flexible-pagination",
+                    {
+                        "href"    : "http://example.com/profiles/resource-versioning",
+                        "aliases" : {
+                            "version": "v"
+                        }
+                    }
+                ]
             },
             "data" : {
                 "type"       : "people",
@@ -532,10 +708,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -552,14 +725,16 @@ EOL;
             ],
         ];
 
-        $actual = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
+        $actual = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
 
-                return $schema;
-            },
-        ])->encodeMeta($meta);
+                    return $schema;
+                },
+            ]
+        )->encodeMeta($meta);
 
         $expected = <<<EOL
         {
@@ -573,10 +748,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -584,21 +756,20 @@ EOL;
      */
     public function testEncodeJsonApiVersion(): void
     {
-        $actual = Encoder::instance()->withJsonApiVersion(['some' => 'meta'])->encodeData(null);
+        $actual = Encoder::instance()
+            ->withJsonApiVersion(Encoder::JSON_API_VERSION)->withJsonApiMeta(['some' => 'meta'])
+            ->encodeData(null);
 
         $expected = <<<EOL
         {
             "jsonapi" : {
-                "version" : "1.0",
+                "version" : "1.1",
                 "meta"    : { "some" : "meta" }
             },
             "data" : null
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -608,10 +779,12 @@ EOL;
     {
         $author  = Author::instance(7, 'First', 'Last', []);
         $site    = Site::instance(9, 'Main Site', []);
-        $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class,
-            Site::class   => SiteSchema::class,
-        ], $this->encoderOptions);
+        $encoder = Encoder::instance(
+            [
+                Author::class => AuthorSchema::class,
+                Site::class   => SiteSchema::class,
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $actual = $encoder->encodeData([$author, $site]);
 
@@ -627,6 +800,10 @@ EOL;
                     },
                     "relationships" : {
                         "comments" : {
+                            "links": {
+                                "self"    : "http://example.com/people/7/relationships/comments",
+                                "related" : "http://example.com/people/7/comments"
+                            },
                             "data" : []
                         }
                     },
@@ -641,6 +818,10 @@ EOL;
                     },
                     "relationships" : {
                         "posts" : {
+                            "links": {
+                                "self"    : "http://example.com/sites/9/relationships/posts",
+                                "related" : "http://example.com/sites/9/posts"
+                            },
                             "data" : []
                         }
                     },
@@ -651,10 +832,7 @@ EOL;
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -663,14 +841,16 @@ EOL;
     public function testEncodeObjectWithAttributesOnlyInArrayAccessCollection(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
+        $encoder = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
 
-                return $schema;
-            },
-        ], $this->encoderOptions);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $collection   = new Collection();
         $collection[] = $author;
@@ -692,10 +872,7 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -706,12 +883,14 @@ EOL;
     public function testEncodeWithSchmaInstance(): void
     {
         $authorSchema = new AuthorSchema(new Factory());
-        $authorSchema->linkRemove(Author::LINK_COMMENTS);
+        $authorSchema->removeRelationship(Author::LINK_COMMENTS);
 
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => $authorSchema,
-        ], $this->encoderOptions);
+        $encoder = Encoder::instance(
+            [
+                Author::class => $authorSchema,
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $actual = $encoder->encodeData($author);
 
@@ -730,10 +909,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -747,31 +923,42 @@ EOL;
     {
         /**
          * It's odd to have a second comments relationship and the naming is also weird but...
-         * we need a second relationship that which naming start identical to the first one.
+         * let's check a relationship that which naming start identical to the first one.
          */
         $secondRelName = Author::LINK_COMMENTS . '-second-name';
 
         $comment1 = Comment::instance(1, 'One!');
         $comment5 = Comment::instance(5, 'Five!');
-        $author  = Author::instance(9, 'Dan', 'Gebhardt', [$comment1]);
+        $author   = Author::instance(9, 'Dan', 'Gebhardt', [$comment1]);
 
-        $actual = Encoder::instance([
-            Author::class  => function ($factory) use ($secondRelName, $comment5) {
-                $schema = new AuthorSchema($factory);
+        $actual = Encoder::instance(
+            [
+                Author::class  => function ($factory) use ($secondRelName, $comment5) {
+                    $schema = new AuthorSchema($factory);
 
-                // make the author have the comment only in that odd relationship
-                // we will emulate the new relationship with that comment
-                $schema->linkAddTo($secondRelName, AuthorSchema::DATA, function () use ($comment5) {
-                    return [$comment5];
-                });
+                    // make the author have the comment only in that odd relationship
+                    // we will emulate the new relationship with that comment
+                    $schema->addToRelationship(
+                        $secondRelName,
+                        AuthorSchema::RELATIONSHIP_DATA,
+                        function () use ($comment5
+                        ) {
+                            return [$comment5];
+                        }
+                    );
 
-                return $schema;
-            },
-            Comment::class => CommentSchema::class,
-        ], $this->encoderOptions)->encodeData($author, new EncodingParameters(
+                    // hide links
+                    $schema->hideDefaultLinksInRelationship(Author::LINK_COMMENTS);
+                    $schema->hideDefaultLinksInRelationship($secondRelName);
+
+                    return $schema;
+                },
+                Comment::class => CommentSchema::class,
+            ]
+        )->withUrlPrefix('http://example.com')->withIncludedPaths(
             // include only the new odd relationship and omit the original `comments` relationship
             [$secondRelName]
-        ));
+        )->encodeData($author);
 
         // The issue was that comment with id 1 was also added in `included` section
         $expected = <<<EOL
@@ -813,7 +1000,13 @@ EOL;
                     "body": "Five!"
                     },
                     "relationships": {
-                        "author": { "data": null }
+                        "author": {
+                            "links": {
+                                "self"    : "http://example.com/comments/5/relationships/author",
+                                "related" : "http://example.com/comments/5/author"
+                            },
+                            "data": null
+                        }
                     },
                     "links": {
                         "self": "http://example.com/comments/5"
@@ -822,10 +1015,7 @@ EOL;
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -836,11 +1026,13 @@ EOL;
     public function testEncodeArrayBasedObject(): void
     {
         $author  = new AuthorCModel(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            AuthorCModel::class => AuthorCModelSchema::class,
-        ], $this->encoderOptions);
+        $encoder = Encoder::instance(
+            [
+                AuthorCModel::class => AuthorCModelSchema::class,
+            ]
+        );
 
-        $actual = $encoder->encodeData($author);
+        $actual = $encoder->withUrlPrefix('http://example.com')->encodeData($author);
 
         $expected = <<<EOL
         {
@@ -852,7 +1044,12 @@ EOL;
                     "last_name"  : "Gebhardt"
                 },
                 "relationships" : {
-                    "comments" : { "data" : null }
+                    "comments" : {
+                        "links": {
+                            "self"    : "http://example.com/people/9/relationships/comments",
+                            "related" : "http://example.com/people/9/comments"
+                        }
+                    }
                 },
                 "links" : {
                     "self" : "http://example.com/people/9"
@@ -860,14 +1057,11 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
 
         // same but as array
 
-        $actual = $encoder->encodeData([$author]);
+        $actual = $encoder->withUrlPrefix('http://example.com')->encodeData([$author]);
 
         $expected = <<<EOL
         {
@@ -879,7 +1073,12 @@ EOL;
                     "last_name"  : "Gebhardt"
                 },
                 "relationships" : {
-                    "comments" : { "data" : null }
+                    "comments" : {
+                        "links": {
+                            "self"    : "http://example.com/people/9/relationships/comments",
+                            "related" : "http://example.com/people/9/comments"
+                        }
+                    }
                 },
                 "links" : {
                     "self" : "http://example.com/people/9"
@@ -887,9 +1086,6 @@ EOL;
             }]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 }

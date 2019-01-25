@@ -17,5 +17,10 @@
     "require": {
         "php": ">=7.1.0",
         "psr/log": "^1.0"
+    },
+    "scripts": {
+        "perf-test-php-7-1": "docker-compose run --rm cli_7_1_php php -d zend.assertions=-1 /app/sample/sample.php -t=10000",
+        "perf-test-php-7-2": "docker-compose run --rm cli_7_2_php php -d zend.assertions=-1 /app/sample/sample.php -t=10000",
+        "perf-test-php-7-3": "docker-compose run --rm cli_7_3_php php -d zend.assertions=-1 /app/sample/sample.php -t=10000"
     }
 }

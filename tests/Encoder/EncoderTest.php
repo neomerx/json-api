@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Encoder;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Encoder;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +19,17 @@
  */
 
 use ArrayIterator;
-use InvalidArgumentException;
-use Neomerx\JsonApi\Contracts\Document\LinkInterface;
-use Neomerx\JsonApi\Document\Link;
+use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use Neomerx\JsonApi\Encoder\Encoder;
-use Neomerx\JsonApi\Encoder\EncoderOptions;
-use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Neomerx\JsonApi\Exceptions\InvalidArgumentException;
+use Neomerx\JsonApi\Schema\Link;
 use Neomerx\Tests\JsonApi\BaseTestCase;
-use Neomerx\Tests\JsonApi\Data\Author;
-use Neomerx\Tests\JsonApi\Data\AuthorSchema;
-use Neomerx\Tests\JsonApi\Data\Comment;
-use Neomerx\Tests\JsonApi\Data\CommentSchema;
-use Neomerx\Tests\JsonApi\Data\Post;
-use Neomerx\Tests\JsonApi\Data\PostSchema;
+use Neomerx\Tests\JsonApi\Data\Models\Author;
+use Neomerx\Tests\JsonApi\Data\Models\Comment;
+use Neomerx\Tests\JsonApi\Data\Models\Post;
+use Neomerx\Tests\JsonApi\Data\Schemas\AuthorSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\CommentSchema;
+use Neomerx\Tests\JsonApi\Data\Schemas\PostSchema;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -37,28 +37,15 @@ use Neomerx\Tests\JsonApi\Data\PostSchema;
 class EncoderTest extends BaseTestCase
 {
     /**
-     * @var EncoderOptions
-     */
-    private $encoderOptions;
-
-    /**
-     * Set up.
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $this->encoderOptions = new EncoderOptions(0, 'http://example.com');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testEncodeInvalidData()
     {
-        $encoder = Encoder::instance([
-            Author::class => AuthorSchema::class
-        ], $this->encoderOptions);
+        $encoder = Encoder::instance(
+            [
+                Author::class => AuthorSchema::class,
+            ]
+        )->withUrlPrefix('http://example.com');
 
         /** @noinspection PhpParamsInspection */
         $encoder->encodeData('input must be an object or array of objects or iterator over objects');
@@ -70,13 +57,15 @@ class EncoderTest extends BaseTestCase
     public function testEncodeArrayOfDuplicateObjectsWithAttributesOnly()
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkRemove(Author::LINK_COMMENTS);
-                return $schema;
-            }
-        ], $this->encoderOptions);
+        $encoder = Encoder::instance(
+            [
+                Author::class => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->removeRelationship(Author::LINK_COMMENTS);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $actual = $encoder->encodeData([$author, $author]);
 
@@ -108,10 +97,7 @@ class EncoderTest extends BaseTestCase
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -125,13 +111,11 @@ EOL;
         // Don't be confused by the link name. It does not matter and I just don't want to create a new schema.
         $author->{Author::LINK_COMMENTS} = $author;
 
-        $encoder = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->setIncludePaths([]);
-                return $schema;
-            },
-        ], $this->encoderOptions);
+        $encoder = Encoder::instance(
+            [
+                Author::class => AuthorSchema::class,
+            ]
+        )->withUrlPrefix('http://example.com');
 
         $actual = $encoder->encodeData([$author, $author]);
 
@@ -147,6 +131,10 @@ EOL;
                     },
                     "relationships" : {
                         "comments" : {
+                            "links": {
+                                "self"    : "http://example.com/people/9/relationships/comments",
+                                "related" : "http://example.com/people/9/comments"
+                            },
                             "data" : { "type" : "people", "id" : "9" }
                         }
                     },
@@ -162,6 +150,10 @@ EOL;
                     },
                     "relationships" : {
                         "comments" : {
+                            "links": {
+                                "self"    : "http://example.com/people/9/relationships/comments",
+                                "related" : "http://example.com/people/9/comments"
+                            },
                             "data" : { "type" : "people", "id" : "9" }
                         }
                     },
@@ -172,10 +164,7 @@ EOL;
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -188,17 +177,19 @@ EOL;
             Comment::instance(5, 'First!', $author),
             Comment::instance(12, 'I like XML better', $author),
         ];
-        $encoder = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-        ], $this->encoderOptions);
+        $encoder  = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+            ]
+        )->withUrlPrefix('http://example.com')->withFieldSets(
+            // filter attributes
+            ['people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME]]
+        );
 
         $author->{Author::LINK_COMMENTS} = $comments;
 
-        $actual = $encoder->encodeData([$author, $author], new EncodingParameters(
-            null,
-            ['people' => [Author::ATTRIBUTE_LAST_NAME, Author::ATTRIBUTE_FIRST_NAME]] // filter attributes
-        ));
+        $actual = $encoder->encodeData([$author, $author]);
 
         $expected = <<<EOL
         {
@@ -228,10 +219,7 @@ EOL;
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -239,11 +227,13 @@ EOL;
      */
     public function testEncodeSimpleLinks()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => PostSchema::class,
-        ], $this->encoderOptions)->encodeData($this->getStandardPost());
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+                Post::class    => PostSchema::class,
+            ]
+        )->withUrlPrefix('http://example.com')->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -256,9 +246,17 @@ EOL;
                 },
                 "relationships" : {
                     "author" : {
+                        "links": {
+                            "self"    : "http://example.com/posts/1/relationships/author",
+                            "related" : "http://example.com/posts/1/author"
+                        },
                         "data" : { "type" : "people", "id" : "9" }
                     },
                     "comments" : {
+                        "links": {
+                            "self"    : "http://example.com/posts/1/relationships/comments",
+                            "related" : "http://example.com/posts/1/comments"
+                        },
                         "data" : [
                             { "type":"comments", "id":"5" },
                             { "type":"comments", "id":"12" }
@@ -271,10 +269,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -282,16 +277,23 @@ EOL;
      */
     public function testEncodeEmptyLinks()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, null);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, []);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->getStandardPost());
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->addToRelationship(Post::LINK_AUTHOR, PostSchema::RELATIONSHIP_DATA, null);
+                    $schema->addToRelationship(Post::LINK_COMMENTS, PostSchema::RELATIONSHIP_DATA, []);
+
+                    // hide links
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -312,10 +314,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -323,18 +322,13 @@ EOL;
      */
     public function testEncodeLinksInDocumentAndRelationships()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_SELF, true);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_RELATED, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_SELF, true);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_RELATED, true);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->getStandardPost());
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+                Post::class    => PostSchema::class,
+            ]
+        )->withUrlPrefix('http://example.com')->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -347,21 +341,21 @@ EOL;
                 },
                 "relationships" : {
                     "author" : {
-                        "data" : { "type" : "people", "id" : "9" },
                         "links" : {
                             "self"    : "http://example.com/posts/1/relationships/author",
                             "related" : "http://example.com/posts/1/author"
-                        }
+                        },
+                        "data" : { "type" : "people", "id" : "9" }
                     },
                     "comments" : {
-                        "data":[
-                            { "type" : "comments", "id" : "5" },
-                            { "type" : "comments", "id" : "12" }
-                        ],
                         "links" : {
                             "self"    : "http://example.com/posts/1/relationships/comments",
                             "related" : "http://example.com/posts/1/comments"
-                        }
+                        },
+                        "data":[
+                            { "type" : "comments", "id" : "5" },
+                            { "type" : "comments", "id" : "12" }
+                        ]
                     }
                 },
                 "links" : {
@@ -370,10 +364,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -386,26 +377,30 @@ EOL;
             Comment::instance(12, 'I like XML better'),
         ];
         $author   = Author::instance(9, 'Dan', 'Gebhardt', $comments);
-        $actual = Encoder::instance([
-            Author::class  => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                $schema->linkAddTo(Author::LINK_COMMENTS, AuthorSchema::SHOW_SELF, true);
-                $schema->linkAddTo(
-                    Author::LINK_COMMENTS,
-                    AuthorSchema::LINKS,
-                    [
-                        LinkInterface::SELF => function (AuthorSchema $schema, Author $author) {
-                            return new Link(
-                                $schema->getSelfSubUrl($author) . '/relationships/comments',
-                                ['some' => 'meta']
-                            );
-                        }
-                    ]
-                );
-                return $schema;
-            },
-            Comment::class => CommentSchema::class,
-        ], $this->encoderOptions)->encodeData($author);
+        $actual   = Encoder::instance(
+            [
+                Author::class  => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->hideRelatedLinkInRelationship(Author::LINK_COMMENTS);
+                    $schema->addToRelationship(
+                        Author::LINK_COMMENTS,
+                        AuthorSchema::RELATIONSHIP_LINKS,
+                        [
+                            LinkInterface::SELF => function (AuthorSchema $schema, Author $author) {
+                                return new Link(
+                                    true,
+                                    $schema->getSelfSubUrl($author) . '/relationships/comments',
+                                    true,
+                                    ['some' => 'meta']
+                                );
+                            },
+                        ]
+                    );
+                    return $schema;
+                },
+                Comment::class => CommentSchema::class,
+            ]
+        )->withUrlPrefix('http://example.com')->encodeData($author);
 
         $expected = <<<EOL
         {
@@ -418,16 +413,16 @@ EOL;
                 },
                 "relationships" : {
                     "comments"  : {
-                        "data":[
-                            { "type" : "comments", "id" : "5" },
-                            { "type" : "comments", "id" : "12" }
-                        ],
                         "links" : {
                             "self" : {
                                 "href" : "http://example.com/people/9/relationships/comments",
                                 "meta" : { "some" : "meta" }
                             }
-                        }
+                        },
+                        "data":[
+                            { "type" : "comments", "id" : "5" },
+                            { "type" : "comments", "id" : "12" }
+                        ]
                     }
                 },
                 "links":{
@@ -436,60 +431,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
-    }
-
-    /**
-     * Test relationships meta.
-     */
-    public function testRelationshipsMeta()
-    {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->setRelationshipsMeta(['some' => 'meta']);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->getStandardPost());
-
-        $expected = <<<EOL
-        {
-            "data" : {
-                "type"  : "posts",
-                "id"    : "1",
-                "attributes" : {
-                    "title" : "JSON API paints my bikeshed!",
-                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
-                },
-                "relationships" : {
-                    "author" : {
-                        "data" : { "type" : "people", "id" : "9" }
-                    },
-                    "comments" : {
-                        "data" : [
-                            { "type":"comments", "id":"5" },
-                            { "type":"comments", "id":"12" }
-                        ]
-                    },
-                    "meta" : {
-                        "some" : "meta"
-                    }
-                },
-                "links" : {
-                    "self" : "http://example.com/posts/1"
-                }
-            }
-        }
-EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -497,25 +439,38 @@ EOL;
      */
     public function testAddLinksToEmptyRelationship()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, null);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_DATA, false);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_RELATED, true);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::LINKS, ['foo' => new Link('/your/link', null, true)]);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, []);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_DATA, false);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::LINKS, [
-                    'boo' => function (PostSchema $schema, Post $post) {
-                        return new Link($schema->getSelfSubUrl($post) . '/another/link');
-                    }
-                ]);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->getStandardPost());
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->removeFromRelationship(Post::LINK_AUTHOR, PostSchema::RELATIONSHIP_DATA);
+                    $selfLink    = new Link(false, 'http://foo.boo/custom-self', false);
+                    $relatedLink = new Link(false, 'http://foo.boo/custom-related', false);
+                    $schema->setSelfLinkInRelationship(Post::LINK_AUTHOR, $selfLink);
+                    $schema->setRelatedLinkInRelationship(Post::LINK_AUTHOR, $relatedLink);
+                    $schema->addToRelationship(
+                        Post::LINK_AUTHOR,
+                        PostSchema::RELATIONSHIP_LINKS,
+                        ['foo' => new Link(false, '/your/link', false)]
+                    );
+                    $schema->removeFromRelationship(Post::LINK_COMMENTS, PostSchema::RELATIONSHIP_DATA);
+                    $schema->addToRelationship(
+                        Post::LINK_COMMENTS,
+                        PostSchema::RELATIONSHIP_LINKS,
+                        [
+                            'boo' => function (PostSchema $schema, Post $post) {
+                                return new Link(true, $schema->getSelfSubUrl($post) . '/another/link', false);
+                            },
+                        ]
+                    );
+                    $schema->hideRelatedLinkInRelationship(Post::LINK_COMMENTS);
+
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -528,10 +483,17 @@ EOL;
                 },
                 "relationships" : {
                     "author" : {
-                        "links" : { "foo" : "/your/link", "related" : "http://example.com/posts/1/author" }
+                        "links" : {
+                            "self"    : "http://foo.boo/custom-self",
+                            "related" : "http://foo.boo/custom-related",
+                            "foo"     : "/your/link"
+                        }
                     },
                     "comments" : {
-                        "links" : { "boo" : "http://example.com/posts/1/another/link" }
+                        "links" : {
+                            "boo"  : "http://example.com/posts/1/another/link",
+                            "self" : "http://example.com/posts/1/relationships/comments"
+                        }
                     }
                 },
                 "links" : {
@@ -540,10 +502,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -551,22 +510,28 @@ EOL;
      */
     public function testAddMetaToEmptyRelationship()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, null);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_DATA, false);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::META, ['author' => 'meta']);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, []);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_DATA, false);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::META, function () {
-                    return ['comments' => 'meta'];
-                });
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->getStandardPost());
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->removeFromRelationship(Post::LINK_AUTHOR, PostSchema::RELATIONSHIP_DATA);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->addToRelationship(Post::LINK_AUTHOR, PostSchema::RELATIONSHIP_META, ['author' => 'meta']);
+                    $schema->removeFromRelationship(Post::LINK_COMMENTS, PostSchema::RELATIONSHIP_DATA);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    $schema->addToRelationship(
+                        Post::LINK_COMMENTS,
+                        PostSchema::RELATIONSHIP_META,
+                        function () {
+                            return ['comments' => 'meta'];
+                        }
+                    );
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -591,10 +556,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -602,23 +564,35 @@ EOL;
      */
     public function testHideDataSectionIfOmittedInSchema()
     {
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->linkRemoveFrom(Post::LINK_AUTHOR, PostSchema::DATA);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_RELATED, true);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::LINKS, ['foo' => new Link('/your/link', null, true)]);
-                $schema->linkRemoveFrom(Post::LINK_COMMENTS, PostSchema::DATA);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::LINKS, [
-                    'boo' => function (PostSchema $schema, Post $post) {
-                        return new Link($schema->getSelfSubUrl($post) . '/another/link');
-                    }
-                ]);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->getStandardPost());
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->removeFromRelationship(Post::LINK_AUTHOR, PostSchema::RELATIONSHIP_DATA);
+                    $schema->hideSelfLinkInRelationship(Post::LINK_AUTHOR);
+                    $schema->addToRelationship(
+                        Post::LINK_AUTHOR,
+                        PostSchema::RELATIONSHIP_LINKS,
+                        ['foo' => new Link(false, '/your/link', false)]
+                    );
+                    $schema->removeFromRelationship(Post::LINK_COMMENTS, PostSchema::RELATIONSHIP_DATA);
+                    $schema->addToRelationship(
+                        Post::LINK_COMMENTS,
+                        PostSchema::RELATIONSHIP_LINKS,
+                        [
+                            'boo' => function (PostSchema $schema, Post $post) {
+                                return new Link(true, $schema->getSelfSubUrl($post) . '/another/link', false);
+                            },
+                        ]
+                    );
+                    $schema->hideRelatedLinkInRelationship(Post::LINK_COMMENTS);
+
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->encodeData($this->getStandardPost());
 
         $expected = <<<EOL
         {
@@ -634,7 +608,10 @@ EOL;
                         "links" : { "foo" : "/your/link", "related" : "http://example.com/posts/1/author" }
                     },
                     "comments" : {
-                        "links" : { "boo" : "http://example.com/posts/1/another/link" }
+                        "links" : {
+                            "boo"  : "http://example.com/posts/1/another/link",
+                            "self" : "http://example.com/posts/1/relationships/comments"
+                        }
                     }
                 },
                 "links" : {
@@ -643,68 +620,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
-    }
-
-    /**
-     * Test closures are not executed in hidden relationships.
-     */
-    public function testDataNotLoadedInHiddenRelationships()
-    {
-        $throwExClosure = function () {
-            throw new \Exception();
-        };
-
-        $actual = Encoder::instance([
-            Author::class  => AuthorSchema::class,
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory) use ($throwExClosure) {
-                $schema = new PostSchema($factory);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::DATA, $throwExClosure);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_DATA, false);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::SHOW_RELATED, true);
-                $schema->linkAddTo(Post::LINK_AUTHOR, PostSchema::LINKS, ['foo' => new Link('/your/link', null, true)]);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::DATA, $throwExClosure);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::SHOW_DATA, false);
-                $schema->linkAddTo(Post::LINK_COMMENTS, PostSchema::LINKS, [
-                    'boo' => function (PostSchema $schema, Post $post) {
-                        return new Link($schema->getSelfSubUrl($post) . '/another/link');
-                    }
-                ]);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($this->getStandardPost());
-
-        $expected = <<<EOL
-        {
-            "data" : {
-                "type"  : "posts",
-                "id"    : "1",
-                "attributes" : {
-                    "title" : "JSON API paints my bikeshed!",
-                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
-                },
-                "relationships" : {
-                    "author" : {
-                        "links" : { "foo" : "/your/link", "related" : "http://example.com/posts/1/author" }
-                    },
-                    "comments" : {
-                        "links" : { "boo" : "http://example.com/posts/1/another/link" }
-                    }
-                },
-                "links" : {
-                    "self" : "http://example.com/posts/1"
-                }
-            }
-        }
-EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -713,20 +629,24 @@ EOL;
     public function testEncodeTraversableObjectsWithAttributesOnly()
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
-        $encoder = Encoder::instance([
-            Author::class => function ($factory) {
-                $schema = new AuthorSchema($factory);
-                //$schema->linkRemove(Author::LINK_COMMENTS);
-                return $schema;
-            },
-            Comment::class => CommentSchema::class,
-        ], $this->encoderOptions);
+        $encoder = Encoder::instance(
+            [
+                Author::class  => function ($factory) {
+                    $schema = new AuthorSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Author::LINK_COMMENTS);
+                    return $schema;
+                },
+                Comment::class => CommentSchema::class,
+            ]
+        )->withUrlPrefix('http://example.com');
 
         // iterator here
-        $author->{Author::LINK_COMMENTS} = new ArrayIterator([
-            'comment1' => Comment::instance(5, 'First!'),
-            'comment2' => Comment::instance(12, 'I like XML better'),
-        ]);
+        $author->{Author::LINK_COMMENTS} = new ArrayIterator(
+            [
+                'comment1' => Comment::instance(5, 'First!'),
+                'comment2' => Comment::instance(12, 'I like XML better'),
+            ]
+        );
 
         // and iterator here
         $itemSet = new ArrayIterator(['what_if_its_not_zero_based_array' => $author]);
@@ -757,10 +677,7 @@ EOL;
             ]
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -770,14 +687,17 @@ EOL;
     {
         $post = Post::instance(1, 'Title', 'Body', null, [Comment::instance(5, 'First!')]);
 
-        $actual = Encoder::instance([
-            Comment::class => CommentSchema::class,
-            Post::class    => function ($factory) {
-                $schema = new PostSchema($factory);
-                $schema->linkRemove(Post::LINK_AUTHOR);
-                return $schema;
-            },
-        ], $this->encoderOptions)->encodeData($post);
+        $actual = Encoder::instance(
+            [
+                Comment::class => CommentSchema::class,
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->removeRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->encodeData($post);
 
         $expected = <<<EOL
         {
@@ -801,10 +721,7 @@ EOL;
             }
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -813,9 +730,11 @@ EOL;
     public function testEncodeWithRelationshipSelfLink()
     {
         $post   = $this->getStandardPost();
-        $actual = Encoder::instance([
-            Post::class => PostSchema::class,
-        ])->withRelationshipSelfLink($post, Post::LINK_AUTHOR)->encodeData([]);
+        $actual = Encoder::instance(
+            [
+                Post::class => PostSchema::class,
+            ]
+        )->withRelationshipSelfLink($post, Post::LINK_AUTHOR)->encodeData([]);
 
         $expected = <<<EOL
         {
@@ -825,10 +744,7 @@ EOL;
             "data" : []
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -837,9 +753,11 @@ EOL;
     public function testEncodeWithRelationshipRelatedLink()
     {
         $post   = $this->getStandardPost();
-        $actual = Encoder::instance([
-            Post::class => PostSchema::class,
-        ])->withRelationshipRelatedLink($post, Post::LINK_AUTHOR)->encodeData([]);
+        $actual = Encoder::instance(
+            [
+                Post::class => PostSchema::class,
+            ]
+        )->withRelationshipRelatedLink($post, Post::LINK_AUTHOR)->encodeData([]);
 
         $expected = <<<EOL
         {
@@ -849,10 +767,7 @@ EOL;
             "data" : []
         }
 EOL;
-        // remove formatting from 'expected'
-        $expected = json_encode(json_decode($expected));
-
-        $this->assertEquals($expected, $actual);
+        self::assertJsonStringEqualsJsonString($expected, $actual);
     }
 
     /**
@@ -865,16 +780,17 @@ EOL;
         /** @var InvalidArgumentException $catch */
         $catch = null;
         try {
-            Encoder::instance([
-                Post::class    => PostSchema::class,
-            ], $this->encoderOptions)->encodeData($author);
+            Encoder::instance(
+                [
+                    Post::class => PostSchema::class,
+                ]
+            )->withUrlPrefix('http://example.com')->encodeData($author);
         } catch (InvalidArgumentException $exception) {
             $catch = $exception;
         }
 
-        $this->assertNotNull($catch);
-        $this->assertContains('top-level', $catch->getMessage());
-        $this->assertNotNull($catch->getPrevious());
+        self::assertNotNull($catch);
+        self::assertContains('top-level', $catch->getMessage());
     }
 
     /**
@@ -888,19 +804,22 @@ EOL;
         /** @var InvalidArgumentException $catch */
         $catch = null;
         try {
-            Encoder::instance([
-                Comment::class => CommentSchema::class,
-                Post::class    => PostSchema::class,
-            ], $this->encoderOptions)->encodeData($post, new EncodingParameters([
-                Post::LINK_COMMENTS
-            ]));
+            Encoder::instance(
+                [
+                    Comment::class => CommentSchema::class,
+                    Post::class    => PostSchema::class,
+                ]
+            )->withUrlPrefix('http://example.com')->withIncludedPaths(
+                [
+                    Post::LINK_COMMENTS,
+                ]
+            )->encodeData($post);
         } catch (InvalidArgumentException $exception) {
             $catch = $exception;
         }
 
-        $this->assertNotNull($catch);
-        $this->assertContains(Post::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR, $catch->getMessage());
-        $this->assertNotNull($catch->getPrevious());
+        self::assertNotNull($catch);
+        self::assertContains(Post::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR, $catch->getMessage());
     }
 
     /**

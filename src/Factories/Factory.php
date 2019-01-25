@@ -1,7 +1,9 @@
-<?php namespace Neomerx\JsonApi\Factories;
+<?php declare(strict_types=1);
+
+namespace Neomerx\JsonApi\Factories;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,208 +18,467 @@
  * limitations under the License.
  */
 
-use Closure;
-use Neomerx\JsonApi\Contracts\Document\DocumentInterface;
-use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
-use Neomerx\JsonApi\Contracts\Document\LinkInterface;
 use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Handlers\ReplyInterpreterInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parameters\ParametersAnalyzerInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserManagerInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Parser\ParserReplyInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Stack\StackFrameReadOnlyInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Stack\StackInterface;
-use Neomerx\JsonApi\Contracts\Encoder\Stack\StackReadOnlyInterface;
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
-use Neomerx\JsonApi\Contracts\Http\Headers\HeaderParametersParserInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
-use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
-use Neomerx\JsonApi\Contracts\Schema\RelationshipObjectInterface;
-use Neomerx\JsonApi\Contracts\Schema\ResourceObjectInterface;
-use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
-use Neomerx\JsonApi\Document\Document;
-use Neomerx\JsonApi\Document\Error;
-use Neomerx\JsonApi\Document\Link;
+use Neomerx\JsonApi\Contracts\Parser\IdentifierInterface as ParserIdentifierInterface;
+use Neomerx\JsonApi\Contracts\Parser\ParserInterface;
+use Neomerx\JsonApi\Contracts\Parser\PositionInterface;
+use Neomerx\JsonApi\Contracts\Parser\RelationshipDataInterface;
+use Neomerx\JsonApi\Contracts\Parser\RelationshipInterface;
+use Neomerx\JsonApi\Contracts\Parser\ResourceInterface;
+use Neomerx\JsonApi\Contracts\Representation\DocumentWriterInterface;
+use Neomerx\JsonApi\Contracts\Representation\ErrorWriterInterface;
+use Neomerx\JsonApi\Contracts\Representation\FieldSetFilterInterface;
+use Neomerx\JsonApi\Contracts\Schema\IdentifierInterface as SchemaIdentifierInterface;
+use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 use Neomerx\JsonApi\Encoder\Encoder;
-use Neomerx\JsonApi\Encoder\EncoderOptions;
-use Neomerx\JsonApi\Encoder\Handlers\ReplyInterpreter;
-use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
-use Neomerx\JsonApi\Encoder\Parameters\ParametersAnalyzer;
-use Neomerx\JsonApi\Encoder\Parser\Parser;
-use Neomerx\JsonApi\Encoder\Parser\ParserEmptyReply;
-use Neomerx\JsonApi\Encoder\Parser\ParserManager;
-use Neomerx\JsonApi\Encoder\Parser\ParserReply;
-use Neomerx\JsonApi\Encoder\Stack\Stack;
-use Neomerx\JsonApi\Encoder\Stack\StackFrame;
 use Neomerx\JsonApi\Http\Headers\AcceptMediaType;
-use Neomerx\JsonApi\Http\Headers\HeaderParametersParser;
 use Neomerx\JsonApi\Http\Headers\MediaType;
-use Neomerx\JsonApi\Schema\Container;
-use Neomerx\JsonApi\Schema\IdentitySchema;
-use Neomerx\JsonApi\Schema\RelationshipObject;
-use Neomerx\JsonApi\Schema\ResourceIdentifierContainerAdapter;
-use Neomerx\JsonApi\Schema\ResourceIdentifierSchemaAdapter;
-use Neomerx\JsonApi\Schema\ResourceObject;
-use Psr\Log\LoggerInterface;
+use Neomerx\JsonApi\Parser\IdentifierAndResource;
+use Neomerx\JsonApi\Parser\Parser;
+use Neomerx\JsonApi\Parser\RelationshipData\RelationshipDataIsCollection;
+use Neomerx\JsonApi\Parser\RelationshipData\RelationshipDataIsIdentifier;
+use Neomerx\JsonApi\Parser\RelationshipData\RelationshipDataIsNull;
+use Neomerx\JsonApi\Parser\RelationshipData\RelationshipDataIsResource;
+use Neomerx\JsonApi\Representation\DocumentWriter;
+use Neomerx\JsonApi\Representation\ErrorWriter;
+use Neomerx\JsonApi\Representation\FieldSetFilter;
+use Neomerx\JsonApi\Schema\Link;
+use Neomerx\JsonApi\Schema\SchemaContainer;
 
 /**
  * @package Neomerx\JsonApi
- *
- * @SuppressWarnings(PHPMD.TooManyMethods)
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Factory implements FactoryInterface
 {
     /**
-     * @var LoggerInterface
+     * @inheritdoc
      */
-    protected $logger;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
+    public function createEncoder(SchemaContainerInterface $container): EncoderInterface
     {
-        $this->logger = new ProxyLogger();
+        return new Encoder($this, $container);
     }
 
     /**
      * @inheritdoc
      */
-    public function setLogger(LoggerInterface $logger): void
+    public function createSchemaContainer(iterable $schemas): SchemaContainerInterface
     {
-        $this->logger->setLogger($logger);
+        return new SchemaContainer($this, $schemas);
     }
 
     /**
      * @inheritdoc
      */
-    public function createEncoder(
-        ContainerInterface $container,
-        EncoderOptions $encoderOptions = null
-    ): EncoderInterface {
-        $encoder = new Encoder($this, $container, $encoderOptions);
+    public function createPosition(
+        int $level,
+        string $path,
+        ?string $parentType,
+        ?string $parentRelationship
+    ): PositionInterface {
+        return new class ($level, $path, $parentType, $parentRelationship) implements PositionInterface
+        {
+            /**
+             * @var int
+             */
+            private $level;
 
-        $encoder->setLogger($this->logger);
+            /**
+             * @var string
+             */
+            private $path;
 
-        return $encoder;
+            /**
+             * @var null|string
+             */
+            private $parentType;
+
+            /**
+             * @var null|string
+             */
+            private $parentRelationship;
+
+            /**
+             * @param int         $level
+             * @param string      $path
+             * @param null|string $parentType
+             * @param null|string $parentRelationship
+             */
+            public function __construct(int $level, string $path, ?string $parentType, ?string $parentRelationship)
+            {
+                $this->level              = $level;
+                $this->path               = $path;
+                $this->parentType         = $parentType;
+                $this->parentRelationship = $parentRelationship;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getLevel(): int
+            {
+                return $this->level;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getPath(): string
+            {
+                return $this->path;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getParentType(): ?string
+            {
+                return $this->parentType;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getParentRelationship(): ?string
+            {
+                return $this->parentRelationship;
+            }
+        };
     }
 
     /**
      * @inheritdoc
      */
-    public function createDocument(): DocumentInterface
+    public function createParser(SchemaContainerInterface $container): ParserInterface
     {
-        $document = new Document();
-
-        $document->setLogger($this->logger);
-
-        return $document;
+        return new Parser($this, $container);
     }
 
     /**
      * @inheritdoc
      */
-    public function createError(
-        string $idx = null,
-        LinkInterface $aboutLink = null,
-        string $status = null,
-        string $code = null,
-        string $title = null,
-        string $detail = null,
-        array $source = null,
-        array $meta = null
-    ): ErrorInterface {
-        return new Error($idx, $aboutLink, $status, $code, $title, $detail, $source, $meta);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createReply(int $replyType, StackReadOnlyInterface $stack): ParserReplyInterface
+    public function createDocumentWriter(): DocumentWriterInterface
     {
-        return new ParserReply($replyType, $stack);
+        return new DocumentWriter();
     }
 
     /**
      * @inheritdoc
      */
-    public function createEmptyReply(int $replyType, StackReadOnlyInterface $stack): ParserReplyInterface
+    public function createErrorWriter(): ErrorWriterInterface
     {
-        return new ParserEmptyReply($replyType, $stack);
+        return new ErrorWriter();
     }
 
     /**
      * @inheritdoc
      */
-    public function createParser(ContainerInterface $container, ParserManagerInterface $manager): ParserInterface
+    public function createFieldSetFilter(array $fieldSets): FieldSetFilterInterface
     {
-        $parser = new Parser($this, $this, $this, $container, $manager);
-
-        $parser->setLogger($this->logger);
-
-        return $parser;
+        return new FieldSetFilter($fieldSets);
     }
 
     /**
      * @inheritdoc
      */
-    public function createManager(ParametersAnalyzerInterface $parameterAnalyzer): ParserManagerInterface
+    public function createParsedResource(
+        PositionInterface $position,
+        SchemaContainerInterface $container,
+        $data
+    ): ResourceInterface {
+        return new IdentifierAndResource($position, $this, $container, $data);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createParsedIdentifier(
+        PositionInterface $position,
+        SchemaIdentifierInterface $identifier
+    ): ParserIdentifierInterface {
+        return new class ($position, $identifier) implements ParserIdentifierInterface
+        {
+            /**
+             * @var PositionInterface
+             */
+            private $position;
+
+            /**
+             * @var SchemaIdentifierInterface
+             */
+            private $identifier;
+
+            /**
+             * @param PositionInterface         $position
+             * @param SchemaIdentifierInterface $identifier
+             */
+            public function __construct(
+                PositionInterface $position,
+                SchemaIdentifierInterface $identifier
+            ) {
+                $this->position   = $position;
+                $this->identifier = $identifier;
+
+                // for test coverage only
+                assert($this->getPosition() !== null);
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getType(): string
+            {
+                return $this->identifier->getType();
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getId(): ?string
+            {
+                return $this->identifier->getId();
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function hasIdentifierMeta(): bool
+            {
+                return $this->identifier->hasIdentifierMeta();
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getIdentifierMeta()
+            {
+                return $this->identifier->getIdentifierMeta();
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getPosition(): PositionInterface
+            {
+                return $this->position;
+            }
+        };
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createLink(bool $isSubUrl, string $value, bool $hasMeta, $meta = null): LinkInterface
     {
-        $manager = new ParserManager($parameterAnalyzer);
-
-        $manager->setLogger($this->logger);
-
-        return $manager;
+        return new Link($isSubUrl, $value, $hasMeta, $meta);
     }
 
     /**
      * @inheritdoc
      */
-    public function createFrame(StackFrameReadOnlyInterface $previous = null): StackFrameInterface
+    public function createRelationship(
+        PositionInterface $position,
+        bool $hasData,
+        ?RelationshipDataInterface $data,
+        bool $hasLinks,
+        ?iterable $links,
+        bool $hasMeta,
+        $meta
+    ): RelationshipInterface {
+        return new class (
+            $position,
+            $hasData,
+            $data,
+            $hasLinks,
+            $links,
+            $hasMeta,
+            $meta
+        ) implements RelationshipInterface
+        {
+            /**
+             * @var PositionInterface
+             */
+            private $position;
+
+            /**
+             * @var bool
+             */
+            private $hasData;
+
+            /**
+             * @var ?RelationshipDataInterface
+             */
+            private $data;
+
+            /**
+             * @var bool
+             */
+            private $hasLinks;
+
+            /**
+             * @var ?iterable
+             */
+            private $links;
+
+            /**
+             * @var bool
+             */
+            private $hasMeta;
+
+            /**
+             * @var mixed
+             */
+            private $meta;
+
+            /**
+             * @var bool
+             */
+            private $metaIsCallable;
+
+            /**
+             * @param PositionInterface              $position
+             * @param bool                           $hasData
+             * @param RelationshipDataInterface|null $data
+             * @param bool                           $hasLinks
+             * @param iterable|null                  $links
+             * @param bool                           $hasMeta
+             * @param mixed                          $meta
+             */
+            public function __construct(
+                PositionInterface $position,
+                bool $hasData,
+                ?RelationshipDataInterface $data,
+                bool $hasLinks,
+                ?iterable $links,
+                bool $hasMeta,
+                $meta
+            ) {
+                assert($position->getLevel() > ParserInterface::ROOT_LEVEL);
+                assert(empty($position->getPath()) === false);
+                assert(($hasData === false && $data === null) || ($hasData === true && $data !== null));
+                assert(($hasLinks === false && $links === null) || ($hasLinks === true && $links !== null));
+
+                $this->position       = $position;
+                $this->hasData        = $hasData;
+                $this->data           = $data;
+                $this->hasLinks       = $hasLinks;
+                $this->links          = $links;
+                $this->hasMeta        = $hasMeta;
+                $this->meta           = $meta;
+                $this->metaIsCallable = is_callable($meta);
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getPosition(): PositionInterface
+            {
+                return $this->position;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function hasData(): bool
+            {
+                return $this->hasData;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getData(): RelationshipDataInterface
+            {
+                assert($this->hasData());
+
+                return $this->data;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function hasLinks(): bool
+            {
+                return $this->hasLinks;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getLinks(): iterable
+            {
+                assert($this->hasLinks());
+
+                return $this->links;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function hasMeta(): bool
+            {
+                return $this->hasMeta;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getMeta()
+            {
+                assert($this->hasMeta());
+
+                if ($this->metaIsCallable === true) {
+                    $this->meta           = call_user_func($this->meta);
+                    $this->metaIsCallable = false;
+                }
+
+                return $this->meta;
+            }
+        };
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createRelationshipDataIsResource(
+        SchemaContainerInterface $schemaContainer,
+        PositionInterface $position,
+        $resource
+    ): RelationshipDataInterface {
+        return new RelationshipDataIsResource($this, $schemaContainer, $position, $resource);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createRelationshipDataIsIdentifier(
+        SchemaContainerInterface $schemaContainer,
+        PositionInterface $position,
+        SchemaIdentifierInterface $identifier
+    ): RelationshipDataInterface {
+        return new RelationshipDataIsIdentifier($this, $schemaContainer, $position, $identifier);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createRelationshipDataIsCollection(
+        SchemaContainerInterface $schemaContainer,
+        PositionInterface $position,
+        iterable $resources
+    ): RelationshipDataInterface {
+        return new RelationshipDataIsCollection($this, $schemaContainer, $position, $resources);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createRelationshipDataIsNull(): RelationshipDataInterface
     {
-        return new StackFrame($previous);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createStack(): StackInterface
-    {
-        return new Stack($this);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createReplyInterpreter(
-        DocumentInterface $document,
-        ParametersAnalyzerInterface $parameterAnalyzer
-    ): ReplyInterpreterInterface {
-        $interpreter = new ReplyInterpreter($document, $parameterAnalyzer);
-
-        $interpreter->setLogger($this->logger);
-
-        return $interpreter;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createParametersAnalyzer(
-        EncodingParametersInterface $parameters,
-        ContainerInterface $container
-    ): ParametersAnalyzerInterface {
-        $analyzer = new ParametersAnalyzer($parameters, $container);
-
-        $analyzer->setLogger($this->logger);
-
-        return $analyzer;
+        return new RelationshipDataIsNull();
     }
 
     /**
@@ -231,28 +492,6 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createQueryParameters(
-        array $includePaths = null,
-        array $fieldSets = null
-    ): EncodingParametersInterface {
-        return new EncodingParameters($includePaths, $fieldSets);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createHeaderParametersParser(): HeaderParametersParserInterface
-    {
-        $parser = new HeaderParametersParser($this);
-
-        $parser->setLogger($this->logger);
-
-        return $parser;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function createAcceptMediaType(
         int $position,
         string $type,
@@ -261,80 +500,5 @@ class Factory implements FactoryInterface
         float $quality = 1.0
     ): AcceptMediaTypeInterface {
         return new AcceptMediaType($position, $type, $subType, $parameters, $quality);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createContainer(array $providers = []): ContainerInterface
-    {
-        $container = new Container($this, $providers);
-
-        $container->setLogger($this->logger);
-
-        return $container;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createResourceObject(
-        SchemaInterface $schema,
-        $resource,
-        bool $isInArray,
-        array $fieldKeysFilter = null
-    ): ResourceObjectInterface {
-        return new ResourceObject($schema, $resource, $isInArray, $fieldKeysFilter);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createRelationshipObject(
-        ?string $name,
-        $data,
-        array $links,
-        $meta,
-        bool $isShowData,
-        bool $isRoot
-    ): RelationshipObjectInterface {
-        return new RelationshipObject($name, $data, $links, $meta, $isShowData, $isRoot);
-    }
-
-    /**
-     * @inheritdoc
-     *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     */
-    public function createLink(string $subHref, $meta = null, bool $treatAsHref = false): LinkInterface
-    {
-        return new Link($subHref, $meta, $treatAsHref);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createResourceIdentifierSchemaAdapter(SchemaInterface $schema): SchemaInterface
-    {
-        return new ResourceIdentifierSchemaAdapter($this, $schema);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createResourceIdentifierContainerAdapter(ContainerInterface $container): ContainerInterface
-    {
-        return new ResourceIdentifierContainerAdapter($this, $container);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createIdentitySchema(
-        ContainerInterface $container,
-        string $classType,
-        Closure $identityClosure
-    ): SchemaInterface {
-        return new IdentitySchema($this, $container, $classType, $identityClosure);
     }
 }

@@ -1,7 +1,7 @@
-<?php namespace Neomerx\Samples\JsonApi\Application;
+<?php declare(strict_types=1); namespace Neomerx\Samples\JsonApi\Application;
 
 /**
- * Copyright 2015 info@neomerx.com (www.neomerx.com)
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@
  */
 
 use Closure;
-use Neomerx\JsonApi\Document\Link;
 use Neomerx\JsonApi\Encoder\Encoder;
-use Neomerx\JsonApi\Encoder\EncoderOptions;
-use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Neomerx\JsonApi\Schema\Link;
 use Neomerx\Samples\JsonApi\Models\Author;
 use Neomerx\Samples\JsonApi\Models\Comment;
 use Neomerx\Samples\JsonApi\Models\Post;
@@ -40,15 +38,15 @@ class EncodeSamples
      *
      * @return string
      */
-    public function getBasicExample()
+    public function getBasicExample(): string
     {
         $author = Author::instance('123', 'John', 'Dow');
 
         $encoder = Encoder::instance([
             Author::class => AuthorSchema::class,
-        ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com/api/v1'));
+        ])->withEncodeOptions(JSON_PRETTY_PRINT);
 
-        $result = $encoder->encodeData($author);
+        $result = $encoder->withUrlPrefix('http://example.com/api/v1')->encodeData($author);
 
         return $result;
     }
@@ -58,7 +56,7 @@ class EncodeSamples
      *
      * @return string
      */
-    public function getIncludedObjectsExample()
+    public function getIncludedObjectsExample(): string
     {
         $author   = Author::instance('123', 'John', 'Dow');
         $comments = [
@@ -73,9 +71,16 @@ class EncodeSamples
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class
-        ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
+        ])->withEncodeOptions(JSON_PRETTY_PRINT);
 
-        $result = $encoder->encodeData($site);
+        $result = $encoder
+            ->withUrlPrefix('http://example.com')
+            ->withIncludedPaths([
+                'posts',
+                'posts.author',
+                'posts.comments',
+            ])
+            ->encodeData($site);
 
         return $result;
     }
@@ -85,7 +90,7 @@ class EncodeSamples
      *
      * @return string
      */
-    public function getSparseAndFieldSetsExample()
+    public function getSparseAndFieldSetsExample(): string
     {
         $author   = Author::instance('123', 'John', 'Dow');
         $comments = [
@@ -95,25 +100,27 @@ class EncodeSamples
         $post = Post::instance('321', 'Included objects', 'Yes, it is supported', $author, $comments);
         $site = Site::instance('1', 'JSON API Samples', [$post]);
 
-        $options = new EncodingParameters([
-            // Paths to be included. Note 'posts.comments' will not be shown.
-            'posts.author'
-        ], [
-            // Attributes and relationships that should be shown
-            'sites'  => ['name', 'posts'],
-            'posts'  => ['author'],
-            'people' => ['first_name'],
-        ]);
-
         SiteSchema::$isShowCustomLinks = false;
         $encoder                       = Encoder::instance([
             Author::class  => AuthorSchema::class,
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class
-        ], new EncoderOptions(JSON_PRETTY_PRINT));
+        ])->withEncodeOptions(JSON_PRETTY_PRINT);
 
-        $result = $encoder->encodeData($site, $options);
+        $result = $encoder
+            ->withIncludedPaths([
+                // Paths to be included. Note 'posts.comments' will not be shown.
+                'posts',
+                'posts.author',
+            ])
+            ->withFieldSets([
+                // Attributes and relationships that should be shown
+                'sites'  => ['name', 'posts'],
+                'posts'  => ['author'],
+                'people' => ['first_name'],
+            ])
+            ->encodeData($site);
 
         return $result;
     }
@@ -123,7 +130,7 @@ class EncodeSamples
      *
      * @return string
      */
-    public function getTopLevelMetaAndLinksExample()
+    public function getTopLevelMetaAndLinksExample(): string
     {
         $author = Author::instance('123', 'John', 'Dow');
         $meta   = [
@@ -135,10 +142,10 @@ class EncodeSamples
             ]
         ];
         $links  = [
-            Link::FIRST => new Link('http://example.com/people?first', null, true),
-            Link::LAST  => new Link('http://example.com/people?last', null, true),
-            Link::PREV  => new Link('http://example.com/people?prev', null, true),
-            Link::NEXT  => new Link('http://example.com/people?next', null, true),
+            Link::FIRST => new Link(false,'http://example.com/people?first', false),
+            Link::LAST  => new Link(false,'http://example.com/people?last', false),
+            Link::PREV  => new Link(false,'http://example.com/people?prev', false),
+            Link::NEXT  => new Link(false,'http://example.com/people?next', false),
         ];
 
         $encoder = Encoder::instance([
@@ -146,9 +153,13 @@ class EncodeSamples
             Comment::class => CommentSchema::class,
             Post::class    => PostSchema::class,
             Site::class    => SiteSchema::class
-        ], new EncoderOptions(JSON_PRETTY_PRINT, 'http://example.com'));
+        ])->withEncodeOptions(JSON_PRETTY_PRINT);
 
-        $result = $encoder->withLinks($links)->withMeta($meta)->encodeData($author);
+        $result = $encoder
+            ->withLinks($links)
+            ->withMeta($meta)
+            ->withUrlPrefix('http://example.com')
+            ->encodeData($author);
 
         return $result;
     }
@@ -158,13 +169,13 @@ class EncodeSamples
      *
      * @return array
      */
-    public function getDynamicSchemaExample()
+    public function getDynamicSchemaExample(): array
     {
         $site = Site::instance('1', 'JSON API Samples', []);
 
         $encoder = Encoder::instance([
             Site::class => SiteSchema::class,
-        ], new EncoderOptions(JSON_PRETTY_PRINT));
+        ])->withEncodeOptions(JSON_PRETTY_PRINT);
 
         SiteSchema::$isShowCustomLinks = false;
         $noLinksResult                 = $encoder->encodeData($site);
@@ -188,10 +199,6 @@ class EncodeSamples
     public function runPerformanceTestForSmallNestedResources(int $iterations): array
     {
         $closure = function () use ($iterations) {
-            $options = new EncodingParameters(
-                ['posts.author'],
-                ['sites' => ['name'], 'people' => ['first_name']]
-            );
             $encoder = Encoder::instance([
                 Author::class  => AuthorSchema::class,
                 Comment::class => CommentSchema::class,
@@ -211,13 +218,15 @@ class EncodeSamples
                 $site = Site::instance('1', 'JSON API Samples' . $rand, [$post]);
 
                 $encoder
-                    ->withLinks([Link::SELF => new Link('http://example.com/sites/1?' . $rand, null, true)])
+                    ->withLinks([Link::SELF => new Link(false,'http://example.com/sites/1?' . $rand, false)])
                     ->withMeta(['some' => ['meta' => 'information' . $rand]])
-                    ->encodeData($site, $options);
+                    ->withIncludedPaths(['posts.author'])
+                    ->withFieldSets(['sites' => ['name'], 'people' => ['first_name']])
+                    ->encodeData($site);
             }
         };
 
-        $timeSpent = 0;
+        $timeSpent = 0.0;
         $bytesUsed = 0;
         $this->getTime($closure, $timeSpent, $bytesUsed);
 
@@ -249,10 +258,6 @@ class EncodeSamples
                 $sites[] = $site;
             }
 
-            $options = new EncodingParameters(
-                ['posts.author', 'posts.comments'],
-                ['sites' => ['name'], 'people' => ['first_name']]
-            );
             $encoder = Encoder::instance([
                 Author::class  => AuthorSchema::class,
                 Comment::class => CommentSchema::class,
@@ -260,10 +265,13 @@ class EncodeSamples
                 Site::class    => SiteSchema::class
             ]);
 
-            $encoder->encodeData($sites, $options);
+            $encoder
+                ->withIncludedPaths(['posts.author', 'posts.comments'])
+                ->withFieldSets(['sites' => ['name'], 'people' => ['first_name']])
+                ->encodeData($sites);
         };
 
-        $timeSpent = 0;
+        $timeSpent = 0.0;
         $bytesUsed = 0;
         $this->getTime($closure, $timeSpent, $bytesUsed);
 

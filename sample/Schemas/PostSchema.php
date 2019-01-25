@@ -1,7 +1,7 @@
-<?php namespace Neomerx\Samples\JsonApi\Schemas;
+<?php declare(strict_types=1); namespace Neomerx\Samples\JsonApi\Schemas;
 
 /**
- * Copyright 2015 info@neomerx.com (www.neomerx.com)
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,23 +27,28 @@ class PostSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    protected $resourceType = 'posts';
+    public function getType(): string
+    {
+        return 'posts';
+    }
 
     /**
      * @inheritdoc
      */
     public function getId($post): ?string
     {
-        /** @var Post $post */
-        return $post->postId;
+        assert($post instanceof Post);
+
+        return (string)$post->postId;
     }
 
     /**
      * @inheritdoc
      */
-    public function getAttributes($post, array $fieldKeysFilter = null): ?array
+    public function getAttributes($post, array $fieldKeysFilter = null): iterable
     {
-        /** @var Post $post */
+        assert($post instanceof Post);
+
         return [
             'title' => $post->title,
             'body'  => $post->body,
@@ -53,12 +58,21 @@ class PostSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($post, bool $isPrimary, array $includeRelationships): ?array
+    public function getRelationships($post): iterable
     {
-        /** @var Post $post */
+        assert($post instanceof Post);
+
         return [
-            'author'   => [self::DATA => $post->author],
-            'comments' => [self::DATA => $post->comments],
+            'author'   => [
+                self::RELATIONSHIP_DATA          => $post->author,
+                self::RELATIONSHIP_LINKS_SELF    => false,
+                self::RELATIONSHIP_LINKS_RELATED => false,
+            ],
+            'comments' => [
+                self::RELATIONSHIP_DATA          => $post->comments,
+                self::RELATIONSHIP_LINKS_SELF    => false,
+                self::RELATIONSHIP_LINKS_RELATED => false,
+            ],
         ];
     }
 }

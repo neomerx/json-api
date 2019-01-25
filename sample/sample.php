@@ -1,7 +1,7 @@
-<?php namespace Neomerx\Samples\JsonApi;
+<?php declare(strict_types=1); namespace Neomerx\Samples\JsonApi;
 
 /**
- * Copyright 2015 info@neomerx.com (www.neomerx.com)
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Http\Parameters\EncodingParameters;
-use Neomerx\JsonApi\Schema\Link;
 use Neomerx\Samples\JsonApi\Application\EncodeSamples;
 
 require './vendor/autoload.php';
@@ -42,8 +40,10 @@ class Application
 
     /**
      * Shows basic usage.
+     *
+     * @return void
      */
-    private function showBasicExample()
+    private function showBasicExample(): void
     {
         echo 'Neomerx JSON API sample application (basic usage)' . PHP_EOL;
         echo $this->samples->getBasicExample() . PHP_EOL;
@@ -51,8 +51,10 @@ class Application
 
     /**
      * Shows how objects are put to 'included'.
+     *
+     * @return void
      */
-    private function showIncludedObjectsExample()
+    private function showIncludedObjectsExample(): void
     {
         echo 'Neomerx JSON API sample application (included objects)' . PHP_EOL;
         echo $this->samples->getIncludedObjectsExample() . PHP_EOL;
@@ -60,8 +62,10 @@ class Application
 
     /**
      * Shows sparse and field set filters.
+     *
+     * @return void
      */
-    private function showSparseAndFieldSetsExample()
+    private function showSparseAndFieldSetsExample(): void
     {
         echo 'Neomerx JSON API sample application (sparse and field sets)' . PHP_EOL;
         echo $this->samples->getSparseAndFieldSetsExample() . PHP_EOL;
@@ -69,8 +73,10 @@ class Application
 
     /**
      * Shows sparse and field set filters.
+     *
+     * @return void
      */
-    private function showTopLevelMetaAndLinksExample()
+    private function showTopLevelMetaAndLinksExample(): void
     {
         echo 'Neomerx JSON API sample application (top level links and meta information)' . PHP_EOL;
         echo $this->samples->getTopLevelMetaAndLinksExample() . PHP_EOL;
@@ -78,8 +84,10 @@ class Application
 
     /**
      * Shows how schema could change dynamically.
+     *
+     * @return void
      */
-    private function dynamicSchemaExample()
+    private function dynamicSchemaExample(): void
     {
         echo 'Neomerx JSON API sample application (dynamic schema)' . PHP_EOL;
 
@@ -92,8 +100,10 @@ class Application
      * Run performance test for encoding many times a relatively small but nested resources.
      *
      * @param int $num
+     *
+     * @return void
      */
-    private function runPerformanceTestForSmallNestedResources($num)
+    private function runPerformanceTestForSmallNestedResources(int $num): void
     {
         echo "Neomerx JSON API performance test ($num iterations for small resources)... ";
         [$time, $bytes] = $this->samples->runPerformanceTestForSmallNestedResources($num);
@@ -105,8 +115,10 @@ class Application
      * Run performance test for encoding once a big and nested resource.
      *
      * @param int $num
+     *
+     * @return void
      */
-    private function runPerformanceTestForBigCollection($num)
+    private function runPerformanceTestForBigCollection(int $num): void
     {
         echo "Neomerx JSON API performance test (1 iteration for $num resources)... ";
         [$time, $bytes] = $this->samples->runPerformanceTestForBigCollection($num);
@@ -116,8 +128,10 @@ class Application
 
     /**
      * Main entry point.
+     *
+     * @return void
      */
-    public function main()
+    public function main(): void
     {
         $args = getopt('t::');
 

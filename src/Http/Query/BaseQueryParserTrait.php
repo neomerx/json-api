@@ -1,7 +1,9 @@
-<?php namespace Neomerx\JsonApi\Http\Query;
+<?php declare(strict_types=1);
+
+namespace Neomerx\JsonApi\Http\Query;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +18,10 @@
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Document\ErrorInterface;
 use Neomerx\JsonApi\Contracts\Http\Query\BaseQueryParserInterface as P;
-use Neomerx\JsonApi\Document\Error;
+use Neomerx\JsonApi\Contracts\Schema\ErrorInterface;
 use Neomerx\JsonApi\Exceptions\JsonApiException;
+use Neomerx\JsonApi\Schema\Error;
 
 /**
  * @package Neomerx\JsonApi
@@ -35,16 +37,10 @@ trait BaseQueryParserTrait
     protected function getIncludes(array $parameters, string $errorTitle): iterable
     {
         if (array_key_exists(P::PARAM_INCLUDE, $parameters) === true) {
-            $splitByDot = function (string $path) use ($errorTitle): iterable {
-                foreach ($this->splitStringAndCheckNoEmpties(P::PARAM_INCLUDE, $path, '.', $errorTitle) as $link) {
-                    yield $link;
-                }
-            };
-
             $paramName = P::PARAM_INCLUDE;
             $includes  = $parameters[P::PARAM_INCLUDE];
             foreach ($this->splitCommaSeparatedStringAndCheckNoEmpties($paramName, $includes, $errorTitle) as $path) {
-                yield $path => $splitByDot($path);
+                yield $path => $this->splitStringAndCheckNoEmpties(P::PARAM_INCLUDE, $path, '.', $errorTitle);
             }
         }
     }
@@ -102,6 +98,25 @@ trait BaseQueryParserTrait
     }
 
     /**
+     * @param array  $parameters
+     * @param string $errorTitle
+     *
+     * @return iterable
+     */
+    protected function getProfileUrls(array $parameters, string $errorTitle): iterable
+    {
+        if (array_key_exists(P::PARAM_PROFILE, $parameters) === true) {
+            $encodedUrls = $parameters[P::PARAM_PROFILE];
+            $decodedUrls = urldecode($encodedUrls);
+            yield from $this->splitSpaceSeparatedStringAndCheckNoEmpties(
+                P::PARAM_PROFILE,
+                $decodedUrls,
+                $errorTitle
+            );
+        }
+    }
+
+    /**
      * @param string       $paramName
      * @param string|mixed $shouldBeString
      * @param string       $errorTitle
@@ -114,6 +129,21 @@ trait BaseQueryParserTrait
         string $errorTitle
     ): iterable {
         return $this->splitStringAndCheckNoEmpties($paramName, $shouldBeString, ',', $errorTitle);
+    }
+
+    /**
+     * @param string       $paramName
+     * @param string|mixed $shouldBeString
+     * @param string       $errorTitle
+     *
+     * @return iterable
+     */
+    private function splitSpaceSeparatedStringAndCheckNoEmpties(
+        string $paramName,
+        $shouldBeString,
+        string $errorTitle
+    ): iterable {
+        return $this->splitStringAndCheckNoEmpties($paramName, $shouldBeString, ' ', $errorTitle);
     }
 
     /**
@@ -136,7 +166,7 @@ trait BaseQueryParserTrait
 
         foreach (explode($separator, $trimmed) as $value) {
             $trimmedValue = trim($value);
-            if (($trimmedValue) === '') {
+            if ($trimmedValue === '') {
                 throw new JsonApiException($this->createParameterError($paramName, $errorTitle));
             }
 
@@ -153,7 +183,7 @@ trait BaseQueryParserTrait
     private function createParameterError(string $paramName, string $errorTitle): ErrorInterface
     {
         $source = [Error::SOURCE_PARAMETER => $paramName];
-        $error  = new Error(null, null, null, null, $errorTitle, null, $source);
+        $error  = new Error(null, null, null, null, null, $errorTitle, null, $source);
 
         return $error;
     }

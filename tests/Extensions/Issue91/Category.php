@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\JsonApi\Extensions\Issue91;
+<?php declare(strict_types=1);
+
+namespace Neomerx\Tests\JsonApi\Extensions\Issue91;
 
 /**
- * Copyright 2015-2018 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +39,7 @@ class Category
      * @param string        $description
      * @param Category|null $parent
      */
-    public function __construct($index, $description, $parent = null)
+    public function __construct(int $index, string $description, Category $parent = null)
     {
         $this->index       = $index;
         $this->description = $description;
