@@ -121,7 +121,7 @@ class MediaType implements MediaTypeInterface
         return
             $this->isTypeMatches($mediaType) &&
             $this->isSubTypeMatches($mediaType) &&
-            $this->isMediaParametersEqual($mediaType);
+            $this->isMediaParametersMatch($mediaType);
     }
 
     /**
@@ -177,6 +177,42 @@ class MediaType implements MediaTypeInterface
         // Type, subtype and param name should be compared case-insensitive
         // https://tools.ietf.org/html/rfc7231#section-3.1.1.1
         return strcasecmp($this->getSubType(), $mediaType->getSubType()) === 0;
+    }
+
+    /**
+     * @param MediaTypeInterface $mediaType
+     *
+     * @return bool
+     */
+    private function isMediaParametersMatch(MediaTypeInterface $mediaType): bool
+    {
+        if ($this->bothMediaTypeParamsEmpty($mediaType) === true) {
+            return true;
+        } elseif ($this->bothMediaTypeParamsNotEmptyAndEqualInSize($mediaType)) {
+            // Type, subtype and param name should be compared case-insensitive
+            // https://tools.ietf.org/html/rfc7231#section-3.1.1.1
+            $ourParameters       = array_change_key_case($this->getParameters());
+            $parametersToCompare = array_change_key_case($mediaType->getParameters());
+
+            // if at least one name are different they are not equal
+            if (empty(array_diff_key($ourParameters, $parametersToCompare)) === false) {
+                return false;
+            }
+
+            // If we are here we have to compare values. Also some of the values should be compared case-insensitive
+            // according to https://tools.ietf.org/html/rfc7231#section-3.1.1.1
+            // > 'Parameter values might or might not be case-sensitive, depending on
+            // the semantics of the parameter name.'
+            foreach ($ourParameters as $name => $value) {
+                if ($this->paramValuesMatch($name, $value, $parametersToCompare[$name]) === false) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -259,6 +295,20 @@ class MediaType implements MediaTypeInterface
     {
         $valuesEqual = $this->isParamCaseInsensitive($name) === true ?
             strcasecmp($value, $valueToCompare) === 0 : $value === $valueToCompare;
+
+        return $valuesEqual;
+    }
+
+    /**
+     * @param string $name
+     * @param string $value
+     * @param string $valueToCompare
+     *
+     * @return bool
+     */
+    private function paramValuesMatch(string $name, string $value, string $valueToCompare): bool
+    {
+        $valuesEqual = $valueToCompare === '*' || $this->paramValuesEqual($name, $value, $valueToCompare);
 
         return $valuesEqual;
     }

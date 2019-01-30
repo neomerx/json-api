@@ -18,6 +18,7 @@ namespace Neomerx\Tests\JsonApi\Extensions\Issue154;
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
 use Neomerx\JsonApi\Schema\SchemaContainer;
 
 /**
@@ -25,4 +26,13 @@ use Neomerx\JsonApi\Schema\SchemaContainer;
  */
 class CustomSchemaContainer extends SchemaContainer implements CustomContainerInterface
 {
+    /**
+     * This function guarantees that method can be used in child classes which is used in 3rd party libs.
+     *
+     * @inheritdoc
+     */
+    protected function getSchemaByType(string $type): SchemaInterface
+    {
+        return parent::getSchemaByType($type);
+    }
 }

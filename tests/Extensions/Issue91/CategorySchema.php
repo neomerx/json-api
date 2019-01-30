@@ -68,7 +68,7 @@ class CategorySchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function isAddSelfLinkInRelationshipByDefault(): bool
+    public function isAddSelfLinkInRelationshipByDefault(string $relationshipName): bool
     {
         return false;
     }
@@ -76,7 +76,7 @@ class CategorySchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function isAddRelatedLinkInRelationshipByDefault(): bool
+    public function isAddRelatedLinkInRelationshipByDefault(string $relationshipName): bool
     {
         return false;
     }

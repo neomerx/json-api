@@ -18,80 +18,18 @@ namespace Neomerx\Tests\JsonApi\Data\Models;
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Schema\IdentifierInterface;
+use Neomerx\JsonApi\Schema\Identifier;
 
 /**
  * @package Neomerx\Tests\JsonApi
  */
-class AuthorIdentity implements IdentifierInterface
+class AuthorIdentity extends Identifier
 {
-    /**
-     * @var string
-     */
-    private $index;
-
-    /**
-     * @var bool
-     */
-    private $hasMeta = false;
-
-    /**
-     * @var mixed
-     */
-    private $meta;
-
     /**
      * @param string $index
      */
     public function __construct(string $index)
     {
-        $this->index = $index;
-    }
-
-    /**
-     * Get identifier's type.
-     *
-     * @return string
-     */
-    public function getType(): string
-    {
-        return 'people';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getId(): string
-    {
-        return $this->index;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function hasIdentifierMeta(): bool
-    {
-        return $this->hasMeta;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIdentifierMeta()
-    {
-        return $this->meta;
-    }
-
-    /**
-     * @param mixed $meta
-     *
-     * @return AuthorIdentity
-     */
-    public function setMeta($meta)
-    {
-        $this->meta    = $meta;
-        $this->hasMeta = true;
-
-        return $this;
+        parent::__construct($index, 'people');
     }
 }

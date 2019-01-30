@@ -43,7 +43,7 @@ class CommentSchema extends ParentSchema
 
         $hasMeta = property_exists($author, Author::IDENTIFIER_META);
         if ($hasMeta === true) {
-            $authorIdentity->setMeta($author->{Author::IDENTIFIER_META});
+            $authorIdentity->setIdentifierMeta($author->{Author::IDENTIFIER_META});
         }
 
         return $this->fixDescriptions(

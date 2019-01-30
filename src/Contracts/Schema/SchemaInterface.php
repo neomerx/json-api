@@ -151,14 +151,18 @@ interface SchemaInterface
     /**
      * If `self` links should be added in relationships by default.
      *
+     * @param string $relationshipName
+     *
      * @return bool
      */
-    public function isAddSelfLinkInRelationshipByDefault(): bool;
+    public function isAddSelfLinkInRelationshipByDefault(string $relationshipName): bool;
 
     /**
      * If `related` links should be added in relationships by default.
      *
+     * @param string $relationshipName
+     *
      * @return bool
      */
-    public function isAddRelatedLinkInRelationshipByDefault(): bool;
+    public function isAddRelatedLinkInRelationshipByDefault(string $relationshipName): bool;
 }

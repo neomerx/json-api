@@ -7,7 +7,7 @@
 /phpunit.xml        export-ignore
 /.scrutinizer.yml   export-ignore
 /.travis.yml        export-ignore
-/tests              export-ignore
+/perf               export-ignore
 /sample             export-ignore
-
-./sample/composer.json  merge=ours
+/spec               export-ignore
+/tests              export-ignore

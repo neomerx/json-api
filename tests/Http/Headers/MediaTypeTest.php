@@ -103,6 +103,19 @@ class MediaTypeTest extends BaseTestCase
      *
      * @return void
      */
+    public function testCompareMediaTypesWithoutParameters(): void
+    {
+        $type1 = new MediaType('text', 'html');
+        $type2 = new MediaType('Text', 'HTML');
+
+        self::assertTrue($type1->equalsTo($type2));
+    }
+
+    /**
+     * Test compare media types
+     *
+     * @return void
+     */
     public function testMatchMediaTypes(): void
     {
         $type1 = new MediaType('text', 'html', ['charset' => 'utf-8']);
@@ -126,5 +139,37 @@ class MediaTypeTest extends BaseTestCase
         $type2 = new MediaType('Text', 'HTML');
 
         self::assertTrue($type1->matchesTo($type2));
+    }
+
+    /**
+     * Test compare media types
+     *
+     * @return void
+     *
+     * @see https://github.com/neomerx/json-api/issues/221
+     */
+    public function testMatchMediaTypesWithoutParameters2(): void
+    {
+        // match by mask
+
+        $type1 = new MediaType('multipart', 'form-data', ['boundary' => '*']);
+        $type2 = new MediaType('multipart', 'form-data', ['boundary' => '----WebKitFormBoundaryAAA']);
+
+        self::assertTrue($type2->matchesTo($type1));
+        self::assertFalse($type2->equalsTo($type1));
+
+        // cover some edge cases
+
+        $type1 = new MediaType('multipart', 'form-data', ['name' => 'value1']);
+        $type2 = new MediaType('multipart', 'form-data', ['name' => 'value2']);
+        self::assertFalse($type2->matchesTo($type1));
+
+        $type1 = new MediaType('multipart', 'form-data', ['name1' => 'value']);
+        $type2 = new MediaType('multipart', 'form-data', ['name2' => 'value']);
+        self::assertFalse($type2->matchesTo($type1));
+
+        $type1 = new MediaType('multipart', 'form-data', ['name1' => 'value', 'name2' => 'value']);
+        $type2 = new MediaType('multipart', 'form-data', ['name2' => 'value']);
+        self::assertFalse($type2->matchesTo($type1));
     }
 }

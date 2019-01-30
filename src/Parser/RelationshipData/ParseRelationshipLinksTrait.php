@@ -33,6 +33,8 @@ trait ParseRelationshipLinksTrait
      * @param array           $description
      *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function parseRelationshipLinks(
         SchemaInterface $parentSchema,
@@ -41,9 +43,9 @@ trait ParseRelationshipLinksTrait
         array $description
     ): array {
         $addSelfLink    = $description[SchemaInterface::RELATIONSHIP_LINKS_SELF] ??
-            $parentSchema->isAddSelfLinkInRelationshipByDefault();
+            $parentSchema->isAddSelfLinkInRelationshipByDefault($name);
         $addRelatedLink = $description[SchemaInterface::RELATIONSHIP_LINKS_RELATED] ??
-            $parentSchema->isAddRelatedLinkInRelationshipByDefault();
+            $parentSchema->isAddRelatedLinkInRelationshipByDefault($name);
         assert(is_bool($addSelfLink) === true || $addSelfLink instanceof LinkInterface);
         assert(is_bool($addRelatedLink) === true || $addRelatedLink instanceof LinkInterface);
 

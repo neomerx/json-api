@@ -34,6 +34,8 @@ use Neomerx\JsonApi\Factories\Factory;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Encoder implements EncoderInterface
 {
@@ -179,6 +181,7 @@ class Encoder implements EncoderInterface
      * @return array
      *
      * @SuppressWarnings(PHPMD.ElseExpression)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function encodeDataToArray($data): array
     {

@@ -25,6 +25,8 @@ namespace Neomerx\JsonApi\I18n;
  * @see Messages::compose
  *
  * @return string
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 function format(string $message, ...$parameters): string
 {

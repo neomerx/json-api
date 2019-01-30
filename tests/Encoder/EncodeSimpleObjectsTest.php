@@ -176,7 +176,7 @@ EOL;
     {
         $encoder = Encoder::instance([]);
 
-        $identity = (new AuthorIdentity('123'))->setMeta('id meta');
+        $identity = (new AuthorIdentity('123'))->setIdentifierMeta('id meta');
 
         $actual   = $encoder->encodeData($identity);
         $expected = <<<EOL

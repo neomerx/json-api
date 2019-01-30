@@ -35,6 +35,8 @@ use function Neomerx\JsonApi\I18n\format as _;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Parser implements ParserInterface
 {
@@ -232,6 +234,8 @@ class Parser implements ParserInterface
      * @param ResourceInterface $resource
      *
      * @return iterable
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function parseResource(ResourceInterface $resource): iterable
     {

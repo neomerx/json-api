@@ -90,6 +90,9 @@ class Error implements ErrorInterface
      * @param array|null         $source
      * @param bool               $hasMeta
      * @param mixed              $meta
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         $idx = null,

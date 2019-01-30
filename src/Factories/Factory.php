@@ -51,6 +51,9 @@ use Neomerx\JsonApi\Schema\SchemaContainer;
 
 /**
  * @package Neomerx\JsonApi
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Factory implements FactoryInterface
 {
@@ -278,6 +281,9 @@ class Factory implements FactoryInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function createRelationship(
         PositionInterface $position,

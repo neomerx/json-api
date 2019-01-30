@@ -128,7 +128,7 @@ abstract class BaseSchema implements SchemaInterface
     /**
      * @inheritdoc
      */
-    public function isAddSelfLinkInRelationshipByDefault(): bool
+    public function isAddSelfLinkInRelationshipByDefault(string $relationshipName): bool
     {
         return true;
     }
@@ -136,7 +136,7 @@ abstract class BaseSchema implements SchemaInterface
     /**
      * @inheritdoc
      */
-    public function isAddRelatedLinkInRelationshipByDefault(): bool
+    public function isAddRelatedLinkInRelationshipByDefault(string $relationshipName): bool
     {
         return true;
     }

@@ -85,6 +85,7 @@ class SchemaContainer implements SchemaContainerInterface
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @SuppressWarnings(PHPMD.ElseExpression)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function register(string $type, $schema): void
     {
@@ -160,7 +161,7 @@ class SchemaContainer implements SchemaContainerInterface
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @SuppressWarnings(PHPMD.ElseExpression)
      */
-    private function getSchemaByType(string $type): SchemaInterface
+    protected function getSchemaByType(string $type): SchemaInterface
     {
         if ($this->hasCreatedProvider($type) === true) {
             return $this->getCreatedProvider($type);
