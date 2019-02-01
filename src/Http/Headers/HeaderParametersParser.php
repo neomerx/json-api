@@ -84,11 +84,16 @@ class HeaderParametersParser implements HeaderParametersParserInterface
         $parameters = null;
         $count      = count($fields);
         for ($idx = 1; $idx < $count; ++$idx) {
-            if (strpos($fields[$idx], '=') === false) {
+            $fieldValue = $fields[$idx];
+            if (empty($fieldValue) === true) {
+                continue;
+            }
+
+            if (strpos($fieldValue, '=') === false) {
                 throw new InvalidArgumentException('mediaType');
             }
 
-            list($key, $value) = explode('=', $fields[$idx], 2);
+            list($key, $value) = explode('=', $fieldValue, 2);
             $parameters[trim($key)] = trim($value, ' "');
         }
 

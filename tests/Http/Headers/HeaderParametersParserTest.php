@@ -81,6 +81,11 @@ class HeaderParametersParserTest extends BaseTestCase
         self::assertEquals(self::MEDIA_TYPE, $contentType->getMediaType());
         self::assertNull($contentType->getParameters());
 
+        /** @var MediaTypeInterface $contentType */
+        $contentType = $this->parser->parseContentTypeHeader(self::MEDIA_TYPE . ';');
+        self::assertEquals(self::MEDIA_TYPE, $contentType->getMediaType());
+        self::assertNull($contentType->getParameters());
+
         /** @var AcceptMediaTypeInterface $accept */
         $accept = $this->first($this->parser->parseAcceptHeader(self::MEDIA_TYPE . ';'));
         self::assertEquals(self::MEDIA_TYPE, $accept->getMediaType());
