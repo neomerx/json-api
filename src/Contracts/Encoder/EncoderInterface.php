@@ -171,6 +171,13 @@ interface EncoderInterface
     public function withRelationshipRelatedLink($resource, string $relationshipName): self;
 
     /**
+     * Reset encoder settings to defaults.
+     *
+     * @return self
+     */
+    public function reset(): self;
+
+    /**
      * Encode input as JSON API string.
      *
      * @param object|iterable|null $data Data to encode.

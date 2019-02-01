@@ -22,6 +22,7 @@ use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
+use Traversable;
 
 /**
  * @package Neomerx\JsonApi
@@ -107,15 +108,15 @@ trait EncoderPropertiesTrait
      * @param int      $encodeOptions
      * @param int      $encodeDepth
      *
-     * @return EncoderPropertiesTrait
+     * @return self|EncoderInterface
      */
-    protected function reset(
-        string $urlPrefix,
-        iterable $includePaths,
-        array $fieldSets,
-        int $encodeOptions,
-        int $encodeDepth
-    ): self {
+    public function reset(
+        string $urlPrefix = Encoder::DEFAULT_URL_PREFIX,
+        iterable $includePaths = Encoder::DEFAULT_INCLUDE_PATHS,
+        array $fieldSets = Encoder::DEFAULT_FIELD_SET_FILTERS,
+        int $encodeOptions = Encoder::DEFAULT_JSON_ENCODE_OPTIONS,
+        int $encodeDepth = Encoder::DEFAULT_JSON_ENCODE_DEPTH
+    ): EncoderInterface {
         $this->links          = null;
         $this->profile        = null;
         $this->hasMeta        = false;
@@ -297,7 +298,12 @@ trait EncoderPropertiesTrait
      */
     public function withLinks(iterable $links): EncoderInterface
     {
-        $this->links = $this->hasLinks() === true ? $this->mergeIterables($this->links, $links) : $links;
+        $this->links = $this->hasLinks() === false ?
+            $links :
+            $this->links = array_merge(
+                $this->iterableToArray($this->getLinks()),
+                $this->iterableToArray($links)
+            );
 
         return $this;
     }
@@ -467,14 +473,13 @@ trait EncoderPropertiesTrait
     }
 
     /**
-     * @param iterable $iterable1
-     * @param iterable $iterable2
+     * @param iterable $value
      *
-     * @return iterable
+     * @return array
      */
-    private function mergeIterables(iterable $iterable1, iterable $iterable2): iterable
+    private function iterableToArray(iterable $value): array
     {
-        yield from $iterable1;
-        yield from $iterable2;
+        /** @var Traversable|array $value */
+        return is_array($value) === true ? $value : iterator_to_array($value);
     }
 }

@@ -78,7 +78,7 @@ class Encoder implements EncoderInterface
         FactoryInterface $factory,
         SchemaContainerInterface $container
     ) {
-        $this->setFactory($factory)->setContainer($container)->resetPropertiesToDefaults();
+        $this->setFactory($factory)->setContainer($container)->reset();
     }
 
     /**
@@ -106,8 +106,6 @@ class Encoder implements EncoderInterface
         $array  = $this->encodeDataToArray($data);
         $result = $this->encodeToJson($array);
 
-        $this->resetPropertiesToDefaults();
-
         return $result;
     }
 
@@ -119,8 +117,6 @@ class Encoder implements EncoderInterface
         // encode to json
         $array  = $this->encodeIdentifiersToArray($data);
         $result = $this->encodeToJson($array);
-
-        $this->resetPropertiesToDefaults();
 
         return $result;
     }
@@ -134,8 +130,6 @@ class Encoder implements EncoderInterface
         $array  = $this->encodeErrorToArray($error);
         $result = $this->encodeToJson($array);
 
-        $this->resetPropertiesToDefaults();
-
         return $result;
     }
 
@@ -148,8 +142,6 @@ class Encoder implements EncoderInterface
         $array  = $this->encodeErrorsToArray($errors);
         $result = $this->encodeToJson($array);
 
-        $this->resetPropertiesToDefaults();
-
         return $result;
     }
 
@@ -161,8 +153,6 @@ class Encoder implements EncoderInterface
         // encode to json
         $array  = $this->encodeMetaToArray($meta);
         $result = $this->encodeToJson($array);
-
-        $this->resetPropertiesToDefaults();
 
         return $result;
     }
@@ -440,19 +430,5 @@ class Encoder implements EncoderInterface
         $writer->setUrlPrefix($this->getUrlPrefix());
 
         return $writer;
-    }
-
-    /**
-     * @return self
-     */
-    private function resetPropertiesToDefaults(): self
-    {
-        return $this->reset(
-            static::DEFAULT_URL_PREFIX,
-            static::DEFAULT_INCLUDE_PATHS,
-            static::DEFAULT_FIELD_SET_FILTERS,
-            static::DEFAULT_JSON_ENCODE_OPTIONS,
-            static::DEFAULT_JSON_ENCODE_DEPTH
-        );
     }
 }
