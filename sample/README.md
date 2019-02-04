@@ -21,7 +21,7 @@ The application will output a few encoding results for
 * sparse and field set filters usage sample
 * top level links and meta information usage sample
 
-For more details see [the app source code](sample.php)
+For more details see [the app source code](Application/EncodeSamples.php)
 
 ## Performance test
 

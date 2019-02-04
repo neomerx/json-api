@@ -113,7 +113,7 @@ class AuthorSchema extends BaseSchema
                 self::RELATIONSHIP_LINKS_SELF    => false,
                 self::RELATIONSHIP_LINKS_RELATED => true,
 
-                // Data include supported as other cool features
+                // Data include supported as well as other cool features
                 // self::RELATIONSHIP_DATA => $author->comments,
             ],
         ];
