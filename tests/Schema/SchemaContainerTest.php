@@ -19,6 +19,8 @@ namespace Neomerx\Tests\JsonApi\Schema;
  */
 
 use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
+use Neomerx\JsonApi\Exceptions\InvalidArgumentException;
+use Neomerx\JsonApi\Exceptions\LogicException;
 use Neomerx\JsonApi\Schema\SchemaContainer;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 use Neomerx\Tests\JsonApi\Data\Models\Author;
@@ -62,30 +64,36 @@ class SchemaContainerTest extends BaseTestCase
     }
 
     /**
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
+     * Test invalid model class.
      */
     public function testInvalidModelClass(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $notExistingClass = self::class . 'xxx';
 
         $this->createFactory()->createSchemaContainer([$notExistingClass => AuthorSchema::class]);
     }
 
     /**
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
+     * Test invalid schema class.
      */
     public function testInvalidSchemaClass(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $notSchemaClass = self::class;
 
         $this->createFactory()->createSchemaContainer([Author::class => $notSchemaClass]);
     }
 
     /**
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
+     * Test model cannot have more than one schema.
      */
     public function testModelCannotHaveTwoSchemas(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $container = $this->createFactory()->createSchemaContainer([Author::class  => AuthorSchema::class]);
 
         assert($container instanceof SchemaContainer);
@@ -94,20 +102,24 @@ class SchemaContainerTest extends BaseTestCase
     }
 
     /**
-     * @expectedException \Neomerx\JsonApi\Exceptions\LogicException
+     * Test default schema do not provide identifier meta.
      */
     public function testDefaultSchemaDoNotProvideIdentifierMeta(): void
     {
+        $this->expectException(LogicException::class);
+
         $schema = new CommentSchema($this->createFactory());
 
         $schema->getIdentifierMeta($this->createComment());
     }
 
     /**
-     * @expectedException \Neomerx\JsonApi\Exceptions\LogicException
+     * Test default schema do not provide resource meta.
      */
     public function testDefaultSchemaDoNotProvideResourceMeta(): void
     {
+        $this->expectException(LogicException::class);
+
         $schema = new CommentSchema($this->createFactory());
 
         $schema->getResourceMeta($this->createComment());

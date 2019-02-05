@@ -21,6 +21,7 @@ namespace Neomerx\Tests\JsonApi\Http\Query;
 use Generator;
 use Neomerx\JsonApi\Contracts\Http\Query\BaseQueryParserInterface;
 use Neomerx\JsonApi\Encoder\Encoder;
+use Neomerx\JsonApi\Exceptions\JsonApiException;
 use Neomerx\JsonApi\Http\Query\BaseQueryParser;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 use Neomerx\Tests\JsonApi\Data\Models\Author;
@@ -151,11 +152,11 @@ class BaseQueryParserTest extends BaseTestCase
 
     /**
      * Test query.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testInvalidIncludesEmptyValue(): void
     {
+        $this->expectException(JsonApiException::class);
+
         $queryParameters = [
             BaseQueryParser::PARAM_INCLUDE => 'comments,      ,comments.author',
         ];
@@ -165,11 +166,11 @@ class BaseQueryParserTest extends BaseTestCase
 
     /**
      * Test query.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testInvalidIncludesNotString1(): void
     {
+        $this->expectException(JsonApiException::class);
+
         $queryParameters = [
             BaseQueryParser::PARAM_INCLUDE => ['not string'],
         ];
@@ -179,11 +180,11 @@ class BaseQueryParserTest extends BaseTestCase
 
     /**
      * Test query.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testInvalidIncludesNotString2(): void
     {
+        $this->expectException(JsonApiException::class);
+
         $queryParameters = [
             BaseQueryParser::PARAM_INCLUDE => null,
         ];
@@ -193,11 +194,11 @@ class BaseQueryParserTest extends BaseTestCase
 
     /**
      * Test query.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testInvalidIncludesEmptyString1(): void
     {
+        $this->expectException(JsonApiException::class);
+
         $queryParameters = [
             BaseQueryParser::PARAM_INCLUDE => '',
         ];
@@ -207,11 +208,11 @@ class BaseQueryParserTest extends BaseTestCase
 
     /**
      * Test query.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testInvalidIncludesEmptyString2(): void
     {
+        $this->expectException(JsonApiException::class);
+
         $queryParameters = [
             BaseQueryParser::PARAM_INCLUDE => '  ',
         ];
@@ -221,11 +222,11 @@ class BaseQueryParserTest extends BaseTestCase
 
     /**
      * Test query.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\JsonApiException
      */
     public function testInvalidFields(): void
     {
+        $this->expectException(JsonApiException::class);
+
         $queryParameters = [
             BaseQueryParser::PARAM_FIELDS => 'not array',
         ];

@@ -41,7 +41,7 @@ class JsonApiExceptionTest extends BaseTestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -52,7 +52,7 @@ class JsonApiExceptionTest extends BaseTestCase
     /**
      * @inheritdoc
      */
-    public function testCreateExceptionFromError()
+    public function testCreateExceptionFromError(): void
     {
         $exception = new JsonApiException($this->error, 432);
         $this->assertEquals(432, $exception->getHttpCode());
@@ -63,7 +63,7 @@ class JsonApiExceptionTest extends BaseTestCase
     /**
      * @inheritdoc
      */
-    public function testCreateExceptionFromErrorArray()
+    public function testCreateExceptionFromErrorArray(): void
     {
         $exception = new JsonApiException([$this->error]);
         $this->assertEquals(JsonApiException::DEFAULT_HTTP_CODE, $exception->getHttpCode());
@@ -74,7 +74,7 @@ class JsonApiExceptionTest extends BaseTestCase
     /**
      * @inheritdoc
      */
-    public function testCreateExceptionFromErrorCollection()
+    public function testCreateExceptionFromErrorCollection(): void
     {
         $this->collection->add($this->error);
         $exception = new JsonApiException($this->collection);

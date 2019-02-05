@@ -32,7 +32,7 @@ class IssueTest extends BaseTestCase
      *
      * @see https://github.com/neomerx/json-api/issues/154
      */
-    public function testEnheritedEncoder()
+    public function testEnheritedEncoder(): void
     {
         $encoder = CustomEncoder::instance();
         /** @var CustomEncoder $encoder */

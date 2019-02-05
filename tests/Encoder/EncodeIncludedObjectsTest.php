@@ -58,7 +58,7 @@ class EncodeIncludedObjectsTest extends BaseTestCase
     /**
      * Set up.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -80,7 +80,7 @@ class EncodeIncludedObjectsTest extends BaseTestCase
     /**
      * Test encode included objects.
      */
-    public function testEncodeWithIncludedObjects()
+    public function testEncodeWithIncludedObjects(): void
     {
         $this->author->setIdentifierMeta('id meta');
 
@@ -154,7 +154,7 @@ EOL;
     /**
      * Test encode nested included objects with cyclic dependencies and sparse support.
      */
-    public function testEncodeWithRecursiveIncludedObjects()
+    public function testEncodeWithRecursiveIncludedObjects(): void
     {
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 
@@ -262,7 +262,7 @@ EOL;
     /**
      * Test encode included objects with null and empty links.
      */
-    public function testEncodeWithNullAndEmptyLinks()
+    public function testEncodeWithNullAndEmptyLinks(): void
     {
         $this->post->{Post::LINK_AUTHOR}   = null;
         $this->post->{Post::LINK_COMMENTS} = [];
@@ -324,7 +324,7 @@ EOL;
     /**
      * Test encode duplicate included objects with cyclic dependencies.
      */
-    public function testEncodeDuplicatesWithCyclicDeps()
+    public function testEncodeDuplicatesWithCyclicDeps(): void
     {
         $this->post->{Post::LINK_COMMENTS} = [];
 
@@ -391,7 +391,7 @@ EOL;
      * Test link objects that should not be included but these objects link to others that should.
      * Parser should stop parsing even if deeper objects exist.
      */
-    public function testEncodeLinkNonIncludableWithIncludableLinks()
+    public function testEncodeLinkNonIncludableWithIncludableLinks(): void
     {
         $actual = Encoder::instance(
             [
@@ -462,7 +462,7 @@ EOL;
     /**
      * Test encode included objects.
      */
-    public function testEncodeWithLinkWithPagination()
+    public function testEncodeWithLinkWithPagination(): void
     {
         $actual = Encoder::instance(
             [
@@ -524,7 +524,7 @@ EOL;
      *
      * Test for issue 35
      */
-    public function testEncodeDeepDuplicateHierarchies()
+    public function testEncodeDeepDuplicateHierarchies(): void
     {
         $actual = Encoder::instance(
             [
@@ -664,7 +664,7 @@ EOL;
     /**
      * Test encode nested included objects for polymorphic arrays.
      */
-    public function testEncodeWithIncludedForPolymorphicArrays()
+    public function testEncodeWithIncludedForPolymorphicArrays(): void
     {
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 
@@ -803,7 +803,7 @@ EOL;
     /**
      * Test encode relationship with polymorphic data.
      */
-    public function testEncodePolymorphicRelationship()
+    public function testEncodePolymorphicRelationship(): void
     {
         // let's hack a little bit and place additional resource(s) into relationship
         $this->author->{Author::LINK_COMMENTS} = array_merge([$this->site], $this->comments);
@@ -921,7 +921,7 @@ EOL;
      *
      * @see https://github.com/neomerx/json-api/issues/121
      */
-    public function testEncodeRelationshipsAsLinksDoNotFollowLinksWhenIncludePathSet()
+    public function testEncodeRelationshipsAsLinksDoNotFollowLinksWhenIncludePathSet(): void
     {
         unset($this->post->{Post::LINK_AUTHOR});
         unset($this->post->{Post::LINK_COMMENTS});
@@ -974,7 +974,7 @@ EOL;
      *
      * @see https://github.com/neomerx/json-api/issues/121
      */
-    public function testEncodeRelationshipsAsLinks()
+    public function testEncodeRelationshipsAsLinks(): void
     {
         unset($this->author->{Author::LINK_COMMENTS});
 

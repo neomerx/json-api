@@ -29,7 +29,7 @@ class IssueTest extends BaseTestCase
     /**
      * Test encode Category hierarchy.
      */
-    public function testEncodeHierarchy()
+    public function testEncodeHierarchy(): void
     {
         $hierarchy = $this->createHierarchy();
 

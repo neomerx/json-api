@@ -28,7 +28,7 @@ class IssueTest extends BaseTestCase
     /**
      * Test filter nested attributes.
      */
-    public function testFilterNestedAttributes()
+    public function testFilterNestedAttributes(): void
     {
         $user = new User('12287', 'vivalacrowe', ['email' => 'hello@vivalacrowe.com', 'name' => 'Rob']);
 

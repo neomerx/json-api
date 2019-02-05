@@ -33,7 +33,7 @@ class IssueTest extends BaseTestCase
      *
      * @see https://github.com/neomerx/json-api/issues/81
      */
-    public function testEnheritedEncoder()
+    public function testEnheritedEncoder(): void
     {
         $author                          = Author::instance(321, 'John', 'Dow')->setIdentifierMeta('id meta');
         $comment                         = Comment::instance(123, 'Comment body', $author);

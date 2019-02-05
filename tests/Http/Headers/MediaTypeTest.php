@@ -18,6 +18,7 @@ namespace Neomerx\Tests\JsonApi\Http\Headers;
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Exceptions\InvalidArgumentException;
 use Neomerx\JsonApi\Http\Headers\MediaType;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 
@@ -30,11 +31,11 @@ class MediaTypeTest extends BaseTestCase
      * Test invalid constructor parameters.
      *
      * @return void
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testInvalidConstructorParams1(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         new MediaType('', 'subtype');
     }
 
@@ -42,11 +43,11 @@ class MediaTypeTest extends BaseTestCase
      * Test invalid constructor parameters.
      *
      * @return void
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testInvalidConstructorParams2(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         new MediaType('type', '');
     }
 

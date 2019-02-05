@@ -48,7 +48,7 @@ class HeaderParametersParserTest extends BaseTestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -139,41 +139,41 @@ class HeaderParametersParserTest extends BaseTestCase
 
     /**
      * Test parse empty header.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testParseEmptyHeader1(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->parser->parseContentTypeHeader('');
     }
 
     /**
      * Test parse empty header.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testParseEmptyHeader2(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->first($this->parser->parseAcceptHeader(''));
     }
 
     /**
      * Test parse invalid headers.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testParseInvalidHeaders1(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->parser->parseContentTypeHeader(self::MEDIA_TYPE . ';foo');
     }
 
     /**
      * Test parse invalid headers.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testParseInvalidHeaders2(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->first($this->parser->parseAcceptHeader(self::MEDIA_TYPE . ';foo'));
     }
 
@@ -322,48 +322,52 @@ class HeaderParametersParserTest extends BaseTestCase
     }
 
     /**
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
+     * Test invalid header.
      */
     public function testInvalidHeader1(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->parser->parseContentTypeHeader('');
     }
 
     /**
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
+     * Test invalid header.
      */
     public function testInvalidHeader2(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->parser->parseContentTypeHeader('foo/bar; baz');
     }
 
     /**
      * @see https://github.com/neomerx/json-api/issues/193
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testInvalidHeader3(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->parser->parseContentTypeHeader('application/vnd.api+json;q=0.5,text/html;q=0.8;*/*;q=0.1');
     }
 
     /**
      * Test invalid parse parameters.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testInvalidParseParams1(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->first($this->parser->parseAcceptHeader('boo.bar+baz'));
     }
 
     /**
      * Test invalid parse parameters.
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testInvalidParseParams2(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->first($this->parser->parseAcceptHeader('boo/bar+baz;param'));
     }
 

@@ -37,10 +37,12 @@ use Neomerx\Tests\JsonApi\Data\Schemas\PostSchema;
 class EncoderTest extends BaseTestCase
 {
     /**
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
+     * Test encode invalid data.
      */
-    public function testEncodeInvalidData()
+    public function testEncodeInvalidData(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $encoder = Encoder::instance(
             [
                 Author::class => AuthorSchema::class,
@@ -54,7 +56,7 @@ class EncoderTest extends BaseTestCase
     /**
      * Test encode array of simple objects with attributes only.
      */
-    public function testEncodeArrayOfDuplicateObjectsWithAttributesOnly()
+    public function testEncodeArrayOfDuplicateObjectsWithAttributesOnly(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance(
@@ -103,7 +105,7 @@ EOL;
     /**
      * Test encode 2 duplicate resources with circular link to each other.
      */
-    public function testEncodeDuplicatesWithCircularReferencesInData()
+    public function testEncodeDuplicatesWithCircularReferencesInData(): void
     {
         $author = Author::instance(9, 'Dan', 'Gebhardt');
 
@@ -170,7 +172,7 @@ EOL;
     /**
      * Test encode 2 main resource duplicates and try to apply field set filter on relations.
      */
-    public function testEncodeDuplicatesWithRelationFieldSetFilter()
+    public function testEncodeDuplicatesWithRelationFieldSetFilter(): void
     {
         $author   = Author::instance(9, 'Dan', 'Gebhardt');
         $comments = [
@@ -225,7 +227,7 @@ EOL;
     /**
      * Test encode simple resource object links.
      */
-    public function testEncodeSimpleLinks()
+    public function testEncodeSimpleLinks(): void
     {
         $actual = Encoder::instance(
             [
@@ -275,7 +277,7 @@ EOL;
     /**
      * Test encode resource object links as references.
      */
-    public function testEncodeEmptyLinks()
+    public function testEncodeEmptyLinks(): void
     {
         $actual = Encoder::instance(
             [
@@ -320,7 +322,7 @@ EOL;
     /**
      * Test encode with 'self' and 'related' URLs in main document and relationships.
      */
-    public function testEncodeLinksInDocumentAndRelationships()
+    public function testEncodeLinksInDocumentAndRelationships(): void
     {
         $actual = Encoder::instance(
             [
@@ -370,7 +372,7 @@ EOL;
     /**
      * Test encode with 'self' and 'related' URLs in main document and relationships.
      */
-    public function testEncodeLinkWithMeta()
+    public function testEncodeLinkWithMeta(): void
     {
         $comments = [
             Comment::instance(5, 'First!'),
@@ -437,7 +439,7 @@ EOL;
     /**
      * Test add links to empty relationship.
      */
-    public function testAddLinksToEmptyRelationship()
+    public function testAddLinksToEmptyRelationship(): void
     {
         $actual = Encoder::instance(
             [
@@ -508,7 +510,7 @@ EOL;
     /**
      * Test add meta to empty relationship.
      */
-    public function testAddMetaToEmptyRelationship()
+    public function testAddMetaToEmptyRelationship(): void
     {
         $actual = Encoder::instance(
             [
@@ -626,7 +628,7 @@ EOL;
     /**
      * Test encode Traversable (through Iterator) collection of resource(s).
      */
-    public function testEncodeTraversableObjectsWithAttributesOnly()
+    public function testEncodeTraversableObjectsWithAttributesOnly(): void
     {
         $author  = Author::instance(9, 'Dan', 'Gebhardt');
         $encoder = Encoder::instance(
@@ -683,7 +685,7 @@ EOL;
     /**
      * Test encode resource with single item array relationship.
      */
-    public function testEncodeRelationshipWithSingleItem()
+    public function testEncodeRelationshipWithSingleItem(): void
     {
         $post = Post::instance(1, 'Title', 'Body', null, [Comment::instance(5, 'First!')]);
 
@@ -727,7 +729,7 @@ EOL;
     /**
      * Test encode with relationship self Link.
      */
-    public function testEncodeWithRelationshipSelfLink()
+    public function testEncodeWithRelationshipSelfLink(): void
     {
         $post   = $this->getStandardPost();
         $actual = Encoder::instance(
@@ -750,7 +752,7 @@ EOL;
     /**
      * Test encode with relationship related Link.
      */
-    public function testEncodeWithRelationshipRelatedLink()
+    public function testEncodeWithRelationshipRelatedLink(): void
     {
         $post   = $this->getStandardPost();
         $actual = Encoder::instance(
@@ -773,7 +775,7 @@ EOL;
     /**
      * Test encode unrecognized resource (no registered Schema).
      */
-    public function testEncodeUnrecognizedResourceAtRoot()
+    public function testEncodeUnrecognizedResourceAtRoot(): void
     {
         $author = Author::instance(9, 'Dan', 'Gebhardt');
 
@@ -790,13 +792,13 @@ EOL;
         }
 
         self::assertNotNull($catch);
-        self::assertContains('top-level', $catch->getMessage());
+        self::assertStringContainsString('top-level', $catch->getMessage());
     }
 
     /**
      * Test encode unrecognized resource (no registered Schema).
      */
-    public function testEncodeUnrecognizedResourceInRelationship()
+    public function testEncodeUnrecognizedResourceInRelationship(): void
     {
         $author = Author::instance(9, 'Dan', 'Gebhardt');
         $post   = Post::instance(1, 'Title', 'Body', null, [Comment::instance(5, 'First!', $author)]);
@@ -819,7 +821,7 @@ EOL;
         }
 
         self::assertNotNull($catch);
-        self::assertContains(Post::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR, $catch->getMessage());
+        self::assertStringContainsString(Post::LINK_COMMENTS . '.' . Comment::LINK_AUTHOR, $catch->getMessage());
     }
 
     /**

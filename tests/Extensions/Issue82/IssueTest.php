@@ -30,7 +30,7 @@ class IssueTest extends BaseTestCase
     /**
      * Test very basic sample to be used in project description.
      */
-    public function testEnheritedEncoder()
+    public function testEnheritedEncoder(): void
     {
         $author  = Author::instance(123, 'John', 'Doe');
 

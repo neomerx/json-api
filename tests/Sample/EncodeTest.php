@@ -34,7 +34,7 @@ class EncodeTest extends BaseTestCase
     /**
      * Set up.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->samples = new EncodeSamples();
@@ -43,7 +43,7 @@ class EncodeTest extends BaseTestCase
     /**
      * Test encode sample.
      */
-    public function testBasicExample()
+    public function testBasicExample(): void
     {
         $actual   = $this->samples->getBasicExample();
         $expected = <<<EOL
@@ -68,7 +68,7 @@ EOL;
     /**
      * Test encode sample.
      */
-    public function testIncludedObjectsExample()
+    public function testIncludedObjectsExample(): void
     {
         $actual   = $this->samples->getIncludedObjectsExample();
         $expected = <<<EOL
@@ -166,7 +166,7 @@ EOL;
     /**
      * Test encode sample.
      */
-    public function testSparseAndFieldSetsExample()
+    public function testSparseAndFieldSetsExample(): void
     {
         $actual   = $this->samples->getSparseAndFieldSetsExample();
         $expected = <<<EOL
@@ -223,7 +223,7 @@ EOL;
     /**
      * Test encode sample.
      */
-    public function testTopLevelMetaAndLinksExample()
+    public function testTopLevelMetaAndLinksExample(): void
     {
         $actual   = $this->samples->getTopLevelMetaAndLinksExample();
         $expected = <<<EOL
@@ -262,7 +262,7 @@ EOL;
     /**
      * Test encode sample.
      */
-    public function testDynamicSchemaExample()
+    public function testDynamicSchemaExample(): void
     {
         $actual   = $this->samples->getDynamicSchemaExample();
         $expected = <<<EOL
@@ -321,7 +321,7 @@ EOL;
     /**
      * Test performance sample.
      */
-    public function testPerformanceTestForSmallNestedResources()
+    public function testPerformanceTestForSmallNestedResources(): void
     {
         self::assertGreaterThan(0, $this->samples->runPerformanceTestForSmallNestedResources(10)[0]);
     }
@@ -329,7 +329,7 @@ EOL;
     /**
      * Test performance sample.
      */
-    public function testPerformanceTestForBigCollection()
+    public function testPerformanceTestForBigCollection(): void
     {
         self::assertGreaterThan(0, $this->samples->runPerformanceTestForBigCollection(10)[0]);
     }

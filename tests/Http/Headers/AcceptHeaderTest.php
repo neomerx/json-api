@@ -20,6 +20,7 @@ namespace Neomerx\Tests\JsonApi\Http\Headers;
 
 use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use Neomerx\JsonApi\Exceptions\InvalidArgumentException;
 use Neomerx\JsonApi\Http\Headers\AcceptMediaType;
 use Neomerx\Tests\JsonApi\BaseTestCase;
 
@@ -240,11 +241,11 @@ class AcceptHeaderTest extends BaseTestCase
      * Test invalid parameters.
      *
      * @return void
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testInvalidParameters1(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         new AcceptMediaType(-1, 'foo', 'bar');
     }
 
@@ -252,11 +253,11 @@ class AcceptHeaderTest extends BaseTestCase
      * Test invalid parameters.
      *
      * @return void
-     *
-     * @expectedException \Neomerx\JsonApi\Exceptions\InvalidArgumentException
      */
     public function testInvalidParameters2(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         new AcceptMediaType(0, 'foo', 'bar', null, 1.001);
     }
 

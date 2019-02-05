@@ -33,7 +33,7 @@ class IssueTest extends BaseTestCase
      *
      * @see https://github.com/neomerx/json-api/issues/169
      */
-    public function testDataSerialization()
+    public function testDataSerialization(): void
     {
         $author = Author::instance(9, 'Dan', 'Gebhardt');
         /** @var CustomEncoder $encoder */
@@ -71,7 +71,7 @@ class IssueTest extends BaseTestCase
      *
      * @see https://github.com/neomerx/json-api/issues/169
      */
-    public function testIdentifiersSerialization()
+    public function testIdentifiersSerialization(): void
     {
         $author = Author::instance(9, 'Dan', 'Gebhardt');
         /** @var CustomEncoder $encoder */
@@ -98,7 +98,7 @@ class IssueTest extends BaseTestCase
      *
      * @see https://github.com/neomerx/json-api/issues/169
      */
-    public function testErrorSerialization()
+    public function testErrorSerialization(): void
     {
         $error = new Error('some-id');
         /** @var CustomEncoder $encoder */
@@ -113,7 +113,7 @@ class IssueTest extends BaseTestCase
      *
      * @see https://github.com/neomerx/json-api/issues/169
      */
-    public function testMetaSerialization()
+    public function testMetaSerialization(): void
     {
         $meta = ['some meta'];
         /** @var CustomEncoder $encoder */

@@ -58,7 +58,7 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
     /**
      * Set up.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -80,7 +80,7 @@ class EncodeSparseAndFieldSetsTest extends BaseTestCase
     /**
      * Test encode nested included objects with cyclic dependencies and sparse support.
      */
-    public function testEncodeWithRecursiveIncludedObjects()
+    public function testEncodeWithRecursiveIncludedObjects(): void
     {
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 
@@ -169,7 +169,7 @@ EOL;
     /**
      * Test encode nested included objects with cyclic dependencies and sparse support.
      */
-    public function testEncodeOnlyFieldSets()
+    public function testEncodeOnlyFieldSets(): void
     {
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 
@@ -271,7 +271,7 @@ EOL;
      * @access public
      * @return void
      */
-    public function testIncludeAndSparseFieldSets()
+    public function testIncludeAndSparseFieldSets(): void
     {
         $actual = Encoder::instance($this->getSchemasWithoutDefaultLinksInRelationships())
             ->withUrlPrefix('http://example.com')
@@ -321,7 +321,7 @@ EOL;
     /**
      * Test meta closures are not executed in lazy relationships.
      */
-    public function testMetaNotLoadedInLazyRelationships()
+    public function testMetaNotLoadedInLazyRelationships(): void
     {
         $throwExClosure = function () {
             throw new Exception();
@@ -366,7 +366,7 @@ EOL;
      *
      * @see https://github.com/neomerx/json-api/issues/105
      */
-    public function testIncludeAndSparseFieldSetsInGreedyMode()
+    public function testIncludeAndSparseFieldSetsInGreedyMode(): void
     {
         $this->author->{Author::LINK_COMMENTS} = $this->comments;
 

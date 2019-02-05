@@ -47,7 +47,7 @@ class ResponsesTest extends BaseTestCase
     /**
      * Set up tests.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
