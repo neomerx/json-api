@@ -49,8 +49,7 @@ trait ParseRelationshipLinksTrait
         assert(is_bool($addSelfLink) === true || $addSelfLink instanceof LinkInterface);
         assert(is_bool($addRelatedLink) === true || $addRelatedLink instanceof LinkInterface);
 
-        $schemaLinks = array_key_exists(SchemaInterface::RELATIONSHIP_LINKS, $description) === true ?
-            $description[SchemaInterface::RELATIONSHIP_LINKS] : [];
+        $schemaLinks = $description[SchemaInterface::RELATIONSHIP_LINKS] ?? [];
         assert(is_array($schemaLinks));
 
         // if `self` or `related` link was given as LinkInterface merge it with the other links

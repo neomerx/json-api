@@ -221,9 +221,9 @@ class Parser implements ParserInterface
     ): iterable {
         assert($this->getSchemaContainer()->hasSchema($data) === true);
 
-        $resource = $this->getFactory()->createParsedResource(
+        $resource = $this->factory->createParsedResource(
             $position,
-            $this->getSchemaContainer(),
+            $this->schemaContainer,
             $data
         );
 
@@ -245,7 +245,7 @@ class Parser implements ParserInterface
         // for deeper levels it's not needed as they go to `included` section and it must have no more
         // than one instance of the same resource.
 
-        if ($resource->getPosition()->getLevel() <= ParserInterface::ROOT_LEVEL || $seenBefore === false) {
+        if ($seenBefore === false || $resource->getPosition()->getLevel() <= ParserInterface::ROOT_LEVEL) {
             yield $resource;
         }
 
@@ -259,7 +259,7 @@ class Parser implements ParserInterface
 
                 $isShouldParse = $this->isPathRequested($relationship->getPosition()->getPath());
 
-                if ($relationship->hasData() === true && $isShouldParse === true) {
+                if ($isShouldParse === true && $relationship->hasData() === true) {
                     $relData = $relationship->getData();
                     if ($relData->isResource() === true) {
                         yield from $this->parseResource($relData->getResource());
@@ -482,7 +482,7 @@ class Parser implements ParserInterface
      */
     private function isPathRequested(string $path): bool
     {
-        return array_key_exists($path, $this->paths);
+        return isset($this->paths[$path]);
     }
 
     /**

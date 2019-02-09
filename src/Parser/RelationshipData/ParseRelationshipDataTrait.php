@@ -55,7 +55,7 @@ trait ParseRelationshipDataTrait
         int $nextLevel,
         string $nextPathPrefix
     ): array {
-        $hasData = array_key_exists(SchemaInterface::RELATIONSHIP_DATA, $description);
+        $hasData = isset($description[SchemaInterface::RELATIONSHIP_DATA]);
         // either no data or data should be array/object/null
         assert(
             $hasData === false ||

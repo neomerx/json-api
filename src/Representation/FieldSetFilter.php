@@ -98,7 +98,7 @@ class FieldSetFilter implements FieldSetFilterInterface
      */
     protected function hasFilter(string $type): bool
     {
-        return array_key_exists($type, $this->fieldSets) === true;
+        return isset($this->fieldSets[$type]);
     }
 
     /**
@@ -110,7 +110,7 @@ class FieldSetFilter implements FieldSetFilterInterface
     {
         assert($this->hasFilter($type) === true);
 
-        return $this->getFieldSets()[$type];
+        return $this->fieldSets[$type];
     }
 
     /**
@@ -129,7 +129,7 @@ class FieldSetFilter implements FieldSetFilterInterface
 
         $allowedFields = $this->getAllowedFields($type);
         foreach ($fields as $name => $value) {
-            if (array_key_exists($name, $allowedFields) === true) {
+            if (isset($allowedFields[$name])) {
                 yield $name => $value;
             }
         }

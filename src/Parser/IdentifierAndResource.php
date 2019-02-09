@@ -168,16 +168,16 @@ class IdentifierAndResource implements ResourceInterface
 
         $this->relationshipsCache = [];
 
-        $currentPath    = $this->getPosition()->getPath();
-        $nextLevel      = $this->getPosition()->getLevel() + 1;
+        $currentPath    = $this->position->getPath();
+        $nextLevel      = $this->position->getLevel() + 1;
         $nextPathPrefix = empty($currentPath) === true ? '' : $currentPath . PositionInterface::PATH_SEPARATOR;
-        foreach ($this->getSchema()->getRelationships($this->getData()) as $name => $description) {
+        foreach ($this->schema->getRelationships($this->data) as $name => $description) {
             assert($this->assertRelationshipNameAndDescription($name, $description) === true);
 
             [$hasData, $relationshipData, $nextPosition] = $this->parseRelationshipData(
-                $this->getFactory(),
-                $this->getSchemaContainer(),
-                $this->getType(),
+                $this->factory,
+                $this->schemaContainer,
+                $this->type,
                 $name,
                 $description,
                 $nextLevel,
@@ -185,18 +185,17 @@ class IdentifierAndResource implements ResourceInterface
             );
 
             [$hasLinks, $links] =
-                $this->parseRelationshipLinks($this->getSchema(), $this->getData(), $name, $description);
+                $this->parseRelationshipLinks($this->schema, $this->data, $name, $description);
 
             $hasMeta = array_key_exists(SchemaInterface::RELATIONSHIP_META, $description);
             $meta    = $hasMeta === true ? $description[SchemaInterface::RELATIONSHIP_META] : null;
 
             assert(
                 $hasData || $hasMeta || $hasLinks,
-                "Relationship `$name` for type `" . $this->getType() .
-                '` MUST contain at least one of the following: links, data or meta.'
+                "Relationship `{$name}` for type `{$this->type}` MUST contain at least one of the following: links, data or meta."
             );
 
-            $relationship = $this->getFactory()->createRelationship(
+            $relationship = $this->factory->createRelationship(
                 $nextPosition,
                 $hasData,
                 $relationshipData,
@@ -367,11 +366,11 @@ class IdentifierAndResource implements ResourceInterface
     {
         assert(
             is_string($name) === true && empty($name) === false,
-            "Relationship names for type `" . $this->getType() . '` should be non-empty strings.'
+            "Relationship names for type `{$this->type}` should be non-empty strings."
         );
         assert(
             is_array($description) === true && empty($description) === false,
-            "Relationship `$name` for type `" . $this->getType() . '` should be a non-empty array.'
+            "Relationship `{$name}` for type `{$this->type}` should be a non-empty array."
         );
 
         return true;
