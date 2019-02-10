@@ -40,14 +40,14 @@ class FieldSetFilter implements FieldSetFilterInterface
         $this->fieldSets = [];
 
         foreach ($fieldSets as $type => $fields) {
-            assert(is_string($type) === true && empty($type) === false);
-            assert(is_iterable($fields) === true);
+            \assert(\is_string($type) === true && empty($type) === false);
+            \assert(\is_iterable($fields) === true);
 
             $this->fieldSets[$type] = [];
 
             foreach ($fields as $field) {
-                assert(is_string($field) === true && empty($field) === false);
-                assert(isset($this->fieldSets[$type][$field]) === false);
+                \assert(\is_string($field) === true && empty($field) === false);
+                \assert(isset($this->fieldSets[$type][$field]) === false);
 
                 $this->fieldSets[$type][$field] = true;
             }
@@ -77,7 +77,7 @@ class FieldSetFilter implements FieldSetFilterInterface
     {
         $parentType = $position->getParentType();
         if ($this->hasFilter($parentType) === true) {
-            return array_key_exists($position->getParentRelationship(), $this->getAllowedFields($parentType));
+            return \array_key_exists($position->getParentRelationship(), $this->getAllowedFields($parentType));
         }
 
         return true;
@@ -98,7 +98,7 @@ class FieldSetFilter implements FieldSetFilterInterface
      */
     protected function hasFilter(string $type): bool
     {
-        return array_key_exists($type, $this->fieldSets) === true;
+        return \array_key_exists($type, $this->fieldSets) === true;
     }
 
     /**
@@ -108,7 +108,7 @@ class FieldSetFilter implements FieldSetFilterInterface
      */
     protected function getAllowedFields(string $type): array
     {
-        assert($this->hasFilter($type) === true);
+        \assert($this->hasFilter($type) === true);
 
         return $this->getFieldSets()[$type];
     }
@@ -129,7 +129,7 @@ class FieldSetFilter implements FieldSetFilterInterface
 
         $allowedFields = $this->getAllowedFields($type);
         foreach ($fields as $name => $value) {
-            if (array_key_exists($name, $allowedFields) === true) {
+            if (\array_key_exists($name, $allowedFields) === true) {
                 yield $name => $value;
             }
         }

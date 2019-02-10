@@ -90,7 +90,7 @@ class Parser implements ParserInterface
      */
     public function parse($data, array $paths = []): iterable
     {
-        assert(is_array($data) === true || is_object($data) === true || $data === null);
+        \assert(\is_array($data) === true || \is_object($data) === true || $data === null);
 
         $this->paths = $this->normalizePaths($paths);
 
@@ -107,7 +107,7 @@ class Parser implements ParserInterface
         } elseif ($data instanceof SchemaIdentifierInterface) {
             yield $this->createDocumentDataIsIdentifier($rootPosition);
             yield $this->parseAsIdentifier($rootPosition, $data);
-        } elseif (is_array($data) === true) {
+        } elseif (\is_array($data) === true) {
             yield $this->createDocumentDataIsCollection($rootPosition);
             yield from $this->parseAsResourcesOrIdentifiers($rootPosition, $data);
         } elseif ($data instanceof Traversable) {
@@ -117,7 +117,7 @@ class Parser implements ParserInterface
         } elseif ($data === null) {
             yield $this->createDocumentDataIsNull($rootPosition);
         } else {
-            throw new InvalidArgumentException(_(static::MSG_NO_SCHEMA_FOUND, get_class($data)));
+            throw new InvalidArgumentException(_(static::MSG_NO_SCHEMA_FOUND, \get_class($data)));
         }
     }
 
@@ -201,7 +201,7 @@ class Parser implements ParserInterface
                 continue;
             }
 
-            assert($dataOrId instanceof SchemaIdentifierInterface);
+            \assert($dataOrId instanceof SchemaIdentifierInterface);
             yield $this->parseAsIdentifier($position, $dataOrId);
         }
     }
@@ -219,7 +219,7 @@ class Parser implements ParserInterface
         PositionInterface $position,
         $data
     ): iterable {
-        assert($this->getSchemaContainer()->hasSchema($data) === true);
+        \assert($this->getSchemaContainer()->hasSchema($data) === true);
 
         $resource = $this->getFactory()->createParsedResource(
             $position,
@@ -254,8 +254,8 @@ class Parser implements ParserInterface
             $this->rememberResource($resource);
 
             foreach ($resource->getRelationships() as $name => $relationship) {
-                assert(is_string($name));
-                assert($relationship instanceof RelationshipInterface);
+                \assert(\is_string($name));
+                \assert($relationship instanceof RelationshipInterface);
 
                 $isShouldParse = $this->isPathRequested($relationship->getPosition()->getPath());
 
@@ -267,14 +267,14 @@ class Parser implements ParserInterface
                         continue;
                     } elseif ($relData->isCollection() === true) {
                         foreach ($relData->getResources() as $relResource) {
-                            assert($relResource instanceof ResourceInterface);
+                            \assert($relResource instanceof ResourceInterface);
                             yield from $this->parseResource($relResource);
                         }
 
                         continue;
                     }
 
-                    assert($relData->isNull() || $relData->isIdentifier());
+                    \assert($relData->isNull() || $relData->isIdentifier());
                 }
             }
         }
@@ -482,7 +482,7 @@ class Parser implements ParserInterface
      */
     private function isPathRequested(string $path): bool
     {
-        return array_key_exists($path, $this->paths);
+        return \array_key_exists($path, $this->paths);
     }
 
     /**
@@ -498,7 +498,7 @@ class Parser implements ParserInterface
         $normalizedPaths = [];
         foreach ($paths as $path) {
             $curPath = '';
-            foreach (explode($separator, $path) as $pathPart) {
+            foreach (\explode($separator, $path) as $pathPart) {
                 $curPath                   = empty($curPath) === true ? $pathPart : $curPath . $separator . $pathPart;
                 $normalizedPaths[$curPath] = true;
             }

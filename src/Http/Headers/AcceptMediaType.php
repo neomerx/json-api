@@ -62,7 +62,7 @@ class AcceptMediaType extends MediaType implements AcceptMediaTypeInterface
         }
 
         // rfc2616: 3 digits are meaningful (#3.9 Quality Values)
-        $quality = floor($quality * 1000) / 1000;
+        $quality = \floor($quality * 1000) / 1000;
 
         $this->position = $position;
         $this->quality  = $quality;
@@ -127,7 +127,7 @@ class AcceptMediaType extends MediaType implements AcceptMediaTypeInterface
         $qualityDiff = $lhs - $rhs;
 
         // rfc2616: 3 digits are meaningful (#3.9 Quality Values)
-        if (abs($qualityDiff) < 0.001) {
+        if (\abs($qualityDiff) < 0.001) {
             return 0;
         } else {
             return $lhs > $rhs ? -1 : 1;

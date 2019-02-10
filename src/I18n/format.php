@@ -30,5 +30,5 @@ namespace Neomerx\JsonApi\I18n;
  */
 function format(string $message, ...$parameters): string
 {
-    return Messages::compose(...array_merge([$message], $parameters));
+    return Messages::compose(...\array_merge([$message], $parameters));
 }

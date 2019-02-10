@@ -55,13 +55,13 @@ trait ParseRelationshipDataTrait
         int $nextLevel,
         string $nextPathPrefix
     ): array {
-        $hasData = array_key_exists(SchemaInterface::RELATIONSHIP_DATA, $description);
+        $hasData = \array_key_exists(SchemaInterface::RELATIONSHIP_DATA, $description);
         // either no data or data should be array/object/null
-        assert(
+        \assert(
             $hasData === false ||
             (
-                is_array($data = $description[SchemaInterface::RELATIONSHIP_DATA]) === true ||
-                is_object($data) === true ||
+                \is_array($data = $description[SchemaInterface::RELATIONSHIP_DATA]) === true ||
+                \is_object($data) === true ||
                 $data === null
             )
         );
@@ -98,15 +98,15 @@ trait ParseRelationshipDataTrait
         $data
     ): RelationshipDataInterface {
         // support if data is callable (e.g. a closure used to postpone actual data reading)
-        if (is_callable($data) === true) {
-            $data = call_user_func($data);
+        if (\is_callable($data) === true) {
+            $data = \call_user_func($data);
         }
 
         if ($container->hasSchema($data) === true) {
             return $factory->createRelationshipDataIsResource($container, $position, $data);
         } elseif ($data instanceof IdentifierInterface) {
             return $factory->createRelationshipDataIsIdentifier($container, $position, $data);
-        } elseif (is_array($data) === true) {
+        } elseif (\is_array($data) === true) {
             return $factory->createRelationshipDataIsCollection($container, $position, $data);
         } elseif ($data instanceof Traversable) {
             return $factory->createRelationshipDataIsCollection(
@@ -119,7 +119,7 @@ trait ParseRelationshipDataTrait
         }
 
         throw new InvalidArgumentException(
-            _(IdentifierAndResource::MSG_NO_SCHEMA_FOUND, get_class($data), $position->getPath())
+            _(IdentifierAndResource::MSG_NO_SCHEMA_FOUND, \get_class($data), $position->getPath())
         );
     }
 }

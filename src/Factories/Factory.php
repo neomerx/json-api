@@ -226,7 +226,7 @@ class Factory implements FactoryInterface
                 $this->identifier = $identifier;
 
                 // for test coverage only
-                assert($this->getPosition() !== null);
+                \assert($this->getPosition() !== null);
             }
 
             /**
@@ -362,10 +362,10 @@ class Factory implements FactoryInterface
                 bool $hasMeta,
                 $meta
             ) {
-                assert($position->getLevel() > ParserInterface::ROOT_LEVEL);
-                assert(empty($position->getPath()) === false);
-                assert(($hasData === false && $data === null) || ($hasData === true && $data !== null));
-                assert(($hasLinks === false && $links === null) || ($hasLinks === true && $links !== null));
+                \assert($position->getLevel() > ParserInterface::ROOT_LEVEL);
+                \assert(empty($position->getPath()) === false);
+                \assert(($hasData === false && $data === null) || ($hasData === true && $data !== null));
+                \assert(($hasLinks === false && $links === null) || ($hasLinks === true && $links !== null));
 
                 $this->position       = $position;
                 $this->hasData        = $hasData;
@@ -374,7 +374,7 @@ class Factory implements FactoryInterface
                 $this->links          = $links;
                 $this->hasMeta        = $hasMeta;
                 $this->meta           = $meta;
-                $this->metaIsCallable = is_callable($meta);
+                $this->metaIsCallable = \is_callable($meta);
             }
 
             /**
@@ -398,7 +398,7 @@ class Factory implements FactoryInterface
              */
             public function getData(): RelationshipDataInterface
             {
-                assert($this->hasData());
+                \assert($this->hasData());
 
                 return $this->data;
             }
@@ -416,7 +416,7 @@ class Factory implements FactoryInterface
              */
             public function getLinks(): iterable
             {
-                assert($this->hasLinks());
+                \assert($this->hasLinks());
 
                 return $this->links;
             }
@@ -434,10 +434,10 @@ class Factory implements FactoryInterface
              */
             public function getMeta()
             {
-                assert($this->hasMeta());
+                \assert($this->hasMeta());
 
                 if ($this->metaIsCallable === true) {
-                    $this->meta           = call_user_func($this->meta);
+                    $this->meta           = \call_user_func($this->meta);
                     $this->metaIsCallable = false;
                 }
 

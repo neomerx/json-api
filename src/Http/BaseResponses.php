@@ -112,11 +112,11 @@ abstract class BaseResponses implements ResponsesInterface
      */
     public function getErrorResponse($errors, int $statusCode = self::HTTP_BAD_REQUEST, array $headers = [])
     {
-        if (is_iterable($errors) === true) {
+        if (\is_iterable($errors) === true) {
             /** @var iterable $errors */
             $content = $this->getEncoder()->encodeErrors($errors);
         } else {
-            assert($errors instanceof ErrorInterface);
+            \assert($errors instanceof ErrorInterface);
             $content = $this->getEncoder()->encodeError($errors);
         }
 

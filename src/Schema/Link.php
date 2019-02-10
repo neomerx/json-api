@@ -73,7 +73,7 @@ class Link implements LinkInterface
      */
     public function getStringRepresentation(string $prefix): string
     {
-        assert($this->canBeShownAsString() === true);
+        \assert($this->canBeShownAsString() === true);
 
         return $this->buildUrl($prefix);
     }
@@ -83,7 +83,7 @@ class Link implements LinkInterface
      */
     public function getArrayRepresentation(string $prefix): array
     {
-        assert($this->canBeShownAsString() === false);
+        \assert($this->canBeShownAsString() === false);
 
         return [
             DocumentInterface::KEYWORD_HREF => $this->buildUrl($prefix),
@@ -128,7 +128,7 @@ class Link implements LinkInterface
      */
     private function getMeta()
     {
-        assert($this->hasMeta());
+        \assert($this->hasMeta());
 
         return $this->meta;
     }

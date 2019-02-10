@@ -69,7 +69,7 @@ class JsonApiException extends BaseJsonApiException
 
         if ($errors instanceof ErrorCollection) {
             $this->errors = clone $errors;
-        } elseif (is_iterable($errors) === true) {
+        } elseif (\is_iterable($errors) === true) {
             $this->errors = new ErrorCollection();
             $this->addErrors($errors);
         } else {

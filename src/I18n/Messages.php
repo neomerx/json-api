@@ -39,7 +39,7 @@ class Messages
     public static function compose(string $message, ...$parameters): string
     {
         $translation = static::getTranslation($message);
-        $result      = empty($parameters) === false ? vsprintf($translation, $parameters) : $translation;
+        $result      = empty($parameters) === false ? \vsprintf($translation, $parameters) : $translation;
 
         return $result;
     }
@@ -53,7 +53,7 @@ class Messages
      */
     public static function getTranslation(string $message): string
     {
-        return array_key_exists($message, static::$translations) === true ? static::$translations[$message] : $message;
+        return \array_key_exists($message, static::$translations) === true ? static::$translations[$message] : $message;
     }
 
     /**

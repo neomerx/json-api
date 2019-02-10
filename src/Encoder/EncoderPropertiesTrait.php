@@ -201,12 +201,12 @@ trait EncoderPropertiesTrait
      */
     public function withIncludedPaths(iterable $paths): EncoderInterface
     {
-        assert(
-            call_user_func(
+        \assert(
+            \call_user_func(
                 function (array $paths): bool {
                     $pathsOk = true;
                     foreach ($paths as $path) {
-                        $pathsOk = $pathsOk === true && is_string($path) === true && empty($path) === false;
+                        $pathsOk = $pathsOk === true && \is_string($path) === true && empty($path) === false;
                     }
 
                     return $pathsOk;
@@ -276,7 +276,7 @@ trait EncoderPropertiesTrait
      */
     public function withEncodeDepth(int $depth): EncoderInterface
     {
-        assert($depth > 0);
+        \assert($depth > 0);
 
         $this->encodeDepth = $depth;
 
@@ -300,7 +300,7 @@ trait EncoderPropertiesTrait
     {
         $this->links = $this->hasLinks() === false ?
             $links :
-            $this->links = array_merge(
+            $this->links = \array_merge(
                 $this->iterableToArray($this->getLinks()),
                 $this->iterableToArray($links)
             );
@@ -480,6 +480,6 @@ trait EncoderPropertiesTrait
     private function iterableToArray(iterable $value): array
     {
         /** @var Traversable|array $value */
-        return is_array($value) === true ? $value : iterator_to_array($value);
+        return \is_array($value) === true ? $value : \iterator_to_array($value);
     }
 }

@@ -42,7 +42,7 @@ class ErrorWriter extends BaseWriter implements ErrorWriterInterface
      */
     public function addError(ErrorInterface $error): ErrorWriterInterface
     {
-        $representation = array_filter([
+        $representation = \array_filter([
             DocumentInterface::KEYWORD_ERRORS_ID     => $error->getId(),
             DocumentInterface::KEYWORD_LINKS         => $this->getErrorLinksRepresentation($error),
             DocumentInterface::KEYWORD_ERRORS_STATUS => $error->getStatus(),

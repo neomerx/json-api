@@ -125,7 +125,7 @@ class BaseQueryParser implements BaseQueryParserInterface
      */
     protected function getMessage(string $message): string
     {
-        $hasTranslation = $this->messages !== null && array_key_exists($message, $this->messages) === false;
+        $hasTranslation = $this->messages !== null && \array_key_exists($message, $this->messages) === false;
 
         return $hasTranslation === true ? $this->messages[$message] : $message;
     }

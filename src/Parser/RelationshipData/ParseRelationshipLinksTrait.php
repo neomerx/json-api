@@ -46,30 +46,30 @@ trait ParseRelationshipLinksTrait
             $parentSchema->isAddSelfLinkInRelationshipByDefault($name);
         $addRelatedLink = $description[SchemaInterface::RELATIONSHIP_LINKS_RELATED] ??
             $parentSchema->isAddRelatedLinkInRelationshipByDefault($name);
-        assert(is_bool($addSelfLink) === true || $addSelfLink instanceof LinkInterface);
-        assert(is_bool($addRelatedLink) === true || $addRelatedLink instanceof LinkInterface);
+        \assert(\is_bool($addSelfLink) === true || $addSelfLink instanceof LinkInterface);
+        \assert(\is_bool($addRelatedLink) === true || $addRelatedLink instanceof LinkInterface);
 
-        $schemaLinks = array_key_exists(SchemaInterface::RELATIONSHIP_LINKS, $description) === true ?
+        $schemaLinks = \array_key_exists(SchemaInterface::RELATIONSHIP_LINKS, $description) === true ?
             $description[SchemaInterface::RELATIONSHIP_LINKS] : [];
-        assert(is_array($schemaLinks));
+        \assert(\is_array($schemaLinks));
 
         // if `self` or `related` link was given as LinkInterface merge it with the other links
         $extraSchemaLinks = null;
-        if (is_bool($addSelfLink) === false) {
+        if (\is_bool($addSelfLink) === false) {
             $extraSchemaLinks[LinkInterface::SELF] = $addSelfLink;
             $addSelfLink                           = false;
         }
-        if (is_bool($addRelatedLink) === false) {
+        if (\is_bool($addRelatedLink) === false) {
             $extraSchemaLinks[LinkInterface::RELATED] = $addRelatedLink;
             $addRelatedLink                           = false;
         }
         if (empty($extraSchemaLinks) === false) {
             // IDE do not understand it's defined without he line below
-            assert(isset($extraSchemaLinks));
-            $schemaLinks = array_merge($extraSchemaLinks, $schemaLinks);
+            \assert(isset($extraSchemaLinks));
+            $schemaLinks = \array_merge($extraSchemaLinks, $schemaLinks);
             unset($extraSchemaLinks);
         }
-        assert(is_bool($addSelfLink) === true && is_bool($addRelatedLink) === true);
+        \assert(\is_bool($addSelfLink) === true && \is_bool($addRelatedLink) === true);
 
         $hasLinks = $addSelfLink === true || $addRelatedLink === true || empty($schemaLinks) === false;
         $links    = $hasLinks === true ?
@@ -100,13 +100,13 @@ trait ParseRelationshipLinksTrait
         $gotRelated = false;
 
         foreach ($schemaLinks as $name => $link) {
-            assert($link instanceof LinkInterface);
+            \assert($link instanceof LinkInterface);
             if ($name === LinkInterface::SELF) {
-                assert($gotSelf === false);
+                \assert($gotSelf === false);
                 $gotSelf     = true;
                 $addSelfLink = false;
             } elseif ($name === LinkInterface::RELATED) {
-                assert($gotRelated === false);
+                \assert($gotRelated === false);
                 $gotRelated     = true;
                 $addRelatedLink = false;
             }
@@ -126,6 +126,6 @@ trait ParseRelationshipLinksTrait
         }
 
         // spec: check links has at least one of the following: self or related
-        assert($gotSelf || $gotRelated);
+        \assert($gotSelf || $gotRelated);
     }
 }

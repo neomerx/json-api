@@ -89,18 +89,18 @@ class SchemaContainer implements SchemaContainerInterface
      */
     public function register(string $type, $schema): void
     {
-        if (empty($type) === true || class_exists($type) === false) {
+        if (empty($type) === true || \class_exists($type) === false) {
             throw new InvalidArgumentException(_(static::MSG_INVALID_MODEL_TYPE));
         }
 
         $isOk = (
             (
-                is_string($schema) === true &&
+                \is_string($schema) === true &&
                 empty($schema) === false &&
-                class_exists($schema) === true &&
-                in_array(SchemaInterface::class, class_implements($schema)) === true
+                \class_exists($schema) === true &&
+                \in_array(SchemaInterface::class, \class_implements($schema)) === true
             ) ||
-            is_callable($schema) ||
+            \is_callable($schema) ||
             $schema instanceof SchemaInterface
         );
         if ($isOk === false) {
@@ -112,7 +112,7 @@ class SchemaContainer implements SchemaContainerInterface
         }
 
         if ($schema instanceof SchemaInterface) {
-            $this->setProviderMapping($type, get_class($schema));
+            $this->setProviderMapping($type, \get_class($schema));
             $this->setResourceToJsonTypeMapping($schema->getType(), $type);
             $this->setCreatedProvider($type, $schema);
         } else {
@@ -139,7 +139,7 @@ class SchemaContainer implements SchemaContainerInterface
      */
     public function getSchema($resource): SchemaInterface
     {
-        assert($this->hasSchema($resource));
+        \assert($this->hasSchema($resource));
 
         $resourceType = $this->getResourceType($resource);
 
@@ -151,7 +151,7 @@ class SchemaContainer implements SchemaContainerInterface
      */
     public function hasSchema($resourceObject): bool
     {
-        return is_object($resourceObject) === true &&
+        return \is_object($resourceObject) === true &&
             $this->hasProviderMapping($this->getResourceType($resourceObject)) === true;
     }
 
@@ -168,10 +168,10 @@ class SchemaContainer implements SchemaContainerInterface
         }
 
         $classNameOrCallable = $this->getProviderMapping($type);
-        if (is_string($classNameOrCallable) === true) {
+        if (\is_string($classNameOrCallable) === true) {
             $schema = $this->createSchemaFromClassName($classNameOrCallable);
         } else {
-            assert(is_callable($classNameOrCallable) === true);
+            \assert(\is_callable($classNameOrCallable) === true);
             $schema = $this->createSchemaFromCallable($classNameOrCallable);
         }
         $this->setCreatedProvider($type, $schema);
@@ -206,7 +206,7 @@ class SchemaContainer implements SchemaContainerInterface
      */
     protected function hasProviderMapping(string $type): bool
     {
-        return array_key_exists($type, $this->getProviderMappings());
+        return \array_key_exists($type, $this->getProviderMappings());
     }
 
     /**
@@ -237,7 +237,7 @@ class SchemaContainer implements SchemaContainerInterface
      */
     protected function hasCreatedProvider(string $type): bool
     {
-        return array_key_exists($type, $this->createdProviders);
+        return \array_key_exists($type, $this->createdProviders);
     }
 
     /**
@@ -279,12 +279,12 @@ class SchemaContainer implements SchemaContainerInterface
      */
     protected function getResourceType($resource): string
     {
-        assert(
-            is_object($resource) === true,
+        \assert(
+            \is_object($resource) === true,
             'Unable to get a type of the resource as it is not an object.'
         );
 
-        return get_class($resource);
+        return \get_class($resource);
     }
 
     /**
@@ -294,7 +294,7 @@ class SchemaContainer implements SchemaContainerInterface
      */
     protected function createSchemaFromCallable(callable $callable): SchemaInterface
     {
-        $schema = call_user_func($callable, $this->getFactory());
+        $schema = \call_user_func($callable, $this->getFactory());
 
         return $schema;
     }

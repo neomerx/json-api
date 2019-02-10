@@ -42,7 +42,7 @@ class DocumentWriter extends BaseWriter implements DocumentWriterInterface
     public function setNullToData(): DocumentWriterInterface
     {
         // check data has not been added yet
-        assert(isset($this->data[DocumentInterface::KEYWORD_DATA]) === false);
+        \assert(isset($this->data[DocumentInterface::KEYWORD_DATA]) === false);
         $this->data[DocumentInterface::KEYWORD_DATA] = null;
 
         return $this;
@@ -121,7 +121,7 @@ class DocumentWriter extends BaseWriter implements DocumentWriterInterface
      */
     protected function registerResource(ResourceInterface $resource): void
     {
-        assert($this->hasNotBeenAdded($resource));
+        \assert($this->hasNotBeenAdded($resource));
 
         $this->addedResources[$resource->getId()][$resource->getType()] = true;
     }
@@ -134,7 +134,7 @@ class DocumentWriter extends BaseWriter implements DocumentWriterInterface
     protected function getIdentifierRepresentation(IdentifierInterface $identifier): array
     {
         // it's odd not to have actual ID for identifier (which is OK for newly created resource).
-        assert($identifier->getId() !== null);
+        \assert($identifier->getId() !== null);
 
         return $identifier->hasIdentifierMeta() === false ? [
             DocumentInterface::KEYWORD_TYPE => $identifier->getType(),
@@ -187,8 +187,8 @@ class DocumentWriter extends BaseWriter implements DocumentWriterInterface
     {
         $representation = [];
         foreach ($relationships as $name => $relationship) {
-            assert(is_string($name) === true && empty($name) === false);
-            assert($relationship instanceof RelationshipInterface);
+            \assert(\is_string($name) === true && empty($name) === false);
+            \assert($relationship instanceof RelationshipInterface);
             $representation[$name] = $this->getRelationshipRepresentation($relationship);
         }
 
@@ -236,14 +236,14 @@ class DocumentWriter extends BaseWriter implements DocumentWriterInterface
         } elseif ($data->isCollection() === true) {
             $representation = [];
             foreach ($data->getIdentifiers() as $identifier) {
-                assert($identifier instanceof IdentifierInterface);
+                \assert($identifier instanceof IdentifierInterface);
                 $representation[] = $this->getIdentifierRepresentation($identifier);
             }
 
             return $representation;
         }
 
-        assert($data->isNull() === true);
+        \assert($data->isNull() === true);
 
         return null;
     }
@@ -300,7 +300,7 @@ class DocumentWriter extends BaseWriter implements DocumentWriterInterface
         }
 
         // check data has not been added yet
-        assert(array_key_exists(DocumentInterface::KEYWORD_DATA, $this->data) === false);
+        \assert(\array_key_exists(DocumentInterface::KEYWORD_DATA, $this->data) === false);
         $this->data[DocumentInterface::KEYWORD_DATA] = $representation;
     }
 

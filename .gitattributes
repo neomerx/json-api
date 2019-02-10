@@ -11,3 +11,4 @@
 /sample             export-ignore
 /spec               export-ignore
 /tests              export-ignore
+/.php_cs.dist       export-ignore

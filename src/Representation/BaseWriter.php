@@ -56,8 +56,8 @@ abstract class BaseWriter implements BaseWriterInterface
      */
     public function setDataAsArray(): BaseWriterInterface
     {
-        assert($this->isDataAnArray() === false);
-        assert(array_key_exists(DocumentInterface::KEYWORD_DATA, $this->data) === false);
+        \assert($this->isDataAnArray() === false);
+        \assert(\array_key_exists(DocumentInterface::KEYWORD_DATA, $this->data) === false);
 
         $this->data[DocumentInterface::KEYWORD_DATA] = [];
         $this->isDataAnArray                         = true;
@@ -78,7 +78,7 @@ abstract class BaseWriter implements BaseWriterInterface
      */
     public function setMeta($meta): BaseWriterInterface
     {
-        assert(is_resource($meta) === false);
+        \assert(\is_resource($meta) === false);
 
         $this->data[DocumentInterface::KEYWORD_META] = $meta;
 
@@ -100,7 +100,7 @@ abstract class BaseWriter implements BaseWriterInterface
      */
     public function setJsonApiMeta($meta): BaseWriterInterface
     {
-        assert(is_resource($meta) === false);
+        \assert(\is_resource($meta) === false);
 
         $this->data[DocumentInterface::KEYWORD_JSON_API][DocumentInterface::KEYWORD_META] = $meta;
 
@@ -180,7 +180,7 @@ abstract class BaseWriter implements BaseWriterInterface
         $result = [];
 
         foreach ($links as $name => $link) {
-            assert($link instanceof LinkInterface);
+            \assert($link instanceof LinkInterface);
             $result[$name] = $link->canBeShownAsString() === true ?
                 $link->getStringRepresentation($prefix) : $link->getArrayRepresentation($prefix);
         }
@@ -199,7 +199,7 @@ abstract class BaseWriter implements BaseWriterInterface
         $result = [];
 
         foreach ($links as $link) {
-            assert($link instanceof BaseLinkInterface);
+            \assert($link instanceof BaseLinkInterface);
             $result[] = $link->canBeShownAsString() === true ?
                 $link->getStringRepresentation($prefix) : $link->getArrayRepresentation($prefix);
         }

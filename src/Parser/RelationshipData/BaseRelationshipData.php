@@ -68,9 +68,9 @@ abstract class BaseRelationshipData implements RelationshipDataInterface
      */
     protected function createParsedResource($resource): ResourceInterface
     {
-        assert(
+        \assert(
             $this->schemaContainer->hasSchema($resource),
-            'No Schema found for resource `' . get_class($resource) . '`.'
+            'No Schema found for resource `' . \get_class($resource) . '`.'
         );
 
         return $this->factory->createParsedResource(

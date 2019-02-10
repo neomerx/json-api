@@ -175,7 +175,7 @@ class Encoder implements EncoderInterface
      */
     protected function encodeDataToArray($data): array
     {
-        if (is_array($data) === false && is_object($data) === false && $data !== null) {
+        if (\is_array($data) === false && \is_object($data) === false && $data !== null) {
             throw new InvalidArgumentException();
         }
 
@@ -197,11 +197,11 @@ class Encoder implements EncoderInterface
                     $writer->addResourceToData($item, $filter);
                 }
             } elseif ($item instanceof IdentifierInterface) {
-                assert($item->getPosition()->getLevel() <= ParserInterface::ROOT_LEVEL);
+                \assert($item->getPosition()->getLevel() <= ParserInterface::ROOT_LEVEL);
                 $writer->addIdentifierToData($item);
             } else {
-                assert($item instanceof DocumentDataInterface);
-                assert($item->getPosition()->getLevel() === 0);
+                \assert($item instanceof DocumentDataInterface);
+                \assert($item->getPosition()->getLevel() === 0);
                 if ($item->isCollection() === true) {
                     $writer->setDataAsArray();
                 } elseif ($item->isNull() === true) {
@@ -253,7 +253,7 @@ class Encoder implements EncoderInterface
         foreach ($parser->parse($data, $includePaths) as $item) {
             if ($item instanceof ResourceInterface) {
                 if ($item->getPosition()->getLevel() > ParserInterface::ROOT_LEVEL) {
-                    assert($expectIncluded === true);
+                    \assert($expectIncluded === true);
                     if ($filter->shouldOutputRelationship($item->getPosition()) === true) {
                         $writer->addResourceToIncluded($item, $filter);
                     }
@@ -264,11 +264,11 @@ class Encoder implements EncoderInterface
                     }
                 }
             } elseif ($item instanceof IdentifierInterface) {
-                assert($item->getPosition()->getLevel() <= ParserInterface::ROOT_LEVEL);
+                \assert($item->getPosition()->getLevel() <= ParserInterface::ROOT_LEVEL);
                 $writer->addIdentifierToData($item);
             } else {
-                assert($item instanceof DocumentDataInterface);
-                assert($item->getPosition()->getLevel() === 0);
+                \assert($item instanceof DocumentDataInterface);
+                \assert($item->getPosition()->getLevel() === 0);
                 if ($item->isCollection() === true) {
                     $writer->setDataAsArray();
                 } elseif ($item->isNull() === true) {
@@ -322,7 +322,7 @@ class Encoder implements EncoderInterface
 
         // write body
         foreach ($errors as $error) {
-            assert($error instanceof ErrorInterface);
+            \assert($error instanceof ErrorInterface);
             $writer->addError($error);
         }
 
@@ -395,7 +395,7 @@ class Encoder implements EncoderInterface
      */
     protected function writeFooter(BaseWriterInterface $writer): void
     {
-        assert($writer !== null);
+        \assert($writer !== null);
     }
 
     /**
@@ -407,7 +407,7 @@ class Encoder implements EncoderInterface
      */
     protected function encodeToJson(array $document): string
     {
-        return json_encode($document, $this->getEncodeOptions(), $this->getEncodeDepth());
+        return \json_encode($document, $this->getEncodeOptions(), $this->getEncodeDepth());
     }
 
     /**

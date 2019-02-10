@@ -136,7 +136,7 @@ class Error implements ErrorInterface
      */
     public function setId($index): self
     {
-        assert($index === null || is_int($index) === true || is_string($index) === true);
+        \assert($index === null || \is_int($index) === true || \is_string($index) === true);
 
         $this->index = $index;
 

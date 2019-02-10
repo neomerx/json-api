@@ -36,7 +36,7 @@ trait BaseQueryParserTrait
      */
     protected function getIncludes(array $parameters, string $errorTitle): iterable
     {
-        if (array_key_exists(P::PARAM_INCLUDE, $parameters) === true) {
+        if (\array_key_exists(P::PARAM_INCLUDE, $parameters) === true) {
             $paramName = P::PARAM_INCLUDE;
             $includes  = $parameters[P::PARAM_INCLUDE];
             foreach ($this->splitCommaSeparatedStringAndCheckNoEmpties($paramName, $includes, $errorTitle) as $path) {
@@ -53,9 +53,9 @@ trait BaseQueryParserTrait
      */
     protected function getFields(array $parameters, string $errorTitle): iterable
     {
-        if (array_key_exists(P::PARAM_FIELDS, $parameters) === true) {
+        if (\array_key_exists(P::PARAM_FIELDS, $parameters) === true) {
             $fields = $parameters[P::PARAM_FIELDS];
-            if (is_array($fields) === false || empty($fields) === true) {
+            if (\is_array($fields) === false || empty($fields) === true) {
                 throw new JsonApiException($this->createParameterError(P::PARAM_FIELDS, $errorTitle));
             }
 
@@ -73,18 +73,18 @@ trait BaseQueryParserTrait
      */
     protected function getSorts(array $parameters, string $errorTitle): iterable
     {
-        if (array_key_exists(P::PARAM_SORT, $parameters) === true) {
+        if (\array_key_exists(P::PARAM_SORT, $parameters) === true) {
             $sorts  = $parameters[P::PARAM_SORT];
             $values = $this->splitCommaSeparatedStringAndCheckNoEmpties(P::PARAM_SORT, $sorts, $errorTitle);
             foreach ($values as $orderAndField) {
                 switch ($orderAndField[0]) {
                     case '-':
                         $isAsc = false;
-                        $field = substr($orderAndField, 1);
+                        $field = \substr($orderAndField, 1);
                         break;
                     case '+':
                         $isAsc = true;
-                        $field = substr($orderAndField, 1);
+                        $field = \substr($orderAndField, 1);
                         break;
                     default:
                         $isAsc = true;
@@ -105,9 +105,9 @@ trait BaseQueryParserTrait
      */
     protected function getProfileUrls(array $parameters, string $errorTitle): iterable
     {
-        if (array_key_exists(P::PARAM_PROFILE, $parameters) === true) {
+        if (\array_key_exists(P::PARAM_PROFILE, $parameters) === true) {
             $encodedUrls = $parameters[P::PARAM_PROFILE];
-            $decodedUrls = urldecode($encodedUrls);
+            $decodedUrls = \urldecode($encodedUrls);
             yield from $this->splitSpaceSeparatedStringAndCheckNoEmpties(
                 P::PARAM_PROFILE,
                 $decodedUrls,
@@ -160,12 +160,12 @@ trait BaseQueryParserTrait
         string $separator,
         string $errorTitle
     ): iterable {
-        if (is_string($shouldBeString) === false || ($trimmed = trim($shouldBeString)) === '') {
+        if (\is_string($shouldBeString) === false || ($trimmed = \trim($shouldBeString)) === '') {
             throw new JsonApiException($this->createParameterError($paramName, $errorTitle));
         }
 
-        foreach (explode($separator, $trimmed) as $value) {
-            $trimmedValue = trim($value);
+        foreach (\explode($separator, $trimmed) as $value) {
+            $trimmedValue = \trim($value);
             if ($trimmedValue === '') {
                 throw new JsonApiException($this->createParameterError($paramName, $errorTitle));
             }

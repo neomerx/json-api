@@ -53,7 +53,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function count()
     {
-        return count($this->items);
+        return \count($this->items);
     }
 
     /**
@@ -61,7 +61,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function serialize()
     {
-        return serialize($this->items);
+        return \serialize($this->items);
     }
 
     /**
@@ -69,7 +69,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function unserialize($serialized)
     {
-        $this->items = unserialize($serialized);
+        $this->items = \unserialize($serialized);
     }
 
     /**
@@ -77,7 +77,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function offsetExists($offset)
     {
-        return array_key_exists($offset, $this->items);
+        return \array_key_exists($offset, $this->items);
     }
 
     /**

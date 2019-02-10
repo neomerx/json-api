@@ -50,16 +50,16 @@ class HeaderParametersParser implements HeaderParametersParserInterface
             throw new InvalidArgumentException('value');
         }
 
-        $ranges = preg_split("/,(?=([^\"]*\"[^\"]*\")*[^\"]*$)/", $value);
-        $count  = count($ranges);
+        $ranges = \preg_split("/,(?=([^\"]*\"[^\"]*\")*[^\"]*$)/", $value);
+        $count  = \count($ranges);
         for ($idx = 0; $idx < $count; ++$idx) {
-            $fields = explode(';', $ranges[$idx]);
+            $fields = \explode(';', $ranges[$idx]);
 
-            if (strpos($fields[0], '/') === false) {
+            if (\strpos($fields[0], '/') === false) {
                 throw new InvalidArgumentException('mediaType');
             }
 
-            list($type, $subType) = explode('/', $fields[0], 2);
+            list($type, $subType) = \explode('/', $fields[0], 2);
             list($parameters, $quality) = $this->parseQualityAndParameters($fields);
 
             $mediaType = $this->factory->createAcceptMediaType($idx, $type, $subType, $parameters, $quality);
@@ -73,28 +73,28 @@ class HeaderParametersParser implements HeaderParametersParserInterface
      */
     public function parseContentTypeHeader(string $mediaType): MediaTypeInterface
     {
-        $fields = explode(';', $mediaType);
+        $fields = \explode(';', $mediaType);
 
-        if (strpos($fields[0], '/') === false) {
+        if (\strpos($fields[0], '/') === false) {
             throw new InvalidArgumentException('mediaType');
         }
 
-        list($type, $subType) = explode('/', $fields[0], 2);
+        list($type, $subType) = \explode('/', $fields[0], 2);
 
         $parameters = null;
-        $count      = count($fields);
+        $count      = \count($fields);
         for ($idx = 1; $idx < $count; ++$idx) {
             $fieldValue = $fields[$idx];
             if (empty($fieldValue) === true) {
                 continue;
             }
 
-            if (strpos($fieldValue, '=') === false) {
+            if (\strpos($fieldValue, '=') === false) {
                 throw new InvalidArgumentException('mediaType');
             }
 
-            list($key, $value) = explode('=', $fieldValue, 2);
-            $parameters[trim($key)] = trim($value, ' "');
+            list($key, $value) = \explode('=', $fieldValue, 2);
+            $parameters[\trim($key)] = \trim($value, ' "');
         }
 
         return $this->factory->createMediaType($type, $subType, $parameters);
@@ -111,21 +111,21 @@ class HeaderParametersParser implements HeaderParametersParserInterface
         $qParamFound = false;
         $parameters  = null;
 
-        $count = count($fields);
+        $count = \count($fields);
         for ($idx = 1; $idx < $count; ++$idx) {
             $fieldValue = $fields[$idx];
             if (empty($fieldValue) === true) {
                 continue;
             }
 
-            if (strpos($fieldValue, '=') === false) {
+            if (\strpos($fieldValue, '=') === false) {
                 throw new InvalidArgumentException('mediaType');
             }
 
-            list($key, $value) = explode('=', $fieldValue, 2);
+            list($key, $value) = \explode('=', $fieldValue, 2);
 
-            $key   = trim($key);
-            $value = trim($value, ' "');
+            $key   = \trim($key);
+            $value = \trim($value, ' "');
 
             // 'q' param separates media parameters from extension parameters
 

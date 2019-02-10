@@ -47,8 +47,8 @@ class LinkWithAliases extends Link implements LinkWithAliasesInterface
     {
         $aliasesArray = [];
         foreach ($aliases as $name => $alias) {
-            assert(is_string($name) === true && empty($name) === false);
-            assert(is_string($alias) === true && empty($alias) === false);
+            \assert(\is_string($name) === true && empty($name) === false);
+            \assert(\is_string($alias) === true && empty($alias) === false);
             $aliasesArray[$name] = $alias;
         }
 
