@@ -187,7 +187,7 @@ class IdentifierAndResource implements ResourceInterface
             [$hasLinks, $links] =
                 $this->parseRelationshipLinks($this->schema, $this->data, $name, $description);
 
-            $hasMeta = array_key_exists(SchemaInterface::RELATIONSHIP_META, $description);
+            $hasMeta = isset($description[SchemaInterface::RELATIONSHIP_META]);
             $meta    = $hasMeta === true ? $description[SchemaInterface::RELATIONSHIP_META] : null;
 
             assert(

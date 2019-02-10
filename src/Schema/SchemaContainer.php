@@ -237,7 +237,7 @@ class SchemaContainer implements SchemaContainerInterface
      */
     protected function hasCreatedProvider(string $type): bool
     {
-        return array_key_exists($type, $this->createdProviders);
+        return isset($this->createdProviders[$type]);
     }
 
     /**
