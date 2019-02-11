@@ -14,6 +14,7 @@ matrix:
       script:
       - composer test-cs
       - composer test-md
+      - composer test-cs-fixer
 before_script:
 - travis_retry composer self-update
 - travis_retry composer install --no-interaction --prefer-dist
