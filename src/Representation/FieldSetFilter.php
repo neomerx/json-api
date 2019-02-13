@@ -77,18 +77,10 @@ class FieldSetFilter implements FieldSetFilterInterface
     {
         $parentType = $position->getParentType();
         if ($this->hasFilter($parentType) === true) {
-            return \array_key_exists($position->getParentRelationship(), $this->getAllowedFields($parentType));
+            return isset($this->getAllowedFields($parentType)[$position->getParentRelationship()]);
         }
 
         return true;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getFieldSets(): array
-    {
-        return $this->fieldSets;
     }
 
     /**
@@ -98,7 +90,7 @@ class FieldSetFilter implements FieldSetFilterInterface
      */
     protected function hasFilter(string $type): bool
     {
-        return \array_key_exists($type, $this->fieldSets) === true;
+        return isset($this->fieldSets[$type]) === true;
     }
 
     /**
@@ -110,7 +102,7 @@ class FieldSetFilter implements FieldSetFilterInterface
     {
         \assert($this->hasFilter($type) === true);
 
-        return $this->getFieldSets()[$type];
+        return $this->fieldSets[$type];
     }
 
     /**
@@ -129,7 +121,7 @@ class FieldSetFilter implements FieldSetFilterInterface
 
         $allowedFields = $this->getAllowedFields($type);
         foreach ($fields as $name => $value) {
-            if (\array_key_exists($name, $allowedFields) === true) {
+            if (isset($allowedFields[$name]) === true) {
                 yield $name => $value;
             }
         }

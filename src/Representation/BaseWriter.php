@@ -56,7 +56,7 @@ abstract class BaseWriter implements BaseWriterInterface
      */
     public function setDataAsArray(): BaseWriterInterface
     {
-        \assert($this->isDataAnArray() === false);
+        \assert($this->isDataAnArray === false);
         \assert(\array_key_exists(DocumentInterface::KEYWORD_DATA, $this->data) === false);
 
         $this->data[DocumentInterface::KEYWORD_DATA] = [];
@@ -123,7 +123,7 @@ abstract class BaseWriter implements BaseWriterInterface
     public function setLinks(iterable $links): BaseWriterInterface
     {
         $representation = $this->getLinksRepresentation(
-            $this->getUrlPrefix(),
+            $this->urlPrefix,
             $links
         );
 
@@ -140,7 +140,7 @@ abstract class BaseWriter implements BaseWriterInterface
     public function setProfile(iterable $links): BaseWriterInterface
     {
         $representation = $this->getLinksListRepresentation(
-            $this->getUrlPrefix(),
+            $this->urlPrefix,
             $links
         );
 

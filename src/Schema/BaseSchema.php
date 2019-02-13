@@ -52,7 +52,7 @@ abstract class BaseSchema implements SchemaInterface
      */
     public function getSelfLink($resource): LinkInterface
     {
-        return $this->getFactory()->createLink(true, $this->getSelfSubUrl($resource), false);
+        return $this->factory->createLink(true, $this->getSelfSubUrl($resource), false);
     }
 
     /**
@@ -76,7 +76,7 @@ abstract class BaseSchema implements SchemaInterface
 
         $url = $this->getSelfSubUrl($resource) . '/' . DocumentInterface::KEYWORD_RELATIONSHIPS . '/' . $name;
 
-        return $this->getFactory()->createLink(true, $url, false);
+        return $this->factory->createLink(true, $url, false);
     }
 
     /**
@@ -88,7 +88,7 @@ abstract class BaseSchema implements SchemaInterface
 
         $url = $this->getSelfSubUrl($resource) . '/' . $name;
 
-        return $this->getFactory()->createLink(true, $url, false);
+        return $this->factory->createLink(true, $url, false);
     }
 
     /**

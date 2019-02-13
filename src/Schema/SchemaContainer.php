@@ -184,29 +184,13 @@ class SchemaContainer implements SchemaContainerInterface
     }
 
     /**
-     * @return FactoryInterface
-     */
-    protected function getFactory(): FactoryInterface
-    {
-        return $this->factory;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getProviderMappings(): array
-    {
-        return $this->providerMapping;
-    }
-
-    /**
      * @param string $type
      *
      * @return bool
      */
     protected function hasProviderMapping(string $type): bool
     {
-        return \array_key_exists($type, $this->getProviderMappings());
+        return isset($this->providerMapping[$type]);
     }
 
     /**
@@ -216,7 +200,7 @@ class SchemaContainer implements SchemaContainerInterface
      */
     protected function getProviderMapping(string $type)
     {
-        return $this->getProviderMappings()[$type];
+        return $this->providerMapping[$type];
     }
 
     /**
@@ -237,7 +221,7 @@ class SchemaContainer implements SchemaContainerInterface
      */
     protected function hasCreatedProvider(string $type): bool
     {
-        return \array_key_exists($type, $this->createdProviders);
+        return isset($this->createdProviders[$type]);
     }
 
     /**
@@ -294,7 +278,7 @@ class SchemaContainer implements SchemaContainerInterface
      */
     protected function createSchemaFromCallable(callable $callable): SchemaInterface
     {
-        $schema = \call_user_func($callable, $this->getFactory());
+        $schema = \call_user_func($callable, $this->factory);
 
         return $schema;
     }
@@ -306,7 +290,7 @@ class SchemaContainer implements SchemaContainerInterface
      */
     protected function createSchemaFromClassName(string $className): SchemaInterface
     {
-        $schema = new $className($this->getFactory());
+        $schema = new $className($this->factory);
 
         return $schema;
     }

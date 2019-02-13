@@ -79,8 +79,8 @@ class Parser implements ParserInterface
     public function __construct(FactoryInterface $factory, SchemaContainerInterface $container)
     {
         $this->resourcesTracker = [];
-
-        $this->setFactory($factory)->setSchemaContainer($container);
+        $this->factory          = $factory;
+        $this->schemaContainer  = $container;
     }
 
     /**
@@ -94,14 +94,14 @@ class Parser implements ParserInterface
 
         $this->paths = $this->normalizePaths($paths);
 
-        $rootPosition = $this->getFactory()->createPosition(
+        $rootPosition = $this->factory->createPosition(
             ParserInterface::ROOT_LEVEL,
             ParserInterface::ROOT_PATH,
             null,
             null
         );
 
-        if ($this->getSchemaContainer()->hasSchema($data) === true) {
+        if ($this->schemaContainer->hasSchema($data) === true) {
             yield $this->createDocumentDataIsResource($rootPosition);
             yield from $this->parseAsResource($rootPosition, $data);
         } elseif ($data instanceof SchemaIdentifierInterface) {
@@ -122,66 +122,6 @@ class Parser implements ParserInterface
     }
 
     /**
-     * @return SchemaContainerInterface
-     */
-    protected function getSchemaContainer(): SchemaContainerInterface
-    {
-        return $this->schemaContainer;
-    }
-
-    /**
-     * @param SchemaContainerInterface $container
-     *
-     * @return self
-     */
-    protected function setSchemaContainer(SchemaContainerInterface $container): self
-    {
-        $this->schemaContainer = $container;
-
-        return $this;
-    }
-
-    /**
-     * @return FactoryInterface
-     */
-    protected function getFactory(): FactoryInterface
-    {
-        return $this->factory;
-    }
-
-    /**
-     * @param FactoryInterface $factory
-     *
-     * @return self
-     */
-    protected function setFactory(FactoryInterface $factory): self
-    {
-        $this->factory = $factory;
-
-        return $this;
-    }
-
-    /**
-     * @param ResourceInterface $resource
-     *
-     * @return void
-     */
-    private function rememberResource(ResourceInterface $resource): void
-    {
-        $this->resourcesTracker[$resource->getId()][$resource->getType()] = true;
-    }
-
-    /**
-     * @param ResourceInterface $resource
-     *
-     * @return bool
-     */
-    private function hasSeenResourceBefore(ResourceInterface $resource): bool
-    {
-        return isset($this->resourcesTracker[$resource->getId()][$resource->getType()]);
-    }
-
-    /**
      * @param PositionInterface $position
      * @param iterable          $dataOrIds
      *
@@ -195,7 +135,7 @@ class Parser implements ParserInterface
         iterable $dataOrIds
     ): iterable {
         foreach ($dataOrIds as $dataOrId) {
-            if ($this->getSchemaContainer()->hasSchema($dataOrId) === true) {
+            if ($this->schemaContainer->hasSchema($dataOrId) === true) {
                 yield from $this->parseAsResource($position, $dataOrId);
 
                 continue;
@@ -219,11 +159,11 @@ class Parser implements ParserInterface
         PositionInterface $position,
         $data
     ): iterable {
-        \assert($this->getSchemaContainer()->hasSchema($data) === true);
+        \assert($this->schemaContainer->hasSchema($data) === true);
 
-        $resource = $this->getFactory()->createParsedResource(
+        $resource = $this->factory->createParsedResource(
             $position,
-            $this->getSchemaContainer(),
+            $this->schemaContainer,
             $data
         );
 
@@ -239,19 +179,20 @@ class Parser implements ParserInterface
      */
     private function parseResource(ResourceInterface $resource): iterable
     {
-        $seenBefore = $this->hasSeenResourceBefore($resource);
+        $seenBefore = isset($this->resourcesTracker[$resource->getId()][$resource->getType()]);
 
         // top level resources should be yielded in any case as it could be an array of the resources
         // for deeper levels it's not needed as they go to `included` section and it must have no more
         // than one instance of the same resource.
 
-        if ($resource->getPosition()->getLevel() <= ParserInterface::ROOT_LEVEL || $seenBefore === false) {
+        if ($seenBefore === false || $resource->getPosition()->getLevel() <= ParserInterface::ROOT_LEVEL) {
             yield $resource;
         }
 
         // parse relationships only for resources not seen before (prevents infinite loop for circular references)
         if ($seenBefore === false) {
-            $this->rememberResource($resource);
+            // remember by id and type
+            $this->resourcesTracker[$resource->getId()][$resource->getType()] = true;
 
             foreach ($resource->getRelationships() as $name => $relationship) {
                 \assert(\is_string($name));
@@ -259,7 +200,7 @@ class Parser implements ParserInterface
 
                 $isShouldParse = $this->isPathRequested($relationship->getPosition()->getPath());
 
-                if ($relationship->hasData() === true && $isShouldParse === true) {
+                if ($isShouldParse === true && $relationship->hasData() === true) {
                     $relData = $relationship->getData();
                     if ($relData->isResource() === true) {
                         yield from $this->parseResource($relData->getResource());
@@ -325,7 +266,7 @@ class Parser implements ParserInterface
              */
             public function getId(): ?string
             {
-                return $this->getIdentifier()->getId();
+                return $this->identifier->getId();
             }
 
             /**
@@ -333,7 +274,7 @@ class Parser implements ParserInterface
              */
             public function getType(): string
             {
-                return $this->getIdentifier()->getType();
+                return $this->identifier->getType();
             }
 
             /**
@@ -341,7 +282,7 @@ class Parser implements ParserInterface
              */
             public function hasIdentifierMeta(): bool
             {
-                return $this->getIdentifier()->hasIdentifierMeta();
+                return $this->identifier->hasIdentifierMeta();
             }
 
             /**
@@ -349,15 +290,7 @@ class Parser implements ParserInterface
              */
             public function getIdentifierMeta()
             {
-                return $this->getIdentifier()->getIdentifierMeta();
-            }
-
-            /**
-             * @return SchemaIdentifierInterface
-             */
-            private function getIdentifier(): SchemaIdentifierInterface
-            {
-                return $this->identifier;
+                return $this->identifier->getIdentifierMeta();
             }
         };
     }
@@ -482,7 +415,7 @@ class Parser implements ParserInterface
      */
     private function isPathRequested(string $path): bool
     {
-        return \array_key_exists($path, $this->paths);
+        return isset($this->paths[$path]);
     }
 
     /**

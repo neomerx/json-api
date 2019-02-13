@@ -77,7 +77,7 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
      */
     public function offsetExists($offset)
     {
-        return \array_key_exists($offset, $this->items);
+        return isset($this->items[$offset]);
     }
 
     /**

@@ -53,7 +53,7 @@ class Messages
      */
     public static function getTranslation(string $message): string
     {
-        return \array_key_exists($message, static::$translations) === true ? static::$translations[$message] : $message;
+        return static::$translations[$message] ?? $message;
     }
 
     /**

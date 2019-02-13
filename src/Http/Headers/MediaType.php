@@ -99,7 +99,7 @@ class MediaType implements MediaTypeInterface
     public function getMediaType(): string
     {
         if ($this->mediaType === null) {
-            $this->mediaType = $this->getType() . '/' . $this->getSubType();
+            $this->mediaType = $this->type . '/' . $this->getSubType();
         }
 
         return $this->mediaType;
@@ -154,7 +154,7 @@ class MediaType implements MediaTypeInterface
     {
         // Type, subtype and param name should be compared case-insensitive
         // https://tools.ietf.org/html/rfc7231#section-3.1.1.1
-        return \strcasecmp($this->getType(), $mediaType->getType()) === 0;
+        return \strcasecmp($this->type, $mediaType->getType()) === 0;
     }
 
     /**
@@ -191,7 +191,7 @@ class MediaType implements MediaTypeInterface
         } elseif ($this->bothMediaTypeParamsNotEmptyAndEqualInSize($mediaType)) {
             // Type, subtype and param name should be compared case-insensitive
             // https://tools.ietf.org/html/rfc7231#section-3.1.1.1
-            $ourParameters       = \array_change_key_case($this->getParameters());
+            $ourParameters       = \array_change_key_case($this->parameters);
             $parametersToCompare = \array_change_key_case($mediaType->getParameters());
 
             // if at least one name are different they are not equal
@@ -227,7 +227,7 @@ class MediaType implements MediaTypeInterface
         } elseif ($this->bothMediaTypeParamsNotEmptyAndEqualInSize($mediaType)) {
             // Type, subtype and param name should be compared case-insensitive
             // https://tools.ietf.org/html/rfc7231#section-3.1.1.1
-            $ourParameters       = \array_change_key_case($this->getParameters());
+            $ourParameters       = \array_change_key_case($this->parameters);
             $parametersToCompare = \array_change_key_case($mediaType->getParameters());
 
             // if at least one name are different they are not equal
@@ -258,7 +258,7 @@ class MediaType implements MediaTypeInterface
      */
     private function bothMediaTypeParamsEmpty(MediaTypeInterface $mediaType): bool
     {
-        return $this->getParameters() === null && $mediaType->getParameters() === null;
+        return $this->parameters === null && $mediaType->getParameters() === null;
     }
 
     /**
@@ -268,7 +268,7 @@ class MediaType implements MediaTypeInterface
      */
     private function bothMediaTypeParamsNotEmptyAndEqualInSize(MediaTypeInterface $mediaType): bool
     {
-        $pr1 = $this->getParameters();
+        $pr1 = $this->parameters;
         $pr2 = $mediaType->getParameters();
 
         return (empty($pr1) === false && empty($pr2) === false) && (\count($pr1) === \count($pr2));

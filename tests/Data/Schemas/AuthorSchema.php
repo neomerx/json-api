@@ -20,6 +20,7 @@ namespace Neomerx\Tests\JsonApi\Data\Schemas;
 
 use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use Neomerx\Tests\JsonApi\Data\Models\Author;
+use function assert;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -65,6 +66,9 @@ class AuthorSchema extends DevSchema
     public function getRelationships($resource): iterable
     {
         assert($resource instanceof Author);
+
+        // test and cover with test that factory could be used from a Schema.
+        assert($this->getFactory()->createLink(true, 'test-example', false) !== null);
 
         if (property_exists($resource, Author::LINK_COMMENTS) === true) {
             $description = [self::RELATIONSHIP_DATA => $resource->{Author::LINK_COMMENTS}];

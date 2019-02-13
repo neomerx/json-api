@@ -63,7 +63,7 @@ class LinkWithAliases extends Link implements LinkWithAliasesInterface
      */
     public function canBeShownAsString(): bool
     {
-        return parent::canBeShownAsString() && $this->hasAliases() === false;
+        return parent::canBeShownAsString() && $this->hasAliases === false;
     }
 
     /**
@@ -75,28 +75,10 @@ class LinkWithAliases extends Link implements LinkWithAliasesInterface
             DocumentInterface::KEYWORD_HREF => $this->buildUrl($prefix),
         ] : parent::getArrayRepresentation($prefix);
 
-        if ($this->hasAliases() === true) {
-            $linkRepresentation[DocumentInterface::KEYWORD_ALIASES] = $this->getAliases();
+        if ($this->hasAliases === true) {
+            $linkRepresentation[DocumentInterface::KEYWORD_ALIASES] = $this->aliases;
         }
 
         return $linkRepresentation;
-    }
-
-    /**
-     * @return bool
-     */
-    private function hasAliases(): bool
-    {
-        return $this->hasAliases;
-    }
-
-    /**
-     * Get aliases.
-     *
-     * @return array
-     */
-    private function getAliases(): array
-    {
-        return $this->aliases;
     }
 }

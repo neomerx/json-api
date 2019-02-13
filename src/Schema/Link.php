@@ -27,16 +27,22 @@ use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 class Link implements LinkInterface
 {
     /**
+     * If link contains sub-URL value and URL prefix should be added.
+     *
      * @var bool
      */
     private $isSubUrl;
 
     /**
+     * Get link’s URL value (full URL or sub-URL).
+     *
      * @var string
      */
     private $value;
 
     /**
+     * If link has meta information.
+     *
      * @var bool
      */
     private $hasMeta;
@@ -65,7 +71,7 @@ class Link implements LinkInterface
      */
     public function canBeShownAsString(): bool
     {
-        return $this->hasMeta() === false;
+        return $this->hasMeta === false;
     }
 
     /**
@@ -85,52 +91,12 @@ class Link implements LinkInterface
     {
         \assert($this->canBeShownAsString() === false);
 
+        \assert($this->hasMeta);
+
         return [
             DocumentInterface::KEYWORD_HREF => $this->buildUrl($prefix),
-            DocumentInterface::KEYWORD_META => $this->getMeta(),
+            DocumentInterface::KEYWORD_META => $this->meta,
         ];
-    }
-
-    /**
-     * If link contains sub-URL value and URL prefix should be added.
-     *
-     * @return bool
-     */
-    private function isSubUrl(): bool
-    {
-        return $this->isSubUrl;
-    }
-
-    /**
-     * Get link’s URL value (full URL or sub-URL).
-     *
-     * @return string
-     */
-    private function getValue(): string
-    {
-        return $this->value;
-    }
-
-    /**
-     * If link has meta information.
-     *
-     * @return bool
-     */
-    private function hasMeta(): bool
-    {
-        return $this->hasMeta;
-    }
-
-    /**
-     * Get meta information.
-     *
-     * @return mixed
-     */
-    private function getMeta()
-    {
-        \assert($this->hasMeta());
-
-        return $this->meta;
     }
 
     /**
@@ -140,6 +106,6 @@ class Link implements LinkInterface
      */
     protected function buildUrl(string $prefix): string
     {
-        return $this->isSubUrl() ? $prefix . $this->getValue() : $this->getValue();
+        return $this->isSubUrl ? $prefix . $this->value : $this->value;
     }
 }

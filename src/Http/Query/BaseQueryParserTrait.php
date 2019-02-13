@@ -38,9 +38,9 @@ trait BaseQueryParserTrait
     {
         if (\array_key_exists(P::PARAM_INCLUDE, $parameters) === true) {
             $paramName = P::PARAM_INCLUDE;
-            $includes  = $parameters[P::PARAM_INCLUDE];
+            $includes  = $parameters[$paramName];
             foreach ($this->splitCommaSeparatedStringAndCheckNoEmpties($paramName, $includes, $errorTitle) as $path) {
-                yield $path => $this->splitStringAndCheckNoEmpties(P::PARAM_INCLUDE, $path, '.', $errorTitle);
+                yield $path => $this->splitStringAndCheckNoEmpties($paramName, $path, '.', $errorTitle);
             }
         }
     }

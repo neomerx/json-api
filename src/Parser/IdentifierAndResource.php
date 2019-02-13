@@ -98,13 +98,17 @@ class IdentifierAndResource implements ResourceInterface
         SchemaContainerInterface $container,
         $data
     ) {
+        \assert($position->getLevel() >= ParserInterface::ROOT_LEVEL);
+
         $schema = $container->getSchema($data);
-        $this
-            ->setPosition($position)
-            ->setFactory($factory)
-            ->setSchemaContainer($container)
-            ->setSchema($schema)
-            ->setData($data);
+
+        $this->position        = $position;
+        $this->factory         = $factory;
+        $this->schemaContainer = $container;
+        $this->schema          = $schema;
+        $this->data            = $data;
+        $this->index           = $schema->getId($data);
+        $this->type            = $schema->getType();
     }
 
     /**
@@ -136,7 +140,7 @@ class IdentifierAndResource implements ResourceInterface
      */
     public function hasIdentifierMeta(): bool
     {
-        return $this->getSchema()->hasIdentifierMeta($this->getData());
+        return $this->schema->hasIdentifierMeta($this->data);
     }
 
     /**
@@ -144,7 +148,7 @@ class IdentifierAndResource implements ResourceInterface
      */
     public function getIdentifierMeta()
     {
-        return $this->getSchema()->getIdentifierMeta($this->getData());
+        return $this->schema->getIdentifierMeta($this->data);
     }
 
     /**
@@ -152,7 +156,7 @@ class IdentifierAndResource implements ResourceInterface
      */
     public function getAttributes(): iterable
     {
-        return $this->getSchema()->getAttributes($this->getData());
+        return $this->schema->getAttributes($this->data);
     }
 
     /**
@@ -168,16 +172,16 @@ class IdentifierAndResource implements ResourceInterface
 
         $this->relationshipsCache = [];
 
-        $currentPath    = $this->getPosition()->getPath();
-        $nextLevel      = $this->getPosition()->getLevel() + 1;
+        $currentPath    = $this->position->getPath();
+        $nextLevel      = $this->position->getLevel() + 1;
         $nextPathPrefix = empty($currentPath) === true ? '' : $currentPath . PositionInterface::PATH_SEPARATOR;
-        foreach ($this->getSchema()->getRelationships($this->getData()) as $name => $description) {
+        foreach ($this->schema->getRelationships($this->data) as $name => $description) {
             \assert($this->assertRelationshipNameAndDescription($name, $description) === true);
 
             [$hasData, $relationshipData, $nextPosition] = $this->parseRelationshipData(
-                $this->getFactory(),
-                $this->getSchemaContainer(),
-                $this->getType(),
+                $this->factory,
+                $this->schemaContainer,
+                $this->type,
                 $name,
                 $description,
                 $nextLevel,
@@ -185,7 +189,7 @@ class IdentifierAndResource implements ResourceInterface
             );
 
             [$hasLinks, $links] =
-                $this->parseRelationshipLinks($this->getSchema(), $this->getData(), $name, $description);
+                $this->parseRelationshipLinks($this->schema, $this->data, $name, $description);
 
             $hasMeta = \array_key_exists(SchemaInterface::RELATIONSHIP_META, $description);
             $meta    = $hasMeta === true ? $description[SchemaInterface::RELATIONSHIP_META] : null;
@@ -196,7 +200,7 @@ class IdentifierAndResource implements ResourceInterface
                 '` MUST contain at least one of the following: links, data or meta.'
             );
 
-            $relationship = $this->getFactory()->createRelationship(
+            $relationship = $this->factory->createRelationship(
                 $nextPosition,
                 $hasData,
                 $relationshipData,
@@ -237,7 +241,7 @@ class IdentifierAndResource implements ResourceInterface
      */
     public function hasResourceMeta(): bool
     {
-        return $this->getSchema()->hasResourceMeta($this->getData());
+        return $this->schema->hasResourceMeta($this->data);
     }
 
     /**
@@ -245,101 +249,7 @@ class IdentifierAndResource implements ResourceInterface
      */
     public function getResourceMeta()
     {
-        return $this->getSchema()->getResourceMeta($this->getData());
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function setPosition(PositionInterface $position): self
-    {
-        \assert($position->getLevel() >= ParserInterface::ROOT_LEVEL);
-
-        $this->position = $position;
-
-        return $this;
-    }
-
-    /**
-     * @return FactoryInterface
-     */
-    protected function getFactory(): FactoryInterface
-    {
-        return $this->factory;
-    }
-
-    /**
-     * @param FactoryInterface $factory
-     *
-     * @return self
-     */
-    protected function setFactory(FactoryInterface $factory): self
-    {
-        $this->factory = $factory;
-
-        return $this;
-    }
-
-    /**
-     * @return SchemaContainerInterface
-     */
-    protected function getSchemaContainer(): SchemaContainerInterface
-    {
-        return $this->schemaContainer;
-    }
-
-    /**
-     * @param SchemaContainerInterface $container
-     *
-     * @return self
-     */
-    protected function setSchemaContainer(SchemaContainerInterface $container): self
-    {
-        $this->schemaContainer = $container;
-
-        return $this;
-    }
-
-    /**
-     * @return SchemaInterface
-     */
-    protected function getSchema(): SchemaInterface
-    {
-        return $this->schema;
-    }
-
-    /**
-     * @param SchemaInterface $schema
-     *
-     * @return self
-     */
-    protected function setSchema(SchemaInterface $schema): self
-    {
-        $this->schema = $schema;
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function getData()
-    {
-        return $this->data;
-    }
-
-    /**
-     * @param mixed $data
-     *
-     * @return self
-     */
-    protected function setData($data): self
-    {
-        $this->data  = $data;
-        $this->index = $this->getSchema()->getId($data);
-        $this->type  = $this->getSchema()->getType();
-
-        return $this;
+        return $this->schema->getResourceMeta($this->data);
     }
 
     /**
@@ -349,7 +259,7 @@ class IdentifierAndResource implements ResourceInterface
     {
         if ($this->links === null) {
             $this->links = [];
-            foreach ($this->getSchema()->getLinks($this->getData()) as $name => $link) {
+            foreach ($this->schema->getLinks($this->data) as $name => $link) {
                 \assert(\is_string($name) === true && empty($name) === false);
                 \assert($link instanceof LinkInterface);
                 $this->links[$name] = $link;
