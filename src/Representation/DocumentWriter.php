@@ -266,21 +266,42 @@ class DocumentWriter extends BaseWriter implements DocumentWriterInterface
 
         $attributes = $this->getAttributesRepresentation($filter->getAttributes($resource));
         if (empty($attributes) === false) {
+            \assert(
+                \json_encode($attributes) !== false,
+                'Attributes for resource type `' . $resource->getType() .
+                '` cannot be converted into JSON. Please check its Schema returns valid data.'
+            );
             $representation[DocumentInterface::KEYWORD_ATTRIBUTES] = $attributes;
         }
 
         $relationships = $this->getRelationshipsRepresentation($filter->getRelationships($resource));
         if (empty($relationships) === false) {
+            \assert(
+                \json_encode($relationships) !== false,
+                'Relationships for resource type `' . $resource->getType() .
+                '` cannot be converted into JSON. Please check its Schema returns valid data.'
+            );
             $representation[DocumentInterface::KEYWORD_RELATIONSHIPS] = $relationships;
         }
 
         if ($resource->hasLinks() === true) {
-            $representation[DocumentInterface::KEYWORD_LINKS] =
-                $this->getLinksRepresentation($this->getUrlPrefix(), $resource->getLinks());
+            $links = $this->getLinksRepresentation($this->getUrlPrefix(), $resource->getLinks());
+            \assert(
+                \json_encode($links) !== false,
+                'Links for resource type `' . $resource->getType() .
+                '` cannot be converted into JSON. Please check its Schema returns valid data.'
+            );
+            $representation[DocumentInterface::KEYWORD_LINKS] = $links;
         }
 
         if ($resource->hasResourceMeta() === true) {
-            $representation[DocumentInterface::KEYWORD_META] = $resource->getResourceMeta();
+            $meta = $resource->getResourceMeta();
+            \assert(
+                \json_encode($meta) !== false,
+                'Meta for resource type `' . $resource->getType() .
+                '` cannot be converted into JSON. Please check its Schema returns valid data.'
+            );
+            $representation[DocumentInterface::KEYWORD_META] = $meta;
         }
 
         return $representation;
