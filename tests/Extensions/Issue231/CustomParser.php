@@ -18,6 +18,7 @@ namespace Neomerx\Tests\JsonApi\Extensions\Issue231;
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\DocumentInterface;
 use Neomerx\JsonApi\Parser\Parser;
 
 /**
@@ -32,8 +33,27 @@ class CustomParser extends Parser
     {
         $normalizedPaths = $this->getNormalizedPaths();
 
-        // TODO add support for wildcards
+        if (isset($normalizedPaths[$path])) {
+            return true;
+        }
 
-        return isset($normalizedPaths[$path]);
+        $wildcard = '*';
+        if (isset($normalizedPaths[$wildcard])) {
+            return true;
+        }
+
+        $separator = DocumentInterface::PATH_SEPARATOR;
+        $testPath = '';
+
+        // check if any wildcard like a.*, a.b.* is requested
+        foreach (\explode($separator, $path) as $part) {
+            $testPath .= $part . $separator;
+            $wildcardPath = $testPath . $wildcard;
+            if (isset($normalizedPaths[$wildcardPath])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

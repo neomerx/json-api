@@ -32,6 +32,6 @@ class CustomFactory extends Factory
      */
     public function createParser(SchemaContainerInterface $container): ParserInterface
     {
-        return parent::createParser($container);
+        return new CustomParser($this, $container);
     }
 }
