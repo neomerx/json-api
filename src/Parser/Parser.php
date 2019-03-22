@@ -52,6 +52,10 @@ class Parser implements ParserInterface
         'For resource of type `%s` with ID `%s` relationship `%s` cannot be parsed because it either ' .
         'has `null` or identifier as data. Skipping.';
 
+    /** @var string */
+    public const MSG_PATHS_HAVE_NOT_BEEN_NORMALIZED_YET =
+        'Paths have not been normalized yet. Have you called `parse` method already?';
+
     /**
      * @var SchemaContainerInterface
      */
@@ -144,6 +148,26 @@ class Parser implements ParserInterface
             \assert($dataOrId instanceof SchemaIdentifierInterface);
             yield $this->parseAsIdentifier($position, $dataOrId);
         }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getNormalizedPaths(): array
+    {
+        \assert($this->paths !== null, _(static::MSG_PATHS_HAVE_NOT_BEEN_NORMALIZED_YET));
+
+        return $this->paths;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return bool
+     */
+    protected function isPathRequested(string $path): bool
+    {
+        return isset($this->paths[$path]);
     }
 
     /**
@@ -406,16 +430,6 @@ class Parser implements ParserInterface
                 return $this->isNull;
             }
         };
-    }
-
-    /**
-     * @param string $path
-     *
-     * @return bool
-     */
-    private function isPathRequested(string $path): bool
-    {
-        return isset($this->paths[$path]);
     }
 
     /**
