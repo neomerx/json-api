@@ -19,10 +19,11 @@ namespace Neomerx\JsonApi\Parser\RelationshipData;
  */
 
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use Neomerx\JsonApi\Contracts\Parser\IdentifierInterface;
+use Neomerx\JsonApi\Contracts\Parser\IdentifierInterface as ParserIdentifierInterface;
 use Neomerx\JsonApi\Contracts\Parser\PositionInterface;
 use Neomerx\JsonApi\Contracts\Parser\RelationshipDataInterface;
 use Neomerx\JsonApi\Contracts\Parser\ResourceInterface;
+use Neomerx\JsonApi\Contracts\Schema\IdentifierInterface as SchemaIdentifierInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 use Neomerx\JsonApi\Exceptions\LogicException;
 use function Neomerx\JsonApi\I18n\format as _;
@@ -97,7 +98,7 @@ class RelationshipDataIsCollection extends BaseRelationshipData implements Relat
     /**
      * @inheritdoc
      */
-    public function getIdentifier(): IdentifierInterface
+    public function getIdentifier(): ParserIdentifierInterface
     {
         throw new LogicException(_(static::MSG_INVALID_OPERATION));
     }
@@ -124,8 +125,10 @@ class RelationshipDataIsCollection extends BaseRelationshipData implements Relat
     public function getResources(): iterable
     {
         if ($this->parsedResources === null) {
-            foreach ($this->resources as $resource) {
-                $parsedResource          = $this->createParsedResource($resource);
+            foreach ($this->resources as $resourceOrIdentifier) {
+                $parsedResource          = $resourceOrIdentifier instanceof SchemaIdentifierInterface ?
+                    $this->createParsedIdentifier($resourceOrIdentifier) :
+                    $this->createParsedResource($resourceOrIdentifier);
                 $this->parsedResources[] = $parsedResource;
 
                 yield $parsedResource;

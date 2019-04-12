@@ -29,6 +29,7 @@ use Neomerx\Tests\JsonApi\Data\Models\Author;
 use Neomerx\Tests\JsonApi\Data\Models\AuthorCModel;
 use Neomerx\Tests\JsonApi\Data\Models\AuthorIdentity;
 use Neomerx\Tests\JsonApi\Data\Models\Comment;
+use Neomerx\Tests\JsonApi\Data\Models\CommentIdentity;
 use Neomerx\Tests\JsonApi\Data\Models\Site;
 use Neomerx\Tests\JsonApi\Data\Schemas\AuthorCModelSchema;
 use Neomerx\Tests\JsonApi\Data\Schemas\AuthorSchema;
@@ -1084,6 +1085,55 @@ EOL;
                     "self" : "http://example.com/people/9"
                 }
             }]
+        }
+EOL;
+        self::assertJsonStringEqualsJsonString($expected, $actual);
+    }
+
+    /**
+     * Test encode resource with an array of identifiers in a relationship.
+     *
+     * @see https://github.com/neomerx/json-api/pull/235
+     */
+    public function testEncodingIdentifierArrays(): void
+    {
+        $commentId1 = new CommentIdentity('1');
+        $commentId2 = new CommentIdentity('2');
+        $author     = Author::instance(9, 'Dan', 'Gebhardt', [$commentId1, $commentId2]);
+
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => CommentSchema::class,
+            ]
+        )->withUrlPrefix('http://example.com')->withIncludedPaths([Author::LINK_COMMENTS])->encodeData($author);
+
+        // The issue was that comment with id 1 was also added in `included` section
+        $expected = <<<EOL
+        {
+            "data": {
+                "type" : "people",
+                "id"   : "9",
+                "attributes" : {
+                    "first_name" : "Dan",
+                    "last_name"  : "Gebhardt"
+                },
+                "relationships" : {
+                    "comments" : {
+                        "data": [
+                            { "type" : "comments", "id" : "1" },
+                            { "type" : "comments", "id" : "2" }
+                        ],
+                        "links" : {
+                            "self"    : "http://example.com/people/9/relationships/comments",
+                            "related" : "http://example.com/people/9/comments"
+                        }
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/people/9"
+                }
+            }
         }
 EOL;
         self::assertJsonStringEqualsJsonString($expected, $actual);

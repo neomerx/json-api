@@ -232,8 +232,11 @@ class Parser implements ParserInterface
                         continue;
                     } elseif ($relData->isCollection() === true) {
                         foreach ($relData->getResources() as $relResource) {
-                            \assert($relResource instanceof ResourceInterface);
-                            yield from $this->parseResource($relResource);
+                            \assert($relResource instanceof ResourceInterface ||
+                                $relResource instanceof IdentifierInterface);
+                            if ($relResource instanceof ResourceInterface) {
+                                yield from $this->parseResource($relResource);
+                            }
                         }
 
                         continue;
