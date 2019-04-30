@@ -44,7 +44,7 @@ trait ParseRelationshipDataTrait
      * @param int                      $nextLevel
      * @param string                   $nextPathPrefix
      *
-     * @return array [has data, parsed data]
+     * @return array [has data, parsed data, next position]
      */
     private function parseRelationshipData(
         FactoryInterface $factory,
