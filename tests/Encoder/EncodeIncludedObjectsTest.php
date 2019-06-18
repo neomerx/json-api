@@ -1045,4 +1045,33 @@ EOL;
 EOL;
         self::assertJsonStringEqualsJsonString($expected, $actual);
     }
+
+    /**
+     * Test include paths as generator.
+     *
+     * @see https://github.com/neomerx/json-api/issues/238
+     */
+    public function testIterableParameterForWithIncludedPaths(): void
+    {
+        $author = Author::instance(238, 'Susan', 'Smith');
+        $post   = Post::instance(11, 'Generators and Arrays', 'A tale of incompatible types', $author);
+
+        $encoder = Encoder::instance([
+            Author::class => AuthorSchema::class,
+            Post::class   => PostSchema::class,
+        ]);
+
+        $encoder = $encoder->withIncludedPaths($this->generateIncludeList());
+
+        $json = $encoder->encodeData($post);
+
+        self::assertJson($json);
+    }
+
+    private function generateIncludeList(): iterable
+    {
+        foreach (['author'] as $item) {
+            yield $item;
+        }
+    }
 }
