@@ -201,6 +201,8 @@ trait EncoderPropertiesTrait
      */
     public function withIncludedPaths(iterable $paths): EncoderInterface
     {
+        $paths = $this->iterableToArray($paths);
+
         \assert(
             \call_user_func(
                 function (array $paths): bool {
