@@ -19,11 +19,12 @@ namespace Neomerx\JsonApi\Parser\RelationshipData;
  */
 
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Parser\EditableContextInterface;
 use Neomerx\JsonApi\Contracts\Parser\IdentifierInterface as ParserIdentifierInterface;
-use Neomerx\JsonApi\Contracts\Parser\PositionInterface;
 use Neomerx\JsonApi\Contracts\Parser\RelationshipDataInterface;
 use Neomerx\JsonApi\Contracts\Parser\ResourceInterface;
 use Neomerx\JsonApi\Contracts\Schema\IdentifierInterface as SchemaIdentifierInterface;
+use Neomerx\JsonApi\Contracts\Schema\PositionInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 
 /**
@@ -42,6 +43,11 @@ abstract class BaseRelationshipData implements RelationshipDataInterface
     private $schemaContainer;
 
     /**
+     * @var EditableContextInterface
+     */
+    private $context;
+
+    /**
      * @var PositionInterface
      */
     private $position;
@@ -49,15 +55,18 @@ abstract class BaseRelationshipData implements RelationshipDataInterface
     /**
      * @param FactoryInterface         $factory
      * @param SchemaContainerInterface $schemaContainer
+     * @param EditableContextInterface $context
      * @param PositionInterface        $position
      */
     public function __construct(
         FactoryInterface $factory,
         SchemaContainerInterface $schemaContainer,
+        EditableContextInterface $context,
         PositionInterface $position
     ) {
         $this->factory         = $factory;
         $this->schemaContainer = $schemaContainer;
+        $this->context         = $context;
         $this->position        = $position;
     }
 
@@ -74,6 +83,7 @@ abstract class BaseRelationshipData implements RelationshipDataInterface
         );
 
         return $this->factory->createParsedResource(
+            $this->context,
             $this->position,
             $this->schemaContainer,
             $resource

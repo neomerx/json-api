@@ -18,6 +18,7 @@ namespace Neomerx\Tests\JsonApi\Extensions\Issue231;
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Parser\EditableContextInterface;
 use Neomerx\JsonApi\Contracts\Parser\ParserInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 use Neomerx\JsonApi\Factories\Factory;
@@ -30,8 +31,10 @@ final class CustomFactory extends Factory
     /**
      * @inheritdoc
      */
-    public function createParser(SchemaContainerInterface $container): ParserInterface
-    {
-        return new CustomParser($this, $container);
+    public function createParser(
+        SchemaContainerInterface $container,
+        EditableContextInterface $context
+    ): ParserInterface {
+        return new CustomParser($this, $container, $context);
     }
 }

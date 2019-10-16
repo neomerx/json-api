@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\JsonApi\Schema\BaseSchema;
 use Neomerx\JsonApi\Schema\Link;
 use Neomerx\Samples\JsonApi\Models\Site;
@@ -51,7 +52,7 @@ class SiteSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getAttributes($site, array $fieldKeysFilter = null): iterable
+    public function getAttributes($site, ContextInterface $context): iterable
     {
         assert($site instanceof Site);
 
@@ -63,7 +64,7 @@ class SiteSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($site): iterable
+    public function getRelationships($site, ContextInterface $context): iterable
     {
         assert($site instanceof Site);
 

@@ -18,17 +18,20 @@ namespace Neomerx\JsonApi\Contracts\Parser;
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\JsonApi\Contracts\Schema\PositionInterface;
 
 /**
  * @package Neomerx\JsonApi
  */
-interface ParsedResultInterface
+interface EditableContextInterface extends ContextInterface
 {
     /**
-     * Get position of the parsed result.
+     * Remember current position for parsed data.
      *
-     * @return PositionInterface
+     * @param PositionInterface $position
+     *
+     * @return void
      */
-    public function getPosition(): PositionInterface;
+    public function setPosition(PositionInterface $position): void;
 }

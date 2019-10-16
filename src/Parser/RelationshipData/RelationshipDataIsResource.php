@@ -19,10 +19,11 @@ namespace Neomerx\JsonApi\Parser\RelationshipData;
  */
 
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Parser\EditableContextInterface;
 use Neomerx\JsonApi\Contracts\Parser\IdentifierInterface;
-use Neomerx\JsonApi\Contracts\Parser\PositionInterface;
 use Neomerx\JsonApi\Contracts\Parser\RelationshipDataInterface;
 use Neomerx\JsonApi\Contracts\Parser\ResourceInterface;
+use Neomerx\JsonApi\Contracts\Schema\PositionInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 use Neomerx\JsonApi\Exceptions\LogicException;
 use function Neomerx\JsonApi\I18n\format as _;
@@ -46,18 +47,20 @@ class RelationshipDataIsResource extends BaseRelationshipData implements Relatio
     private $parsedResource = null;
 
     /**
-     * @param FactoryInterface          $factory
-     * @param SchemaContainerInterface  $schemaContainer
-     * @param PositionInterface         $position
-     * @param mixed                     $resource
+     * @param FactoryInterface         $factory
+     * @param SchemaContainerInterface $schemaContainer
+     * @param EditableContextInterface $context
+     * @param PositionInterface        $position
+     * @param mixed                    $resource
      */
     public function __construct(
         FactoryInterface $factory,
         SchemaContainerInterface $schemaContainer,
+        EditableContextInterface $context,
         PositionInterface $position,
         $resource
     ) {
-        parent::__construct($factory, $schemaContainer, $position);
+        parent::__construct($factory, $schemaContainer, $context, $position);
 
         $this->resource = $resource;
     }

@@ -253,6 +253,8 @@ class DocumentWriter extends BaseWriter implements DocumentWriterInterface
      * @param FieldSetFilterInterface $filter
      *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.IfStatementAssignment)
      */
     protected function getResourceRepresentation(ResourceInterface $resource, FieldSetFilterInterface $filter): array
     {

@@ -20,9 +20,10 @@ namespace Neomerx\JsonApi\Parser\RelationshipData;
 
 use IteratorAggregate;
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use Neomerx\JsonApi\Contracts\Parser\PositionInterface;
+use Neomerx\JsonApi\Contracts\Parser\EditableContextInterface;
 use Neomerx\JsonApi\Contracts\Parser\RelationshipDataInterface;
 use Neomerx\JsonApi\Contracts\Schema\IdentifierInterface;
+use Neomerx\JsonApi\Contracts\Schema\PositionInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
 use Neomerx\JsonApi\Exceptions\InvalidArgumentException;
@@ -38,6 +39,7 @@ trait ParseRelationshipDataTrait
     /**
      * @param FactoryInterface         $factory
      * @param SchemaContainerInterface $container
+     * @param EditableContextInterface $context
      * @param string                   $parentType
      * @param string                   $name
      * @param array                    $description
@@ -49,6 +51,7 @@ trait ParseRelationshipDataTrait
     private function parseRelationshipData(
         FactoryInterface $factory,
         SchemaContainerInterface $container,
+        EditableContextInterface $context,
         string $parentType,
         string $name,
         array $description,
@@ -76,6 +79,7 @@ trait ParseRelationshipDataTrait
         $relationshipData = $hasData === true ? $this->parseData(
             $factory,
             $container,
+            $context,
             $nextPosition,
             $description[SchemaInterface::RELATIONSHIP_DATA]
         ) : null;
@@ -86,6 +90,7 @@ trait ParseRelationshipDataTrait
     /**
      * @param FactoryInterface         $factory
      * @param SchemaContainerInterface $container
+     * @param EditableContextInterface $context
      * @param PositionInterface        $position
      * @param mixed                    $data
      *
@@ -94,6 +99,7 @@ trait ParseRelationshipDataTrait
     private function parseData(
         FactoryInterface $factory,
         SchemaContainerInterface $container,
+        EditableContextInterface $context,
         PositionInterface $position,
         $data
     ): RelationshipDataInterface {
@@ -103,14 +109,15 @@ trait ParseRelationshipDataTrait
         }
 
         if ($container->hasSchema($data) === true) {
-            return $factory->createRelationshipDataIsResource($container, $position, $data);
+            return $factory->createRelationshipDataIsResource($container, $context, $position, $data);
         } elseif ($data instanceof IdentifierInterface) {
-            return $factory->createRelationshipDataIsIdentifier($container, $position, $data);
+            return $factory->createRelationshipDataIsIdentifier($container, $context, $position, $data);
         } elseif (\is_array($data) === true) {
-            return $factory->createRelationshipDataIsCollection($container, $position, $data);
+            return $factory->createRelationshipDataIsCollection($container, $context, $position, $data);
         } elseif ($data instanceof Traversable) {
             return $factory->createRelationshipDataIsCollection(
                 $container,
+                $context,
                 $position,
                 $data instanceof IteratorAggregate ? $data->getIterator() : $data
             );

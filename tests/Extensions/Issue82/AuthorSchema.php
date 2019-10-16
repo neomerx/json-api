@@ -18,6 +18,7 @@ namespace Neomerx\Tests\JsonApi\Extensions\Issue82;
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\JsonApi\Schema\BaseSchema;
 
 /**
@@ -44,7 +45,7 @@ class AuthorSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getAttributes($author): iterable
+    public function getAttributes($author, ContextInterface $context): iterable
     {
         return [
             'first-name' => $author->first_name,
@@ -55,7 +56,7 @@ class AuthorSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($author): iterable
+    public function getRelationships($author, ContextInterface $context): iterable
     {
         return [
             'comments' => [

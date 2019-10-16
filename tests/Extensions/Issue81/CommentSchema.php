@@ -18,6 +18,7 @@ namespace Neomerx\Tests\JsonApi\Extensions\Issue81;
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\Tests\JsonApi\Data\Models\Author;
 use Neomerx\Tests\JsonApi\Data\Models\AuthorIdentity;
 use Neomerx\Tests\JsonApi\Data\Models\Comment;
@@ -31,7 +32,7 @@ class CommentSchema extends ParentSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($comment): iterable
+    public function getRelationships($comment, ContextInterface $context): iterable
     {
         assert($comment instanceof Comment);
 

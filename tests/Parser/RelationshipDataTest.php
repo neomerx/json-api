@@ -118,6 +118,7 @@ class RelationshipDataTest extends BaseTestCase
     {
         $factory   = $this->createFactory();
         $container = $factory->createSchemaContainer([]);
+        $context   = $factory->createParserContext([], []);
         $position  = $factory->createPosition(
             ParserInterface::ROOT_LEVEL,
             ParserInterface::ROOT_PATH,
@@ -125,7 +126,7 @@ class RelationshipDataTest extends BaseTestCase
             null
         );
 
-        $data = new $className($factory, $container, $position, $specificParam);
+        $data = new $className($factory, $container, $context, $position, $specificParam);
 
         return $data;
     }

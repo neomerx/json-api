@@ -21,9 +21,9 @@ namespace Neomerx\JsonApi\Contracts\Factories;
 use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use Neomerx\JsonApi\Contracts\Parser\EditableContextInterface;
 use Neomerx\JsonApi\Contracts\Parser\IdentifierInterface as ParserIdentifierInterface;
 use Neomerx\JsonApi\Contracts\Parser\ParserInterface;
-use Neomerx\JsonApi\Contracts\Parser\PositionInterface;
 use Neomerx\JsonApi\Contracts\Parser\RelationshipDataInterface;
 use Neomerx\JsonApi\Contracts\Parser\RelationshipInterface;
 use Neomerx\JsonApi\Contracts\Parser\ResourceInterface;
@@ -32,6 +32,7 @@ use Neomerx\JsonApi\Contracts\Representation\ErrorWriterInterface;
 use Neomerx\JsonApi\Contracts\Representation\FieldSetFilterInterface;
 use Neomerx\JsonApi\Contracts\Schema\IdentifierInterface as SchemaIdentifierInterface;
 use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use Neomerx\JsonApi\Contracts\Schema\PositionInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 
 /**
@@ -61,10 +62,14 @@ interface FactoryInterface
      * Create resources parser.
      *
      * @param SchemaContainerInterface $container
+     * @param EditableContextInterface $context
      *
      * @return ParserInterface
      */
-    public function createParser(SchemaContainerInterface $container): ParserInterface;
+    public function createParser(
+        SchemaContainerInterface $container,
+        EditableContextInterface $context
+    ): ParserInterface;
 
     /**
      * Create position for a parsed result.
@@ -109,6 +114,7 @@ interface FactoryInterface
     /**
      * Create parsed resource over raw resource data.
      *
+     * @param EditableContextInterface $context
      * @param PositionInterface        $position
      * @param SchemaContainerInterface $container
      * @param mixed                    $data
@@ -116,6 +122,7 @@ interface FactoryInterface
      * @return ResourceInterface
      */
     public function createParsedResource(
+        EditableContextInterface $context,
         PositionInterface $position,
         SchemaContainerInterface $container,
         $data
@@ -172,14 +179,16 @@ interface FactoryInterface
     /**
      * Create relationship that represents resource.
      *
-     * @param SchemaContainerInterface  $schemaContainer
-     * @param PositionInterface         $position
-     * @param mixed                     $resource
+     * @param SchemaContainerInterface $schemaContainer
+     * @param EditableContextInterface $context
+     * @param PositionInterface        $position
+     * @param mixed                    $resource
      *
      * @return RelationshipDataInterface
      */
     public function createRelationshipDataIsResource(
         SchemaContainerInterface $schemaContainer,
+        EditableContextInterface $context,
         PositionInterface $position,
         $resource
     ): RelationshipDataInterface;
@@ -188,6 +197,7 @@ interface FactoryInterface
      * Create relationship that represents identifier.
      *
      * @param SchemaContainerInterface  $schemaContainer
+     * @param EditableContextInterface  $context
      * @param PositionInterface         $position
      * @param SchemaIdentifierInterface $identifier
      *
@@ -195,6 +205,7 @@ interface FactoryInterface
      */
     public function createRelationshipDataIsIdentifier(
         SchemaContainerInterface $schemaContainer,
+        EditableContextInterface $context,
         PositionInterface $position,
         SchemaIdentifierInterface $identifier
     ): RelationshipDataInterface;
@@ -203,6 +214,7 @@ interface FactoryInterface
      * Create relationship that represents collection.
      *
      * @param SchemaContainerInterface $schemaContainer
+     * @param EditableContextInterface $context
      * @param PositionInterface        $position
      * @param iterable                 $resources
      *
@@ -210,6 +222,7 @@ interface FactoryInterface
      */
     public function createRelationshipDataIsCollection(
         SchemaContainerInterface $schemaContainer,
+        EditableContextInterface $context,
         PositionInterface $position,
         iterable $resources
     ): RelationshipDataInterface;
@@ -250,4 +263,12 @@ interface FactoryInterface
         array $parameters = null,
         float $quality = 1.0
     ): AcceptMediaTypeInterface;
+
+    /**
+     * @param array $fieldSets
+     * @param array $includePaths
+     *
+     * @return EditableContextInterface
+     */
+    public function createParserContext(array $fieldSets, array $includePaths): EditableContextInterface;
 }

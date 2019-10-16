@@ -92,6 +92,7 @@ class Error implements ErrorInterface
      * @param mixed              $meta
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
+     * @SuppressWarnings(PHPMD.IfStatementAssignment)
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(

@@ -21,6 +21,8 @@ namespace Neomerx\Tests\JsonApi\Data\Schemas;
 use Closure;
 use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use Neomerx\JsonApi\Schema\BaseSchema;
+use function assert;
+use function is_string;
 
 /**
  * Base schema provider for testing/development purposes. It's not intended to be used in production.

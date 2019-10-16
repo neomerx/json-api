@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\JsonApi\Schema\BaseSchema;
 use Neomerx\Samples\JsonApi\Models\Post;
 
@@ -45,7 +46,7 @@ class PostSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getAttributes($post, array $fieldKeysFilter = null): iterable
+    public function getAttributes($post, ContextInterface $context): iterable
     {
         assert($post instanceof Post);
 
@@ -58,7 +59,7 @@ class PostSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($post): iterable
+    public function getRelationships($post, ContextInterface $context): iterable
     {
         assert($post instanceof Post);
 

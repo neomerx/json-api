@@ -18,6 +18,7 @@ namespace Neomerx\Tests\JsonApi\Extensions\Issue47;
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\JsonApi\Schema\BaseSchema;
 
 /**
@@ -46,7 +47,7 @@ class UserBaseSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getAttributes($user): iterable
+    public function getAttributes($user, ContextInterface $context): iterable
     {
         assert($user instanceof User);
 
@@ -59,7 +60,7 @@ class UserBaseSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($resource): iterable
+    public function getRelationships($resource, ContextInterface $context): iterable
     {
         return [];
     }

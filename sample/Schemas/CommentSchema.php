@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\JsonApi\Schema\BaseSchema;
 use Neomerx\Samples\JsonApi\Models\Comment;
 
@@ -45,7 +46,7 @@ class CommentSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getAttributes($comment): iterable
+    public function getAttributes($comment, ContextInterface $context): iterable
     {
         assert($comment instanceof Comment);
 
@@ -57,7 +58,7 @@ class CommentSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($comment): iterable
+    public function getRelationships($comment, ContextInterface $context): iterable
     {
         assert($comment instanceof Comment);
 

@@ -69,6 +69,8 @@ class ErrorWriter extends BaseWriter implements ErrorWriterInterface
      * @param ErrorInterface $error
      *
      * @return array|null
+     *
+     * @SuppressWarnings(PHPMD.IfStatementAssignment)
      */
     private function getErrorLinksRepresentation(ErrorInterface $error): ?array
     {

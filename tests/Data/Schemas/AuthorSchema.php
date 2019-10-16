@@ -18,9 +18,11 @@ namespace Neomerx\Tests\JsonApi\Data\Schemas;
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use Neomerx\Tests\JsonApi\Data\Models\Author;
 use function assert;
+use function property_exists;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -50,7 +52,7 @@ class AuthorSchema extends DevSchema
     /**
      * @inheritdoc
      */
-    public function getAttributes($resource): iterable
+    public function getAttributes($resource, ContextInterface $context): iterable
     {
         assert($resource instanceof Author);
 
@@ -63,9 +65,14 @@ class AuthorSchema extends DevSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($resource): iterable
+    public function getRelationships($resource, ContextInterface $context): iterable
     {
         assert($resource instanceof Author);
+
+        // add test coverage for context param
+        assert($context->getPosition() !== null);
+        assert($context->getFieldSets() !== null);
+        assert($context->getIncludePaths() !== null);
 
         // test and cover with test that factory could be used from a Schema.
         assert($this->getFactory()->createLink(true, 'test-example', false) !== null);

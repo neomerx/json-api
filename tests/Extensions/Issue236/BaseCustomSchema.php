@@ -19,6 +19,7 @@ namespace Neomerx\Tests\JsonApi\Extensions\Issue236;
  */
 
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\JsonApi\Schema\BaseSchema;
 
 /**
@@ -53,7 +54,7 @@ abstract class BaseCustomSchema extends BaseSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($resource): iterable
+    public function getRelationships($resource, ContextInterface $context): iterable
     {
         throw new \LogicException('Use `getNonHorrificRelationships` instead.');
     }

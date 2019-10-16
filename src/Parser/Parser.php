@@ -21,13 +21,14 @@ namespace Neomerx\JsonApi\Parser;
 use IteratorAggregate;
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 use Neomerx\JsonApi\Contracts\Parser\DocumentDataInterface;
+use Neomerx\JsonApi\Contracts\Parser\EditableContextInterface;
 use Neomerx\JsonApi\Contracts\Parser\IdentifierInterface;
 use Neomerx\JsonApi\Contracts\Parser\ParserInterface;
-use Neomerx\JsonApi\Contracts\Parser\PositionInterface;
 use Neomerx\JsonApi\Contracts\Parser\RelationshipInterface;
 use Neomerx\JsonApi\Contracts\Parser\ResourceInterface;
 use Neomerx\JsonApi\Contracts\Schema\DocumentInterface;
 use Neomerx\JsonApi\Contracts\Schema\IdentifierInterface as SchemaIdentifierInterface;
+use Neomerx\JsonApi\Contracts\Schema\PositionInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 use Neomerx\JsonApi\Exceptions\InvalidArgumentException;
 use Traversable;
@@ -77,14 +78,24 @@ class Parser implements ParserInterface
     private $resourcesTracker;
 
     /**
+     * @var EditableContextInterface
+     */
+    private $context;
+
+    /**
      * @param FactoryInterface         $factory
      * @param SchemaContainerInterface $container
+     * @param EditableContextInterface $context
      */
-    public function __construct(FactoryInterface $factory, SchemaContainerInterface $container)
-    {
+    public function __construct(
+        FactoryInterface $factory,
+        SchemaContainerInterface $container,
+        EditableContextInterface $context
+    ) {
         $this->resourcesTracker = [];
         $this->factory          = $factory;
         $this->schemaContainer  = $container;
+        $this->context          = $context;
     }
 
     /**
@@ -151,6 +162,14 @@ class Parser implements ParserInterface
     }
 
     /**
+     * @return EditableContextInterface
+     */
+    protected function getContext(): EditableContextInterface
+    {
+        return $this->context;
+    }
+
+    /**
      * @return array
      */
     protected function getNormalizedPaths(): array
@@ -186,6 +205,7 @@ class Parser implements ParserInterface
         \assert($this->schemaContainer->hasSchema($data) === true);
 
         $resource = $this->factory->createParsedResource(
+            $this->getContext(),
             $position,
             $this->schemaContainer,
             $data

@@ -98,7 +98,7 @@ class AuthorSchema extends BaseSchema
         return $author->authorId;
     }
 
-    public function getAttributes($author): iterable
+    public function getAttributes($author, ContextInterface $context): iterable
     {
         return [
             'first-name' => $author->firstName,
@@ -106,7 +106,7 @@ class AuthorSchema extends BaseSchema
         ];
     }
 
-    public function getRelationships($author): iterable
+    public function getRelationships($author, ContextInterface $context): iterable
     {
         return [
             'comments' => [
@@ -131,7 +131,7 @@ A sample program with encoding of multiple, nested, filtered objects and more is
 
 ## Versions
 
-Current version is 3.x (PHP 7.1+) for older PHP (PHP 5.5 - 7.0, HHVM) please use version 1.x.
+Current version is 4.x (PHP 7.1+) for older PHP (PHP 5.5 - 7.0, HHVM) please use version 1.x.
 
 ## Questions?
 

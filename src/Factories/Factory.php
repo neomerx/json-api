@@ -22,9 +22,9 @@ use Neomerx\JsonApi\Contracts\Encoder\EncoderInterface;
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\AcceptMediaTypeInterface;
 use Neomerx\JsonApi\Contracts\Http\Headers\MediaTypeInterface;
+use Neomerx\JsonApi\Contracts\Parser\EditableContextInterface;
 use Neomerx\JsonApi\Contracts\Parser\IdentifierInterface as ParserIdentifierInterface;
 use Neomerx\JsonApi\Contracts\Parser\ParserInterface;
-use Neomerx\JsonApi\Contracts\Parser\PositionInterface;
 use Neomerx\JsonApi\Contracts\Parser\RelationshipDataInterface;
 use Neomerx\JsonApi\Contracts\Parser\RelationshipInterface;
 use Neomerx\JsonApi\Contracts\Parser\ResourceInterface;
@@ -33,6 +33,7 @@ use Neomerx\JsonApi\Contracts\Representation\ErrorWriterInterface;
 use Neomerx\JsonApi\Contracts\Representation\FieldSetFilterInterface;
 use Neomerx\JsonApi\Contracts\Schema\IdentifierInterface as SchemaIdentifierInterface;
 use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use Neomerx\JsonApi\Contracts\Schema\PositionInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 use Neomerx\JsonApi\Encoder\Encoder;
 use Neomerx\JsonApi\Http\Headers\AcceptMediaType;
@@ -52,6 +53,7 @@ use Neomerx\JsonApi\Schema\SchemaContainer;
 /**
  * @package Neomerx\JsonApi
  *
+ * @SuppressWarnings(PHPMD.TooManyFields)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
@@ -155,9 +157,11 @@ class Factory implements FactoryInterface
     /**
      * @inheritdoc
      */
-    public function createParser(SchemaContainerInterface $container): ParserInterface
-    {
-        return new Parser($this, $container);
+    public function createParser(
+        SchemaContainerInterface $container,
+        EditableContextInterface $context
+    ): ParserInterface {
+        return new Parser($this, $container, $context);
     }
 
     /**
@@ -188,11 +192,12 @@ class Factory implements FactoryInterface
      * @inheritdoc
      */
     public function createParsedResource(
+        EditableContextInterface $context,
         PositionInterface $position,
         SchemaContainerInterface $container,
         $data
     ): ResourceInterface {
-        return new IdentifierAndResource($position, $this, $container, $data);
+        return new IdentifierAndResource($context, $position, $this, $container, $data);
     }
 
     /**
@@ -451,10 +456,11 @@ class Factory implements FactoryInterface
      */
     public function createRelationshipDataIsResource(
         SchemaContainerInterface $schemaContainer,
+        EditableContextInterface $context,
         PositionInterface $position,
         $resource
     ): RelationshipDataInterface {
-        return new RelationshipDataIsResource($this, $schemaContainer, $position, $resource);
+        return new RelationshipDataIsResource($this, $schemaContainer, $context, $position, $resource);
     }
 
     /**
@@ -462,10 +468,11 @@ class Factory implements FactoryInterface
      */
     public function createRelationshipDataIsIdentifier(
         SchemaContainerInterface $schemaContainer,
+        EditableContextInterface $context,
         PositionInterface $position,
         SchemaIdentifierInterface $identifier
     ): RelationshipDataInterface {
-        return new RelationshipDataIsIdentifier($this, $schemaContainer, $position, $identifier);
+        return new RelationshipDataIsIdentifier($this, $schemaContainer, $context, $position, $identifier);
     }
 
     /**
@@ -473,10 +480,11 @@ class Factory implements FactoryInterface
      */
     public function createRelationshipDataIsCollection(
         SchemaContainerInterface $schemaContainer,
+        EditableContextInterface $context,
         PositionInterface $position,
         iterable $resources
     ): RelationshipDataInterface {
-        return new RelationshipDataIsCollection($this, $schemaContainer, $position, $resources);
+        return new RelationshipDataIsCollection($this, $schemaContainer, $context, $position, $resources);
     }
 
     /**
@@ -506,5 +514,75 @@ class Factory implements FactoryInterface
         float $quality = 1.0
     ): AcceptMediaTypeInterface {
         return new AcceptMediaType($position, $type, $subType, $parameters, $quality);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createParserContext(array $fieldSets, array $includePaths): EditableContextInterface
+    {
+        return new class ($fieldSets, $includePaths) implements EditableContextInterface
+        {
+            /**
+             * @var array
+             */
+            private $fieldSets;
+
+            /**
+             * @var array
+             */
+            private $includePaths;
+
+            /**
+             * @var PositionInterface|null
+             */
+            private $position = null;
+
+            /**
+             * @param array $fieldSets
+             * @param array $includePaths
+             */
+            public function __construct(array $fieldSets, array $includePaths)
+            {
+                $this->fieldSets    = $fieldSets;
+                $this->includePaths = $includePaths;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getFieldSets(): array
+            {
+                return $this->fieldSets;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getIncludePaths(): array
+            {
+                return $this->includePaths;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function getPosition(): PositionInterface
+            {
+                // parser's implementation should guarantee that position will always be initialized
+                // before use in a schema.
+                \assert($this->position !== null);
+
+                return $this->position;
+            }
+
+            /**
+             * @inheritdoc
+             */
+            public function setPosition(PositionInterface $position): void
+            {
+                $this->position = $position;
+            }
+        };
     }
 }

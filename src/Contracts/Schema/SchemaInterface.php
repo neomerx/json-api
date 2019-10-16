@@ -57,20 +57,22 @@ interface SchemaInterface
     /**
      * Get resource attributes.
      *
-     * @param mixed $resource
+     * @param mixed            $resource
+     * @param ContextInterface $context
      *
      * @return iterable
      */
-    public function getAttributes($resource): iterable;
+    public function getAttributes($resource, ContextInterface $context): iterable;
 
     /**
      * Get resource relationship descriptions.
      *
-     * @param mixed $resource
+     * @param mixed            $resource
+     * @param ContextInterface $context
      *
      * @return iterable
      */
-    public function getRelationships($resource): iterable;
+    public function getRelationships($resource, ContextInterface $context): iterable;
 
     /**
      * Get resource sub URL.

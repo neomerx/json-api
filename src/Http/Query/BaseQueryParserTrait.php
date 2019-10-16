@@ -153,6 +153,8 @@ trait BaseQueryParserTrait
      * @param string       $errorTitle
      *
      * @return iterable
+     *
+     * @SuppressWarnings(PHPMD.IfStatementAssignment)
      */
     private function splitStringAndCheckNoEmpties(
         string $paramName,

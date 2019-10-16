@@ -20,7 +20,8 @@ namespace Neomerx\Tests\JsonApi\Extensions\Issue236;
 
 
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
-use Neomerx\JsonApi\Contracts\Parser\PositionInterface;
+use Neomerx\JsonApi\Contracts\Parser\EditableContextInterface;
+use Neomerx\JsonApi\Contracts\Schema\PositionInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
 use Neomerx\JsonApi\Parser\IdentifierAndResource;
@@ -58,12 +59,13 @@ final class CustomIdentifierAndResource extends IdentifierAndResource
      * @inheritdoc
      */
     public function __construct(
+        EditableContextInterface $context,
         PositionInterface $position,
         FactoryInterface $factory,
         SchemaContainerInterface $container,
         $data
     ) {
-        parent::__construct($position, $factory, $container, $data);
+        parent::__construct($context, $position, $factory, $container, $data);
 
         $this->factory   = $factory;
         $this->container = $container;
@@ -90,6 +92,7 @@ final class CustomIdentifierAndResource extends IdentifierAndResource
             [$hasData, $relationshipData, $nextPosition] = $this->parseRelationshipData(
                 $this->factory,
                 $this->container,
+                $this->getContext(),
                 $this->getType(),
                 $name,
                 $description,

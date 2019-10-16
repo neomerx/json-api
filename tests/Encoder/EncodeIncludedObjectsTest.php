@@ -1068,6 +1068,9 @@ EOL;
         self::assertJson($json);
     }
 
+    /**
+     * @return iterable
+     */
     private function generateIncludeList(): iterable
     {
         foreach (['author'] as $item) {

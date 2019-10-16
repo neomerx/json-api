@@ -18,6 +18,7 @@ namespace Neomerx\Tests\JsonApi\Extensions\Issue236;
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\Tests\JsonApi\Data\Models\Comment;
 
 /**
@@ -46,7 +47,7 @@ final class CustomCommentSchema extends BaseCustomSchema
     /**
      * @inheritdoc
      */
-    public function getAttributes($resource): iterable
+    public function getAttributes($resource, ContextInterface $context): iterable
     {
         \assert($resource instanceof Comment);
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Neomerx\JsonApi\Contracts\Parser;
+namespace Neomerx\JsonApi\Contracts\Schema;
 
 /**
  * Copyright 2015-2019 info@neomerx.com
@@ -18,15 +18,27 @@ namespace Neomerx\JsonApi\Contracts\Parser;
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Schema\PositionInterface;
-
 /**
  * @package Neomerx\JsonApi
  */
-interface ParsedResultInterface
+interface ContextInterface
 {
     /**
-     * Get position of the parsed result.
+     * Get filter field sets from encoder.
+     *
+     * @return array
+     */
+    public function getFieldSets(): array;
+
+    /**
+     * Get include paths from encoder.
+     *
+     * @return array
+     */
+    public function getIncludePaths(): array;
+
+    /**
+     * Get position for the parsed data.
      *
      * @return PositionInterface
      */

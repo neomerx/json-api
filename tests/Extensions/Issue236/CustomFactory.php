@@ -18,8 +18,9 @@ namespace Neomerx\Tests\JsonApi\Extensions\Issue236;
  * limitations under the License.
  */
 
-use Neomerx\JsonApi\Contracts\Parser\PositionInterface;
+use Neomerx\JsonApi\Contracts\Parser\EditableContextInterface;
 use Neomerx\JsonApi\Contracts\Parser\ResourceInterface;
+use Neomerx\JsonApi\Contracts\Schema\PositionInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 use Neomerx\JsonApi\Factories\Factory;
 
@@ -32,10 +33,11 @@ final class CustomFactory extends Factory
      * @inheritdoc
      */
     public function createParsedResource(
+        EditableContextInterface $context,
         PositionInterface $position,
         SchemaContainerInterface $container,
         $data
     ): ResourceInterface {
-        return new CustomIdentifierAndResource($position, $this, $container, $data);
+        return new CustomIdentifierAndResource($context, $position, $this, $container, $data);
     }
 }

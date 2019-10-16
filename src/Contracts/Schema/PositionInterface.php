@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Neomerx\JsonApi\Contracts\Parser;
+namespace Neomerx\JsonApi\Contracts\Schema;
 
 /**
  * Copyright 2015-2019 info@neomerx.com
@@ -17,8 +17,6 @@ namespace Neomerx\JsonApi\Contracts\Parser;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-use Neomerx\JsonApi\Contracts\Schema\DocumentInterface;
 
 /**
  * @package Neomerx\JsonApi

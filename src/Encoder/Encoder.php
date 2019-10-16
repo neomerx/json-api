@@ -179,9 +179,10 @@ class Encoder implements EncoderInterface
             throw new InvalidArgumentException();
         }
 
-        $parser = $this->getFactory()->createParser($this->getSchemaContainer());
-        $writer = $this->createDocumentWriter();
-        $filter = $this->getFactory()->createFieldSetFilter($this->getFieldSets());
+        $context = $this->getFactory()->createParserContext($this->getFieldSets(), $this->getIncludePaths());
+        $parser  = $this->getFactory()->createParser($this->getSchemaContainer(), $context);
+        $writer  = $this->createDocumentWriter();
+        $filter  = $this->getFactory()->createFieldSetFilter($this->getFieldSets());
 
         // write header
         $this->writeHeader($writer);
@@ -227,9 +228,10 @@ class Encoder implements EncoderInterface
      */
     protected function encodeIdentifiersToArray($data): array
     {
-        $parser = $this->getFactory()->createParser($this->getSchemaContainer());
-        $writer = $this->createDocumentWriter();
-        $filter = $this->getFactory()->createFieldSetFilter($this->getFieldSets());
+        $context = $this->getFactory()->createParserContext($this->getFieldSets(), $this->getIncludePaths());
+        $parser  = $this->getFactory()->createParser($this->getSchemaContainer(), $context);
+        $writer  = $this->createDocumentWriter();
+        $filter  = $this->getFactory()->createFieldSetFilter($this->getFieldSets());
 
         // write header
         $this->writeHeader($writer);

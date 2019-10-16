@@ -19,10 +19,11 @@ namespace Neomerx\JsonApi\Parser;
  */
 
 use Neomerx\JsonApi\Contracts\Factories\FactoryInterface;
+use Neomerx\JsonApi\Contracts\Parser\EditableContextInterface;
 use Neomerx\JsonApi\Contracts\Parser\ParserInterface;
-use Neomerx\JsonApi\Contracts\Parser\PositionInterface;
 use Neomerx\JsonApi\Contracts\Parser\ResourceInterface;
 use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
+use Neomerx\JsonApi\Contracts\Schema\PositionInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaContainerInterface;
 use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
 use Neomerx\JsonApi\Parser\RelationshipData\ParseRelationshipDataTrait;
@@ -40,6 +41,11 @@ class IdentifierAndResource implements ResourceInterface
 
     /** @var string */
     public const MSG_INVALID_OPERATION = 'Invalid operation.';
+
+    /**
+     * @var EditableContextInterface
+     */
+    private $context;
 
     /**
      * @var PositionInterface
@@ -87,12 +93,14 @@ class IdentifierAndResource implements ResourceInterface
     private $relationshipsCache = null;
 
     /**
+     * @param EditableContextInterface $context
      * @param PositionInterface        $position
      * @param FactoryInterface         $factory
      * @param SchemaContainerInterface $container
      * @param mixed                    $data
      */
     public function __construct(
+        EditableContextInterface $context,
         PositionInterface $position,
         FactoryInterface $factory,
         SchemaContainerInterface $container,
@@ -102,6 +110,7 @@ class IdentifierAndResource implements ResourceInterface
 
         $schema = $container->getSchema($data);
 
+        $this->context         = $context;
         $this->position        = $position;
         $this->factory         = $factory;
         $this->schemaContainer = $container;
@@ -156,7 +165,9 @@ class IdentifierAndResource implements ResourceInterface
      */
     public function getAttributes(): iterable
     {
-        return $this->schema->getAttributes($this->data);
+        $this->getContext()->setPosition($this->getPosition());
+
+        return $this->schema->getAttributes($this->data, $this->getContext());
     }
 
     /**
@@ -175,12 +186,14 @@ class IdentifierAndResource implements ResourceInterface
         $currentPath    = $this->position->getPath();
         $nextLevel      = $this->position->getLevel() + 1;
         $nextPathPrefix = empty($currentPath) === true ? '' : $currentPath . PositionInterface::PATH_SEPARATOR;
-        foreach ($this->schema->getRelationships($this->data) as $name => $description) {
+        $this->getContext()->setPosition($this->getPosition());
+        foreach ($this->schema->getRelationships($this->data, $this->getContext()) as $name => $description) {
             \assert($this->assertRelationshipNameAndDescription($name, $description) === true);
 
             [$hasData, $relationshipData, $nextPosition] = $this->parseRelationshipData(
                 $this->factory,
                 $this->schemaContainer,
+                $this->getContext(),
                 $this->type,
                 $name,
                 $description,
@@ -250,6 +263,14 @@ class IdentifierAndResource implements ResourceInterface
     public function getResourceMeta()
     {
         return $this->schema->getResourceMeta($this->data);
+    }
+
+    /**
+     * @return EditableContextInterface
+     */
+    protected function getContext(): EditableContextInterface
+    {
+        return $this->context;
     }
 
     /**

@@ -18,6 +18,7 @@ namespace Neomerx\Tests\JsonApi\Data\Schemas;
  * limitations under the License.
  */
 
+use Neomerx\JsonApi\Contracts\Schema\ContextInterface;
 use Neomerx\JsonApi\Contracts\Schema\LinkInterface;
 use Neomerx\Tests\JsonApi\Data\Models\Site;
 
@@ -49,7 +50,7 @@ class SiteSchema extends DevSchema
     /**
      * @inheritdoc
      */
-    public function getAttributes($resource): iterable
+    public function getAttributes($resource, ContextInterface $context): iterable
     {
         assert($resource instanceof Site);
 
@@ -61,7 +62,7 @@ class SiteSchema extends DevSchema
     /**
      * @inheritdoc
      */
-    public function getRelationships($resource): iterable
+    public function getRelationships($resource, ContextInterface $context): iterable
     {
         assert($resource instanceof Site);
 
