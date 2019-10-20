@@ -1,9 +1,7 @@
 Specification v1.1 (Still in Development)
 Status
 
-This page will always present the most recent text for JSON:API v1.1. Version 1.1 is a release candidate. As such, the content on this page is unlikely to change. However, some changes may still occur if implementation experience proves that they are necessary before this version is finalized.
-
-This version is expected to be finalized and released on January 31, 2019 (provided there are two compliant implementations by that date; if not the release will wait until such implementations exist to prove its viability).
+This page will always present the most recent text for JSON:API v1.1. Version 1.1 is a working draft. As such, the content on this page is subject to change.
 
 If you have concerns about the changes in this draft, catch an error in the specification’s text, or write an implementation, please let us know by opening an issue or pull request at our GitHub repository.
 
@@ -23,24 +21,22 @@ Universal Responsibilities
 
 The JSON:API media type is application/vnd.api+json. Clients and servers MUST send all JSON:API data using this media type in the Content-Type header.
 
-Further, the JSON:API media type MUST always be specified with either no media type parameters or with only the profile parameter. This applies to both the Content-Type and Accept headers.
+Further, the JSON:API media type MUST always be specified with either no media type parameters or with only the profile parameter. This applies to both the Content-Type and Accept headers whenever they are present.
+
+The profile parameter is used to support profiles.
 
     Note: A media type parameter is an extra piece of information that can accompany a media type. For example, in the header Content-Type: text/html; charset="utf-8", the media type is text/html and charset is a parameter.
 
-The profile parameter is used to support profiles.
-Client Responsibilities
+    Note: These content negotiation requirements exist to allow future versions of this specification to add other media type parameters for extension negotiation and versioning.
 
-Clients that include the JSON:API media type in their Accept header MUST specify the media type there at least once without any media type parameters.
+Client Responsibilities
 
 When processing a JSON:API response document, clients MUST ignore any parameters other than profile in the server’s Content-Type header.
 Server Responsibilities
 
 Servers MUST respond with a 415 Unsupported Media Type status code if a request specifies the header Content-Type: application/vnd.api+json with any media type parameters other than profile.
 
-Servers MUST respond with a 406 Not Acceptable status code if a request’s Accept header contains the JSON:API media type and all instances of that media type are modified with media type parameters.
-
-    Note: These content negotiation requirements exist to allow future versions of this specification to add other media type parameters for extension negotiation and versioning.
-
+Servers MUST respond with a 406 Not Acceptable status code if a request’s Accept header contains the JSON:API media type and all instances of that media type are modified with a media type parameter other than profile.
 Document Structure
 
 This section describes the structure of a JSON:API document, which is identified by the media type application/vnd.api+json. JSON:API documents are defined in JavaScript Object Notation (JSON) [RFC8259].
@@ -389,11 +385,15 @@ Where specified, a links member can be used to represent links. The value of thi
 
 Within this object, a link MUST be represented as either:
 
-    a string containing the link’s URI.
+    a URI-reference [RFC3986 Section 4.1] to the link’s target.
     an object (“link object”) which can contain the following members:
-        href: a string containing the link’s URI.
+        href: a URI-reference [RFC3986 Section 4.1] to the link’s target.
+        rel: a link relation type defining the semantics of the link.
+        anchor: a URI-reference [RFC3986 Section 4.1] to the link’s context. By default, the context of a link is the top-level object, resource object, or relationship object in which the link appears.
+        params: a link parameter object describing additional information about the link or its target.
         meta: a meta object containing non-standard meta-information about the link.
-        Any link-specific target attributes described below.
+
+Link objects MAY also contain the members hreflang, title, and type. Each of these members MUST be used in accordance with their semantics as defined by RFC8288 Section 3.4.1.
 
 Except for the profile key in the top-level links object and the type key in an error object’s links object, each key present in a links object MUST have a single link as its value. The aforementioned profile and type keys, if present, MUST hold an array of links.
 
@@ -409,21 +409,38 @@ In the example below, the self link is simply a URI string, whereas the related 
   }
 }
 
+Link relation type
+
+The value of the rel member MUST be a string or an array of strings that represent link relation type(s). Valid link relation types are defined by RFC8288 Section 2.1.
+
+If a link is represented as a string, or the rel member is not given on a link object, the link’s relation type SHOULD be inferred from the name of the link object.
+
+An array of link relationship types establishes multiple links that share the same context, target, and target attributes and a client MUST treat these links as separate, distinct links. A client MUST NOT infer additional semantics for the link based on a composition of link relation types alone.
+
+In order to represent a link with reversed semantics, it is RECOMMENDED that an alternate link relation type be used or, less preferably, that the anchor and href members be interchanged.
+
+    Note: Historically, a rev link parameter was used for this purpose but has since been deprecated by RFC8288 Section 3.3.
+
+Link parameters
+
+The value of the params member MUST be an object (a “link parameter object”). Members of the link parameter object (“link parameters”) describe the link on which they are defined or its target. These link parameters are also known as target attributes.
+
+Link parameter names MUST be defined by their accompanying link relation type. Additionally, parameter names SHOULD be valid JSON:API member names and MUST be valid target attribute names as defined by RFC8288 Section 2.2.
+
+Link parameters MAY contain any valid JSON value. However, parameters that have a cardinality greater than one MUST be represented as an array of values.
+
+    Note: This means that a target attribute with multiple string values should not be represented as a single concatenated string with its values separated by whitespace as might be the case in a Link header serialization.
+
 Profile Links
 
-Like all links, a link in an array of profile links can be represented with a link object. In that case, the link object MAY contain an aliases member listing any profile aliases.
+Like all links, a link in an array of profile links can be represented with a link object.
 
-Here, the profile key specifies an array of profile links, including one that includes a profile alias:
+Here, the profile key specifies an array of profile links:
 
 "links": {
   "profile": [
     "http://example.com/profiles/flexible-pagination",
-    {
-      "href": "http://example.com/profiles/resource-versioning",
-      "aliases": {
-        "version": "v"
-      }
-    }
+    "http://example.com/profiles/resource-versioning"
   ]
 }
 
@@ -500,7 +517,7 @@ The following characters MUST NOT be used in member names:
     U+003D EQUALS SIGN, “=”
     U+003E GREATER-THAN SIGN, “>”
     U+003F QUESTION MARK, “?”
-    U+0040 COMMERCIAL AT, “@”
+    U+0040 COMMERCIAL AT, “@” (except as first character in @-Members)
     U+005C REVERSE SOLIDUS, “\”
     U+005E CIRCUMFLEX ACCENT, “^”
     U+0060 GRAVE ACCENT, “`”
@@ -1302,7 +1319,7 @@ If a server encounters a query parameter that does not follow the naming convent
 
 Profiles
 
-JSON:API supports the use of “profiles” as a way to indicate additional semantics that apply to a JSON:API request/document, without altering the basic semantics described in this specification.
+JSON:API supports the use of “profiles” as a way to indicate additional semantics that apply to a JSON:API document, without altering the basic semantics described in this specification.
 
 A profile is a separate specification defining these additional semantics.
 
@@ -1348,18 +1365,19 @@ The profile media type parameter is used to describe the application of one or m
 
     Note: When serializing the profile media type parameter, the HTTP specification requires that its value be surrounded by quotation marks (U+0022 QUOTATION MARK, “"”) if it contains more than one URI.
 
-A client MAY use the profile media type parameter in conjunction with the JSON:API media type in an Accept header to request, but not require, that the server apply one or more profiles to the response document. When such a request is received, a server SHOULD attempt to apply the requested profiles to its response.
+A client MAY use the profile media type parameter in an Accept header to request that the server apply one or more profiles to the response document. When such a request is received, a server SHOULD attempt to apply the requested profile(s) to its response.
 
-For example, in the following request, the client asks that the server apply the http://example.com/last-modified profile if it is able to.
+For example, in the following request, the client asks that the server apply the http://example.com/last-modified profile and the http://example.com/timestamps profile, if it is able to.
 
-Accept: application/vnd.api+json;profile="http://example.com/last-modified", application/vnd.api+json
+GET /articles/1 HTTP/1.1
+Accept: application/vnd.api+json; profile="http://example.com/last-modified http://example.com/timestamps"
 
-    Note: The second instance of the JSON:API media type in the example above is required under the client’s content negotiation responsibilities. It is used to support old servers that don’t understand the profile parameter.
+Servers MAY respond with a subset of the requested profiles applied or none of the requested profiles applied. Additionally, servers MAY respond with unrequested profiles applied.
 
-Servers MAY add profiles to a JSON:API document even if the client has not requested them. The recipient of a document MUST ignore any profiles in that document that it does not understand. The only exception to this is profiles whose support is required using the profile query parameter, as described later.
+The recipient of a document to which an unknown profile has been applied MUST ignore any document members that it does not understand.
 Sending Profiled Documents
 
-Clients and servers MUST include the profile media type parameter in conjunction with the JSON:API media type in a Content-Type header to indicate that they have applied one or more profiles to a JSON:API document.
+Clients and servers MUST include the profile media type parameter in conjunction with the JSON:API media type in a Content-Type header when they have applied one or more profiles to a JSON:API document.
 
 Likewise, clients and servers applying profiles to a JSON:API document MUST include a top-level links object with a profile key, and that profile key MUST include a link to the URI of each profile that has been applied.
 
@@ -1367,45 +1385,17 @@ When an older JSON:API server that doesn’t support the profile media type para
 
 After attempting to rule out other possible causes of this error, a client that receives a 415 Unsupported Media Type SHOULD remove the profiles it has applied to the document and retry its request without the profile media type parameter. If this resolves the error, the client SHOULD NOT attempt to apply profiles in subsequent interactions with the same API.
 
-    The most likely other causes of a 415 error are that the server doesn’t support JSON:API at all or that the client has failed to provide a required profile.
+    The most likely other causes of a 415 error are that the server doesn’t support JSON:API at all.
 
-profile Query Parameter
+Servers that support profiles SHOULD specify the Vary header with Accept as one of its header names to ensure that the server’s responses can be cached without disrupting subsequent content negotiations. This applies to responses with and without any profiles applied.
 
-A client MAY use the profile query parameter to require the server to apply one or more profiles when processing the request. The value of the profile query parameter MUST equal a URI-encoded whitespace-separated list of profile URIs.
+    Note: Some HTTP intermediaries (e.g. CDNs) may ignore the Vary header unless specifically configured to respect it.
 
-If a server receives a request requiring the application of a profile or combination of profiles that it can not apply, it MUST respond with a 400 Bad Request status code. The response MUST contain an error object that identifies the profile query parameter as the source and has the following URI as (one of) its types:
-
-https://jsonapi.org/errors/profile-not-supported
-
-    Note: When a client lists a profile in the Accept header, it’s asking the server to compute its response as normal, but then send the response document with some extra information, as described in the requested profile. By contrast, when a client lists a profile in the profile query parameter, it’s asking the server to process the incoming request according to the rules of the profile. This can fundamentally change the meaning of the server’s response.
-
-Omitting the profile Query Parameter
-
-Requiring the client to specify the profile query parameter would be cumbersome. Accordingly, JSON:API defines a way that server’s may infer its value in many cases.
-
-To do so, a server MAY define an internal mapping from query parameter names to profile URIs. The profile URI for a query parameter name in this mapping MUST NOT change over time.
-
-    Note: the server may choose to map all query parameter names from the same family to one profile URI. Or, it may choose to map only specific query parameter names.
-
-If a requested URL does not contain the profile query parameter and does contain one or more query parameters in the server’s internal mapping, the server may act as though the request URL contained a profile query parameter whose value was the URI-encoded space-separated list of each unique profile URI found in the server’s internal mapping for the query parameters in use on the request.
-
-For example, the server might support a profile that defines a meaning for the values of the page[cursor] query parameter. Then, it could define its internal param name to profile URI mapping like so:
-
-{ "page[cursor]": "https://example.com/pagination-profile" }
-
-Accordingly, a request for:
-
-https://example.com/?page[cursor]=xyz
-
-would be interpreted by the server as:
-
-https://example.com/?page[cursor]=xyz&profile=https://example.com/pagination-profile
-
-Profile Keywords and Aliases
+Profile Keywords
 
 A profile SHOULD explicitly declare “keywords” for any elements that it introduces to the document structure. If a profile does not explicitly declare a keyword for an element, then the name of the element itself (i.e., its key in the document) is considered to be its keyword. All profile keywords MUST meet this specification’s requirements for member names.
 
-For the purposes of aliasing, a profile’s elements are defined shallowly. In other words, if a profile introduces an object-valued document member, that member is an element (and so subject to aliasing), but any keys in it are not themselves elements. Likewise, if the profile defines an array-valued element, the keys in nested objects within that array are not elements.
+In other words, if a profile introduces an object-valued document member, that member is an element, but any keys in it are not themselves elements. Likewise, if the profile defines an array-valued element, the keys in nested objects within that array are not elements.
 
 The following example profile defines a single keyword, version:
 
@@ -1446,31 +1436,6 @@ This profile might be applied as follows:
   },
   "links": {
     "profile": ["http://example.com/profiles/resource-versioning"]
-  }
-}
-
-Documents that apply a particular profile MAY represent each keyword with an alternatively named member, or “alias”. An alias fully assumes any meaning specified for a keyword, which no longer retains that meaning. Any aliases associated with a profile MUST be represented in the profile’s corresponding aliases object within its link object. The key of each alias MUST be a keyword from the profile, and the value MUST be an alias that applies to this particular representation. This aliasing mechanism allows profiles to be applied in a way that is both consistent with the rest of the representation and does not conflict with other profiles.
-
-For instance, the following document provides an alias for version: v. Interpreters of this representation should treat the key v as if it were the key version described in the profile:
-
-{
-  "data": {
-    "type": "contacts",
-    "id": "345",
-    "meta": {
-      "v": "2018-04-14-879976658"
-    },
-    "attributes": {
-      "name": "Ethan"
-    }
-  },
-  "links": {
-    "profile": [{
-      "href": "http://example.com/profiles/resource-versioning",
-      "aliases": {
-        "version": "v"
-      }
-    }]
   }
 }
 
@@ -1566,7 +1531,7 @@ For example, the hypothetical timestamps profile could not introduce a new, requ
 
 The timestamps profile also could not evolve to define a new element as a sibling of the timestamps key, as that would be incompatible with the rule that “The elements… specified by a profile… MUST NOT change over time.”
 
-    The practical issue with adding a sibling element is that another profile in use on the document might already define a sibling element of the same name, and existing documents would not have any aliases defined to resolve this conflict.
+    The practical issue with adding a sibling element is that another profile in use on the document might already define a sibling element of the same name.
 
 However, the timestamps profile could evolve to allow other optional members, such as deleted, in the timestamps object. This is possible because the timestamps object is already a reserved element of the profile, and the profile is subject to the default rule that new (previously unrecognized) keys will simply be ignored by existing applications.
 Designing Profiles to Evolve Over Time
