@@ -27,3 +27,11 @@ cli_7_3_php:
     - ./..:/app
   working_dir: /app
   tty: true
+
+cli_7_4_php:
+  image: php:7.4-cli
+  container_name: cli_php_7_4_json_api
+  volumes:
+    - ./..:/app
+  working_dir: /app
+  tty: true

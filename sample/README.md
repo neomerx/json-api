@@ -43,4 +43,5 @@ If you have [docker-compose](https://docs.docker.com/compose/) installed you can
 $ composer perf-test-php-7-1
 $ composer perf-test-php-7-2
 $ composer perf-test-php-7-3
+$ composer perf-test-php-7-4
 ```
