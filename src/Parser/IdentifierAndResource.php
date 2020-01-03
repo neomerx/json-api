@@ -3,7 +3,7 @@
 namespace Neomerx\JsonApi\Parser;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,6 +172,8 @@ class IdentifierAndResource implements ResourceInterface
 
     /**
      * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.UndefinedVariable) PHPMD currently do not support `list` in `[]` syntax
      */
     public function getRelationships(): iterable
     {

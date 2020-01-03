@@ -1,7 +1,7 @@
 <?php declare(strict_types=1); namespace Neomerx\Samples\JsonApi;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

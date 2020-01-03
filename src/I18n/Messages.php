@@ -3,7 +3,7 @@
 namespace Neomerx\JsonApi\I18n;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,8 @@ class Messages
      * @param string $message
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.UndefinedVariable) PHPMD currently has a glitch with `$message`
      */
     public static function getTranslation(string $message): string
     {
