@@ -28,6 +28,7 @@ class BaseQueryParser implements BaseQueryParserInterface
     use BaseQueryParserTrait {
         BaseQueryParserTrait::getFields as getFieldsImpl;
         BaseQueryParserTrait::getIncludes as getIncludesImpl;
+        BaseQueryParserTrait::getIncludePaths as getIncludePathsImpl;
         BaseQueryParserTrait::getSorts as getSortsImpl;
         BaseQueryParserTrait::getProfileUrls as getProfileUrlsImpl;
     }
@@ -68,6 +69,14 @@ class BaseQueryParser implements BaseQueryParserInterface
     public function getIncludes(): iterable
     {
         return $this->getIncludesImpl($this->getParameters(), $this->getMessage(static::MSG_ERR_INVALID_PARAMETER));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIncludePaths(): iterable
+    {
+        return $this->getIncludePathsImpl($this->getParameters(), $this->getMessage(static::MSG_ERR_INVALID_PARAMETER));
     }
 
     /**

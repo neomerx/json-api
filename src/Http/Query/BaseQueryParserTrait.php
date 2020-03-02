@@ -37,11 +37,26 @@ trait BaseQueryParserTrait
     protected function getIncludes(array $parameters, string $errorTitle): iterable
     {
         if (\array_key_exists(P::PARAM_INCLUDE, $parameters) === true) {
-            $paramName = P::PARAM_INCLUDE;
-            $includes  = $parameters[$paramName];
-            foreach ($this->splitCommaSeparatedStringAndCheckNoEmpties($paramName, $includes, $errorTitle) as $path) {
-                yield $path => $this->splitStringAndCheckNoEmpties($paramName, $path, '.', $errorTitle);
+            $includes = $parameters[P::PARAM_INCLUDE];
+            $paths    = $this->splitCommaSeparatedStringAndCheckNoEmpties(P::PARAM_INCLUDE, $includes, $errorTitle);
+            foreach ($paths as $path) {
+                yield $path => $this->splitStringAndCheckNoEmpties(P::PARAM_INCLUDE, $path, '.', $errorTitle);
             }
+        }
+    }
+
+    /**
+     * @param array  $parameters
+     * @param string $errorTitle
+     *
+     * @return iterable
+     */
+    protected function getIncludePaths(array $parameters, string $errorTitle): iterable
+    {
+        $aIncludes = $this->getIncludes($parameters, $errorTitle);
+        foreach ($aIncludes as $path => $parsed) {
+            \assert($parsed !== null);
+            yield $path;
         }
     }
 
