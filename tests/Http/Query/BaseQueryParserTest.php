@@ -68,26 +68,6 @@ class BaseQueryParserTest extends BaseTestCase
     }
 
     /**
-     * Test query.
-     */
-    public function testIncludePaths(): void
-    {
-        $queryParameters = [
-            BaseQueryParser::PARAM_INCLUDE => 'comments,   comments.author',
-        ];
-
-        $parser = $this->createParser($queryParameters);
-
-        self::assertEquals(
-            [
-                'comments',
-                'comments.author',
-            ],
-            $this->iterableToArray($parser->getIncludePaths())
-        );
-    }
-
-    /**
      * That's a special case to test possible issues with `empty` function which thinks "0" is an empty string.
      */
     public function testIncludesForStringWithZeroes1(): void
