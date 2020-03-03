@@ -51,6 +51,21 @@ trait BaseQueryParserTrait
      *
      * @return iterable
      */
+    protected function getIncludePaths(array $parameters, string $errorTitle): iterable
+    {
+        $aIncludes = $this->getIncludes($parameters, $errorTitle);
+        foreach ($aIncludes as $path => $parsed) {
+            \assert($parsed !== null);
+            yield $path;
+        }
+    }
+
+    /**
+     * @param array  $parameters
+     * @param string $errorTitle
+     *
+     * @return iterable
+     */
     protected function getFields(array $parameters, string $errorTitle): iterable
     {
         if (\array_key_exists(P::PARAM_FIELDS, $parameters) === true) {
