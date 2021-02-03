@@ -152,6 +152,146 @@ EOL;
     }
 
     /**
+     * Test encode included objects, with relationship data returned as a generator.
+     */
+    public function testEncodeWithIncludedGenerator(): void
+    {
+        $this->post = Post::instance(
+            1,
+            'JSON API paints my bikeshed!',
+            'Outside every fat man there was an even fatter man trying to close in',
+            $this->author,
+            (function () { yield from $this->comments; })()
+        );
+
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => function ($factory) {
+                    $schema = new CommentSchema($factory);
+                    $schema->removeRelationship(Comment::LINK_AUTHOR);
+                    return $schema;
+                },
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->withIncludedPaths(
+            [Post::LINK_COMMENTS]
+        )->encodeData($this->post);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "posts",
+                "id"   : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
+                "relationships" : {
+                    "author" : {
+                        "data" : { "type" : "people", "id" : "9" }
+                    },
+                    "comments" : {
+                        "data" : [
+                            { "type":"comments", "id":"5" },
+                            { "type":"comments", "id":"12" }
+                        ]
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/posts/1"
+                }
+            },
+            "included" : [{
+                "type"  : "comments",
+                "id"    : "5",
+                "attributes" : {
+                    "body"  : "First!"
+                },
+                "links" : {
+                    "self" : "http://example.com/comments/5"
+                }
+            }, {
+                "type"  : "comments",
+                "id"    : "12",
+                "attributes" : {
+                    "body"  : "I like XML better"
+                },
+                "links" : {
+                    "self" : "http://example.com/comments/12"
+                }
+            }]
+        }
+EOL;
+        self::assertJsonStringEqualsJsonString($expected, $actual);
+    }
+
+    /**
+     * Test encode included objects, with relationship data returned as a generator.
+     *
+     * @see https://github.com/neomerx/json-api/issues/252
+     */
+    public function testEncodeWithIncludedEmptyGenerator(): void
+    {
+        $this->post = Post::instance(
+            1,
+            'JSON API paints my bikeshed!',
+            'Outside every fat man there was an even fatter man trying to close in',
+            $this->author,
+            (function () { yield from []; })()
+        );
+
+        $actual = Encoder::instance(
+            [
+                Author::class  => AuthorSchema::class,
+                Comment::class => function ($factory) {
+                    $schema = new CommentSchema($factory);
+                    $schema->removeRelationship(Comment::LINK_AUTHOR);
+                    return $schema;
+                },
+                Post::class    => function ($factory) {
+                    $schema = new PostSchema($factory);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_AUTHOR);
+                    $schema->hideDefaultLinksInRelationship(Post::LINK_COMMENTS);
+                    return $schema;
+                },
+            ]
+        )->withUrlPrefix('http://example.com')->withIncludedPaths(
+            [Post::LINK_COMMENTS]
+        )->encodeData($this->post);
+
+        $expected = <<<EOL
+        {
+            "data" : {
+                "type" : "posts",
+                "id"   : "1",
+                "attributes" : {
+                    "title" : "JSON API paints my bikeshed!",
+                    "body"  : "Outside every fat man there was an even fatter man trying to close in"
+                },
+                "relationships" : {
+                    "author" : {
+                        "data" : { "type" : "people", "id" : "9" }
+                    },
+                    "comments" : {
+                        "data" : []
+                    }
+                },
+                "links" : {
+                    "self" : "http://example.com/posts/1"
+                }
+            }
+        }
+EOL;
+        self::assertJsonStringEqualsJsonString($expected, $actual);
+    }
+
+    /**
      * Test encode nested included objects with cyclic dependencies and sparse support.
      */
     public function testEncodeWithRecursiveIncludedObjects(): void

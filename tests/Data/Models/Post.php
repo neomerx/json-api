@@ -45,7 +45,7 @@ class Post extends stdClass
         string $title,
         string $body,
         Author $author = null,
-        array $comments = []
+        iterable $comments = []
     ) {
         $post = new self();
 

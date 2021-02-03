@@ -128,6 +128,7 @@ class RelationshipDataIsCollection extends BaseRelationshipData implements Relat
     public function getResources(): iterable
     {
         if ($this->parsedResources === null) {
+            $this->parsedResources = [];
             foreach ($this->resources as $resourceOrIdentifier) {
                 $parsedResource          = $resourceOrIdentifier instanceof SchemaIdentifierInterface ?
                     $this->createParsedIdentifier($resourceOrIdentifier) :
