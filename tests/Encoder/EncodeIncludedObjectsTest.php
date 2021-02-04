@@ -156,12 +156,16 @@ EOL;
      */
     public function testEncodeWithIncludedGenerator(): void
     {
+        $func = function () {
+            yield from $this->comments;
+        };
+
         $this->post = Post::instance(
             1,
             'JSON API paints my bikeshed!',
             'Outside every fat man there was an even fatter man trying to close in',
             $this->author,
-            (function () { yield from $this->comments; })()
+            $func()
         );
 
         $actual = Encoder::instance(
@@ -238,12 +242,16 @@ EOL;
      */
     public function testEncodeWithIncludedEmptyGenerator(): void
     {
+        $func = function () {
+            yield from [];
+        };
+
         $this->post = Post::instance(
             1,
             'JSON API paints my bikeshed!',
             'Outside every fat man there was an even fatter man trying to close in',
             $this->author,
-            (function () { yield from []; })()
+            $func()
         );
 
         $actual = Encoder::instance(
