@@ -21,6 +21,7 @@ namespace Neomerx\Tests\JsonApi\Data\Models;
 use ArrayAccess;
 use ArrayIterator;
 use IteratorAggregate;
+use Traversable;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -59,7 +60,7 @@ class AuthorCModel implements ArrayAccess, IteratorAggregate
     /**
      * @inheritdoc
      */
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new ArrayIterator($this->properties);
     }
@@ -67,7 +68,7 @@ class AuthorCModel implements ArrayAccess, IteratorAggregate
     /**
      * @inheritdoc
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return array_key_exists($offset, $this->properties);
     }
@@ -75,6 +76,7 @@ class AuthorCModel implements ArrayAccess, IteratorAggregate
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->properties[$offset];
@@ -83,7 +85,7 @@ class AuthorCModel implements ArrayAccess, IteratorAggregate
     /**
      * @inheritdoc
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $this->properties[$offset] = $value;
     }
@@ -91,7 +93,7 @@ class AuthorCModel implements ArrayAccess, IteratorAggregate
     /**
      * @inheritdoc
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->properties[$offset]);
     }

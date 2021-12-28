@@ -21,6 +21,7 @@ namespace Neomerx\Tests\JsonApi\Data;
 use ArrayAccess;
 use ArrayIterator;
 use IteratorAggregate;
+use Traversable;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -35,7 +36,7 @@ class Collection implements ArrayAccess, IteratorAggregate
     /**
      * @inheritdoc
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return array_key_exists($offset, $this->data);
     }
@@ -43,6 +44,7 @@ class Collection implements ArrayAccess, IteratorAggregate
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->data[$offset];
@@ -51,7 +53,7 @@ class Collection implements ArrayAccess, IteratorAggregate
     /**
      * @inheritdoc
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $offset === null ? $this->data[] = $value : $this->data[$offset] = $value;
     }
@@ -59,7 +61,7 @@ class Collection implements ArrayAccess, IteratorAggregate
     /**
      * @inheritdoc
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->data[$offset]);
     }
@@ -67,7 +69,7 @@ class Collection implements ArrayAccess, IteratorAggregate
     /**
      * @inheritdoc
      */
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new ArrayIterator($this->data);
     }
