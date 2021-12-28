@@ -107,6 +107,16 @@ class ErrorCollection implements IteratorAggregate, ArrayAccess, Serializable, C
         unset($this->items[$offset]);
     }
 
+    public function __serialize(): array
+    {
+        return $this->items;
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->items = $data;
+    }
+
     /**
      * @return ErrorInterface[]
      */

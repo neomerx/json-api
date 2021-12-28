@@ -21,6 +21,8 @@ namespace Neomerx\Tests\JsonApi\Schema;
 use Neomerx\JsonApi\Contracts\Schema\ErrorInterface;
 use Neomerx\JsonApi\Schema\ErrorCollection;
 use Neomerx\Tests\JsonApi\BaseTestCase;
+use function serialize;
+use function unserialize;
 
 /**
  * @package Neomerx\Tests\JsonApi
@@ -88,6 +90,7 @@ class ErrorCollectionTest extends BaseTestCase
         $anotherCollection = new ErrorCollection();
         $anotherCollection->unserialize($serialized);
         $this->assertEquals($this->collection, $anotherCollection);
+        $this->assertEquals($this->collection, unserialize(serialize($this->collection)));
 
         $this->assertCount(2, $this->collection);
         unset($this->collection[0]);
